@@ -9,10 +9,11 @@ const read = (p) => readFileSync(p, 'utf8');
 
 test('branch protection docs match verified API state', () => {
   const gov = read('docs/GOVERNANCE.md');
-  assert.doesNotMatch(gov, /branch protection .*active and enforced/i);
-  assert.match(gov, /not active/i);
+  assert.doesNotMatch(gov, /branch protection .*not active/i);
+  assert.match(gov, /branch protection .*active/i);
   const ci = read('docs/CI.md');
-  assert.match(ci, /INACTIVE/i);
+  assert.doesNotMatch(ci, /INACTIVE \(.*404 Branch not/);
+  assert.match(ci, /ACTIVE/);
 });
 
 test('DB suite counts are current', () => {

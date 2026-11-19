@@ -60,32 +60,58 @@ function runClassifier({
     },
   });
   const content = readFileSync(outFile, 'utf8');
-  const m = content.match(/docs_only=(true|false)/);
-  assert.ok(m, `expected docs_only in GITHUB_OUTPUT, got: ${JSON.stringify(content)}`);
-  return m[1];
+  const docs = content.match(/docs_only=(true|false)/);
+  assert.ok(docs, `expected docs_only in GITHUB_OUTPUT, got: ${JSON.stringify(content)}`);
+  const docker = content.match(/docker_relevant=(true|false)/);
+  assert.ok(docker, `expected docker_relevant in GITHUB_OUTPUT, got: ${JSON.stringify(content)}`);
+  return { docsOnly: docs[1], dockerRelevant: docker[1] };
+}
+
+function docsOnly(opts) {
+  return runClassifier(opts).docsOnly;
 }
 
 test('docs-only change yields docs_only=true', () => {
-  assert.equal(runClassifier({ diff: 'docs/CI.md' }), 'true');
+  assert.equal(docsOnly({ diff: 'docs/CI.md' }), 'true');
 });
 
 test('code change yields docs_only=false', () => {
-  assert.equal(runClassifier({ diff: 'middleware/src/routes/account.js' }), 'false');
+  assert.equal(docsOnly({ diff: 'middleware/src/routes/account.js' }), 'false');
 });
 
 test('ci:full label forces docs_only=false', () => {
-  assert.equal(runClassifier({ diff: 'docs/CI.md', label: 'true' }), 'false');
+  assert.equal(docsOnly({ diff: 'docs/CI.md', label: 'true' }), 'false');
 });
 
 test('invalid base fails safe to docs_only=false', () => {
-  assert.equal(runClassifier({ diff: 'docs/CI.md', revOk: false, base: 'deadbeef' }), 'false');
+  assert.equal(docsOnly({ diff: 'docs/CI.md', revOk: false, base: 'deadbeef' }), 'false');
 });
 
 test('untracked code file forces docs_only=false', () => {
-  assert.equal(runClassifier({ diff: 'docs/CI.md', untracked: 'cobol/src/loan_core.cob' }), 'false');
+  assert.equal(docsOnly({ diff: 'docs/CI.md', untracked: 'cobol/src/loan_core.cob' }), 'false');
 });
 
 test('push event uses PUSH_BEFORE_SHA', () => {
   execSync(`bash -n ${SCRIPT}`);
-  assert.equal(runClassifier({ event: 'push', base: 'abc123', diff: 'docs/CI.md' }), 'true');
+  assert.equal(docsOnly({ event: 'push', base: 'abc123', diff: 'docs/CI.md' }), 'true');
+});
+
+test('docker change yields docker_relevant=true', () => {
+  assert.equal(runClassifier({ diff: 'Dockerfile' }).dockerRelevant, 'true');
+});
+
+test('cobol change yields docker_relevant=true', () => {
+  assert.equal(runClassifier({ diff: 'cobol/src/loan_core.cob' }).dockerRelevant, 'true');
+});
+
+test('docs-only change yields docker_relevant=false', () => {
+  assert.equal(runClassifier({ diff: 'docs/CI.md' }).dockerRelevant, 'false');
+});
+
+test('test-only change yields docker_relevant=false', () => {
+  assert.equal(runClassifier({ diff: 'tests/db/loan_db_tests.sh' }).dockerRelevant, 'false');
+});
+
+test('ci:full label forces docker_relevant=true', () => {
+  assert.equal(runClassifier({ diff: 'docs/CI.md', label: 'true' }).dockerRelevant, 'true');
 });

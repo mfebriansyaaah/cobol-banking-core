@@ -260,6 +260,28 @@ test('ci:full label forces a full run (CI-011)', () => {
   assert.match(ciYaml, /ci:full/, 'changes job must honor the ci:full label override');
 });
 
+test('docker-build runs on push and only for docker-relevant PRs', () => {
+  const ci = collectWorkflowJobs()['ci.yml'];
+  const cond = String(ci['docker-build'].if || '');
+  assert.match(cond, /docker_relevant/, 'docker-build must gate on docker_relevant');
+  assert.ok(cond.includes("github.event_name != 'pull_request'"), 'docker-build must always run on push');
+  const ciYaml = readFileSync(path.join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8');
+  assert.match(ciYaml, /docker_relevant: \$\{\{ steps\.classify\.outputs\.docker_relevant \}\}/);
+});
+
+test('push to main skips the PR-only DB gate (cost workstream)', () => {
+  const ci = collectWorkflowJobs()['ci.yml'];
+  for (const id of ['test', 'db-shards', 'db-aggregate']) {
+    const cond = String(ci[id].if || '');
+    assert.ok(
+      cond.includes("github.event_name == 'pull_request'"),
+      `${id} must run on pull_request only (push skips the DB gate)`,
+    );
+    assert.match(cond, /docs_only/, `${id} must keep the docs-only skip`);
+  }
+  assert.match(String(ci['coverage'].if || ''), /workflow_dispatch/, 'coverage must run on manual dispatch only');
+});
+
 test('mutation anchors are validated before the weekly run', () => {
   const all = collectWorkflowJobs();
   assert.match(
@@ -305,9 +327,9 @@ print(json.dumps(out))
 
 test('gateway coverage job is skipped on PRs; coverage-pr owns PR coverage (CI-009)', () => {
   const ci = collectWorkflowJobs()['ci.yml'];
-  assert.match(
-    String(ci['coverage'].if || ''),
-    /github\.event_name != 'pull_request'/,
+  const coverageIf = String(ci['coverage'].if || '');
+  assert.ok(
+    !coverageIf.includes("github.event_name == 'pull_request'"),
     'coverage job must be skipped on pull requests',
   );
   assert.match(

@@ -1,17 +1,17 @@
 # Governance and Merge Policy
 
-> **Status (2026-11-16):** repository is public (verified via API), but branch
-> protection on `main` is NOT active (API HTTP 404 Branch not protected).
-> Merge enforcement is local: `scripts/ci/premerge.sh`, required checks,
-> CODEOWNERS review, and the no-admin-bypass rule.
+> **Status (2026-11-19):** branch protection on `main` is ACTIVE
+> (verified via API: six required checks, `enforce_admins` on, force
+> pushes and branch deletion blocked). Merge enforcement is remote (GitHub)
+> plus local: `scripts/ci/premerge.sh`, required checks, CODEOWNERS review,
+> and the no-admin-bypass rule.
 > See [CI status](CI.md).
 
 ## Status
 
-This repository is public (verified 2026-11-16 via API). Branch protection on
-`main` is not active (verified 2026-11-16 via API, HTTP 404 Branch not
-protected). Enforcement is local until protection is restored via the runbook
-in [CI status](CI.md).
+Branch protection on `main` is active (verified 2026-11-19 via API).
+Enforcement is remote (required checks must pass before merge) plus local
+via the runbook in [CI status](CI.md).
 
 History: the repository was private on GitHub Free, where branch protection
 and rulesets returned HTTP 403; enforcement was local-only during R0.
@@ -65,8 +65,8 @@ rollback drill, backup and restore drill, schema drift check, and performance be
 
 A pull request is not mergeable under this policy unless the required checks
 (`lint`, `build`, `test`, `db aggregate`, `coverage`, `coverage-pr`) are green.
-Reviewers verify the evidence; server-side enforcement applies once branch
-protection is restored (currently NOT active, see Status above).
+Reviewers verify the evidence; server-side enforcement applies via the active
+branch protection (see Status above).
 
 CodeQL (`codeql.yml`, PR/push/schedule) scans the JavaScript gateway and the
 C crypto helpers (`cobol/c_lib`); COBOL is out of scope (no extractor
@@ -107,9 +107,8 @@ Silent exceptions are not permitted.
 
 ## Enforcement notes
 
-Branch protection is NOT currently active (verified 2026-11-16 via API, HTTP
-404 Branch not protected). The restore runbook lives in `docs/CI.md`; it is
-not active state. Target settings once restored on `main`:
+Branch protection is ACTIVE (verified 2026-11-19 via API). Active settings
+on `main`:
 
 - required status checks `lint`, `build`, `test`, `db aggregate`, `coverage`,
   `coverage-pr` (not strict: passing checks are required, an up-to-date
