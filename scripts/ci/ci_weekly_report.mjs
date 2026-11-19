@@ -7,7 +7,8 @@
 //
 // Usage:
 //   node scripts/ci/ci_weekly_report.mjs --pr PR.json --push PUSH.json
-//     --nightly N.json --coverage C.json --mutation M.json [--out summary.md]
+//     --nightly N.json --coverage C.json --mutation M.json [--cost COST.json]
+//     [--budget 10000] [--out summary.md]
 // Exit 0 on success (report written); exit 2 on usage/parse error. SLO
 // breaches do NOT affect the exit code; the workflow opens the issue.
 import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
@@ -23,12 +24,16 @@ export function parseArgs(args = argv) {
     const i = args.indexOf(name);
     return i >= 0 && i + 1 < args.length ? args[i + 1] : null;
   };
+  const budgetRaw = get('--budget');
+  const budget = budgetRaw === null ? 10000 : Math.max(1, parseInt(budgetRaw, 10) || 10000);
   return {
     pr: get('--pr'),
     push: get('--push'),
     nightly: get('--nightly'),
     coverage: get('--coverage'),
     mutation: get('--mutation'),
+    cost: get('--cost'),
+    budget,
     out: get('--out'),
   };
 }
@@ -114,7 +119,46 @@ export function scheduledCheck(stats, target) {
   return { measured, status: 'FAIL', note: '', target: `>= ${target}%` };
 }
 
-export function evaluateSLO({ pr, push, nightly, coverage, mutation }) {
+export function jobMinStatus(obj, limit) {
+  if (!obj || !Number.isFinite(obj.job_minutes_p50)) {
+    return { measured: 'n/a', status: 'WARN', note: 'no data' };
+  }
+  const runs = obj.runs ?? 0;
+  if (runs < 10) {
+    return { measured: `${obj.job_minutes_p50} job-min`, status: 'WARN', note: `LOW SAMPLE (${runs} runs)` };
+  }
+  if (obj.job_minutes_p50 <= limit) {
+    return { measured: `${obj.job_minutes_p50} job-min`, status: 'PASS', note: '' };
+  }
+  return { measured: `${obj.job_minutes_p50} job-min`, status: 'FAIL', note: '' };
+}
+
+export function wasteStatus(obj) {
+  if (!obj || !Number.isFinite(obj.failed_run_waste_pct)) {
+    return { measured: 'n/a', status: 'WARN', note: 'no data' };
+  }
+  const runs = obj.runs ?? 0;
+  if (runs < 10) {
+    return { measured: fmtPct(obj.failed_run_waste_pct), status: 'WARN', note: `LOW SAMPLE (${runs} runs)` };
+  }
+  if (obj.failed_run_waste_pct <= 8) {
+    return { measured: fmtPct(obj.failed_run_waste_pct), status: 'PASS', note: '' };
+  }
+  return { measured: fmtPct(obj.failed_run_waste_pct), status: 'FAIL', note: '' };
+}
+
+export function monthlyStatus(cost, budget) {
+  const target = `<= ${budget} job-min`;
+  if (!cost || cost.error || !Number.isFinite(cost.total_job_minutes)) {
+    return { measured: 'n/a', status: 'WARN', note: 'LOW CONFIDENCE', target };
+  }
+  if (cost.total_job_minutes <= budget) {
+    return { measured: `${cost.total_job_minutes} job-min`, status: 'PASS', note: '', target };
+  }
+  return { measured: `${cost.total_job_minutes} job-min`, status: 'FAIL', note: '', target };
+}
+
+export function evaluateSLO({ pr, push, nightly, coverage, mutation, cost = null, budget = 10000 }) {
   const checks = [];
   const reasons = [];
 
@@ -137,6 +181,18 @@ export function evaluateSLO({ pr, push, nightly, coverage, mutation }) {
 
   const cascaded = cascadedStatus(pr);
   pushCheck('PR cascaded failures', cascaded.measured, '0', cascaded.status, cascaded.note);
+
+  const prMin = jobMinStatus(pr, 22);
+  pushCheck('PR p50 job-min', prMin.measured, '<= 22 job-min', prMin.status, prMin.note);
+
+  const pushMin = jobMinStatus(push, 18);
+  pushCheck('Push p50 job-min', pushMin.measured, '<= 18 job-min', pushMin.status, pushMin.note);
+
+  const waste = wasteStatus(pr);
+  pushCheck('PR failed-run waste', waste.measured, '<= 8%', waste.status, waste.note);
+
+  const monthly = monthlyStatus(cost, budget);
+  pushCheck('Monthly job-min (30d)', monthly.measured, monthly.target, monthly.status, monthly.note);
 
   for (const [label, stats, target] of [
     ['Nightly success', nightly, 90],
@@ -174,6 +230,14 @@ export function statusBlock(evaluated, generatedAt) {
   ];
 }
 
+export function wasteRows(pr, push) {
+  return [
+    `| job-min total | ${cell(pr && pr.job_minutes_total)} | ${cell(push && push.job_minutes_total)} |`,
+    `| job-min failed | ${cell(pr && pr.job_minutes_failed)} | ${cell(push && push.job_minutes_failed)} |`,
+    `| failed-run waste | ${cell(pr && fmtPct(pr.failed_run_waste_pct))} | ${cell(push && fmtPct(push.failed_run_waste_pct))} |`,
+  ];
+}
+
 export function prPushTable(pr, push) {
   return [
     '## PR / push (ci_metrics)',
@@ -185,6 +249,7 @@ export function prPushTable(pr, push) {
     `| failure rate | ${cell(pr && fmtPct(pr.failure_rate_pct))} | ${cell(push && fmtPct(push.failure_rate_pct))} |`,
     `| primary failure rate | ${cell(pr && fmtPct(pr.primary_failure_rate_pct))} | ${cell(push && fmtPct(push.primary_failure_rate_pct))} |`,
     `| cascaded failures | ${cell(pr && pr.cascaded_failures)} | ${cell(push && push.cascaded_failures)} |`,
+    ...wasteRows(pr, push),
     '',
   ];
 }
@@ -222,12 +287,40 @@ export function sloTable(checks) {
   ];
 }
 
-export function renderMarkdown({ pr, push, nightly, coverage, mutation, evaluated, generatedAt }) {
+export function costSection(cost, budget) {
+  if (!cost) return [];
+  if (cost.error) return ['## Cost (30d)', '', `Cost data unavailable: ${cost.error} (LOW CONFIDENCE)`, ''];
+  const names = Object.keys(cost.by_workflow || {}).sort((a, b) => cost.by_workflow[b] - cost.by_workflow[a]);
+  return [
+    '## Cost (30d)',
+    '',
+    `Budget: <= ${budget} job-min. Measured over ${cost.days} day(s) since ${cost.since} (${cost.runs} completed runs).`,
+    '',
+    '| Workflow | Job-min |',
+    '|---|---:|',
+    ...names.map((n) => `| ${n} | ${cost.by_workflow[n]} |`),
+    `| total | ${cost.total_job_minutes} |`,
+    '',
+  ];
+}
+
+export function renderMarkdown({
+  pr,
+  push,
+  nightly,
+  coverage,
+  mutation,
+  evaluated,
+  generatedAt,
+  cost = null,
+  budget = 10000,
+}) {
   const lines = [
     ...statusBlock(evaluated, generatedAt),
     ...prPushTable(pr, push),
     ...failedJobsSection(pr),
     ...scheduledTable(nightly, coverage, mutation),
+    ...costSection(cost, budget),
     ...sloTable(evaluated.checks),
   ];
   return `${lines.join('\n')}\n`;
@@ -236,7 +329,7 @@ export function renderMarkdown({ pr, push, nightly, coverage, mutation, evaluate
 if (import.meta.url === `file://${process.argv[1]}`) {
   if (hasFlag('--help') || hasFlag('-h')) {
     console.log(
-      'usage: ci_weekly_report.mjs --pr PR.json --push PUSH.json --nightly N.json --coverage C.json --mutation M.json [--out summary.md]',
+      'usage: ci_weekly_report.mjs --pr PR.json --push PUSH.json --nightly N.json --coverage C.json --mutation M.json [--cost COST.json] [--budget 10000] [--out summary.md]',
     );
     process.exit(0);
   }
@@ -251,12 +344,21 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   let nightlyRuns;
   let coverageRuns;
   let mutationRuns;
+  let cost = null;
   try {
     pr = readJson(args.pr, 'PR metrics');
     push = readJson(args.push, 'push metrics');
     nightlyRuns = readRuns(args.nightly);
     coverageRuns = readRuns(args.coverage);
     mutationRuns = readRuns(args.mutation);
+    if (args.cost) {
+      try {
+        cost = readJson(args.cost, 'cost');
+      } catch (e) {
+        console.error(`warning: ${e.message} (LOW CONFIDENCE)`);
+        cost = { error: e.message };
+      }
+    }
   } catch (e) {
     console.error(`FAIL: ${e.message}`);
     process.exit(2);
@@ -264,9 +366,19 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const nightly = scheduledStats(nightlyRuns);
   const coverage = scheduledStats(coverageRuns);
   const mutation = scheduledStats(mutationRuns);
-  const evaluated = evaluateSLO({ pr, push, nightly, coverage, mutation });
+  const evaluated = evaluateSLO({ pr, push, nightly, coverage, mutation, cost, budget: args.budget });
   const generatedAt = new Date().toISOString();
-  const text = renderMarkdown({ pr, push, nightly, coverage, mutation, evaluated, generatedAt });
+  const text = renderMarkdown({
+    pr,
+    push,
+    nightly,
+    coverage,
+    mutation,
+    evaluated,
+    generatedAt,
+    cost,
+    budget: args.budget,
+  });
   process.stdout.write(text);
   if (args.out) writeFileSync(args.out, text);
   const summary = process.env.GITHUB_STEP_SUMMARY;

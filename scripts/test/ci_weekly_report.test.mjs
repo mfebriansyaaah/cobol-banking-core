@@ -13,7 +13,10 @@ const goodPr = {
   runs: 20,
   wall_clock_p50_sec: 500,
   wall_clock_p50_human: '8m 20s',
-  job_minutes_p50: 26,
+  job_minutes_p50: 20,
+  job_minutes_total: 600,
+  job_minutes_failed: 30,
+  failed_run_waste_pct: 5,
   failure_rate_pct: 10,
   primary_failure_rate_pct: 10,
   cascaded_failures: 0,
@@ -21,11 +24,24 @@ const goodPr = {
 };
 const goodPush = {
   runs: 17,
+  job_minutes_p50: 15,
+  job_minutes_total: 300,
+  job_minutes_failed: 0,
+  failed_run_waste_pct: 0,
   failure_rate_pct: 0,
   primary_failure_rate_pct: 0,
   cascaded_failures: 0,
 };
 const goodSched = { total: 20, success: 19, pct: 95 };
+const goodCost = {
+  days: 30,
+  since: '2026-10-20',
+  repo: 'o/r',
+  runs: 50,
+  total_job_minutes: 5000,
+  by_workflow: { CI: 4000, Nightly: 500 },
+};
+const goodBudget = 10000;
 
 test('scheduledStats ignores in-progress runs and handles empty', () => {
   assert.deepEqual(scheduledStats([]), { total: 0, success: 0, pct: null });
@@ -47,6 +63,8 @@ test('all-green evaluates PASS', () => {
     nightly: goodSched,
     coverage: goodSched,
     mutation: { total: 10, success: 9, pct: 90 },
+    cost: goodCost,
+    budget: goodBudget,
   });
   assert.equal(evaluated.overall, 'PASS');
   assert.deepEqual(evaluated.reasons, []);
@@ -59,6 +77,8 @@ test('PR failure rate breach evaluates FAIL', () => {
     nightly: goodSched,
     coverage: goodSched,
     mutation: goodSched,
+    cost: goodCost,
+    budget: goodBudget,
   });
   assert.equal(evaluated.overall, 'FAIL');
   assert.match(evaluated.reasons.join('; '), /PR failure rate/);
@@ -71,6 +91,8 @@ test('small samples warn instead of failing', () => {
     nightly: { total: 2, success: 2, pct: 100 },
     coverage: { total: 0, success: 0, pct: null },
     mutation: { total: 1, success: 1, pct: 100 },
+    cost: goodCost,
+    budget: goodBudget,
   });
   assert.equal(evaluated.overall, 'WARN');
   assert.match(evaluated.reasons.join('; '), /LOW SAMPLE/);
@@ -83,6 +105,8 @@ test('cascaded failures evaluate FAIL', () => {
     nightly: goodSched,
     coverage: goodSched,
     mutation: goodSched,
+    cost: goodCost,
+    budget: goodBudget,
   });
   assert.equal(evaluated.overall, 'FAIL');
   assert.match(evaluated.reasons.join('; '), /cascaded/);
@@ -95,6 +119,8 @@ test('rendered markdown puts Status before tables', () => {
     nightly: goodSched,
     coverage: goodSched,
     mutation: goodSched,
+    cost: goodCost,
+    budget: goodBudget,
   });
   const text = renderMarkdown({
     pr: goodPr,
@@ -104,11 +130,14 @@ test('rendered markdown puts Status before tables', () => {
     mutation: goodSched,
     evaluated,
     generatedAt: '2026-11-19T00:00:00.000Z',
+    cost: goodCost,
+    budget: goodBudget,
   });
   const statusIdx = text.indexOf('## Status');
   assert.ok(statusIdx >= 0, 'missing ## Status');
   assert.ok(text.includes('- Overall: PASS'), 'missing Overall');
   assert.ok(statusIdx < text.indexOf('## SLO checks'), 'Status must come first');
+  assert.ok(text.includes('## Cost (30d)'), 'missing cost section');
 });
 
 test('CLI renders report from JSON files', () => {
@@ -118,6 +147,7 @@ test('CLI renders report from JSON files', () => {
   const nightlyFile = path.join(dir, 'nightly.json');
   const coverageFile = path.join(dir, 'coverage.json');
   const mutationFile = path.join(dir, 'mutation.json');
+  const costFile = path.join(dir, 'cost.json');
   const outFile = path.join(dir, 'summary.md');
   writeFileSync(prFile, JSON.stringify(goodPr));
   writeFileSync(pushFile, JSON.stringify(goodPush));
@@ -126,6 +156,7 @@ test('CLI renders report from JSON files', () => {
   writeFileSync(nightlyFile, runs(20, 19));
   writeFileSync(coverageFile, runs(20, 19));
   writeFileSync(mutationFile, runs(10, 9));
+  writeFileSync(costFile, JSON.stringify(goodCost));
   const stdout = execFileSync(
     process.execPath,
     [
@@ -140,6 +171,10 @@ test('CLI renders report from JSON files', () => {
       coverageFile,
       '--mutation',
       mutationFile,
+      '--cost',
+      costFile,
+      '--budget',
+      '10000',
       '--out',
       outFile,
     ],
@@ -147,4 +182,60 @@ test('CLI renders report from JSON files', () => {
   );
   assert.match(stdout, /## Status/);
   assert.match(stdout, /- Overall: PASS/);
+});
+
+test('PR job-min breach evaluates FAIL', () => {
+  const evaluated = evaluateSLO({
+    pr: { ...goodPr, job_minutes_p50: 30 },
+    push: goodPush,
+    nightly: goodSched,
+    coverage: goodSched,
+    mutation: goodSched,
+    cost: goodCost,
+    budget: goodBudget,
+  });
+  assert.equal(evaluated.overall, 'FAIL');
+  assert.match(evaluated.reasons.join('; '), /PR p50 job-min/);
+});
+
+test('waste breach evaluates FAIL', () => {
+  const evaluated = evaluateSLO({
+    pr: { ...goodPr, failed_run_waste_pct: 25 },
+    push: goodPush,
+    nightly: goodSched,
+    coverage: goodSched,
+    mutation: goodSched,
+    cost: goodCost,
+    budget: goodBudget,
+  });
+  assert.equal(evaluated.overall, 'FAIL');
+  assert.match(evaluated.reasons.join('; '), /failed-run waste/);
+});
+
+test('monthly budget breach evaluates FAIL', () => {
+  const evaluated = evaluateSLO({
+    pr: goodPr,
+    push: goodPush,
+    nightly: goodSched,
+    coverage: goodSched,
+    mutation: goodSched,
+    cost: { ...goodCost, total_job_minutes: 15000 },
+    budget: goodBudget,
+  });
+  assert.equal(evaluated.overall, 'FAIL');
+  assert.match(evaluated.reasons.join('; '), /Monthly job-min/);
+});
+
+test('missing cost warns LOW CONFIDENCE', () => {
+  const evaluated = evaluateSLO({
+    pr: goodPr,
+    push: goodPush,
+    nightly: goodSched,
+    coverage: goodSched,
+    mutation: goodSched,
+    cost: null,
+    budget: goodBudget,
+  });
+  assert.equal(evaluated.overall, 'WARN');
+  assert.match(evaluated.reasons.join('; '), /LOW CONFIDENCE/);
 });
