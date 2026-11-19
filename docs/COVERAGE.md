@@ -71,7 +71,10 @@ whole-codebase coverage.
   (`manifest/tier1.json`) must sit at or above **70%** line coverage.
   Modules below the floor are recorded in `tests/coverage_floor_backlog.txt`
   with reason instead of dragging silently; the gate fails unlisted
-  sub-floor modules and stale (reached-floor) entries alike.
+  sub-floor modules. A backlogged module that reaches the floor is a
+  bookkeeping warning (`WARN: FLOOR-BACKLOG STALE`), not a gate failure —
+  remove it at the next coverage review. The weekly `ci-report` flags
+  entries stale for more than 7 days via the `ci-health` issue.
 - Ratchet: `tests/coverage_baseline.txt` gateway values may not drop by more
   than **1.0 percentage point**. Lower a baseline only for a deliberate change
   that removes exercised code, never to accept a regression. (The COBOL total
