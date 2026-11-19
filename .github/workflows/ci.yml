@@ -171,6 +171,20 @@ jobs:
         with:
           fetch-depth: 0
 
+      # COBOL object cache (shared with coverage-pr): warm builds recompile
+      # only changed modules. Key pins the toolchain (GnuCOBOL 3.2) plus every
+      # build input; objects must never cross compiler versions.
+      - name: Restore COBOL build cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: cobol/build
+          key: >
+            cobol-build-${{ runner.os }}-gnucobol3.2-${{
+            hashFiles('cobol/src/**', 'cobol/copy/**', 'cobol/c_lib/**',
+            'build.sh', 'cobol/Makefile', 'scripts/ci/install_gnucobol.sh') }}
+          restore-keys: |
+            cobol-build-${{ runner.os }}-gnucobol3.2-
+
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
         with:
@@ -180,7 +194,10 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            gnucobol libmysqlclient-dev build-essential
+            libgmp-dev libmysqlclient-dev build-essential
+
+      - name: Setup GnuCOBOL
+        uses: ./.github/actions/setup-cobol
 
       - name: Verify manifest
         run: node scripts/check_manifest.mjs .
@@ -327,6 +344,7 @@ jobs:
     outputs:
       docs_only: ${{ steps.classify.outputs.docs_only }}
       docker_relevant: ${{ steps.classify.outputs.docker_relevant }}
+      coverage_relevant: ${{ steps.classify.outputs.coverage_relevant }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
@@ -941,7 +959,13 @@ jobs:
 
   coverage-pr:
     name: coverage-pr
-    if: github.event_name == 'pull_request' && needs.changes.outputs.docs_only != 'true'
+    # Impact-selected: skip the curated COBOL measurement when the change set
+    # touches no curated input (docs, manifest-only, ...). Gateway coverage
+    # still runs inside every other suite; a skipped check counts as success.
+    if: >
+      github.event_name == 'pull_request' &&
+      needs.changes.outputs.docs_only != 'true' &&
+      needs.changes.outputs.coverage_relevant == 'true'
     needs: [build, db-snapshot, changes]
     runs-on: ubuntu-24.04
     timeout-minutes: 45

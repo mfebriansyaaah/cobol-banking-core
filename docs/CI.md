@@ -51,7 +51,7 @@ the gate and waste minutes.
 
 | Event | Workflow | Jobs |
 | --- | --- | --- |
-| `pull_request` | `ci.yml` | lint, build, changes (always); docker-build (only when the change set can affect the image); db-snapshot, schema-drift, test, db-shards (2), db-aggregate, coverage-pr (all skipped on docs-only) |
+| `pull_request` | `ci.yml` | lint, build, changes (always); docker-build (only when the change set can affect the image); db-snapshot, schema-drift, test, db-shards (2), db-aggregate, coverage-pr (all skipped on docs-only; `coverage-pr` also skipped when no curated COBOL input changed) |
 | `push: [main]` | `ci.yml` (+ `db-ops` on push/dispatch) | lint, build, docker-build, changes, db-snapshot, schema-drift, db-ops. The PR-only DB gate (`test`, `db-shards`, `db-aggregate`) and `coverage` do not run on push; branch protection guarantees they ran on the PR. `coverage` runs on manual dispatch. |
 | nightly `0 2 * * *` | `nightly.yml` | full-twice (`full twice + drills`) + gateway coverage + benchmark + load test + flake compare |
 | nightly `30 2 * * *` | `coverage.yml` | coverage (full COBOL + gateway measurement) |
@@ -183,7 +183,7 @@ Rules:
 | `ci.yml` db-shards (×2) | 30 min each | PR-only, one shard per runner |
 | `ci.yml` db-aggregate | 15 min | PR-only merge + inventory + count gate (skipped with a notice when `test` did not succeed) + summary |
 | `ci.yml` coverage | 20 min | manual dispatch only (gateway-only smoke gate) |
-| `ci.yml` coverage-pr | 45 min | curated COBOL, impact-selected (trigger groups in `docs/COVERAGE.md`) |
+| `ci.yml` coverage-pr | 45 min | curated COBOL, impact-selected: skipped unless the change set touches curated inputs (`coverage_relevant`; trigger groups in `docs/COVERAGE.md`) |
 | `ci.yml` db-ops | 20 min | rollback, backup/restore (push `main` + dispatch only; not a PR required check) |
 | `codeql.yml` analyze | 30 min | JS + C, SARIF uploaded to code scanning |
 | `coverage.yml` coverage | 45 min | full COBOL + gateway |

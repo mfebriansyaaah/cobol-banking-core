@@ -64,7 +64,9 @@ function runClassifier({
   assert.ok(docs, `expected docs_only in GITHUB_OUTPUT, got: ${JSON.stringify(content)}`);
   const docker = content.match(/docker_relevant=(true|false)/);
   assert.ok(docker, `expected docker_relevant in GITHUB_OUTPUT, got: ${JSON.stringify(content)}`);
-  return { docsOnly: docs[1], dockerRelevant: docker[1] };
+  const coverage = content.match(/coverage_relevant=(true|false)/);
+  assert.ok(coverage, `expected coverage_relevant in GITHUB_OUTPUT, got: ${JSON.stringify(content)}`);
+  return { docsOnly: docs[1], dockerRelevant: docker[1], coverageRelevant: coverage[1] };
 }
 
 function docsOnly(opts) {
@@ -114,4 +116,28 @@ test('test-only change yields docker_relevant=false', () => {
 
 test('ci:full label forces docker_relevant=true', () => {
   assert.equal(runClassifier({ diff: 'docs/CI.md', label: 'true' }).dockerRelevant, 'true');
+});
+
+test('curated COBOL change yields coverage_relevant=true', () => {
+  assert.equal(runClassifier({ diff: 'cobol/src/loan_core.cob' }).coverageRelevant, 'true');
+});
+
+test('docs-only change yields coverage_relevant=false', () => {
+  assert.equal(runClassifier({ diff: 'docs/CI.md' }).coverageRelevant, 'false');
+});
+
+test('gateway change yields coverage_relevant=true', () => {
+  assert.equal(runClassifier({ diff: 'middleware/src/routes/account.js' }).coverageRelevant, 'true');
+});
+
+test('manifest-only change yields coverage_relevant=false', () => {
+  assert.equal(runClassifier({ diff: 'manifest/modules.json' }).coverageRelevant, 'false');
+});
+
+test('ci:full label forces coverage_relevant=true', () => {
+  assert.equal(runClassifier({ diff: 'docs/CI.md', label: 'true' }).coverageRelevant, 'true');
+});
+
+test('invalid base fails safe to coverage_relevant=true', () => {
+  assert.equal(runClassifier({ diff: 'docs/CI.md', revOk: false, base: 'deadbeef' }).coverageRelevant, 'true');
 });
