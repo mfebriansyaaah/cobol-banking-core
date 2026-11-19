@@ -532,7 +532,14 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            gnucobol libmysqlclient-dev build-essential mariadb-client
+            libgmp-dev libmysqlclient-dev build-essential mariadb-client
+
+      # GnuCOBOL 3.2 runtime (matches the cobol-binary artifact built by the
+      # build job): the binary links libcob.so.4 from 3.2, which the apt
+      # gnucobol 3.1.2 cannot provide. setup-cobol also exports
+      # LD_LIBRARY_PATH for every later step in the job.
+      - name: Setup GnuCOBOL
+        uses: ./.github/actions/setup-cobol
 
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
@@ -666,7 +673,14 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            gnucobol libmysqlclient-dev build-essential mariadb-client
+            libgmp-dev libmysqlclient-dev build-essential mariadb-client
+
+      # GnuCOBOL 3.2 runtime (matches the cobol-binary artifact built by the
+      # build job): the binary links libcob.so.4 from 3.2, which the apt
+      # gnucobol 3.1.2 cannot provide. setup-cobol also exports
+      # LD_LIBRARY_PATH for every later step in the job.
+      - name: Setup GnuCOBOL
+        uses: ./.github/actions/setup-cobol
 
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
@@ -859,7 +873,14 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            gnucobol libmysqlclient-dev build-essential mariadb-client
+            libgmp-dev libmysqlclient-dev build-essential mariadb-client
+
+      # GnuCOBOL 3.2 runtime (matches the cobol-binary artifact built by the
+      # build job): the binary links libcob.so.4 from 3.2, which the apt
+      # gnucobol 3.1.2 cannot provide. setup-cobol also exports
+      # LD_LIBRARY_PATH for every later step in the job.
+      - name: Setup GnuCOBOL
+        uses: ./.github/actions/setup-cobol
 
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0

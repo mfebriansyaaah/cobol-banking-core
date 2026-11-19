@@ -202,7 +202,10 @@ Shared bootstrap lives in composite actions (`.github/actions/setup-cobol`,
 six DB consumers (`test`, `db-shards`, `coverage`, `coverage-pr`, `db-ops`,
 `nightly.yml` `full-twice`) share one restore → grants → seed order instead
 of duplicated inline shell. `setup-cobol` pins the GnuCOBOL 3.2 toolchain for
-the coverage jobs; `upload-diagnostics` standardizes failure forensics.
+the `build` job and every job that runs the `cobol-binary` artifact (`test`,
+`db-shards`, `coverage`, `coverage-pr`): the artifact links 3.2's
+`libcob.so.4`, which the apt gnucobol 3.1.2 runtime cannot provide.
+`upload-diagnostics` standardizes failure forensics.
 
 The `db-snapshot` job publishes one migrated gzip snapshot per run
 (`db-snapshot` artifact, retention 1 day) so DB jobs can restore instead of
