@@ -11,6 +11,9 @@
 //   node scripts/check_coverage_modules.mjs --json coverage/cobol.json
 //       [--baseline tests/coverage_module_baseline.txt]
 //       [--tolerance 1.0] [--floor 70] [--write]
+//       [--allow-stale] treats stale floor-backlog entries (module reached
+//       the floor but still listed) as warnings, not failures. CI passes
+//       --allow-stale; the weekly report flags entries stale >7 days.
 //   --write updates the baseline from the JSON (review the diff; never
 //   hand-edit, never lower to make CI green).
 // Exit: 0 ok, 1 mismatch, 2 usage error.
@@ -24,6 +27,7 @@ let tolerance = 1.0;
 let floor = 0;
 let floorBacklogPath = path.resolve('tests/coverage_floor_backlog.txt');
 let write = false;
+let allowStale = false;
 for (let i = 0; i < args.length; i += 1) {
   const a = args[i];
   if (a === '--json') ((jsonPath = args[i + 1] ?? jsonPath), (i += 1));
@@ -31,9 +35,12 @@ for (let i = 0; i < args.length; i += 1) {
   else if (a === '--tolerance') ((tolerance = Number(args[i + 1] ?? tolerance)), (i += 1));
   else if (a === '--floor') ((floor = Number(args[i + 1] ?? floor)), (i += 1));
   else if (a === '--floor-backlog') ((floorBacklogPath = path.resolve(args[i + 1] ?? floorBacklogPath)), (i += 1));
+  else if (a === '--allow-stale') allowStale = true;
   else if (a === '--write') write = true;
   else if (a === '--help' || a === '-h') {
-    console.log('usage: check_coverage_modules.mjs --json FILE [--baseline FILE] [--tolerance PP] [--write]');
+    console.log(
+      'usage: check_coverage_modules.mjs --json FILE [--baseline FILE] [--tolerance PP] [--floor N] [--allow-stale] [--write]',
+    );
     process.exit(0);
   } else {
     console.error(`unknown argument: ${a}`);
@@ -170,8 +177,12 @@ if (floor > 0) {
     const v = actual.get(m);
     if (v >= floor) {
       if (backlogged.has(m)) {
-        console.error(`FLOOR-BACKLOG STALE: ${m} reached ${v}% (>= ${floor}%); remove it`);
-        floorFailed = true;
+        if (allowStale) {
+          console.error(`WARN: FLOOR-BACKLOG STALE: ${m} reached ${v}% (>= ${floor}%); remove it`);
+        } else {
+          console.error(`FLOOR-BACKLOG STALE: ${m} reached ${v}% (>= ${floor}%); remove it`);
+          floorFailed = true;
+        }
       }
     } else if (!backlogged.has(m)) {
       console.error(`FLOOR VIOLATION: Tier-1 ${m} at ${v}% (< ${floor}%); add tests or record it`);

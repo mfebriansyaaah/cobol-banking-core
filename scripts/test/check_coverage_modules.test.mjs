@@ -1,7 +1,7 @@
 // Unit tests for scripts/check_coverage_modules.mjs. No database, no build.
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -123,4 +123,42 @@ test('non-numeric baseline fails with usage error', () => {
   } catch (e) {
     assert.equal(e.status, 1);
   }
+});
+
+test('stale floor-backlog entry fails by default', () => {
+  const d = makeRoot({
+    baseline: 'wallet_core 70.00\n',
+    modules: [row('wallet_core', 75.0)],
+  });
+  const backlog = path.join(d, 'backlog.txt');
+  writeFileSync(backlog, 'wallet_core reason\n');
+  const err = runFail(d, ['--floor', '70', '--floor-backlog', backlog]);
+  assert.match(err, /FLOOR-BACKLOG STALE: wallet_core/);
+});
+
+test('--allow-stale turns stale floor-backlog into a warning', () => {
+  const d = makeRoot({
+    baseline: 'wallet_core 70.00\n',
+    modules: [row('wallet_core', 75.0)],
+  });
+  const backlog = path.join(d, 'backlog.txt');
+  writeFileSync(backlog, 'wallet_core reason\n');
+  const r = spawnSync(
+    process.execPath,
+    [
+      GATE,
+      '--json',
+      path.join(d, 'cobol.json'),
+      '--baseline',
+      path.join(d, 'baseline.txt'),
+      '--floor',
+      '70',
+      '--floor-backlog',
+      backlog,
+      '--allow-stale',
+    ],
+    { encoding: 'utf8' },
+  );
+  assert.equal(r.status, 0, r.stderr || r.stdout);
+  assert.match(r.stderr, /WARN: FLOOR-BACKLOG STALE: wallet_core/);
 });

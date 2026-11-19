@@ -339,7 +339,9 @@ check_value cobol-total "$COBOL_TOTAL" "$FLOOR" "" || SUITE_FAILED=1
 # binding check.
 # Per-module ratchet: no curated module may quietly collapse while the total
 # still looks fine. Baseline lives in tests/coverage_module_baseline.txt.
-node "$ROOT/scripts/check_coverage_modules.mjs" --json "$COBOL_JSON_FILE" --floor 70 || SUITE_FAILED=1
+# --allow-stale: a backlogged module that reached the floor is a bookkeeping
+# warning, not a gate failure (the weekly ci-report flags entries stale >7d).
+node "$ROOT/scripts/check_coverage_modules.mjs" --json "$COBOL_JSON_FILE" --floor 70 --allow-stale || SUITE_FAILED=1
 # Copybook union ratchet (step D): shared procedure paragraphs are the
 # highest-leverage code, so the union gets its own ±1.0pp ratchet next to the
 # per-module one. No floor: the union has no floor history, and a floor would
