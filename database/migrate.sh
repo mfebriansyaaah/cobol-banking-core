@@ -26,6 +26,12 @@ DB_PORT="${DB_PORT:-3306}"
 DB_MIGRATE_USER="${DB_MIGRATE_USER:-$DB_USER}"
 DB_MIGRATE_PASS="${DB_MIGRATE_PASS:-$DB_PASS}"
 
+# Baseline snapshot override (test isolation):
+# tests/db/migration_baseline_db_tests.sh points this at a throwaway copy so
+# the tamper probe never touches the committed database/schema_v2.sql.gz, even
+# when shard workers share one workspace.
+BASELINE_FILE="${BASELINE_FILE:-database/schema_v2.sql.gz}"
+
 # Stored objects record the session charset at CREATE time (notably
 # information_schema.TRIGGERS.CHARACTER_SET_CLIENT), so the migrate client
 # version must not leak into the built schema: without the pin, a 10.11
@@ -171,10 +177,10 @@ if [ "$1" = "--check" ]; then
         # A recorded baseline pins its snapshot file: an edited (or deleted)
         # schema_v2.sql.gz fails here instead of silently changing fresh installs.
         if is_applied "baseline_v2"; then
-            want_baseline="$(baseline_sha "database/schema_v2.sql.gz" 2>/dev/null || true)"
+            want_baseline="$(baseline_sha "$BASELINE_FILE" 2>/dev/null || true)"
             have_baseline="$(mysqlc -N -B -e "SELECT checksum FROM schema_migrations WHERE version='baseline_v2';" 2>/dev/null)"
             if [ "$have_baseline" != "$want_baseline" ]; then
-                echo "checksum MISMATCH: baseline snapshot database/schema_v2.sql.gz was edited after this database was baselined (restore the file or re-baseline deliberately): baseline_v2"
+                echo "checksum MISMATCH: baseline snapshot $BASELINE_FILE was edited after this database was baselined (restore the file or re-baseline deliberately): baseline_v2"
                 exit 1
             fi
         fi
@@ -221,7 +227,7 @@ fi
 # schema_v2.sql.gz is immutable once recorded (its hash rides the marker row);
 # --check reports an edited baseline file as a baseline_v2 mismatch.
 if [ "$1" = "--baseline" ]; then
-    BASELINE_FILE="database/schema_v2.sql.gz"
+    : "${BASELINE_FILE:=database/schema_v2.sql.gz}"
     [ -f "$BASELINE_FILE" ] || { echo "missing baseline snapshot: $BASELINE_FILE" >&2; exit 2; }
     gzip -t "$BASELINE_FILE" 2>/dev/null || { echo "baseline snapshot is not a valid gzip stream: $BASELINE_FILE" >&2; exit 2; }
     # Pre-CREATE state (the unconditional CREATE TABLE below runs for every

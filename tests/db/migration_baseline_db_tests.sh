@@ -3,8 +3,10 @@
 # record every covered migration as skipped; existing databases verify clean
 # before the baseline marker lands; partial databases fail loudly; the
 # committed baseline is byte-identical to the build output. Operates only on
-# throwaway databases (guarded names) plus the committed files (trap-safe
-# restore for the tamper probe), so the runner database is untouched.
+# throwaway databases (guarded names) plus a throwaway copy of the baseline
+# file, so the runner database and the committed files are untouched — even
+# when shard workers share one workspace, no worker ever observes a
+# half-written baseline.
 set -u
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 # shellcheck disable=SC1091
@@ -21,11 +23,18 @@ FRESH_DB="cobol_db_test_baseline_fresh_$$"
 PART_DB="cobol_db_test_baseline_part_$$"
 db_require_safe_target "$FRESH_DB"
 db_require_safe_target "$PART_DB"
+# The tamper probe must never touch the committed file: parallel shard
+# workers share one workspace, and a half-written schema_v2.sql.gz would
+# break every concurrent baseline --check. All migrate invocations below
+# run against this throwaway copy via BASELINE_FILE (see database/migrate.sh).
+BASELINE_COPY="$(mktemp "${TMPDIR:-/tmp}/schema-v2.XXXXXX.sql.gz")"
+cp "$ROOT/database/schema_v2.sql.gz" "$BASELINE_COPY"
 # Invoked only via `trap ... EXIT`, which shellcheck cannot trace.
 # shellcheck disable=SC2317
 cleanup_dbs() {
     mysql_migrate -e "DROP DATABASE IF EXISTS \`$FRESH_DB\`;" >/dev/null 2>&1 || true
     mysql_migrate -e "DROP DATABASE IF EXISTS \`$PART_DB\`;" >/dev/null 2>&1 || true
+    rm -f "${BASELINE_COPY:-}" "${TAMPERED:-}" 2>/dev/null || true
 }
 trap cleanup_dbs EXIT
 
@@ -33,6 +42,7 @@ migrate_as() { # $1=db $2...=migrate args; env (not VAR=x) avoids SC2097
     env "DB_NAME=$1" "DB_HOST=${DB_HOST:-localhost}" "DB_PORT=${DB_PORT:-3306}" \
         "DB_MIGRATE_USER=${DB_MIGRATE_USER:-$DB_USER}" "DB_MIGRATE_PASS=${DB_MIGRATE_PASS:-$DB_PASS}" \
         "DB_USER=${DB_USER:-cobol_user}" "DB_PASS=${DB_PASS:-cobol_pass}" \
+        "BASELINE_FILE=$BASELINE_COPY" \
         "$ROOT/database/migrate.sh" "${@:2}"
 }
 mysql_db() { # $1=db, rest=mysql args; positional db selects the database
@@ -89,22 +99,20 @@ assert_match "probe row survived upgrade" "$(mysql_migrate -N -B -e "SELECT COUN
 migrate_as "$PART_DB" --check >/dev/null 2>&1
 assert_match "upgraded db passes --check" "$?" "^0$"
 
-# 14-16. Tampering with the baseline snapshot trips --check; restore heals.
-BASELINE_FILE="$ROOT/database/schema_v2.sql.gz"
-BACKUP="$(mktemp "${TMPDIR:-/tmp}/baseline-probe.XXXXXX.sql.gz")"
+# 14-16. Tampering with the baseline snapshot trips --check; a fresh copy heals.
+# The probe operates on the throwaway copy only: the committed file is never
+# opened for writing, so parallel shard workers cannot observe a half-written
+# baseline and no trap-restore of the repo file is needed.
 TAMPERED="$(mktemp "${TMPDIR:-/tmp}/baseline-probe.XXXXXX.sql")"
-cp "$BASELINE_FILE" "$BACKUP"
-trap 'cp "$BACKUP" "$BASELINE_FILE"; rm -f "$BACKUP" "$TAMPERED"; cleanup_dbs' EXIT
-gzip -dc "$BASELINE_FILE" > "$TAMPERED"
+gzip -dc "$BASELINE_COPY" > "$TAMPERED"
 echo "-- probe" >> "$TAMPERED"
-gzip -9 -n -c "$TAMPERED" > "$BASELINE_FILE"
+gzip -9 -n -c "$TAMPERED" > "$BASELINE_COPY"
 out="$(migrate_as "$FRESH_DB" --check 2>&1)"; rc=$?
 assert_match "edited baseline fails --check" "$rc" "^1$"
 assert_match "failure names the baseline" "$out" "baseline_v2"
-cp "$BACKUP" "$BASELINE_FILE"
+cp "$ROOT/database/schema_v2.sql.gz" "$BASELINE_COPY"
 migrate_as "$FRESH_DB" --check >/dev/null 2>&1
 assert_match "restored baseline passes --check" "$?" "^0$"
-trap cleanup_dbs EXIT
 
 # 17. Committed baseline is byte-identical to the committed full snapshot
 # (Wave-C made no schema change; the drift gate proves build-equality in CI).
