@@ -15,7 +15,9 @@ jobs:
   report:
     name: ci-report
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    # Collection fans out to one jobs-API call per completed run in the
+    # 30-day window (~1k calls); 10 minutes is not enough.
+    timeout-minutes: 30
     permissions:
       actions: read
       contents: read
