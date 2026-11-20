@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Unified test runner.
-# Usage: tests/run_all.sh [options] [fast|db|db-shard|full|probes|affected|integration|gates]   (default: full)
+# Usage: tests/run_all.sh [options] [fast|db|db-shard|db-selected|full|probes|affected|integration|gates]   (default: full)
 #   --json            print the report path at the end (artifacts/run-all.json)
 #   --no-report       skip machine-readable reporting (logs only)
 #   --mode <mode>     same as the positional mode argument
@@ -27,7 +27,7 @@ REPEAT_COUNT="${REPEAT_COUNT:-1}"
 KEEP_LOGS=0
 usage() {
     sed -n '2,15p' "$0"
-    echo "Modes: fast db db-shard full probes affected integration gates"
+    echo "Modes: fast db db-shard db-selected full probes affected integration gates"
 }
 need_arg() {
     # $1 = flag as typed, $2 = candidate value (may be empty).
@@ -382,6 +382,42 @@ EOF
 # computed by the same planner (scripts/shard_suites.mjs) that in-job
 # sharding uses, so shards 0..N-1 partition every suite exactly once.
 # Usage: DB_SHARD_INDEX=0 DB_SHARD_COUNT=4 tests/run_all.sh db-shard
+# Run only the suites selected by scripts/select_tests.mjs (CI impact path).
+# The service database is already bootstrapped/seeded; DB_VERIFIED/DB_SEEDED
+# are set by the job so each suite skips its own precheck/seed.
+run_db_selected() {
+    echo "=== SELECTED DB SUITES ==="
+    [ -n "${SELECT_DB_SUITES:-}" ] || { echo "FAIL: SELECT_DB_SUITES is empty" >&2; return 2; }
+    # shellcheck disable=SC1091
+    . "$ROOT/tests/lib/guard.sh"
+    # shellcheck disable=SC1091
+    . "$ROOT/tests/lib/lock.sh"
+    # shellcheck disable=SC1091
+    . "$ROOT/tests/lib/report.sh"
+    # shellcheck disable=SC1091
+    . "$ROOT/tests/lib/db.sh"
+    # shellcheck disable=SC2031
+    DB_NAME="${DB_NAME:-cobol_db}"
+    db_lock_acquire || exit 1
+    # shellcheck disable=SC2119
+    report_init
+    require_db
+    local failed=0 s
+    for s in $SELECT_DB_SUITES; do
+        if [ ! -f "$s" ]; then
+            echo "FAIL: selected suite not found: $s" >&2
+            failed=1
+            continue
+        fi
+        report_run "selected" "$s" || failed=1
+    done
+    if [ "$failed" -ne 0 ]; then
+        echo "FAIL: one or more selected DB suites failed"
+        return 1
+    fi
+    echo "=== SELECTED DB SUITES GREEN ==="
+}
+
 run_db_shard_one() {
     local total="$1" index="$2"
     # False positive: make_worker_db below exports DB_NAME in-process, but the
@@ -887,6 +923,9 @@ case "$MODE" in
         require_db
         run_db_shard_one "$DB_SHARD_COUNT" "$DB_SHARD_INDEX"
         ;;
+    db-selected)
+        run_db_selected
+        ;;
     probes)
         run_probes
         ;;
@@ -920,7 +959,7 @@ case "$MODE" in
         run_affected
         ;;
     *)
-        echo "unknown mode: $MODE (fast|db|db-shard|full|probes|affected|integration|gates)" >&2
+        echo "unknown mode: $MODE (fast|db|db-shard|db-selected|full|probes|affected|integration|gates)" >&2
         exit 2
         ;;
 esac

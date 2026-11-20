@@ -86,6 +86,16 @@ test('missing key fails only with --strict', () => {
   assert.match(runFail(d, ['--strict']), /db_schema_tests \(baseline 76\)/);
 });
 
+test('--subset accepts missing keys but still catches drift', () => {
+  const short = TSV.filter((r) => !r.startsWith('schema_tests'));
+  const okDir = makeRoot({ baseline: BASE, tsvRows: short, junit: JUNIT });
+  const out = run(okDir, ['--strict', '--subset']);
+  assert.match(out, /OK: 2 suite key\(s\)/);
+  const rows = short.map((r) => (r.startsWith('account_db') ? 'account_db_tests.sh\tpass\t12\t0\t12\t20\tserial' : r));
+  const driftDir = makeRoot({ baseline: BASE, tsvRows: rows, junit: JUNIT });
+  assert.match(runFail(driftDir, ['--strict', '--subset']), /db_account_tests: baseline=13 actual=12/);
+});
+
 test('unlisted suite always fails', () => {
   const rows = [...TSV, 'zzz_db_tests.sh\tpass\t3\t0\t3\t5\tserial'];
   const d = makeRoot({ baseline: BASE, tsvRows: rows, junit: JUNIT });

@@ -244,7 +244,16 @@ test('static gates run once in lint; PR test skips the gate fleet', () => {
 test('docs-only PRs skip heavy jobs including the test gate (CI-011 option A)', () => {
   const ci = collectWorkflowJobs()['ci.yml'];
   assert.ok(ci['changes'], 'ci.yml must define a changes job');
-  for (const id of ['db-shards', 'coverage-pr', 'coverage', 'db-aggregate', 'db-ops', 'test', 'db-snapshot']) {
+  for (const id of [
+    'db-shards',
+    'db-selected',
+    'coverage-pr',
+    'coverage',
+    'db-aggregate',
+    'db-ops',
+    'test',
+    'db-snapshot',
+  ]) {
     const job = ci[id];
     assert.ok(job, `ci.yml must define ${id}`);
     assert.match(
@@ -295,7 +304,7 @@ test('docker-build runs on push and only for docker-relevant PRs', () => {
 
 test('push to main skips the PR-only DB gate (cost workstream)', () => {
   const ci = collectWorkflowJobs()['ci.yml'];
-  for (const id of ['test', 'db-shards', 'db-aggregate']) {
+  for (const id of ['test', 'db-shards', 'db-selected', 'db-aggregate']) {
     const cond = String(ci[id].if || '');
     assert.ok(
       cond.includes("github.event_name == 'pull_request'"),
@@ -366,9 +375,22 @@ test('coverage is a real PR gateway gate; test skips its gateway phase', () => {
   assert.ok(aggNeeds.includes('coverage'), 'db aggregate must wait for the gateway coverage gate');
 });
 
+test('impact selection has a selected DB path and a full fallback', () => {
+  const ci = collectWorkflowJobs()['ci.yml'];
+  assert.ok(ci['db-selected'], 'ci.yml must define the db-selected job');
+  assert.match(String(ci['db-selected'].if || ''), /select_mode == 'selected'/);
+  assert.match(String(ci['db-selected'].if || ''), /select_db_suites != ''/);
+  assert.match(ci['db-selected'].runs.join('\n'), /run_all\.sh db-selected/);
+  assert.match(String(ci['db-shards'].if || ''), /select_mode == 'full'/);
+  const aggNeeds = Array.isArray(ci['db-aggregate'].needs) ? ci['db-aggregate'].needs : [ci['db-aggregate'].needs];
+  assert.ok(aggNeeds.includes('db-selected'), 'db aggregate must wait for the selected path');
+  const ciYaml = readFileSync(path.join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8');
+  assert.match(ciYaml, /select_db_suites: \$\{\{ steps\.select\.outputs\.select_db_suites \}\}/);
+});
+
 test('db consumers wait for the snapshot producer (CI-008B ordering)', () => {
   const ci = collectWorkflowJobs()['ci.yml'];
-  for (const id of ['test', 'db-shards', 'coverage', 'coverage-pr', 'db-ops']) {
+  for (const id of ['test', 'db-shards', 'db-selected', 'coverage', 'coverage-pr', 'db-ops']) {
     const job = ci[id];
     assert.ok(job, `ci.yml must define ${id}`);
     const needs = Array.isArray(job.needs) ? job.needs : [job.needs];

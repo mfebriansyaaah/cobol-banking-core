@@ -47,6 +47,9 @@ jobs:
       docker_definition: ${{ steps.classify.outputs.docker_definition }}
       db_ops_relevant: ${{ steps.classify.outputs.db_ops_relevant }}
       coverage_relevant: ${{ steps.classify.outputs.coverage_relevant }}
+      select_mode: ${{ steps.select.outputs.select_mode }}
+      select_db_suites: ${{ steps.select.outputs.select_db_suites }}
+      select_reason: ${{ steps.select.outputs.select_reason }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
@@ -60,6 +63,40 @@ jobs:
           PUSH_BEFORE_SHA: ${{ github.event.before }}
           HAS_CI_FULL_LABEL: ${{ contains(github.event.pull_request.labels.*.name, 'ci:full') }}
         run: bash scripts/ci/classify_changes.sh
+
+      - name: Select impacted tests
+        id: select
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HAS_CI_FULL_LABEL: ${{ contains(github.event.pull_request.labels.*.name, 'ci:full') }}
+        run: |
+          set -euo pipefail
+          emit_full() {
+            {
+              echo "select_mode=full"
+              echo "select_db_suites="
+              echo "select_reason=$1"
+            } >> "$GITHUB_OUTPUT"
+          }
+          if [ "$HAS_CI_FULL_LABEL" = "true" ]; then
+            emit_full "ci:full label"
+            exit 0
+          fi
+          if [ "$EVENT_NAME" != "pull_request" ]; then
+            emit_full "not a pull request"
+            exit 0
+          fi
+          if ! plan="$(node scripts/select_tests.mjs "${PR_BASE_SHA:-}")"; then
+            emit_full "test selector failed"
+            exit 0
+          fi
+          eval "$plan"
+          {
+            echo "select_mode=$SELECT_MODE"
+            echo "select_db_suites=$SELECT_DB_SUITES"
+            echo "select_reason=$SELECT_REASON"
+          } >> "$GITHUB_OUTPUT"
 
   # All static analysis and fast tests live in one job. They are independent
   # of the compiled artifact, so running them here lets `build` stay a pure
@@ -560,7 +597,10 @@ jobs:
   db-shards:
     name: db shard ${{ matrix.shard }}
     needs: [build, db-snapshot, changes]
-    if: github.event_name == 'pull_request' && needs.changes.outputs.docs_only != 'true'
+    if: >
+      github.event_name == 'pull_request' &&
+      needs.changes.outputs.docs_only != 'true' &&
+      needs.changes.outputs.select_mode == 'full'
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     strategy:
@@ -649,9 +689,108 @@ jobs:
         with:
           name: diagnostics-db-shard-${{ matrix.shard }}
 
+  # Impact-selected DB path: one runner runs only the suites mapped from the
+  # change set. Full/unknown changes still use the 2-shard matrix above.
+  db-selected:
+    name: db selected
+    needs: [build, db-snapshot, changes]
+    if: >
+      github.event_name == 'pull_request' &&
+      needs.changes.outputs.docs_only != 'true' &&
+      needs.changes.outputs.select_mode == 'selected' &&
+      needs.changes.outputs.select_db_suites != ''
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      mariadb:
+        image: mariadb:11.8
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: cobol_db
+          MARIADB_USER: cobol_user
+          MARIADB_PASSWORD: cobol_pass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_NAME: cobol_db
+      DB_USER: cobol_user
+      DB_PASS: cobol_pass
+      DB_MIGRATE_USER: root
+      DB_MIGRATE_PASS: root
+      DB_VERIFIED: '1'
+      DB_SEEDED: '1'
+      SKIP_BUILD: '1'
+      ISOLATED_DB: '0'
+      SELECT_DB_SUITES: ${{ needs.changes.outputs.select_db_suites }}
+      REPORT_DIR: artifacts/selected
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+
+      - name: Install runtime dependencies
+        run: |
+          set -euo pipefail
+          sudo timeout 180 apt-get install -y --no-install-recommends \
+            libgmp-dev libmariadb3 mariadb-client || {
+            sudo timeout 120 apt-get update
+            sudo timeout 180 apt-get install -y --no-install-recommends \
+              libgmp-dev libmariadb3 mariadb-client
+          }
+
+      - name: Setup GnuCOBOL
+        uses: ./.github/actions/setup-cobol
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: '24'
+
+      - name: Download core binary
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        with:
+          name: cobol-binary
+          path: cobol/bin
+
+      - name: Make binary executable
+        run: chmod +x cobol/bin/main_logic
+
+      - name: Bootstrap database
+        uses: ./.github/actions/db-bootstrap
+        with:
+          seed: 'true'
+
+      - name: Run selected DB suites
+        run: tests/run_all.sh db-selected
+
+      - name: Write selected summary
+        if: always()
+        run: node scripts/ci/summary.mjs --report-dir artifacts/selected
+
+      - name: Upload selected reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: selected-reports
+          overwrite: true
+          path: artifacts/selected/
+          retention-days: 14
+          if-no-files-found: warn
+
+      - name: Upload failure diagnostics
+        if: failure()
+        uses: ./.github/actions/upload-diagnostics
+        with:
+          name: diagnostics-db-selected
+
   db-aggregate:
     name: db aggregate
-    needs: [test, db-shards, schema-drift, coverage, changes]
+    needs: [test, db-shards, db-selected, schema-drift, coverage, changes]
     if: always() && github.event_name == 'pull_request' && needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -661,6 +800,8 @@ jobs:
       pull-requests: read
     env:
       QUARANTINE: '1'
+      SELECT_MODE: ${{ needs.changes.outputs.select_mode }}
+      SELECTED_DB_SUITES: ${{ needs.changes.outputs.select_db_suites }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
@@ -675,15 +816,22 @@ jobs:
         if: always()
         run: |
           set -euo pipefail
-          if [ "${{ needs.test.result }}" = "success" ] \
-              && [ "${{ needs.db-shards.result }}" = "success" ] \
-              && [ "${{ needs.coverage.result }}" = "success" ] \
-              && [ "${{ needs.changes.result }}" = "success" ]; then
+          ok=1
+          [ "${{ needs.test.result }}" = "success" ] || ok=0
+          [ "${{ needs.coverage.result }}" = "success" ] || ok=0
+          [ "${{ needs.changes.result }}" = "success" ] || ok=0
+          if [ "$SELECT_MODE" = "full" ]; then
+            [ "${{ needs.db-shards.result }}" = "success" ] || ok=0
+          elif [ -n "$SELECTED_DB_SUITES" ]; then
+            [ "${{ needs.db-selected.result }}" = "success" ] || ok=0
+          fi
+          if [ "$ok" = "1" ]; then
             echo "ok=true" >> "$GITHUB_OUTPUT"
           else
             echo "ok=false" >> "$GITHUB_OUTPUT"
             echo "::error::cannot aggregate: test=${{ needs.test.result }} \
               db-shards=${{ needs.db-shards.result }} \
+              db-selected=${{ needs.db-selected.result }} \
               coverage=${{ needs.coverage.result }} \
               changes=${{ needs.changes.result }}"
             exit 1
@@ -701,13 +849,18 @@ jobs:
           pattern: "*-reports*"
           path: parts/
 
-      - name: Merge and verify shard reports
+      - name: Merge and verify reports
         if: always() && steps.upstream.outputs.ok == 'true'
         run: bash scripts/ci/aggregate_shard_reports.sh parts merged "$DB_SHARD_COUNT"
 
       - name: Assertion count gate
         if: always() && steps.upstream.outputs.ok == 'true' && needs.test.result == 'success'
-        run: node scripts/check_test_counts.mjs --report-dir merged --strict
+        run: |
+          if [ "$SELECT_MODE" = "selected" ]; then
+            node scripts/check_test_counts.mjs --report-dir merged --strict --subset
+          else
+            node scripts/check_test_counts.mjs --report-dir merged --strict
+          fi
 
       - name: Note skipped count gate
         if: always() && needs.test.result != 'success'

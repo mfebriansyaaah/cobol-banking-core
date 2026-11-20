@@ -76,6 +76,7 @@ let root = '.';
 let staticMode = false;
 let write = false;
 let strict = false;
+let subset = false;
 for (let i = 0; i < args.length; i += 1) {
   const a = args[i];
   if (a === '--report-dir') ((reportDir = args[i + 1] ?? reportDir), (i += 1));
@@ -83,9 +84,10 @@ for (let i = 0; i < args.length; i += 1) {
   else if (a === '--static') staticMode = true;
   else if (a === '--write') write = true;
   else if (a === '--strict') strict = true;
+  else if (a === '--subset') subset = true;
   else if (a === '--help' || a === '-h') {
     console.log('usage:');
-    console.log('  check_test_counts.mjs [--root DIR] [--report-dir DIR] [--strict]');
+    console.log('  check_test_counts.mjs [--root DIR] [--report-dir DIR] [--strict] [--subset]');
     console.log('  check_test_counts.mjs --static [--root DIR] [--write]');
     process.exit(0);
   } else if (a.startsWith('--')) {
@@ -286,7 +288,7 @@ for (const key of order) {
   const expected = baseline.get(key);
   const got = data.rows.get(key);
   if (!got || !got.length) {
-    missingKeys.push(key);
+    if (!subset) missingKeys.push(key);
     continue;
   }
   const distinct = [...new Set(got.map((r) => r.total))];
