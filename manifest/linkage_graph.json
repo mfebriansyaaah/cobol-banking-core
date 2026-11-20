@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-20T08:03:35.694Z",
-  "commit": "cf45e0c4",
+  "generatedAt": "2026-11-20T08:23:53.539Z",
+  "commit": "cf08102e",
   "linkageSource": "manifest/linkage.json",
   "summary": {
     "L3": 23,
-    "L2": 14,
+    "L2": 22,
     "L1": 10,
-    "L0": 19,
+    "L0": 11,
     "UTILITY": 3
   },
   "modules": [
@@ -123,7 +123,10 @@
     {
       "module": "bank_guarantee_core",
       "source": "bank_guarantee_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "bank_guarantee",
+        "bg_claim"
+      ],
       "coreCalls": [],
       "coreActions": [],
       "hasTests": true,
@@ -131,8 +134,8 @@
         "tests/db/bank_guarantee_db_tests.sh",
         "tests/cobol/cases/bank_guarantee.cases"
       ],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
+      "linkageLevel": "L2",
+      "reason": "business link (tables bank_guarantee, bg_claim) + test",
       "routeFiles": [
         "bank_guarantee.js"
       ]
@@ -174,7 +177,10 @@
     {
       "module": "chargeback_core",
       "source": "chargeback_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "chargeback_case",
+        "chargeback_ledger"
+      ],
       "coreCalls": [],
       "coreActions": [],
       "hasTests": true,
@@ -183,8 +189,8 @@
         "tests/cobol/cases/chargeback.cases",
         "tests/integration/chargeback_flow.sh"
       ],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
+      "linkageLevel": "L2",
+      "reason": "business link (tables chargeback_case, chargeback_ledger) + test",
       "routeFiles": [
         "chargeback.js"
       ]
@@ -258,7 +264,9 @@
     {
       "module": "cost_center_core",
       "source": "cost_center_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "cost_center"
+      ],
       "coreCalls": [],
       "coreActions": [],
       "hasTests": true,
@@ -266,8 +274,8 @@
         "tests/db/cost_center_db_tests.sh",
         "tests/cobol/cases/cost_center.cases"
       ],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
+      "linkageLevel": "L2",
+      "reason": "business link (tables cost_center) + test",
       "routeFiles": [
         "cost_center.js"
       ]
@@ -329,15 +337,17 @@
     {
       "module": "eod_core",
       "source": "eod_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "eod_phase"
+      ],
       "coreCalls": [],
       "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/cobol/cases/eod.cases"
       ],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
+      "linkageLevel": "L2",
+      "reason": "business link (tables eod_phase) + test",
       "routeFiles": [
         "eod.js"
       ]
@@ -415,7 +425,9 @@
     {
       "module": "gl_allocation_core",
       "source": "gl_allocation_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "gl_allocation"
+      ],
       "coreCalls": [],
       "coreActions": [],
       "hasTests": true,
@@ -423,8 +435,8 @@
         "tests/db/gl_allocation_db_tests.sh",
         "tests/cobol/cases/gl_allocation.cases"
       ],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
+      "linkageLevel": "L2",
+      "reason": "business link (tables gl_allocation) + test",
       "routeFiles": [
         "gl_allocation.js"
       ]
@@ -478,15 +490,17 @@
     {
       "module": "import_core",
       "source": "import_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "gl_account"
+      ],
       "coreCalls": [],
       "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/cobol/cases/import.cases"
       ],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
+      "linkageLevel": "L2",
+      "reason": "business link (tables gl_account) + test",
       "routeFiles": [
         "import.js"
       ]
@@ -541,7 +555,11 @@
     {
       "module": "letter_of_credit_core",
       "source": "letter_of_credit_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "lc_drawing",
+        "lc_settlement",
+        "letter_of_credit"
+      ],
       "coreCalls": [],
       "coreActions": [],
       "hasTests": true,
@@ -549,8 +567,8 @@
         "tests/db/letter_of_credit_db_tests.sh",
         "tests/cobol/cases/letter_of_credit.cases"
       ],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
+      "linkageLevel": "L2",
+      "reason": "business link (tables lc_drawing, lc_settlement, letter_of_credit) + test",
       "routeFiles": [
         "letter_of_credit.js",
         "trade_finance.js"
@@ -652,7 +670,11 @@
     {
       "module": "loyalty_core",
       "source": "loyalty_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "loyalty_member",
+        "loyalty_points_ledger",
+        "loyalty_redemption"
+      ],
       "coreCalls": [],
       "coreActions": [],
       "hasTests": true,
@@ -660,8 +682,8 @@
         "tests/cobol/cases/loyalty.cases",
         "tests/integration/loyalty_flow.sh"
       ],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
+      "linkageLevel": "L2",
+      "reason": "business link (tables loyalty_member, loyalty_points_ledger, loyalty_redemption) + test",
       "routeFiles": [
         "loyalty.js"
       ]
@@ -882,6 +904,7 @@
       "module": "report_run_core",
       "source": "report_run_core.cob",
       "businessTables": [
+        "gl_account",
         "gl_journal",
         "gl_journal_line"
       ],

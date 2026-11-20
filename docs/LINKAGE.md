@@ -6,15 +6,15 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-20T08:03:35.694Z
-- Commit: `cf45e0c4`
+- Generated at: 2026-11-20T08:23:53.539Z
+- Commit: `cf08102e`
 
 | Level | Modules |
 | --- | ---: |
 | L3 (core transaction) | 23 |
-| L2 (business reference) | 14 |
+| L2 (business reference) | 22 |
 | L1 (weak / untested link) | 10 |
-| L0 (isolated) | 19 |
+| L0 (isolated) | 11 |
 | UTILITY | 3 |
 
 Unresolved route files: none.
@@ -29,39 +29,39 @@ Unresolved route files: none.
 | `auth_recovery_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `auth_review_core` | L0 | — | — | 0 | own domain tables only, no core link |
 | `auth_session_core` | L0 | — | — | 0 | own domain tables only, no core link |
-| `bank_guarantee_core` | L0 | — | — | 1 | own domain tables only, no core link |
+| `bank_guarantee_core` | L2 | bank_guarantee, bg_claim | — | 1 | business link (tables bank_guarantee, bg_claim) + test |
 | `card_core` | L3 | — | — | 1 | Core anchor module |
 | `card_posting_core` | L3 | accounts, card_account, gl_journal | gl_core | 0 | money-table touch (accounts, gl_journal) with depth + test |
-| `chargeback_core` | L0 | — | — | 1 | own domain tables only, no core link |
+| `chargeback_core` | L2 | chargeback_case, chargeback_ledger | — | 1 | business link (tables chargeback_case, chargeback_ledger) + test |
 | `collateral_core` | L2 | loan_application | — | 1 | business link (tables loan_application) + test |
 | `collection_core` | L3 | — | — | 1 | Core anchor module |
 | `compliance_calendar_core` | L2 | compliance_calendar | — | 1 | business link (tables compliance_calendar) + test |
 | `corp_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `cost_center_core` | L0 | — | — | 1 | own domain tables only, no core link |
+| `cost_center_core` | L2 | cost_center | — | 1 | business link (tables cost_center) + test |
 | `dashboard_core` | L3 | accounts, ledger | — | 1 | money-table touch (accounts, ledger) with depth + test |
 | `deposit_core` | L3 | — | — | 1 | Core anchor module |
 | `deposit_posting_core` | L3 | accounts, deposit_account, deposit_accrual, gl_journal | gl_core | 0 | money-table touch (accounts, gl_journal) with depth + test |
-| `eod_core` | L0 | — | — | 1 | own domain tables only, no core link |
+| `eod_core` | L2 | eod_phase | — | 1 | business link (tables eod_phase) + test |
 | `eod_jobs_core` | L1 | accounts | user_core | 1 | linked code with no DB/table/integration test (downgraded) |
 | `fee_core` | L3 | — | — | 1 | Core anchor module |
 | `fixed_asset_core` | L2 | fixed_asset, fixed_asset_depreciation, fixed_asset_disposal | — | 1 | business link (tables fixed_asset, fixed_asset_depreciation, fixed_asset_disposal) + test |
 | `fx_rate_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `gl_allocation_core` | L0 | — | — | 1 | own domain tables only, no core link |
+| `gl_allocation_core` | L2 | gl_allocation | — | 1 | business link (tables gl_allocation) + test |
 | `gl_core` | L3 | — | — | 1 | Core anchor module |
 | `hashlen_core` | UTILITY | — | — | 0 | Utility module (never a retire candidate) |
 | `identity_core` | L2 | accounts | — | 2 | business link (tables accounts) + test |
-| `import_core` | L0 | — | — | 1 | own domain tables only, no core link |
+| `import_core` | L2 | gl_account | — | 1 | business link (tables gl_account) + test |
 | `import_post_core` | L3 | gl_journal, gl_journal_line | — | 0 | money-table touch (gl_journal, gl_journal_line) with depth + test |
 | `import_recon_core` | L2 | gl_journal_line | — | 1 | business link (tables gl_journal_line) + test |
 | `import_row_core` | L0 | — | — | 0 | own domain tables only, no core link |
-| `letter_of_credit_core` | L0 | — | — | 2 | own domain tables only, no core link |
+| `letter_of_credit_core` | L2 | lc_drawing, lc_settlement, letter_of_credit | — | 2 | business link (tables lc_drawing, lc_settlement, letter_of_credit) + test |
 | `loan_core` | L3 | — | — | 1 | Core anchor module |
 | `loan_posting_core` | L3 | accounts, gl_journal, loan_application, loan_repayment | gl_core | 0 | money-table touch (accounts, gl_journal) with depth + test |
 | `loan_schedule_core` | L3 | — | — | 1 | Core anchor module |
 | `loan_schedule_lifecycle_core` | L1 | loan_schedule | — | 0 | linked code with no DB/table/integration test (downgraded) |
 | `loan_schedule_posting_core` | L1 | loan_application, loan_installment, loan_schedule | — | 0 | linked code with no DB/table/integration test (downgraded) |
 | `loan_schedule_report_core` | L1 | loan_schedule | — | 0 | linked code with no DB/table/integration test (downgraded) |
-| `loyalty_core` | L0 | — | — | 1 | own domain tables only, no core link |
+| `loyalty_core` | L2 | loyalty_member, loyalty_points_ledger, loyalty_redemption | — | 1 | business link (tables loyalty_member, loyalty_points_ledger, loyalty_redemption) + test |
 | `merchant_core` | L2 | accounts | — | 1 | business link (tables accounts) + test |
 | `merchant_settlement_core` | L2 | merchant_transaction | — | 1 | business link (tables merchant_transaction) + test |
 | `notification_template_core` | L2 | ntf_template_config | — | 1 | business link (tables ntf_template_config) + test |
@@ -74,7 +74,7 @@ Unresolved route files: none.
 | `ref_engine` | UTILITY | — | — | 1 | Utility module (never a retire candidate) |
 | `ref_ext_core` | UTILITY | — | — | 1 | Utility module (never a retire candidate) |
 | `report_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `report_run_core` | L1 | gl_journal, gl_journal_line | — | 0 | linked code with no DB/table/integration test (downgraded) |
+| `report_run_core` | L1 | gl_account, gl_journal, gl_journal_line | — | 0 | linked code with no DB/table/integration test (downgraded) |
 | `report_schedule_core` | L2 | rpt_schedule_config | — | 1 | business link (tables rpt_schedule_config) + test |
 | `risk_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `sla_tracker_core` | L2 | sla_tracker | — | 1 | business link (tables sla_tracker) + test |

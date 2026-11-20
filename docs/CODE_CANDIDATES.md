@@ -8,22 +8,14 @@
 
 | Status | Candidates |
 | --- | ---: |
-| CANDIDATE | 8 |
+| CANDIDATE | 0 |
 | DEPRECATED | 0 |
 | RETIRED | 0 |
 
 | Kind | Candidates |
 | --- | ---: |
 | DUPLICATE (template clone) | 0 |
-| UNLINKED (custom code, no core link) | 8 |
+| UNLINKED (custom code, no core link) | 0 |
 
 | Module | Link | Status | Replacement | Traffic | Sign-off | Reason |
 | --- | --- | --- | --- | --- | --- | --- |
-| `bank_guarantee_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
-| `chargeback_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
-| `cost_center_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `eod_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `gl_allocation_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `import_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `letter_of_credit_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
-| `loyalty_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
