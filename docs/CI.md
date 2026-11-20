@@ -175,8 +175,8 @@ Rules:
 | `ci.yml` lint | 15 min | shellcheck, eslint, prettier, markdownlint, actionlint, yamllint, promtool, semgrep, gitleaks, repository invariants, gate probes, PR-size report, gate unit tests, npm audit, CI docs check |
 | `ci.yml` build | 10 min | pure producer: cached COBOL build + warning ratchet + `cobol-binary` artifact; no lint/static gates |
 | `ci.yml` docker-build | 15 min | production image build + native linkage check (no push); parallel with `build` |
-| `ci.yml` db-snapshot | 10 min | schema + migrate + ledger check + gzip snapshot, 1-day artifact (pure producer; does not wait for `build`) |
-| `ci.yml` schema-drift | 15 min | fresh schema+migrations vs committed `schema_full.sql`; parallel to db-snapshot so drift never blocks consumers |
+| `ci.yml` db-snapshot | 10 min | schema + migrate + ledger check + gzip DB snapshot + normalized `schema-fresh` artifact (pure producer; does not wait for `build`) |
+| `ci.yml` schema-drift | 10 min | compares the producer's normalized `schema-fresh` artifact with committed `schema_full.sql`; no second DB provisioning, and a drift failure blocks merge without blocking DB consumers |
 | `ci.yml` test | 25 min | PR-only non-DB gate: integration, gateway, error harness, table/amount tests (static gates already ran in `lint`) |
 | `ci.yml` db-shards (×2) | 25 min each | PR-only, one LPT shard per runner; runtime deps only (no npm install) |
 | `ci.yml` db-aggregate | 10 min | PR-only merge + inventory + count gate + summary |
@@ -211,6 +211,12 @@ replaying schema + all migrations. Every DB job (`test`, `db-shards`,
 `coverage`, `coverage-pr`, `db-ops`) downloads it and restores it with
 `scripts/ci/restore_db_snapshot.sh`, falling back to schema + migrations
 when the artifact is missing (expired retention, failed producer job).
+The same job also publishes `schema-fresh` (normalized `mysqldump --no-data`
+from the already-migrated database, retention 1 day). `schema-drift` consumes
+that artifact and only compares it with the committed baselines, so it never
+provisions a second database. It is not a dependency of the DB consumers: a
+drift failure blocks merge through `db aggregate` while `test`/`db-shards`
+continue with the data snapshot.
 
 Restore order per job (enforced by `restore_db_snapshot.sh` + job steps):
 
@@ -231,13 +237,18 @@ Restore order per job (enforced by `restore_db_snapshot.sh` + job steps):
   MariaDB 11.8 client help, with no live dump/restore smoke, so the
   unverified flag stays out, matching every other in-tree dump call site);
   prints snapshot size and table count; never prints the password.
+- Schema producer: `scripts/generate_schema_snapshot.sh --from-db "$DB_NAME"
+  --out /tmp/schema-fresh.sql`. It dumps `--no-data` from the same migrated
+  database and normalizes volatile bits exactly like the committed baseline;
+  no throwaway database is created.
 - Wired by `scripts/test/ci-wiring.test.mjs` (`build_db_snapshot` needle);
   offline guard tests in `tests/scripts/test_db_snapshot_guard.sh`.
 - Live-DB acceptance (artifact size, restore round trip, job wall time)
   needs CI and is deferred: expected snapshot < 50 MB compressed and
   `db-snapshot` wall <= 3 min; the first green CI run records the actuals.
-- Rollback: delete the `db-snapshot` job, the producer script, and this
-  section. Consumers are unchanged, so schema + migrate keeps working.
+- Rollback: delete the `db-snapshot` job, the producer scripts, the
+  `schema-fresh` artifact, and this section. Consumers are unchanged, so
+  schema + migrate keeps working.
 
 ## Rerun-safe artifacts and failure attribution (CI-013)
 

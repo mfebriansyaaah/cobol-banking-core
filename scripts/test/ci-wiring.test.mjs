@@ -155,25 +155,41 @@ test('db-ops job runs rollback and backup drills (drift moved out)', () => {
   );
 });
 
-test('schema-drift is a separate job, parallel to db-snapshot', () => {
+test('schema-drift reuses the snapshot producer without blocking DB consumers', () => {
   const ci = collectWorkflowJobs()['ci.yml'];
   assert.ok(ci['schema-drift'], 'ci.yml must define a schema-drift job');
   assert.equal(ci['schema-drift'].name, 'schema-drift');
   const runs = ci['schema-drift'].runs.join('\n');
   assert.match(runs, /check_schema_drift/, 'schema-drift must run the drift check');
+  assert.match(
+    runs,
+    /--from \/tmp\/schema-fresh\/schema-fresh\.sql/,
+    'schema-drift must consume the producer artifact',
+  );
   const needs = Array.isArray(ci['schema-drift'].needs) ? ci['schema-drift'].needs : [ci['schema-drift'].needs];
   assert.ok(needs.includes('changes'), 'schema-drift must honor the docs-only gate');
-  assert.ok(
-    !needs.includes('db-snapshot'),
-    'schema-drift must not depend on db-snapshot: a stale snapshot must not block consumers',
+  assert.ok(needs.includes('db-snapshot'), 'schema-drift must reuse the producer schema snapshot');
+
+  const producerRuns = ci['db-snapshot'].runs.join('\n');
+  assert.match(
+    producerRuns,
+    /generate_schema_snapshot\.sh --from-db/,
+    'db-snapshot must emit the normalized schema snapshot',
   );
+  const ciYaml = readFileSync(path.join(ROOT, '.github/workflows/ci.yml'), 'utf8');
+  assert.match(ciYaml, /name: schema-fresh/, 'db-snapshot must publish the schema-fresh artifact');
   assert.doesNotMatch(
-    ci['db-snapshot'].runs.join('\n'),
+    producerRuns,
     /check_schema_drift/,
-    'db-snapshot must stay a pure producer (no drift check before the artifact upload)',
+    'db-snapshot must stay a pure producer (drift check is a separate job)',
   );
-  // schema-drift is not a required check by name; the required db aggregate
-  // job must surface its failure so a stale snapshot still blocks merges.
+
+  // A drift failure must not withhold the DB data snapshot from the fleet:
+  // only the aggregate gate waits for schema-drift.
+  for (const id of ['test', 'db-shards', 'coverage-pr']) {
+    const consumerNeeds = Array.isArray(ci[id].needs) ? ci[id].needs : [ci[id].needs];
+    assert.ok(!consumerNeeds.includes('schema-drift'), `${id} must not depend on schema-drift`);
+  }
   const aggNeeds = Array.isArray(ci['db-aggregate'].needs) ? ci['db-aggregate'].needs : [ci['db-aggregate'].needs];
   assert.ok(aggNeeds.includes('schema-drift'), 'db aggregate must wait for schema-drift');
   const raw = readFileSync(path.join(ROOT, '.github/workflows/ci.yml'), 'utf8');
