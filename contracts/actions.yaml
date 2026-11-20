@@ -3,7 +3,7 @@
 # never hand-edit. Validate with scripts/check_contract.mjs, regenerate with
 # --write after a reviewed route change.
 version: 1
-generatedAt: "2026-11-20T08:04:41.813Z"
+generatedAt: "2026-11-20T09:50:31.078Z"
 generator: scripts/build_contract.mjs (do not hand-edit)
 count: 559
 actions:
@@ -906,7 +906,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: APPROVE_REQUEST
     method: post
     path: /admin/requests/approve
@@ -956,7 +956,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: ARCHIVE_AUDIT
     method: post
     path: /admin/audit/archive
@@ -1006,7 +1006,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: AUTH_LOGIN
     method: post
     path: /auth/login
@@ -4656,7 +4656,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: CLT_ALLOCATE
     method: post
     path: /collateral/allocate
@@ -7006,7 +7006,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: DEP_ACCRUE
     method: post
     path: "/deposits/:id/accrue"
@@ -10362,7 +10362,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: GET_DASHBOARD
     method: get
     path: /profile
@@ -13212,7 +13212,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: LIST_AUDIT
     method: get
     path: /admin/audit
@@ -13262,7 +13262,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: LIST_DISPUTES
     method: get
     path: /disputes
@@ -13412,7 +13412,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: LIST_OUTBOX
     method: get
     path: /admin/outbox
@@ -13462,7 +13462,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: LIST_RECONCILIATIONS
     method: get
     path: /admin/reconcile/runs
@@ -13562,7 +13562,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: LIST_SESSIONS
     method: get
     path: /sessions
@@ -16812,7 +16812,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: MFA_DISABLE
     method: post
     path: /mfa/disable
@@ -16862,7 +16862,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: MFA_ENROLL_BEGIN
     method: post
     path: /mfa/enroll
@@ -16912,7 +16912,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: MFA_ENROLL_CONFIRM
     method: post
     path: /mfa/confirm
@@ -16962,7 +16962,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: MRT_ACTIVATE
     method: post
     path: "/merchants/:id/activate"
@@ -18262,7 +18262,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: OPEN_DISPUTE
     method: post
     path: /disputes
@@ -21462,7 +21462,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: REJECT_REQUEST
     method: post
     path: /admin/requests/reject
@@ -21512,7 +21512,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: RELEASE_HOLD
     method: post
     path: /admin/holds/release
@@ -21612,7 +21612,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: REQUEST_OPERATION
     method: post
     path: /admin/requests
@@ -21662,7 +21662,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: REQUEST_SIGNUP
     method: post
     path: /auth/signup
@@ -27912,7 +27912,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: VERIFY_REAUTH
     method: post
     path: /auth/step-up

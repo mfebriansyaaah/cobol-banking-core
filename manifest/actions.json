@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-20T08:29:24.735Z",
-  "commit": "cf08102e",
+  "generatedAt": "2026-11-20T09:49:44.756Z",
+  "commit": "3ce78592",
   "generator": "scripts/build_action_registry.mjs (do not hand-edit)",
   "count": 536,
   "actions": [
@@ -609,12 +609,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin-stepup",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "auth",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "APPROVE_REQUEST",
@@ -643,12 +643,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin-stepup",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "auth",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "ARCHIVE_AUDIT",
@@ -677,12 +677,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin-stepup",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "auth",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "AUTH_LOGIN",
@@ -2994,12 +2994,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin-stepup",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "auth",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "CLT_ALLOCATE",
@@ -4578,12 +4578,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin-stepup",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "auth",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "DEP_ACCRUE",
@@ -6738,12 +6738,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin-stepup",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "auth",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "GET_DASHBOARD",
@@ -8610,12 +8610,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin-stepup",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "auth",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "LIST_AUDIT",
@@ -8644,12 +8644,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin-stepup",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "auth",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "LIST_DISPUTES",
@@ -8746,12 +8746,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin-stepup",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "auth",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "LIST_OUTBOX",
@@ -8780,12 +8780,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin-stepup",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "auth",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "LIST_RECONCILIATIONS",
@@ -8848,12 +8848,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin-stepup",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "auth",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "LIST_SESSIONS",
@@ -10893,12 +10893,12 @@
       "tokenIdentity": "actor",
       "owner": "auth",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "auth",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "MFA_DISABLE",
@@ -10927,12 +10927,12 @@
       "tokenIdentity": "actor",
       "owner": "auth",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "auth",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "MFA_ENROLL_BEGIN",
@@ -10961,12 +10961,12 @@
       "tokenIdentity": "actor",
       "owner": "auth",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "auth",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "MFA_ENROLL_CONFIRM",
@@ -10995,12 +10995,12 @@
       "tokenIdentity": "actor",
       "owner": "auth",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "auth",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "MRT_ACTIVATE",
@@ -11879,12 +11879,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin-stepup",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "auth",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "OPEN_DISPUTE",
@@ -11947,12 +11947,12 @@
       "tokenIdentity": "actor",
       "owner": "auth",
       "authPolicy": "public-entry",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "phone_otp",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "OTP_LINK_BEGIN",
@@ -11981,12 +11981,12 @@
       "tokenIdentity": "actor",
       "owner": "auth",
       "authPolicy": "public-entry",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "phone_otp",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "OTP_LINK_CONFIRM",
@@ -12015,12 +12015,12 @@
       "tokenIdentity": "actor",
       "owner": "auth",
       "authPolicy": "public-entry",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "phone_otp",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "OTP_VERIFY",
@@ -12049,12 +12049,12 @@
       "tokenIdentity": "actor",
       "owner": "auth",
       "authPolicy": "public-entry",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "phone_otp",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "PAY_CHECK",
@@ -13860,12 +13860,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin-stepup",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "auth",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "REJECT_REQUEST",
@@ -13894,12 +13894,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin-stepup",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "auth",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "RELEASE_HOLD",
@@ -13962,12 +13962,12 @@
       "tokenIdentity": null,
       "owner": "auth",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "auth",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "REQUEST_OPERATION",
@@ -13996,12 +13996,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin-stepup",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "auth",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "REQUEST_SIGNUP",
@@ -18220,12 +18220,12 @@
       "tokenIdentity": null,
       "owner": "auth",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "auth",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "VERIFY_REAUTH",

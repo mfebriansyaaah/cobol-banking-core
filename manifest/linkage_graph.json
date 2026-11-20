@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-20T09:00:14.388Z",
-  "commit": "3ba57df7",
+  "generatedAt": "2026-11-20T09:49:32.664Z",
+  "commit": "3ce78592",
   "linkageSource": "manifest/linkage.json",
   "summary": {
     "L3": 23,
-    "L2": 22,
+    "L2": 28,
     "L1": 10,
-    "L0": 11,
+    "L0": 5,
     "UTILITY": 3
   },
   "modules": [
@@ -47,25 +47,33 @@
     {
       "module": "auth_mfa_core",
       "source": "auth_mfa_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "mfa_backup_codes"
+      ],
       "coreCalls": [],
       "coreActions": [],
-      "hasTests": false,
-      "testEvidence": [],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
+      "hasTests": true,
+      "testEvidence": [
+        "tests/db/auth_mfa_db_tests.sh"
+      ],
+      "linkageLevel": "L2",
+      "reason": "business link (tables mfa_backup_codes) + test",
       "routeFiles": []
     },
     {
       "module": "auth_ops_core",
       "source": "auth_ops_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "notification_outbox"
+      ],
       "coreCalls": [],
       "coreActions": [],
-      "hasTests": false,
-      "testEvidence": [],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
+      "hasTests": true,
+      "testEvidence": [
+        "tests/db/auth_ops_db_tests.sh"
+      ],
+      "linkageLevel": "L2",
+      "reason": "business link (tables notification_outbox) + test",
       "routeFiles": []
     },
     {
@@ -83,13 +91,18 @@
     {
       "module": "auth_recovery_core",
       "source": "auth_recovery_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "mfa_backup_codes",
+        "mfa_recovery_requests"
+      ],
       "coreCalls": [],
       "coreActions": [],
-      "hasTests": false,
-      "testEvidence": [],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
+      "hasTests": true,
+      "testEvidence": [
+        "tests/db/auth_recovery_db_tests.sh"
+      ],
+      "linkageLevel": "L2",
+      "reason": "business link (tables mfa_backup_codes, mfa_recovery_requests) + test",
       "routeFiles": [
         "admin.js"
       ]
@@ -97,27 +110,33 @@
     {
       "module": "auth_review_core",
       "source": "auth_review_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "access_reviews"
+      ],
       "coreCalls": [],
       "coreActions": [],
-      "hasTests": false,
-      "testEvidence": [],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
+      "hasTests": true,
+      "testEvidence": [
+        "tests/db/auth_review_db_tests.sh"
+      ],
+      "linkageLevel": "L2",
+      "reason": "business link (tables access_reviews) + test",
       "routeFiles": []
     },
     {
       "module": "auth_session_core",
       "source": "auth_session_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "refresh_sessions"
+      ],
       "coreCalls": [],
       "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/auth_session_db_tests.sh"
       ],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
+      "linkageLevel": "L2",
+      "reason": "business link (tables refresh_sessions) + test",
       "routeFiles": []
     },
     {
@@ -285,7 +304,8 @@
       "source": "dashboard_core.cob",
       "businessTables": [
         "accounts",
-        "ledger"
+        "ledger",
+        "notification_outbox"
       ],
       "coreCalls": [],
       "coreActions": [],
@@ -847,15 +867,17 @@
     {
       "module": "phone_otp_core",
       "source": "phone_otp_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "otp_challenges"
+      ],
       "coreCalls": [],
       "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/phone_otp_db_tests.sh"
       ],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
+      "linkageLevel": "L2",
+      "reason": "business link (tables otp_challenges) + test",
       "routeFiles": [
         "phone.js"
       ]

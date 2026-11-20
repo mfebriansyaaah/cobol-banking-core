@@ -114,3 +114,8 @@ db_payment_tests=9
 db_payment_instruction_tests=14
 db_statement_tests=13
 db_statement_recon_tests=16
+
+db_auth_mfa_tests=11
+db_auth_ops_tests=10
+db_auth_recovery_tests=12
+db_auth_review_tests=6

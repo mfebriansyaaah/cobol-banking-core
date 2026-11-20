@@ -429,7 +429,11 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/payment_instruction_db_tests.sh` | 14 |
 | `tests/db/statement_db_tests.sh` | 13 |
 | `tests/db/statement_recon_db_tests.sh` | 16 |
-| **Total** | **3140** |
+| `tests/db/auth_mfa_db_tests.sh` | 11 |
+| `tests/db/auth_ops_db_tests.sh` | 10 |
+| `tests/db/auth_recovery_db_tests.sh` | 12 |
+| `tests/db/auth_review_db_tests.sh` | 6 |
+| **Total** | **3179** |
 <!-- END GENERATED TEST TABLE -->
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database

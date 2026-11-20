@@ -11,15 +11,20 @@
 | Module status | Modules |
 | --- | ---: |
 | CONNECTED (no open items) | 0 |
-| PARTIAL (open items) | 45 |
+| PARTIAL (open items) | 51 |
 
-Open/in-progress items: 188 of 254 recorded.
+Open/in-progress items: 208 of 277 recorded.
 
 | Module | Status | Items |
 | --- | --- | ---: |
 | `account_core` | PARTIAL | 1 |
 | `auth_core` | PARTIAL | 22 |
+| `auth_mfa_core` | PARTIAL | 2 |
+| `auth_ops_core` | PARTIAL | 3 |
 | `auth_password_core` | PARTIAL | 1 |
+| `auth_recovery_core` | PARTIAL | 5 |
+| `auth_review_core` | PARTIAL | 4 |
+| `auth_session_core` | PARTIAL | 5 |
 | `bank_guarantee_core` | PARTIAL | 2 |
 | `card_core` | PARTIAL | 1 |
 | `card_posting_core` | PARTIAL | 1 |
@@ -53,6 +58,7 @@ Open/in-progress items: 188 of 254 recorded.
 | `payment_hold_core` | PARTIAL | 4 |
 | `payment_instruction_core` | PARTIAL | 6 |
 | `payroll_processing_core` | PARTIAL | 13 |
+| `phone_otp_core` | PARTIAL | 4 |
 | `report_schedule_core` | PARTIAL | 1 |
 | `sla_tracker_core` | PARTIAL | 1 |
 | `statement_core` | PARTIAL | 6 |
@@ -88,7 +94,26 @@ Open/in-progress items: 188 of 254 recorded.
 | `auth_core:table:role-permissions` | `auth_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a core table |
 | `auth_core:table:step-up-policy` | `auth_core` | table | DONE | assistant | Domain table has no core business key or FK into a core table |
 | `auth_core:table:verification-logs` | `auth_core` | table | DONE | assistant | Domain table has no core business key or FK into a core table |
+| `auth_mfa_core:audit:core-reference` | `auth_mfa_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `auth_mfa_core:table:audit-trail` | `auth_mfa_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
+| `auth_ops_core:audit:core-reference` | `auth_ops_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `auth_ops_core:table:audit-trail` | `auth_ops_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
+| `auth_ops_core:table:role-permissions` | `auth_ops_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
 | `auth_password_core:audit:core-reference` | `auth_password_core` | audit | DONE | assistant | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `auth_recovery_core:audit:core-reference` | `auth_recovery_core` | audit | OPEN | identity | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `auth_recovery_core:table:audit-trail` | `auth_recovery_core` | table | OPEN | identity | Domain table has no core business key or FK into a core table |
+| `auth_recovery_core:table:dual-control-operations` | `auth_recovery_core` | table | OPEN | identity | Domain table has no core business key or FK into a core table |
+| `auth_recovery_core:table:maker-requests` | `auth_recovery_core` | table | OPEN | identity | Domain table has no core business key or FK into a core table |
+| `auth_recovery_core:table:verification-logs` | `auth_recovery_core` | table | OPEN | identity | Domain table has no core business key or FK into a core table |
+| `auth_review_core:audit:core-reference` | `auth_review_core` | audit | OPEN | identity | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `auth_review_core:table:audit-trail` | `auth_review_core` | table | OPEN | identity | Domain table has no core business key or FK into a core table |
+| `auth_review_core:table:permissions` | `auth_review_core` | table | OPEN | identity | Domain table has no core business key or FK into a core table |
+| `auth_review_core:table:role-permissions` | `auth_review_core` | table | OPEN | identity | Domain table has no core business key or FK into a core table |
+| `auth_session_core:action:revoke-access-token-logic` | `auth_session_core` | action | OPEN | backend | Write paragraph with no core link (writes revoked_access_tokens) |
+| `auth_session_core:audit:core-reference` | `auth_session_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `auth_session_core:table:audit-trail` | `auth_session_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
+| `auth_session_core:table:refresh-families` | `auth_session_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
+| `auth_session_core:table:revoked-access-tokens` | `auth_session_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
 | `bank_guarantee_core:audit:core-reference` | `bank_guarantee_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `bank_guarantee_core:table:customer` | `bank_guarantee_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
 | `card_core:audit:core-reference` | `card_core` | audit | OPEN | cards | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
@@ -120,7 +145,7 @@ Open/in-progress items: 188 of 254 recorded.
 | `dashboard_core:table:audit-trail` | `dashboard_core` | table | OPEN | reporting | Domain table has no core business key or FK into a core table |
 | `dashboard_core:table:dispute-cases` | `dashboard_core` | table | OPEN | reporting | Domain table has no core business key or FK into a core table |
 | `dashboard_core:table:import-batch` | `dashboard_core` | table | OPEN | reporting | Domain table has no core business key or FK into a core table |
-| `dashboard_core:table:notification-outbox` | `dashboard_core` | table | OPEN | reporting | Domain table has no core business key or FK into a core table |
+| `dashboard_core:table:notification-outbox` | `dashboard_core` | table | DONE | backend | Domain table has no core business key or FK into a core table |
 | `dashboard_core:table:ops-alert` | `dashboard_core` | table | OPEN | reporting | Domain table has no core business key or FK into a core table |
 | `dashboard_core:table:payment-policy` | `dashboard_core` | table | OPEN | reporting | Domain table has no core business key or FK into a core table |
 | `dashboard_core:table:payment-profile` | `dashboard_core` | table | OPEN | reporting | Domain table has no core business key or FK into a core table |
@@ -249,6 +274,10 @@ Open/in-progress items: 188 of 254 recorded.
 | `payroll_processing_core:table:payroll-payment` | `payroll_processing_core` | table | OPEN | payroll | Domain table has no core business key or FK into a core table |
 | `payroll_processing_core:table:payroll-processing` | `payroll_processing_core` | table | OPEN | payroll | Domain table has no core business key or FK into a core table |
 | `payroll_processing_core:table:tax-management` | `payroll_processing_core` | table | OPEN | payroll | Domain table has no core business key or FK into a core table |
+| `phone_otp_core:action:action-link-begin` | `phone_otp_core` | action | OPEN | backend | Write paragraph with no core link (writes phone_hash, phone_links) |
+| `phone_otp_core:action:action-link-confirm` | `phone_otp_core` | action | OPEN | backend | Write paragraph with no core link (writes phone_links) |
+| `phone_otp_core:audit:core-reference` | `phone_otp_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `phone_otp_core:table:phone-links` | `phone_otp_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
 | `report_core:action:action-column-create` | `report_core` | action | WAIVED | assistant | Write paragraph with no core link (writes report_template_column) |
 | `report_core:action:action-column-update` | `report_core` | action | WAIVED | assistant | Write paragraph with no core link (writes report_template_column) |
 | `report_core:action:action-run-complete` | `report_core` | action | WAIVED | assistant | Write paragraph with no core link (writes report_run) |
@@ -295,9 +324,9 @@ Open/in-progress items: 188 of 254 recorded.
 | `treasury_liquidity_core:table:treasury-liquidity` | `treasury_liquidity_core` | table | OPEN | treasury | Domain table has no core business key or FK into a core table |
 | `user_core:audit:core-reference` | `user_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `user_core:table:audit-trail` | `user_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
-| `user_core:table:mfa-backup-codes` | `user_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
+| `user_core:table:mfa-backup-codes` | `user_core` | table | DONE | backend | Domain table has no core business key or FK into a core table |
 | `user_core:table:notification-outbox` | `user_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a core table |
-| `user_core:table:refresh-sessions` | `user_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
+| `user_core:table:refresh-sessions` | `user_core` | table | DONE | backend | Domain table has no core business key or FK into a core table |
 | `user_core:table:verification-logs` | `user_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
 | `wallet_core:audit:core-reference` | `wallet_core` | audit | OPEN | wallet | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `wallet_core:table:audit-authz-denied` | `wallet_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a core table |

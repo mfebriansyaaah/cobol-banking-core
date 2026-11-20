@@ -22,6 +22,7 @@
     "ref_ext_core"
   ],
   "businessTables": [
+    "access_reviews",
     "account",
     "accounts",
     "bank_guarantee",
@@ -59,7 +60,12 @@
     "loyalty_points_ledger",
     "loyalty_redemption",
     "merchant_transaction",
+    "mfa_backup_codes",
+    "mfa_recovery_requests",
+    "notification_outbox",
     "ntf_template_config",
+    "otp_challenges",
+    "refresh_sessions",
     "rpt_schedule_config",
     "sla_tracker",
     "tax_withholding_entry"

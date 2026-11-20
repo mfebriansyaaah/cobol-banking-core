@@ -25,3 +25,9 @@ chargeback_core  covered by chargeback_db_tests.sh + domain suite; add to curate
 letter_of_credit_core  covered by letter_of_credit_db_tests.sh + domain suite; add to curated coverage set
 loyalty_core  covered by loyalty_domain_db_tests.sh; add to curated coverage set
 import_core  covered by import_ops_db_tests.sh; add to curated coverage set
+auth_mfa_core  covered by auth_mfa_db_tests.sh; add to curated coverage set
+auth_ops_core  covered by auth_ops_db_tests.sh; add to curated coverage set
+auth_recovery_core  covered by auth_recovery_db_tests.sh; add to curated coverage set
+auth_review_core  covered by auth_review_db_tests.sh; add to curated coverage set
+auth_session_core  covered by auth_session_db_tests.sh; add to curated coverage set
+phone_otp_core  covered by phone_otp_db_tests.sh; add to curated coverage set
