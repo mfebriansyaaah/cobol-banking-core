@@ -18,18 +18,23 @@ db_seed
 U="otpM@test.com"
 db_exec "DELETE FROM otp_challenges WHERE user_id IN (SELECT id FROM users WHERE email='${U}');"
 db_exec "DELETE FROM phone_links WHERE user_id IN (SELECT id FROM users WHERE email='${U}');"
+db_exec "DELETE FROM audit_trail WHERE user_id IN (SELECT id FROM users WHERE email='${U}');"
 db_exec "DELETE FROM users WHERE email='${U}';"
 run_cobol "REQUEST_SIGNUP|${U}|Passw0rd!|Otp Em|1990-01-01" >/dev/null
 code="$(db_query "SELECT code FROM verification_logs WHERE email='${U}' AND is_used=0 ORDER BY id DESC LIMIT 1;")"
 run_cobol "VERIFY_EMAIL|${U}|${code}" >/dev/null
 run_cobol "OTP_LINK_BEGIN|${U}|hashm||${U}||" >/dev/null
+assert_match "link begin audited" "$(db_query "SELECT COUNT(*) FROM audit_trail WHERE user_id=(SELECT id FROM users WHERE email='${U}') AND action='LINK_BEGIN' AND status='SUCCESS';")" "^1$"
 
 # Issue is rate-limited: 3 live per purpose per 10 minutes.
-assert_match "ISSUE 1 ok" "$(run_cobol "OTP_ISSUE|${U}|PHONE|M_PURPOSE|${U}|")" "SUCCESS\|OTP_ISSUED"
+issue1="$(run_cobol "OTP_ISSUE|${U}|PHONE|M_PURPOSE|${U}|")"
+assert_match "ISSUE 1 ok" "$issue1" "SUCCESS\|OTP_ISSUED"
+cid="$(printf '%s' "$issue1" | awk -F'|' '{print $3}')"
 assert_match "ISSUE 2 ok" "$(run_cobol "OTP_ISSUE|${U}|PHONE|M_PURPOSE|${U}|")" "SUCCESS\|OTP_ISSUED"
 assert_match "ISSUE 3 ok" "$(run_cobol "OTP_ISSUE|${U}|PHONE|M_PURPOSE|${U}|")" "SUCCESS\|OTP_ISSUED"
 assert_match "ISSUE 4 refused" "$(run_cobol "OTP_ISSUE|${U}|PHONE|M_PURPOSE|${U}|")" "ERROR\|RATE_LIMITED"
 assert_match "live count" "$(db_query "SELECT COUNT(*) FROM otp_challenges WHERE user_id=(SELECT id FROM users WHERE email='${U}') AND status='PENDING';")" "^3$"
+assert_match "issue audited" "$(db_query "SELECT COUNT(*) FROM audit_trail WHERE user_id=(SELECT id FROM users WHERE email='${U}') AND action='OTP_ISSUE' AND entity_id='${cid}' AND status='SUCCESS';")" "^1$"
 
 # Codes hashed at rest (64-hex, never the plaintext).
 assert_match "hash shape" "$(db_query "SELECT code_hash FROM otp_challenges WHERE user_id=(SELECT id FROM users WHERE email='${U}') ORDER BY id DESC LIMIT 1;")" "^[0-9a-f]{64}$"
@@ -39,9 +44,15 @@ assert_match "hash shape" "$(db_query "SELECT code_hash FROM otp_challenges WHER
 # fresh purpose to observe the resend path cleanly).
 issue_r="$(run_cobol "OTP_ISSUE|${U}|PHONE|R_PURPOSE|${U}|")"
 assert_match "ISSUE ok (resend purpose)" "$issue_r" "SUCCESS\|OTP_ISSUED"
-assert_match "RESEND ok" "$(run_cobol "OTP_RESEND|${U}||R_PURPOSE|${U}|")" "SUCCESS\|OTP_ISSUED"
+resend_out="$(run_cobol "OTP_RESEND|${U}||R_PURPOSE|${U}|")"
+assert_match "RESEND ok" "$resend_out" "SUCCESS\|OTP_ISSUED"
 assert_match "old expired" "$(db_query "SELECT COUNT(*) FROM otp_challenges WHERE user_id=(SELECT id FROM users WHERE email='${U}') AND purpose='R_PURPOSE' AND status='EXPIRED';")" "^[1-9][0-9]*$"
 assert_match "one live" "$(db_query "SELECT COUNT(*) FROM otp_challenges WHERE user_id=(SELECT id FROM users WHERE email='${U}') AND purpose='R_PURPOSE' AND status='PENDING';")" "^1$"
+rid="$(printf '%s' "$resend_out" | awk -F'|' '{print $3}')"
+rcode="$(printf '%s' "$resend_out" | awk -F'|' '{print $4}')"
+assert_match "resend audited" "$(db_query "SELECT COUNT(*) FROM audit_trail WHERE user_id=(SELECT id FROM users WHERE email='${U}') AND action='OTP_RESEND' AND entity_id='${rid}' AND status='SUCCESS';")" "^1$"
+assert_match "verify ok" "$(run_cobol "OTP_VERIFY|${U}|${rcode}|R_PURPOSE|${U}|")" "SUCCESS\|OTP_VERIFIED"
+assert_match "verify audited" "$(db_query "SELECT COUNT(*) FROM audit_trail WHERE user_id=(SELECT id FROM users WHERE email='${U}') AND action='OTP_VERIFY' AND entity_id='${rid}' AND status='SUCCESS';")" "^1$"
 
 # Wrong channel refused; unknown user refused; foreign actor refused.
 assert_match "bad channel refused" "$(run_cobol "OTP_ISSUE|${U}|pigeon|M_PURPOSE|${U}|")" "ERROR\|INVALID_INPUT"
@@ -54,6 +65,7 @@ for i in 1 2 3 4 5; do
 done
 assert_match "locked" "$(db_query "SELECT status FROM otp_challenges WHERE user_id=(SELECT id FROM users WHERE email='${U}') AND purpose='M_PURPOSE' ORDER BY id DESC LIMIT 1;")" "^LOCKED$"
 assert_match "locked verify refused" "$(run_cobol "OTP_VERIFY|${U}|000000|M_PURPOSE|${U}|")" "ERROR\|INVALID_CODE"
+assert_match "failed verifies audited" "$(db_query "SELECT COUNT(*) FROM audit_trail WHERE user_id=(SELECT id FROM users WHERE email='${U}') AND action='OTP_VERIFY' AND status='FAILED';")" "^[1-9][0-9]*$"
 
 # Chat lookup for server-side delivery: no verified link yet.
 assert_match "chat missing" "$(run_cobol "OTP_CHAT|${U}|||${U}||")" "ERROR\|NOT_FOUND"
@@ -62,10 +74,12 @@ assert_match "chat foreign refused" "$(run_cobol "OTP_CHAT|${U}|||sender@test.co
 begin_out="$(run_cobol "OTP_LINK_BEGIN|${U}|aaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccddddaaaabbbbccccdddd||${U}||")"
 token="$(printf '%s' "$begin_out" | awk -F'|' '{print $3}')"
 run_cobol "OTP_LINK_CONFIRM|${U}|${token}|chat-otp-1|${U}||" >/dev/null
+assert_match "link confirm audited" "$(db_query "SELECT COUNT(*) FROM audit_trail WHERE user_id=(SELECT id FROM users WHERE email='${U}') AND action='LINK_CONFIRM' AND status='SUCCESS';")" "^1$"
 assert_match "chat ok" "$(run_cobol "OTP_CHAT|${U}|||${U}||")" "SUCCESS\|CHAT\|chat-otp-1\|[0-9a-f]{64}"
 
 db_exec "DELETE FROM otp_challenges WHERE user_id IN (SELECT id FROM users WHERE email='${U}');"
 db_exec "DELETE FROM phone_links WHERE user_id IN (SELECT id FROM users WHERE email='${U}');"
+db_exec "DELETE FROM audit_trail WHERE user_id IN (SELECT id FROM users WHERE email='${U}');"
 db_exec "DELETE FROM users WHERE email='${U}';"
 
 print_summary

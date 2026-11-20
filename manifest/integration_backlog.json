@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T13:02:23.072Z",
+  "generatedAt": "2026-11-20T13:31:20.510Z",
   "items": [
     {
       "id": "account_core:audit:core-reference",
@@ -2912,12 +2912,24 @@
       "module": "phone_otp_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "WAIVED",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [
-        "OTP/link lifecycle currently has no audit table (hashed challenges only). Accepted risk; follow-up should add audit rows. Owner backend."
+        "phone_otp_core writes audit_trail rows with user_id/actor_id, action LINK_BEGIN/LINK_CONFIRM/OTP_ISSUE/OTP_RESEND/OTP_VERIFY, entity_id = challenge id or user id, status SUCCESS/FAILED; asserted by tests/db/phone_otp_db_tests.sh."
       ],
       "owner": "backend"
+    },
+    {
+      "id": "phone_otp_core:table:audit-trail",
+      "module": "phone_otp_core",
+      "kind": "table",
+      "subject": "audit_trail",
+      "status": "WAIVED",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "audit_trail is the shared audit sink keyed by user_id/actor_id; the new PHONE_OTP rows are audit metadata, not a domain business table."
+      ],
+      "owner": "platform"
     },
     {
       "id": "phone_otp_core:table:phone-links",

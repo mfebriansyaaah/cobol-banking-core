@@ -159,7 +159,7 @@ suites, table cases, and the action/suite inventory gates. See
 | --- | ---: |
 | COBOL modules | **69** |
 | COBOL source files (incl. dispatcher) | **70** |
-| COBOL lines | **48,406** |
+| COBOL lines | **48,470** |
 | Gateway route files | **52** |
 | Gateway route definitions | **561** |
 | Dispatch entries | **192** |
@@ -410,7 +410,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/auth_conservation_db_tests.sh` | 28 |
 | `tests/db/payment_gl_invariants_db_tests.sh` | 25 |
 | `tests/db/payment_posting_db_tests.sh` | 40 |
-| `tests/db/phone_otp_db_tests.sh` | 18 |
+| `tests/db/phone_otp_db_tests.sh` | 25 |
 | `tests/db/identity_db_tests.sh` | 28 |
 | `tests/db/kyc_enforcement_db_tests.sh` | 23 |
 | `tests/db/screening_db_tests.sh` | 37 |
@@ -447,7 +447,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/eod_jobs_db_tests.sh` | 8 |
 | `tests/db/import_row_db_tests.sh` | 10 |
 | `tests/db/report_run_db_tests.sh` | 11 |
-| **Total** | **3284** |
+| **Total** | **3291** |
 <!-- END GENERATED TEST TABLE -->
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database

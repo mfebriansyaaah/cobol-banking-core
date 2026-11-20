@@ -13,7 +13,7 @@
 | CONNECTED (no open items) | 0 |
 | PARTIAL (open items) | 66 |
 
-Open/in-progress items: 0 of 309 recorded.
+Open/in-progress items: 0 of 310 recorded.
 
 | Module | Status | Items |
 | --- | --- | ---: |
@@ -65,7 +65,7 @@ Open/in-progress items: 0 of 309 recorded.
 | `payment_hold_core` | PARTIAL | 4 |
 | `payment_instruction_core` | PARTIAL | 6 |
 | `payroll_processing_core` | PARTIAL | 13 |
-| `phone_otp_core` | PARTIAL | 4 |
+| `phone_otp_core` | PARTIAL | 5 |
 | `report_core` | PARTIAL | 16 |
 | `report_run_core` | PARTIAL | 2 |
 | `report_schedule_core` | PARTIAL | 1 |
@@ -302,7 +302,8 @@ Open/in-progress items: 0 of 309 recorded.
 | `payroll_processing_core:table:tax-management` | `payroll_processing_core` | table | DONE | backend | Domain table has no core business key or FK into a core table |
 | `phone_otp_core:action:action-link-begin` | `phone_otp_core` | action | DONE | backend | Write paragraph with no core link (writes phone_hash, phone_links) |
 | `phone_otp_core:action:action-link-confirm` | `phone_otp_core` | action | DONE | backend | Write paragraph with no core link (writes phone_links) |
-| `phone_otp_core:audit:core-reference` | `phone_otp_core` | audit | WAIVED | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `phone_otp_core:audit:core-reference` | `phone_otp_core` | audit | DONE | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `phone_otp_core:table:audit-trail` | `phone_otp_core` | table | WAIVED | platform | Domain table has no core business key or FK into a core table |
 | `phone_otp_core:table:phone-links` | `phone_otp_core` | table | DONE | backend | Domain table has no core business key or FK into a core table |
 | `report_core:action:action-column-create` | `report_core` | action | WAIVED | assistant | Write paragraph with no core link (writes report_template_column) |
 | `report_core:action:action-column-update` | `report_core` | action | WAIVED | assistant | Write paragraph with no core link (writes report_template_column) |
