@@ -1,15 +1,14 @@
 name: Mutation
 
-# Money-path mutation gate (gap-closure #1): each listed mutant neuters one
-# guard; the mapped suite MUST fail. Any survivor fails the run. Weekly
-# (each mutant rebuilds + runs suites) plus manual dispatch.
+# Money-path mutation gate: each mutant neuters one guard; the mapped suite
+# MUST fail. Any survivor fails the run. Weekly plus manual dispatch.
 on:
   schedule:
     - cron: '0 3 * * 1'
   workflow_dispatch:
 
 concurrency:
-  group: mutation-${{ github.ref }}
+  group: mutation-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
 permissions:
@@ -49,18 +48,39 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
+      # Warm objects make each mutant a one-module recompile + relink instead
+      # of a full rebuild.
+      - name: Restore COBOL build cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: cobol/build
+          key: >
+            cobol-build-${{ runner.os }}-gnucobol3.2-${{
+            hashFiles('cobol/src/**', 'cobol/copy/**', 'cobol/c_lib/**',
+            'build.sh', 'cobol/Makefile', 'scripts/ci/install_gnucobol.sh') }}
+          restore-keys: |
+            cobol-build-${{ runner.os }}-gnucobol3.2-
+
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
         with:
           node-version: '24'
+          cache: npm
+          cache-dependency-path: middleware/package-lock.json
 
       - name: Install runtime dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            gnucobol libmysqlclient-dev build-essential mariadb-client \
-            git python3
+          set -euo pipefail
+          sudo timeout 240 apt-get install -y --no-install-recommends \
+            libgmp-dev libmariadb-dev libmariadb-dev-compat build-essential mariadb-client git python3 || {
+            sudo timeout 120 apt-get update
+            sudo timeout 240 apt-get install -y --no-install-recommends \
+              libgmp-dev libmariadb-dev libmariadb-dev-compat build-essential mariadb-client git python3
+          }
           npm ci --prefix middleware --no-audit --no-fund
+
+      - name: Setup GnuCOBOL
+        uses: ./.github/actions/setup-cobol
 
       - name: Seed test database
         run: |

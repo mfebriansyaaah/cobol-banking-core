@@ -1,17 +1,15 @@
 name: Nightly
 
-# Full fleet twice plus drills, on a schedule (P1-5). Two consecutive full
-# runs must produce identical results; any difference fails the workflow and
-# is reported as a possible flake. PRs are unaffected (this never blocks
-# them); failures here mean the fleet is order-dependent or flaky.
+# Full fleet twice plus drills, on a schedule. Two consecutive full runs must
+# produce identical results; any difference fails the workflow and is reported
+# as a possible flake. PRs are unaffected.
 on:
   schedule:
     - cron: '0 2 * * *'
   workflow_dispatch:
 
-# Own group: a push must not cancel a running nightly (or vice versa).
 concurrency:
-  group: nightly-${{ github.ref }}
+  group: nightly-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
 permissions:
@@ -53,24 +51,45 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
+      # Both full runs share the same warm objects; the cache also survives
+      # night-to-night when only a few modules changed.
+      - name: Restore COBOL build cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: cobol/build
+          key: >
+            cobol-build-${{ runner.os }}-gnucobol3.2-${{
+            hashFiles('cobol/src/**', 'cobol/copy/**', 'cobol/c_lib/**',
+            'build.sh', 'cobol/Makefile', 'scripts/ci/install_gnucobol.sh') }}
+          restore-keys: |
+            cobol-build-${{ runner.os }}-gnucobol3.2-
+
       - name: Install runtime dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            gnucobol libmysqlclient-dev build-essential mariadb-client
+          set -euo pipefail
+          sudo timeout 240 apt-get install -y --no-install-recommends \
+            libgmp-dev libmariadb-dev libmariadb-dev-compat build-essential mariadb-client || {
+            sudo timeout 120 apt-get update
+            sudo timeout 240 apt-get install -y --no-install-recommends \
+              libgmp-dev libmariadb-dev libmariadb-dev-compat build-essential mariadb-client
+          }
+
+      - name: Setup GnuCOBOL
+        uses: ./.github/actions/setup-cobol
 
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
         with:
           node-version: '24'
           cache: npm
-          cache-dependency-path: middleware/package-lock.json
+          cache-dependency-path: |
+            package-lock.json
+            middleware/package-lock.json
 
-      - name: Install gateway dependencies
-        run: npm ci --prefix middleware
-
-      - name: Install JS toolchain (load test runner)
-        run: npm ci
+      - name: Install JS dependencies (gateway + load-test runner)
+        run: |
+          npm ci --prefix middleware --no-audit --no-fund
+          npm ci --no-audit --no-fund
 
       - name: Bootstrap database
         uses: ./.github/actions/db-bootstrap

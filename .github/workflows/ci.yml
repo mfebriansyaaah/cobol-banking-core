@@ -1,35 +1,76 @@
 name: CI
 
+# PRs are classified by the `changes` job instead of workflow-level path
+# filters: the required checks must still report (skipped counts as success),
+# which a fully skipped workflow cannot do. Push-to-main docs-only commits are
+# filtered here because no PR gate is involved.
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - 'LICENSE'
+      - '.gitignore'
+      - '.git-blame-ignore-revs'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/pull_request_template.md'
+      - '.github/CODEOWNERS'
   pull_request:
   workflow_dispatch:
 
-# Least privilege: every job gets a read-only token unless it declares more
-# (the CodeQL analyze job adds security-events: write for its own scope).
+# Least privilege: every job gets a read-only token unless it declares more.
 permissions:
   contents: read
 
+# A new commit on the same branch/PR cancels the previous run. This is the
+# single largest wall-clock saving on active branches.
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-# Single source of truth for the DB fleet size (CI-010): the db-shards
-# matrix, the shard runner, and the aggregate step all read this.
-# 84 DB suites (83 *_db_tests.sh + schema_tests.sh; run
-# `ls tests/db/*_db_tests.sh | wc -l` to recount); revisit if the fleet
-# grows beyond 120.
+# Single source of truth for the DB fleet size: the db-shards matrix, the
+# shard runner, and the aggregate step all read this. 82 DB suites today.
 env:
   DB_SHARD_COUNT: 2
 
 jobs:
+  # Changed-file classifier. Runs first and cheaply; every heavy job gates on
+  # its outputs so docs-only PRs cost one small job instead of a full fleet.
+  changes:
+    name: changes
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      docs_only: ${{ steps.classify.outputs.docs_only }}
+      docker_relevant: ${{ steps.classify.outputs.docker_relevant }}
+      coverage_relevant: ${{ steps.classify.outputs.coverage_relevant }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Classify changed files
+        id: classify
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE_SHA: ${{ github.event.before }}
+          HAS_CI_FULL_LABEL: ${{ contains(github.event.pull_request.labels.*.name, 'ci:full') }}
+        run: bash scripts/ci/classify_changes.sh
+
+  # All static analysis and fast tests live in one job. They are independent
+  # of the compiled artifact, so running them here lets `build` stay a pure
+  # compile/produce job and avoids installing the lint toolchain twice.
   lint:
     name: lint
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          # PR-size and docs gates need the merge-base, not a shallow tip.
+          fetch-depth: 0
 
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
@@ -39,23 +80,14 @@ jobs:
           cache-dependency-path: package-lock.json
 
       # Python 3.12 for the pip-installed lint tools: the runner default
-      # (3.14) cannot import semgrep's opentelemetry/protobuf chain
-      # (TypeError: Metaclasses with custom tp_new), and semgrep 1.136
-      # pins opentelemetry to 1.25.x whose protobuf (<5.0) predates 3.14.
+      # (3.14) cannot import semgrep's opentelemetry/protobuf chain.
       - name: Set up Python
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0  # v7.1.0
         with:
           python-version: '3.12'
 
-      # Pinned to the versions verified locally (see scripts/ci/lint.sh):
-      # apt versions drift between runners and change findings.
-      # Downloads are checksum-verified by scripts/ci/install-tools.sh
-      # before extraction (see scripts/ci/tool-checksums.txt).
-      # The verified-download cache below lets lint survive a release-CDN
-      # outage once any green run populated it. Keyed on the installer;
-      # a checksums bump needs no key change because every cached byte
-      # is re-verified against tool-checksums.txt on use (stale entries
-      # just re-download).
+      # Checksum-verified tool downloads; the cache makes lint survive a
+      # release-CDN outage once any green run populated it.
       - name: Restore lint-tools cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
@@ -67,15 +99,21 @@ jobs:
           bash scripts/ci/install-tools.sh --dest "$HOME/.local/bin" --cache-dir "$HOME/.cache/lint-tools"
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
           pip install --break-system-packages "setuptools==78.1.1" "yamllint==1.38.0" "semgrep==1.136.0"
-          # setuptools is pinned so pkg_resources keeps existing: semgrep's
-          # opentelemetry-instrumentation imports it, and Python 3.12+'s
-          # bundled venvs no longer ship setuptools by default.
 
       - name: Install JS lint tools
         run: npm ci
 
       - name: Install C lint tool
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends cppcheck
+        # No unconditional `apt-get update`: on hosted runners the package
+        # lists are already current, and a slow mirror here used to add
+        # 3-8 minutes to the whole pipeline. Update only as a fallback, with
+        # hard timeouts so a dead mirror cannot hang the job.
+        run: |
+          set -euo pipefail
+          sudo timeout 180 apt-get install -y --no-install-recommends cppcheck || {
+            sudo timeout 120 apt-get update
+            sudo timeout 180 apt-get install -y --no-install-recommends cppcheck
+          }
 
       - name: Shell lint
         run: bash scripts/ci/lint.sh
@@ -110,6 +148,9 @@ jobs:
       - name: Validate alert rules
         run: promtool check rules monitoring/prometheus-alerts.yml
 
+      # Semgrep stays: it is the only rule-based SAST over JS/scripts.
+      # The old custom `sast.sh`/`sast_extra.sh` steps duplicated this,
+      # gitleaks, and the static gate scripts, so they are no longer in CI.
       - name: Semgrep scan
         run: >
           semgrep --config .semgrep/rules.yml --exclude node_modules
@@ -118,10 +159,36 @@ jobs:
       - name: Secret scan
         run: gitleaks detect --source . --no-git --redact --config .gitleaks.toml
 
+      # Repository invariants formerly split across `build`; they read the
+      # tree only and do not need the compiled binary.
+      - name: Repository invariants
+        run: |
+          set -euo pipefail
+          node scripts/check_manifest.mjs .
+          node scripts/check_docs.mjs .
+          node scripts/check_docs_modules.mjs .
+          node scripts/check_cobol_paragraphs.mjs .
+          node scripts/check_coverage_recommended.mjs .
+          node scripts/check_pr_size_policy.mjs .
+          node scripts/check_error_codes.mjs .
+          node scripts/check_program_signatures.mjs .
+          node scripts/check_test_registration.mjs .
+
+      # Gate-detection probes mutate a throwaway copy and require the gates
+      # to notice; ~38s, no DB and no real build.
+      - name: Gate detection probes
+        run: tests/probes/run_probes.sh
+
+      - name: PR-size report (non-gating)
+        run: |
+          set -euo pipefail
+          BASE="${{ github.event.pull_request.base.sha }}"
+          [ -n "$BASE" ] || BASE="origin/main"
+          node scripts/pr_size.mjs --base "$BASE" --head HEAD | tee -a "$GITHUB_STEP_SUMMARY"
+
       - name: Gate unit tests
-        # Pipefail matters: `node --test ... | tail -5` exits 0 even when tests
-        # fail (exit status is tail's), silently greening a red gate. Capture
-        # the log, print the tail, then exit with the test status.
+        # Capture the log and re-exit with the test status: piping through
+        # `tail` would otherwise mask a red gate with tail's exit code.
         run: >
           mkdir -p test-results/gate &&
           node --test --test-reporter=spec --test-reporter-destination=stdout
@@ -135,8 +202,6 @@ jobs:
       - name: Coverage mapper unit tests
         run: python3 scripts/coverage/test_map_cobol.py
 
-      # Fast guard (~1s, no build/DB): fails when a mutant anchor no longer
-      # matches the source, so the weekly mutation run cannot rot silently.
       - name: Mutation anchor guard
         run: bash tests/probes/money_path_mutants.sh --check-anchors
 
@@ -162,18 +227,20 @@ jobs:
         with:
           name: diagnostics-lint
 
+  # Pure producer job: compile once, cache objects, publish the binary that
+  # every DB/gateway consumer downloads. No Node, no static gates, no apt
+  # update on the critical path.
   build:
     name: build
+    needs: changes
+    if: needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-        with:
-          fetch-depth: 0
 
-      # COBOL object cache (shared with coverage-pr): warm builds recompile
-      # only changed modules. Key pins the toolchain (GnuCOBOL 3.2) plus every
-      # build input; objects must never cross compiler versions.
+      # Key pins the toolchain and every build input; objects must never
+      # cross compiler versions.
       - name: Restore COBOL build cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
@@ -185,91 +252,18 @@ jobs:
           restore-keys: |
             cobol-build-${{ runner.os }}-gnucobol3.2-
 
-      - name: Set up Node
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
-        with:
-          node-version: '24'
-
       - name: Install build dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            libgmp-dev libmysqlclient-dev build-essential
+          set -euo pipefail
+          sudo timeout 180 apt-get install -y --no-install-recommends \
+            libgmp-dev libmariadb-dev libmariadb-dev-compat build-essential || {
+            sudo timeout 120 apt-get update
+            sudo timeout 180 apt-get install -y --no-install-recommends \
+              libgmp-dev libmariadb-dev libmariadb-dev-compat build-essential
+          }
 
       - name: Setup GnuCOBOL
         uses: ./.github/actions/setup-cobol
-
-      - name: Verify manifest
-        run: node scripts/check_manifest.mjs .
-
-      - name: Verify documentation
-        run: node scripts/check_docs.mjs .
-
-      - name: Verify living-doc module references
-        run: node scripts/check_docs_modules.mjs .
-
-      - name: Verify COBOL paragraph-length ratchet
-        run: node scripts/check_cobol_paragraphs.mjs .
-
-      - name: Verify recommended-module coverage ratchet
-        run: node scripts/check_coverage_recommended.mjs .
-
-      - name: Verify PR-size policy
-        run: node scripts/check_pr_size_policy.mjs .
-
-      - name: Verify error-code parity
-        run: node scripts/check_error_codes.mjs .
-
-      - name: Verify program signatures
-        run: node scripts/check_program_signatures.mjs .
-
-      - name: Verify test registration
-        run: node scripts/check_test_registration.mjs .
-
-      - name: PR-size report (non-gating artifact)
-        run: |
-          set -euo pipefail
-          mkdir -p artifacts
-          BASE="${{ github.event.pull_request.base.sha }}"
-          if [ -z "$BASE" ]; then
-            BASE="origin/main"
-          fi
-          node scripts/pr_size.mjs --base "$BASE" --head HEAD > artifacts/pr-size.txt
-          node scripts/pr_size.mjs --base "$BASE" --head HEAD --json > artifacts/pr-size.json
-
-      - name: Upload PR-size report
-        if: always()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
-        with:
-          name: pr-size-report
-          path: artifacts/pr-size.*
-          retention-days: 14
-          if-no-files-found: warn
-          overwrite: true
-
-      - name: Complexity audit snapshot (non-gating artifact)
-        run: |
-          mkdir -p artifacts
-          node scripts/audit_complexity.mjs --json > artifacts/complexity.json
-
-      - name: Upload complexity snapshot
-        if: always()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
-        with:
-          name: complexity-snapshot
-          overwrite: true
-          path: artifacts/complexity.json
-          retention-days: 7
-          if-no-files-found: ignore
-
-      - name: Gate detection probes
-        run: tests/probes/run_probes.sh
-
-      - name: SAST scan
-        run: bash scripts/ci/sast.sh
-
-      - name: SAST extra scan
-        run: bash scripts/ci/sast_extra.sh
 
       - name: Build core
         run: |
@@ -304,21 +298,18 @@ jobs:
         with:
           name: diagnostics-build
 
-  # Production image build (P1-11): proves the Dockerfile compiles and links.
-  # No push, no registry: the image is built, linkage-verified, then dropped.
-  # Skipped for docs-only PRs like the other heavy jobs.
+  # Packaging validation. It does not consume the build artifact, so it runs
+  # in parallel with `build` instead of waiting for it. On PRs it is limited
+  # to changes that can alter the image; push-to-main always validates.
   docker-build:
     name: docker-build
-    needs: [build, changes]
-    # Push to main always rebuilds the image. PRs rebuild only when the
-    # change set can affect the image (Dockerfile, build inputs, COPY
-    # sources); docs/test-only PRs skip it.
+    needs: changes
     if: >
-      github.event_name != 'pull_request' ||
-      (needs.changes.outputs.docs_only != 'true' &&
+      needs.changes.outputs.docs_only != 'true' &&
+      (github.event_name != 'pull_request' ||
        needs.changes.outputs.docker_relevant == 'true')
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
@@ -333,35 +324,11 @@ jobs:
             exit 1
           fi
 
-  # Changed-file classifier (CI-011): docs-only PRs skip the heavy DB jobs.
-  # Fails safe to full: any classifier error, empty diff, unknown path, or
-  # the `ci:full` label forces `docs_only=false`. `docker_relevant` is true
-  # unless the change set provably cannot affect `docker build`.
-  changes:
-    name: changes
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    outputs:
-      docs_only: ${{ steps.classify.outputs.docs_only }}
-      docker_relevant: ${{ steps.classify.outputs.docker_relevant }}
-      coverage_relevant: ${{ steps.classify.outputs.coverage_relevant }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
-        with:
-          fetch-depth: 0
-
-      - name: Classify changed files
-        id: classify
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          PUSH_BEFORE_SHA: ${{ github.event.before }}
-          HAS_CI_FULL_LABEL: ${{ contains(github.event.pull_request.labels.*.name, 'ci:full') }}
-        run: bash scripts/ci/classify_changes.sh
-
+  # One migrated snapshot serves every DB consumer. It does not need the
+  # binary, so it starts immediately instead of queueing behind `build`.
   db-snapshot:
     name: db-snapshot
-    needs: [build, changes]
+    needs: changes
     if: github.event_name != 'pull_request' || needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -380,22 +347,22 @@ jobs:
           --health-interval=5s
           --health-timeout=5s
           --health-retries=20
-
     env:
       DB_HOST: 127.0.0.1
       DB_PORT: 3306
       DB_NAME: cobol_db
       DB_MIGRATE_USER: root
       DB_MIGRATE_PASS: root
-
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
       - name: Install runtime dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            mariadb-client
+          set -euo pipefail
+          sudo timeout 180 apt-get install -y --no-install-recommends mariadb-client || {
+            sudo timeout 120 apt-get update
+            sudo timeout 180 apt-get install -y --no-install-recommends mariadb-client
+          }
 
       - name: Load baseline schema
         run: >
@@ -421,14 +388,16 @@ jobs:
           retention-days: 1
           if-no-files-found: error
 
-  # Schema drift is a correctness gate, not a snapshot prerequisite: running
-  # it in its own job keeps a stale committed snapshot from blocking every
-  # DB consumer (it used to fail db-snapshot before the artifact upload).
-  # Parallel with db-snapshot so it costs wall-clock only, not the critical path.
+  # Correctness gate kept parallel to db-snapshot so a stale committed
+  # snapshot cannot block every DB consumer. The required `db aggregate` job
+  # surfaces its failure. Push runs are skipped: the PR gate and nightly
+  # already cover drift, so a post-merge re-run only burns a runner.
   schema-drift:
     name: schema-drift
     needs: changes
-    if: github.event_name != 'pull_request' || needs.changes.outputs.docs_only != 'true'
+    if: >
+      (github.event_name == 'pull_request' && needs.changes.outputs.docs_only != 'true') ||
+      github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     services:
@@ -443,21 +412,21 @@ jobs:
           --health-interval=5s
           --health-timeout=5s
           --health-retries=20
-
     env:
       DB_HOST: 127.0.0.1
       DB_PORT: 3306
       DB_MIGRATE_USER: root
       DB_MIGRATE_PASS: root
-
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
       - name: Install runtime dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            mariadb-client
+          set -euo pipefail
+          sudo timeout 180 apt-get install -y --no-install-recommends mariadb-client || {
+            sudo timeout 120 apt-get update
+            sudo timeout 180 apt-get install -y --no-install-recommends mariadb-client
+          }
 
       - name: Schema snapshot hash (PR-065 artifact policy)
         run: sha256sum database/schema_full.sql | tee /tmp/schema-full.sha256
@@ -474,13 +443,14 @@ jobs:
           retention-days: 7
           if-no-files-found: error
 
+  # PR-only non-DB gate: static tests already ran in `lint`, the DB fleet runs
+  # in the shard matrix. Integration/gateway/error harness run here.
   test:
     name: test
     needs: [build, db-snapshot, changes]
     if: github.event_name == 'pull_request' && needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
-
+    timeout-minutes: 25
     services:
       mariadb:
         image: mariadb:11.8
@@ -496,18 +466,13 @@ jobs:
           --health-interval=5s
           --health-timeout=5s
           --health-retries=20
-      # Email OTP flow (tests/integration/email_otp_flow.sh) delivers through
-      # this in CI; locally the flow skips without it (REQUIRE_MAILPIT=1).
+      # Email OTP flow (tests/integration/email_otp_flow.sh).
       mailpit:
         image: axllent/mailpit@sha256:23a2ef85bc50853ab3093645d1d64679afd8887e89da5e48a88940c172591a4e
         ports:
           - 1025:1025
           - 8025:8025
-
     env:
-      # QUARANTINE=1 activates middleware/test/quarantine.txt (flaky-test
-      # skip list). Nightly and local runs leave it unset: full suite,
-      # detection net for quarantined flakes. Expiry forces owner renewal.
       QUARANTINE: '1'
       DB_HOST: 127.0.0.1
       DB_PORT: 3306
@@ -518,26 +483,22 @@ jobs:
       DB_MIGRATE_PASS: root
       SKIP_BUILD: '1'
       REQUIRE_MAILPIT: '1'
-      # The service database is already provisioned (schema + migrations) by
-      # the steps below, so run_all.sh db uses it directly instead of
-      # building a second isolated copy (Fase 4.2). Fuzz runs inside
-      # run_all.sh full; no separate step needed (Fase 4.1).
       ISOLATED_DB: '0'
-      DB_SHARDS: '4'
-
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
+      # Runtime only: the binary is built in `build`, so no compiler headers
+      # or build-essential are needed here.
       - name: Install runtime dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            libgmp-dev libmysqlclient-dev build-essential mariadb-client
+          set -euo pipefail
+          sudo timeout 180 apt-get install -y --no-install-recommends \
+            libgmp-dev libmariadb3 mariadb-client || {
+            sudo timeout 120 apt-get update
+            sudo timeout 180 apt-get install -y --no-install-recommends \
+              libgmp-dev libmariadb3 mariadb-client
+          }
 
-      # GnuCOBOL 3.2 runtime (matches the cobol-binary artifact built by the
-      # build job): the binary links libcob.so.4 from 3.2, which the apt
-      # gnucobol 3.1.2 cannot provide. setup-cobol also exports
-      # LD_LIBRARY_PATH for every later step in the job.
       - name: Setup GnuCOBOL
         uses: ./.github/actions/setup-cobol
 
@@ -550,9 +511,6 @@ jobs:
 
       - name: Install gateway dependencies
         run: npm ci --prefix middleware
-
-      - name: Install gate dependencies
-        run: npm ci --no-audit --no-fund
 
       - name: Download core binary
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
@@ -568,9 +526,6 @@ jobs:
 
       - name: Run full test gate (DB via matrix)
         env:
-          # The DB fleet runs as one-job-per-shard in db-shards below (better
-          # isolation: one database per runner). This keeps one invocation
-          # (and its single report.tsv) coherent; local `full` still runs db.
           SKIP_DB: '1'
         run: tests/run_all.sh full
 
@@ -624,19 +579,18 @@ jobs:
         with:
           name: diagnostics-test
 
+  # The DB fleet is the only PR gate that needs multiple runners. Two LPT
+  # shards keep wall-clock near the p95 SLO without doubling runner cost.
   db-shards:
     name: db shard ${{ matrix.shard }}
     needs: [build, db-snapshot, changes]
     if: github.event_name == 'pull_request' && needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
-    # Assignment for two shards (CI-010): the LPT planner in
-    # scripts/shard_suites.mjs splits the DB suite fleet across both runners.
+    timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
         shard: [0, 1]
-
     services:
       mariadb:
         image: mariadb:11.8
@@ -652,7 +606,6 @@ jobs:
           --health-interval=5s
           --health-timeout=5s
           --health-retries=20
-
     env:
       DB_HOST: 127.0.0.1
       DB_PORT: 3306
@@ -662,35 +615,28 @@ jobs:
       DB_MIGRATE_USER: root
       DB_MIGRATE_PASS: root
       SKIP_BUILD: '1'
-      # The template is the service database itself (already migrated below);
-      # each shard builds exactly one private worker database from it.
       ISOLATED_DB: '0'
-
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
       - name: Install runtime dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            libgmp-dev libmysqlclient-dev build-essential mariadb-client
+          set -euo pipefail
+          sudo timeout 180 apt-get install -y --no-install-recommends \
+            libgmp-dev libmariadb3 mariadb-client || {
+            sudo timeout 120 apt-get update
+            sudo timeout 180 apt-get install -y --no-install-recommends \
+              libgmp-dev libmariadb3 mariadb-client
+          }
 
-      # GnuCOBOL 3.2 runtime (matches the cobol-binary artifact built by the
-      # build job): the binary links libcob.so.4 from 3.2, which the apt
-      # gnucobol 3.1.2 cannot provide. setup-cobol also exports
-      # LD_LIBRARY_PATH for every later step in the job.
       - name: Setup GnuCOBOL
         uses: ./.github/actions/setup-cobol
 
+      # Node is used by the shard planner; no npm packages are needed here.
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
         with:
           node-version: '24'
-          cache: npm
-          cache-dependency-path: middleware/package-lock.json
-
-      - name: Install gateway dependencies
-        run: npm ci --prefix middleware
 
       - name: Download core binary
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
@@ -732,22 +678,16 @@ jobs:
     needs: [test, db-shards, schema-drift, changes]
     if: always() && github.event_name == 'pull_request' && needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     permissions:
       contents: read
       checks: write
       pull-requests: read
-
-    # Same QUARANTINE as the test job: the count gate subtracts quarantined
-    # tests from the baseline only when the reports were produced quarantined.
     env:
       QUARANTINE: '1'
-
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
-      # schema-drift is not a required check by name, so bind it to this
-      # required job: a stale committed snapshot must still block the merge.
       - name: Fail when schema drift failed
         if: always() && needs.schema-drift.result == 'failure'
         run: |
@@ -780,8 +720,6 @@ jobs:
         if: always() && steps.upstream.outputs.ok == 'true'
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
         with:
-          # test-reports (test job) plus one shard-reports-N per matrix job,
-          # each kept in its own subdirectory for the merge script.
           pattern: "*-reports*"
           path: parts/
 
@@ -790,9 +728,6 @@ jobs:
         run: bash scripts/ci/aggregate_shard_reports.sh parts merged "$DB_SHARD_COUNT"
 
       - name: Assertion count gate
-        # If the test job did not succeed, its report is incomplete: skip
-        # only the count gate with a notice instead of masking the real
-        # failure with "missing suite rows / no JUnit XML".
         if: always() && steps.upstream.outputs.ok == 'true' && needs.test.result == 'success'
         run: node scripts/check_test_counts.mjs --report-dir merged --strict
 
@@ -830,16 +765,15 @@ jobs:
           reporter: java-junit
           fail-on-error: false
 
+  # Manual smoke gate. Kept as a required context only because branch
+  # protection still lists it; it intentionally does not run on PRs. Removing
+  # it from the protection rules is the cleaner long-term fix.
   coverage:
     name: coverage
-    # Manual-only smoke gate; PRs use coverage-pr, pushes rely on the
-    # nightly coverage.yml measurement. Kept as a required check: a skipped
-    # check counts as success.
     if: github.event_name == 'workflow_dispatch'
     needs: [build, db-snapshot]
     runs-on: ubuntu-24.04
     timeout-minutes: 20
-
     services:
       mariadb:
         image: mariadb:11.8
@@ -855,7 +789,6 @@ jobs:
           --health-interval=5s
           --health-timeout=5s
           --health-retries=20
-
     env:
       DB_HOST: 127.0.0.1
       DB_PORT: 3306
@@ -865,20 +798,19 @@ jobs:
       DB_MIGRATE_USER: root
       DB_MIGRATE_PASS: root
       SKIP_BUILD: '1'
-
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
       - name: Install runtime dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            libgmp-dev libmysqlclient-dev build-essential mariadb-client
+          set -euo pipefail
+          sudo timeout 180 apt-get install -y --no-install-recommends \
+            libgmp-dev libmariadb-dev libmariadb-dev-compat build-essential mariadb-client || {
+            sudo timeout 120 apt-get update
+            sudo timeout 180 apt-get install -y --no-install-recommends \
+              libgmp-dev libmariadb-dev libmariadb-dev-compat build-essential mariadb-client
+          }
 
-      # GnuCOBOL 3.2 runtime (matches the cobol-binary artifact built by the
-      # build job): the binary links libcob.so.4 from 3.2, which the apt
-      # gnucobol 3.1.2 cannot provide. setup-cobol also exports
-      # LD_LIBRARY_PATH for every later step in the job.
       - name: Setup GnuCOBOL
         uses: ./.github/actions/setup-cobol
 
@@ -925,6 +857,8 @@ jobs:
         with:
           name: diagnostics-coverage
 
+  # Post-merge operational drills. They do not need a compiled binary, but the
+  # contract keeps `build` as a dependency; it is cheap now.
   db-ops:
     name: db-ops
     needs: [build, db-snapshot, changes]
@@ -956,11 +890,15 @@ jobs:
       DB_MIGRATE_PASS: root
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+
       - name: Install runtime dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            gnucobol libmysqlclient-dev build-essential mariadb-client
+          set -euo pipefail
+          sudo timeout 180 apt-get install -y --no-install-recommends mariadb-client || {
+            sudo timeout 120 apt-get update
+            sudo timeout 180 apt-get install -y --no-install-recommends mariadb-client
+          }
+
       - name: Bootstrap database
         uses: ./.github/actions/db-bootstrap
         with:
@@ -978,21 +916,19 @@ jobs:
         with:
           name: diagnostics-db-ops
 
+  # Curated COBOL coverage is impact-selected. It compiles its own
+  # instrumented binary, so it does not wait for `build`.
   coverage-pr:
     name: coverage-pr
-    # Impact-selected: skip the curated COBOL measurement when the change set
-    # touches no curated input (docs, manifest-only, ...). Gateway coverage
-    # still runs inside every other suite; a skipped check counts as success.
     if: >
       github.event_name == 'pull_request' &&
       needs.changes.outputs.docs_only != 'true' &&
       needs.changes.outputs.coverage_relevant == 'true'
-    needs: [build, db-snapshot, changes]
+    needs: [db-snapshot, changes]
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 35
     permissions:
       contents: read
-
     services:
       mariadb:
         image: mariadb:11.8
@@ -1008,7 +944,6 @@ jobs:
           --health-interval=5s
           --health-timeout=5s
           --health-retries=20
-
     env:
       DB_HOST: 127.0.0.1
       DB_PORT: 3306
@@ -1018,21 +953,14 @@ jobs:
       DB_MIGRATE_USER: root
       DB_MIGRATE_PASS: root
       SKIP_BUILD: '1'
-
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           # --changed diffs against origin/main; a shallow checkout has no base.
           fetch-depth: 0
 
-      # COBOL object cache (P1-5): coverage.sh always runs ./build.sh first and
-      # reuses normal objects for the instrumented link, but a fresh checkout
-      # has none. The key pins the exact toolchain (GnuCOBOL 3.2 built by
-      # install_gnucobol.sh — objects must never cross compiler versions) plus
-      # every build input; restore-keys fall back to the newest same-toolchain
-      # cache so only changed modules recompile. The build job is deliberately
-      # not cached here: it uses apt GnuCOBOL 3.1.2, and its only output (the
-      # linked binary) already travels via the cobol-binary artifact.
+      # Objects are toolchain-specific; the key pins GnuCOBOL 3.2 and every
+      # build input. Warm runs only recompile changed modules.
       - name: Restore COBOL build cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
@@ -1046,9 +974,13 @@ jobs:
 
       - name: Install build dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            libgmp-dev libmysqlclient-dev build-essential mariadb-client
+          set -euo pipefail
+          sudo timeout 180 apt-get install -y --no-install-recommends \
+            libgmp-dev libmariadb-dev libmariadb-dev-compat build-essential mariadb-client || {
+            sudo timeout 120 apt-get update
+            sudo timeout 180 apt-get install -y --no-install-recommends \
+              libgmp-dev libmariadb-dev libmariadb-dev-compat build-essential mariadb-client
+          }
 
       - name: Setup GnuCOBOL
         uses: ./.github/actions/setup-cobol
@@ -1091,6 +1023,7 @@ jobs:
         with:
           name: diagnostics-coverage-pr
 
+  # Push-to-main notification only; never a required check.
   notify:
     name: notify
     needs: [lint, changes, build, docker-build, db-snapshot, schema-drift, test, db-shards,

@@ -2,7 +2,7 @@ name: Coverage
 
 on:
   schedule:
-    # Nightly at 02:30 UTC.
+    # Nightly at 02:30 UTC, after the 02:00 full-fleet run.
     - cron: '30 2 * * *'
   workflow_dispatch:
 
@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: coverage-${{ github.ref }}
+  group: coverage-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -48,11 +48,28 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
+      # The instrumented link reuses normal objects. Without this cache the
+      # nightly measurement recompiles every module from scratch.
+      - name: Restore COBOL build cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: cobol/build
+          key: >
+            cobol-build-${{ runner.os }}-gnucobol3.2-${{
+            hashFiles('cobol/src/**', 'cobol/copy/**', 'cobol/c_lib/**',
+            'build.sh', 'cobol/Makefile', 'scripts/ci/install_gnucobol.sh') }}
+          restore-keys: |
+            cobol-build-${{ runner.os }}-gnucobol3.2-
+
       - name: Install build dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            libgmp-dev libmysqlclient-dev build-essential mariadb-client
+          set -euo pipefail
+          sudo timeout 240 apt-get install -y --no-install-recommends \
+            libgmp-dev libmariadb-dev libmariadb-dev-compat build-essential mariadb-client || {
+            sudo timeout 120 apt-get update
+            sudo timeout 240 apt-get install -y --no-install-recommends \
+              libgmp-dev libmariadb-dev libmariadb-dev-compat build-essential mariadb-client
+          }
 
       - name: Setup GnuCOBOL
         uses: ./.github/actions/setup-cobol
@@ -67,9 +84,8 @@ jobs:
       - name: Install gateway dependencies
         run: npm ci --prefix middleware
 
-      - name: Build normal binary
-        run: ./build.sh
-
+      # coverage.sh runs ./build.sh itself before the instrumented link, so a
+      # separate build step here would only duplicate work.
       - name: Bootstrap database
         uses: ./.github/actions/db-bootstrap
         with:
