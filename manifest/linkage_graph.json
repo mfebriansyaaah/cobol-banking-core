@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-20T08:23:53.539Z",
-  "commit": "cf08102e",
+  "generatedAt": "2026-11-20T09:00:14.388Z",
+  "commit": "3ba57df7",
   "linkageSource": "manifest/linkage.json",
   "summary": {
     "L3": 23,
@@ -516,6 +516,7 @@
       "coreActions": [],
       "hasTests": true,
       "testEvidence": [
+        "tests/db/import_post_db_tests.sh",
         "tests/cobol/cases/import_post.cases"
       ],
       "linkageLevel": "L3",
@@ -532,6 +533,7 @@
       "coreActions": [],
       "hasTests": true,
       "testEvidence": [
+        "tests/db/import_recon_db_tests.sh",
         "tests/cobol/cases/import_recon.cases"
       ],
       "linkageLevel": "L2",
@@ -772,6 +774,7 @@
       "coreActions": [],
       "hasTests": true,
       "testEvidence": [
+        "tests/db/payment_db_tests.sh",
         "tests/cobol/cases/payment.cases"
       ],
       "linkageLevel": "L3",
@@ -813,6 +816,7 @@
       ],
       "hasTests": true,
       "testEvidence": [
+        "tests/db/payment_instruction_db_tests.sh",
         "tests/cobol/cases/payment_instruction.cases"
       ],
       "linkageLevel": "L2",
@@ -980,6 +984,7 @@
       "coreActions": [],
       "hasTests": true,
       "testEvidence": [
+        "tests/db/statement_db_tests.sh",
         "tests/cobol/cases/statement.cases"
       ],
       "linkageLevel": "L3",
@@ -999,6 +1004,7 @@
       "coreActions": [],
       "hasTests": true,
       "testEvidence": [
+        "tests/db/statement_recon_db_tests.sh",
         "tests/cobol/cases/statement_recon.cases"
       ],
       "linkageLevel": "L3",

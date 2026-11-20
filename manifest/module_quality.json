@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T08:42:33.164Z",
+  "generatedAt": "2026-11-20T08:59:41.676Z",
   "modules": [
     {
       "module": "account_core",
@@ -367,10 +367,10 @@
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
       "cloneSimilarity": null,
-      "coveragePercent": null,
-      "coverageStatus": "unmeasured",
+      "coveragePercent": 54.36,
+      "coverageStatus": "below-floor",
       "routeFile": null,
-      "dbSuite": null,
+      "dbSuite": "tests/db/import_post_db_tests.sh",
       "recommendedForTraining": true
     },
     {
@@ -382,7 +382,7 @@
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": "import_recon.js",
-      "dbSuite": null,
+      "dbSuite": "tests/db/import_recon_db_tests.sh",
       "recommendedForTraining": true
     },
     {
@@ -547,10 +547,10 @@
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
       "cloneSimilarity": null,
-      "coveragePercent": null,
-      "coverageStatus": "unmeasured",
+      "coveragePercent": 68.61,
+      "coverageStatus": "below-floor",
       "routeFile": "payment.js",
-      "dbSuite": null,
+      "dbSuite": "tests/db/payment_db_tests.sh",
       "recommendedForTraining": true
     },
     {
@@ -574,7 +574,7 @@
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": "payment_instructions.js",
-      "dbSuite": null,
+      "dbSuite": "tests/db/payment_instruction_db_tests.sh",
       "recommendedForTraining": true
     },
     {
@@ -694,7 +694,7 @@
       "coveragePercent": 58.19,
       "coverageStatus": "below-floor",
       "routeFile": "statement.js",
-      "dbSuite": null,
+      "dbSuite": "tests/db/statement_db_tests.sh",
       "recommendedForTraining": true
     },
     {
@@ -703,10 +703,10 @@
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
       "cloneSimilarity": null,
-      "coveragePercent": null,
-      "coverageStatus": "unmeasured",
+      "coveragePercent": 60.53,
+      "coverageStatus": "below-floor",
       "routeFile": "statement_recon.js",
-      "dbSuite": null,
+      "dbSuite": "tests/db/statement_recon_db_tests.sh",
       "recommendedForTraining": true
     },
     {

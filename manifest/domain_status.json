@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T08:24:13.845984Z",
+  "generatedAt": "2026-11-20T08:55:41.182848Z",
   "entries": [
     {
       "domain": "account",
@@ -509,7 +509,7 @@
       "trafficLastSeen": null,
       "owner": null,
       "status": "ACTIVE",
-      "reason": "Proven core-transaction link (or core anchor). Refactor only with equivalence proof.",
+      "reason": "Business-linked import posting; posts validated batches to gl_journal/gl_journal_line; tests/db/import_post_db_tests.sh.",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -527,7 +527,7 @@
       "trafficLastSeen": null,
       "owner": null,
       "status": "PILOT",
-      "reason": "Business link proven; integration completion (PR-010E) still open before ACTIVE.",
+      "reason": "Business-linked import reconciliation; import_recon_run over posted batches; tests/db/import_recon_db_tests.sh.",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -759,7 +759,7 @@
       "trafficLastSeen": null,
       "owner": null,
       "status": "ACTIVE",
-      "reason": "Proven core-transaction link (or core anchor). Refactor only with equivalence proof.",
+      "reason": "Business-linked payment policy engine; payment_policy/payment_profile + ledger checks; tests/db/payment_db_tests.sh.",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -793,7 +793,7 @@
       "trafficLastSeen": null,
       "owner": null,
       "status": "PILOT",
-      "reason": "Business link proven; integration completion (PR-010E) still open before ACTIVE.",
+      "reason": "Business-linked payment instructions; payment_instruction lifecycle; tests/db/payment_instruction_db_tests.sh.",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -957,7 +957,7 @@
       "trafficLastSeen": null,
       "owner": null,
       "status": "ACTIVE",
-      "reason": "Proven core-transaction link (or core anchor). Refactor only with equivalence proof.",
+      "reason": "Business-linked statements; statement_run/archive lifecycle; tests/db/statement_db_tests.sh.",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -975,7 +975,7 @@
       "trafficLastSeen": null,
       "owner": null,
       "status": "ACTIVE",
-      "reason": "Proven core-transaction link (or core anchor). Refactor only with equivalence proof.",
+      "reason": "Business-linked statement reconciliation; statement_recon_run over completed runs; tests/db/statement_recon_db_tests.sh.",
       "retireAfter": null,
       "tableDropDate": null
     },

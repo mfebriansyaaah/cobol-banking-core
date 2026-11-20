@@ -16,10 +16,10 @@ auth_password_core  utility delegate; not yet in curated coverage set — Phase 
 card_posting_core  card posting/GL branches beyond the existing suite (56.47%)
 dashboard_core  read-only aggregation; suite covers happy paths only (59.78%)
 deposit_posting_core  posting/GL paths exercised only through the deposit suite (22.86%)
-import_post_core  not yet in curated coverage set — Phase 4
+import_post_core  posted/GL audit paths covered; error and retry branches thin (54.36%)
 loan_posting_core  posting resolve largely lives in loan_core; suite thin (26.15%)
-payment_core  not yet in curated coverage set — Phase 4
+payment_core  policy/check/enforce covered; profile and edge branches thin (68.61%)
 payment_hold_core  hold lifecycle branches beyond release are thin (58.88%)
-statement_core  measured 58.19% < 70% — raise coverage in Phase 4
-statement_recon_core  not yet in curated coverage set — Phase 4
+statement_core  run/archive branches thin in the dedicated suite (58.19%)
+statement_recon_core  match/read/finish covered; mismatch and retry branches thin (60.53%)
 wallet_transfer_core  transfer lifecycle branches remain thin in the curated run (45.45%)

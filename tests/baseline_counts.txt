@@ -107,3 +107,10 @@ db_migration_baseline_tests=16
 db_migration_archive_tests=12
 
 db_commit_failure_tests=6
+
+db_import_post_tests=14
+db_import_recon_tests=19
+db_payment_tests=9
+db_payment_instruction_tests=14
+db_statement_tests=13
+db_statement_recon_tests=16
