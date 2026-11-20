@@ -71,6 +71,17 @@ else
     failed=1
 fi
 
+# The planner invocation must match the shard runners exactly: with the
+# committed timing file when present, otherwise assertion-count weights.
+planner() {
+    local shards="$1"
+    if [ -f "$ROOT/tests/shard_timings.json" ]; then
+        node scripts/shard_suites.mjs "$shards" "$ROOT" --timings "$ROOT/tests/shard_timings.json"
+    else
+        node scripts/shard_suites.mjs "$shards" "$ROOT"
+    fi
+}
+
 # Expected suite set per shard, straight from the planner both runners use.
 expected_for() {
     local idx="$1" line
@@ -82,7 +93,7 @@ expected_for() {
             "$idx "*) echo "${line#* }" ;;
         esac
     done <<EOF
-$(node scripts/shard_suites.mjs "$TOTAL" "$ROOT")
+$(planner "$TOTAL")
 EOF
 }
 
@@ -117,7 +128,7 @@ done
 
 # Every db suite file must appear in exactly one shard (plus schema_tests on
 # shard 0): guards against planner/reporter drift in either direction.
-all_expected="$( { echo "schema_tests.sh"; node scripts/shard_suites.mjs "$TOTAL" "$ROOT" | awk '{print $2}' | xargs -n1 basename; } | sort)"
+all_expected="$( { echo "schema_tests.sh"; planner "$TOTAL" | awk '{print $2}' | xargs -n1 basename; } | sort)"
 all_actual="$(tail -n +2 "$merged_tsv" | awk -F'\t' '{print $1}' | grep -E '_db_tests\.sh$|schema_tests\.sh' | sort)"
 if [ "$all_actual" != "$all_expected" ]; then
     echo "FAIL: fleet-wide suite inventory differs from tests/db" >&2

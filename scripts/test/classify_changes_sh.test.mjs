@@ -66,7 +66,14 @@ function runClassifier({
   assert.ok(docker, `expected docker_relevant in GITHUB_OUTPUT, got: ${JSON.stringify(content)}`);
   const coverage = content.match(/coverage_relevant=(true|false)/);
   assert.ok(coverage, `expected coverage_relevant in GITHUB_OUTPUT, got: ${JSON.stringify(content)}`);
-  return { docsOnly: docs[1], dockerRelevant: docker[1], coverageRelevant: coverage[1] };
+  const dbOps = content.match(/db_ops_relevant=(true|false)/);
+  assert.ok(dbOps, `expected db_ops_relevant in GITHUB_OUTPUT, got: ${JSON.stringify(content)}`);
+  return {
+    docsOnly: docs[1],
+    dockerRelevant: docker[1],
+    coverageRelevant: coverage[1],
+    dbOpsRelevant: dbOps[1],
+  };
 }
 
 function docsOnly(opts) {
@@ -116,6 +123,18 @@ test('test-only change yields docker_relevant=false', () => {
 
 test('ci:full label forces docker_relevant=true', () => {
   assert.equal(runClassifier({ diff: 'docs/CI.md', label: 'true' }).dockerRelevant, 'true');
+});
+
+test('database change yields db_ops_relevant=true', () => {
+  assert.equal(runClassifier({ diff: 'database/migrations/0667_x.sql' }).dbOpsRelevant, 'true');
+});
+
+test('code-only change yields db_ops_relevant=false', () => {
+  assert.equal(runClassifier({ diff: 'middleware/src/app.js' }).dbOpsRelevant, 'false');
+});
+
+test('ci:full label forces db_ops_relevant=true', () => {
+  assert.equal(runClassifier({ diff: 'docs/CI.md', label: 'true' }).dbOpsRelevant, 'true');
 });
 
 test('curated COBOL change yields coverage_relevant=true', () => {

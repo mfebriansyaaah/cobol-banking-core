@@ -28,6 +28,7 @@ emit_full() {
     echo "docs_only=false"
     echo "docker_relevant=true"
     echo "docker_definition=true"
+    echo "db_ops_relevant=true"
     echo "coverage_relevant=true"
   } >>"$GITHUB_OUTPUT"
 }
@@ -69,6 +70,9 @@ DOCKER="$(printf '%s\n' "$CHANGED" \
   | node scripts/ci/classify_docker.mjs --stdin 2>/dev/null)" \
   || DOCKER="docker_relevant=true
 docker_definition=true"
+DB_OPS="$(printf '%s\n' "$CHANGED" \
+  | node scripts/ci/classify_db_ops.mjs --stdin 2>/dev/null)" \
+  || DB_OPS="db_ops_relevant=true"
 COVERAGE_RC=0
 printf '%s\n' "$CHANGED" \
   | node scripts/ci/coverage_trigger.mjs --stdin >/dev/null 2>&1 \
@@ -83,5 +87,6 @@ fi
 {
   echo "$RESULT"
   echo "$DOCKER"
+  echo "$DB_OPS"
   echo "$COVERAGE"
 } >>"$GITHUB_OUTPUT"

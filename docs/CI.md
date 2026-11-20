@@ -52,7 +52,7 @@ the gate and waste minutes.
 | Event | Workflow | Jobs |
 | --- | --- | --- |
 | `pull_request` | `ci.yml` | changes, lint, coverage (always for non-docs PRs); build, docker-build, db-snapshot, schema-drift, test, db-shards (2), db-aggregate, coverage-pr (all gated on the change set; docs-only PRs run only changes + lint; `docker-build` runs only when the image assembly can change; `coverage-pr` only when curated COBOL input changed) |
-| `push: [main]` | `ci.yml` (+ `db-ops` on push/dispatch) | changes, lint, build, docker-build, db-snapshot, db-ops. Docs-only pushes are filtered at the workflow trigger. `schema-drift` is PR + nightly only (the PR gate already proved it; no post-merge re-run). The PR-only DB gate (`test`, `db-shards`, `db-aggregate`) and `coverage` do not run on push; branch protection guarantees they ran on the PR. `coverage` runs on manual dispatch. |
+| `push: [main]` | `ci.yml` (+ `db-ops` when the DB surface changed / dispatch) | changes, lint, build, docker-build; `db-snapshot` and `db-ops` run only when `database/**`, migration/backup tooling, or drill tests changed. Docs-only pushes are filtered at the workflow trigger. `schema-drift` is PR + nightly only (the PR gate already proved it; no post-merge re-run). The PR-only DB gate (`test`, `db-shards`, `db-aggregate`) and `coverage` do not run on push; branch protection guarantees they ran on the PR. `coverage` runs on manual dispatch. |
 | nightly `0 2 * * *` | `nightly.yml` | full-twice (`full twice + drills`) + benchmark + load test + flake compare |
 | nightly `30 2 * * *` | `coverage.yml` | coverage (full COBOL + gateway measurement) |
 | weekly `0 3 * * 1` | `mutation.yml` | mutants (`money-path mutants`) |
@@ -147,10 +147,10 @@ Phase 0 (before G0):
 - `coverage`
 - `coverage-pr` (curated COBOL coverage gate; required since CI-002)
 
-`db-ops` (rollback/backup drills on push `main` + `workflow_dispatch`) is
-intentionally not a required PR check: it never runs on `pull_request`, so
+`db-ops` (rollback/backup drills on qualifying pushes + `workflow_dispatch`)
+is intentionally not a required PR check: it never runs on `pull_request`, so
 requiring it would block every PR forever. Main-line evidence comes from the
-push run plus nightly, which runs the same three checks.
+DB-surface push run plus nightly, which runs the same drills.
 
 Phase 1 adds (after WP-1.4 first green run):
 
@@ -181,7 +181,7 @@ Rules:
 | `ci.yml` db-aggregate | 10 min | PR-only merge of test, shard, and coverage reports + inventory + count gate + summary |
 | `ci.yml` coverage | 20 min | PR gateway coverage gate + manual dispatch: runs the gateway suite once with coverage/JUnit; `test` skips its gateway phase |
 | `ci.yml` coverage-pr | 35 min | curated COBOL, impact-selected: skipped unless the change set touches curated inputs (`coverage_relevant`; trigger groups in `docs/COVERAGE.md`); compiles its own instrumented binary, no `build` dependency |
-| `ci.yml` db-ops | 20 min | rollback, backup/restore (push `main` + dispatch only; not a PR required check) |
+| `ci.yml` db-ops | 20 min | rollback, backup/restore on DB-surface pushes + dispatch; not a PR required check; nightly covers ordinary code pushes |
 | `codeql.yml` analyze | 20 min | JS + C, SARIF uploaded to code scanning; path-filtered on PR/push, weekly schedule unfiltered |
 | `coverage.yml` coverage | 45 min | full COBOL + gateway; shares the COBOL object cache |
 | `coverage.yml` notify | 5 min | open/close `ci-failure` issue |

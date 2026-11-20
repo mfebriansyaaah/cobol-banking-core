@@ -16,13 +16,16 @@ test('branch protection docs match verified API state', () => {
   assert.match(ci, /ACTIVE/);
 });
 
-test('DB suite counts are current', () => {
+test('DB suite prose does not pin a stale count', () => {
   const testsReadme = read('tests/README.md');
   const testing = read('docs/TESTING.md');
-  assert.doesNotMatch(testsReadme, /57 files plus/i);
-  assert.doesNotMatch(testing, /with 58 suites/i);
-  assert.match(testsReadme, /84/);
-  assert.match(testing, /84 suites/);
+  // The generated README table is the authoritative count. Prose must not
+  // duplicate it: main adds suites concurrently and a pinned number goes
+  // stale between a PR and its merge commit.
+  assert.doesNotMatch(testsReadme, /\d+ files at this snapshot/i);
+  assert.doesNotMatch(testing, /with \d+ suites/i);
+  assert.match(testsReadme, /one DB domain suite per file/);
+  assert.match(testing, /Planner weights/);
 });
 
 test('route definitions use one metric', () => {

@@ -201,11 +201,11 @@ test('db-ops runs on push main and dispatch, never on PRs', () => {
   assert.ok(ci['db-ops'], 'ci.yml must define a db-ops job');
   const needs = Array.isArray(ci['db-ops'].needs) ? ci['db-ops'].needs : [ci['db-ops'].needs];
   assert.ok(needs.includes('build'), 'db-ops must need the build job');
-  assert.match(
-    String(ci['db-ops'].if),
-    /github\.event_name != 'pull_request'/,
-    'db-ops must be excluded from pull_request',
-  );
+  const cond = String(ci['db-ops'].if);
+  assert.match(cond, /github\.event_name == 'workflow_dispatch'/, 'db-ops must stay dispatchable');
+  assert.match(cond, /github\.event_name == 'push'/, 'db-ops must run on qualifying pushes');
+  assert.match(cond, /db_ops_relevant/, 'db-ops must only run when the DB surface changed');
+  assert.doesNotMatch(cond, /pull_request/, 'db-ops must stay excluded from pull_request');
 });
 
 test('PR test job has no drills, drift check, or benchmarks', () => {
