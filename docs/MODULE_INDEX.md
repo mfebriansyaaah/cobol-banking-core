@@ -19,7 +19,6 @@ column-level catalogue ([data dictionary](DATA_DICTIONARY.md)).
 | `auth_recovery_core` | `REQUEST_MFA_RECOVERY`, `APPROVE_MFA_RECOVERY`, `VERIFY_MFA_RECOVERY`, `REJECT_MFA_RECOVERY`, `REQUEST_OPERATION`, `LIST_MFA_RECOVERY`, `APPROVE_REQUEST`, `REJECT_REQUEST`, `LIST_REQUESTS` | — | — | — |
 | `auth_review_core` | `CLOSE_ACCESS_REVIEW`, `LIST_ACCESS_REVIEWS`, `DECIDE_ACCESS_ITEM`, `OPEN_ACCESS_REVIEW`, `GET_ACCESS_REVIEW`, `LIST_PERMISSIONS`, `CHECK_PERMISSION` | — | — | — |
 | `auth_session_core` | — | — | — | [auth_session_db_tests.sh](../tests/db/auth_session_db_tests.sh) |
-| `backup_drill_core` | `BDR_` | [backup_drill.js](../middleware/src/routes/backup_drill.js) | [backup_drill.cases](../tests/cobol/cases/backup_drill.cases) | [backup_drill_db_tests.sh](../tests/db/backup_drill_db_tests.sh) |
 | `bank_guarantee_core` | `BKG_` | [bank_guarantee.js](../middleware/src/routes/bank_guarantee.js) | [bank_guarantee.cases](../tests/cobol/cases/bank_guarantee.cases) | [bank_guarantee_db_tests.sh](../tests/db/bank_guarantee_db_tests.sh) |
 | `card_core` | `CARD_` | [card.js](../middleware/src/routes/card.js) | [card.cases](../tests/cobol/cases/card.cases) | [card_db_tests.sh](../tests/db/card_db_tests.sh) |
 | `card_posting_core` | — | — | — | [card_posting_db_tests.sh](../tests/db/card_posting_db_tests.sh) |
@@ -64,7 +63,6 @@ column-level catalogue ([data dictionary](DATA_DICTIONARY.md)).
 | `phone_otp_core` | `OTP_` | — | — | [phone_otp_db_tests.sh](../tests/db/phone_otp_db_tests.sh) |
 | `ref_engine` | `RFE_` | [ref_engine.js](../middleware/src/routes/ref_engine.js) | — | — |
 | `ref_ext_core` | `RX_` | [ref_ext.js](../middleware/src/routes/ref_ext.js) | — | — |
-| `report_builder_core` | `RPB_` | [report_builder.js](../middleware/src/routes/report_builder.js) | [report_builder.cases](../tests/cobol/cases/report_builder.cases) | [report_builder_db_tests.sh](../tests/db/report_builder_db_tests.sh) |
 | `report_core` | `RPT_TEMPLATE_CREATE`, `RPT_TEMPLATE_LIST`, `RPT_TEMPLATE_GET`, `RPT_COLUMN_CREATE`, `RPT_COLUMN_LIST`, `RPT_COLUMN_DELETE`, `RPT_COLUMN_UPDATE`, `RPT_TEMPLATE_UPDATE`, `RPT_TEMPLATE_CLONE`, `RPT_TEMPLATE_DELETE` | [report.js](../middleware/src/routes/report.js) | [report.cases](../tests/cobol/cases/report.cases) | — |
 | `report_run_core` | `RPT_RUN_START`, `RPT_RUN_ROW`, `RPT_RUN_STATUS`, `RPT_RUN_COMPLETE`, `RPT_RUN_FAIL`, `RPT_RUN_LIST`, `RPT_RUN_EXPORT`, `RPT_RUN_DELETE`, `RPT_RUN_RETRY`, `RPT_RUN_GENERATE` | — | — | — |
 | `report_schedule_core` | `RPS_` | [report_schedule.js](../middleware/src/routes/report_schedule.js) | — | [report_schedule_db_tests.sh](../tests/db/report_schedule_db_tests.sh) |

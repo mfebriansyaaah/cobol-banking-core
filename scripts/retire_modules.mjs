@@ -3,7 +3,7 @@
 //
 // Safety rules (all verified before any write in --apply):
 //   - every listed module is CANDIDATE/DEPRECATED in code_candidates.json and
-//     L0/L1 in tier1_links.json; legacy modules and the template are rejected
+//     L0/L1 in linkage_graph.json; legacy modules and the template are rejected
 //     (they have their own PRs / must stay as the similarity reference);
 //   - every action in a deleted route file resolves to the deleted module
 //     itself (longest-prefix dispatch), and no kept route file, app.js, suite,
@@ -24,7 +24,7 @@ import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'no
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { parseDispatchTable } from './lib/dispatch_table.mjs';
+import { parseDispatchTable, loadDispatchSource } from './lib/dispatch_table.mjs';
 import { collectRoutes } from './lib/route_fields.mjs';
 
 const args = process.argv.slice(2);
@@ -86,17 +86,17 @@ const REGEN_PREFIXES = [
   'tests/action_test_coverage_baseline.txt',
   'tests/contracts/route_field_order.json',
   'manifest/modules.json',
-  'manifest/tier1_links.json',
+  'manifest/linkage_graph.json',
   'manifest/domain_status.json',
   'manifest/code_candidates.json',
   'manifest/integration_backlog.json',
   'docs/STATUS.md',
   'docs/MODULE_INDEX.md',
-  'docs/TIER1_LINKAGE.md',
+  'docs/LINKAGE.md',
   'docs/DOMAIN_STATUS.md',
   'docs/CODE_CANDIDATES.md',
   'docs/INTEGRATION_BACKLOG.md',
-  'tests/tier1_links_baseline.txt',
+  'tests/linkage_baseline.txt',
   'tests/clone_baseline.txt',
   'tests/code_candidates_baseline.txt',
   'tests/lib/db.sh',
@@ -361,7 +361,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     (loadJson(path.join(root, 'manifest', 'code_candidates.json')).candidates || []).map((c) => [c.module, c.status]),
   );
   const links = new Map(
-    (loadJson(path.join(root, 'manifest', 'tier1_links.json')).modules || []).map((m) => [m.module, m]),
+    (loadJson(path.join(root, 'manifest', 'linkage_graph.json')).modules || []).map((m) => [m.module, m]),
   );
   for (const m of modules) {
     const st = candidates.get(m);
@@ -373,8 +373,12 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     if (!existsSync(path.join(root, 'cobol', 'src', `${m}.cob`))) fail(`${m}: cobol source missing`);
   }
 
-  const mainLogic = readFileSync(path.join(root, 'cobol', 'src', 'main_logic.cob'), 'utf8');
-  const { entries: dispatch } = parseDispatchTable(mainLogic);
+  const mainLogic = loadDispatchSource(root);
+  const { entries: dispatch, problems } = parseDispatchTable(mainLogic);
+  if (problems.length) {
+    console.error(`dispatch problems:\n${problems.join('\n')}`);
+    process.exit(1);
+  }
   const waveSet = new Set(modules);
   const actions = waveActions(root, modules);
 
@@ -581,7 +585,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   runNode(['scripts/generate_manifest.mjs', '.']);
   runNode(['scripts/generate_field_order.mjs', '--write', '.']);
   runNode(['scripts/docs_stats.mjs', '--write']);
-  runNode(['scripts/build_tier1_graph.mjs', '--write']);
+  runNode(['scripts/build_linkage_graph.mjs', '--write']);
   runNode(['scripts/classify_domains.mjs', '--write-docs', '.']);
   runNode(['scripts/classify_code_candidates.mjs', '--write-docs', '.']);
   runNode(['scripts/check_test_counts.mjs', '--static', '.', '--write']);
@@ -599,11 +603,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     writeFileSync(p, `${JSON.stringify(data, null, 2)}\n`);
     console.log(`${rel}: removed ${before - data[key].length} entries`);
   }
-  for (const rel of [
-    'tests/tier1_links_baseline.txt',
-    'tests/clone_baseline.txt',
-    'tests/code_candidates_baseline.txt',
-  ]) {
+  for (const rel of ['tests/linkage_baseline.txt', 'tests/clone_baseline.txt', 'tests/code_candidates_baseline.txt']) {
     const p = path.join(root, rel);
     writeFileSync(
       p,

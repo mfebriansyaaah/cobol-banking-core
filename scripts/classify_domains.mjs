@@ -1,8 +1,8 @@
 // Domain status registry (PR-010): explicit per-module disposition driven by
-// Tier-1 linkage (PR-009), not by LOC or template similarity.
+// core linkage (linkage-only), not by LOC or template similarity.
 //
 // Status meanings:
-//   ACTIVE  - linked (L3) or Tier-3 utility; safe to refactor with equivalence.
+//   ACTIVE  - linked (L3) or utility; safe to refactor with equivalence.
 //   PILOT   - L2: live but integration completion (PR-010E) still open.
 //   REVIEW  - L1: manual review decides upgrade-to-L2 or dead-candidate.
 //   FROZEN  - L0 or deprecated legacy: no refactor, no new routes; awaits
@@ -17,6 +17,7 @@
 //   node scripts/classify_domains.mjs --check [--root DIR] (default)
 //   node scripts/classify_domains.mjs --write [--root DIR]
 //   node scripts/classify_domains.mjs --write-docs [--root DIR]
+//   node scripts/classify_domains.mjs --sync-linkage [--root DIR]
 // Exit: 0 ok, 1 mismatch, 2 usage error.
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
@@ -30,11 +31,12 @@ for (let i = 0; i < args.length; i += 1) {
   if (a === '--check') mode = 'check';
   else if (a === '--write') mode = 'write';
   else if (a === '--write-docs') mode = 'write-docs';
+  else if (a === '--sync-linkage') mode = 'sync-linkage';
   else if (a === '--root') {
     root = args[i + 1] ?? root;
     i += 1;
   } else if (a === '--help' || a === '-h') {
-    console.log('usage: classify_domains.mjs [--check|--write|--write-docs] [--root DIR]');
+    console.log('usage: classify_domains.mjs [--check|--write|--write-docs|--sync-linkage] [--root DIR]');
     process.exit(0);
   } else if (a.startsWith('--')) {
     console.error(`unknown argument: ${a}`);
@@ -51,7 +53,6 @@ const REQUIRED = [
   'module',
   'routeFile',
   'table',
-  'tier',
   'linkageLevel',
   'linkedCoreDomains',
   'replacement',
@@ -120,7 +121,7 @@ function loadJson(p) {
   return JSON.parse(readFileSync(p, 'utf8'));
 }
 
-// Most-referenced own-domain table: excludes Tier-1 business tables,
+// Most-referenced own-domain table: excludes core business tables,
 // reference tables, audit tables, and SQL-noise tokens. Informational only;
 // the linkage graph (not this field) decides status.
 function primaryTable(rootDir, module) {
@@ -156,7 +157,7 @@ function linkedCoreDomains(businessTables) {
   return [...out].sort();
 }
 
-function defaultEntry(rootDir, link, tierOf) {
+function defaultEntry(rootDir, link) {
   const module = link.module;
   const domain = module.endsWith('_core') ? module.slice(0, -5) : module;
   const entry = {
@@ -164,7 +165,6 @@ function defaultEntry(rootDir, link, tierOf) {
     module,
     routeFile: (link.routeFiles && link.routeFiles[0]) || null,
     table: primaryTable(rootDir, module),
-    tier: tierOf(module),
     linkageLevel: link.linkageLevel,
     linkedCoreDomains: linkedCoreDomains(link.businessTables),
     replacement: LEGACY[module] || null,
@@ -189,7 +189,7 @@ function defaultEntry(rootDir, link, tierOf) {
   switch (link.linkageLevel) {
     case 'L3':
       entry.status = 'ACTIVE';
-      entry.reason = 'Proven core-transaction link (or Tier-1 core). Refactor only with equivalence proof.';
+      entry.reason = 'Proven core-transaction link (or core anchor). Refactor only with equivalence proof.';
       break;
     case 'L2':
       entry.status = 'PILOT';
@@ -201,7 +201,7 @@ function defaultEntry(rootDir, link, tierOf) {
       break;
     case 'UTILITY':
       entry.status = 'ACTIVE';
-      entry.reason = 'Tier-3 utility; never a retire candidate.';
+      entry.reason = 'Utility module; never a retire candidate.';
       break;
     default:
       entry.status = 'FROZEN';
@@ -209,16 +209,6 @@ function defaultEntry(rootDir, link, tierOf) {
       break;
   }
   return entry;
-}
-
-function tierOfFactory(tier1) {
-  const t1 = new Set(tier1.tier1Modules || []);
-  const util = new Set(tier1.utilityModules || []);
-  return (module) => {
-    if (t1.has(module)) return 1;
-    if (util.has(module)) return 3;
-    return 2;
-  };
 }
 
 function routeExists(rootDir, routeFile) {
@@ -259,7 +249,7 @@ function validateEntryLinks(rootDir, entries, linkLevels, failures) {
     }
     if (e.linkageLevel !== linkLevels.get(e.module)) {
       failures.push(
-        `${e.module}: linkageLevel ${e.linkageLevel} != tier1_links ${linkLevels.get(e.module)} (regenerate)`,
+        `${e.module}: linkageLevel ${e.linkageLevel} != linkage_graph ${linkLevels.get(e.module)} (regenerate)`,
       );
     }
     if ((e.linkageLevel === 'L0' || e.linkageLevel === 'L1') && e.status === 'ACTIVE') {
@@ -285,7 +275,7 @@ function renderDocs(entries, retiredArchived = 0) {
     .sort((a, b) => a.module.localeCompare(b.module))
     .map(
       (e) =>
-        `| \`${e.domain}\` | \`${e.module}\` | ${e.tier} | ${e.linkageLevel} | ${e.status} | ${e.routeFile || '—'} | ${e.table || '—'} | ${e.replacement ? `\`${e.replacement}\`` : '—'} | ${e.reason} |`,
+        `| \`${e.domain}\` | \`${e.module}\` | ${e.linkageLevel} | ${e.status} | ${e.routeFile || '—'} | ${e.table || '—'} | ${e.replacement ? `\`${e.replacement}\`` : '—'} | ${e.reason} |`,
     );
   const retiredNote =
     retiredArchived > 0
@@ -310,8 +300,8 @@ integration completion open), REVIEW (L1, manual decision pending), FROZEN
 (L0/deprecated, no refactor, awaits evidence), RETIRED (active-ledger rows;
 removed modules are archived in \`manifest/wave_legacy.json\`).
 
-| Domain | Module | Tier | Link | Status | Route | Table | Replacement | Reason |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Domain | Module | Link | Status | Route | Table | Replacement | Reason |
+| --- | --- | --- | --- | --- | --- | --- | --- |
 ${rows.join('\n')}
 `;
 }
@@ -319,10 +309,41 @@ ${rows.join('\n')}
 export { STATUS, LEGACY, CANONICAL, defaultEntry, validate, renderDocs };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const tier1 = loadJson(path.join(root, 'manifest', 'tier1.json'));
-  const linksData = loadJson(path.join(root, 'manifest', 'tier1_links.json'));
-  const links = linksData.modules || [];
+  const linkage = loadJson(path.join(root, 'manifest', 'linkage.json'));
+  void linkage;
   const statusPath = path.join(root, 'manifest', 'domain_status.json');
+
+  if (mode === 'sync-linkage') {
+    const graphPath = path.join(root, 'manifest', 'linkage_graph.json');
+    if (!existsSync(graphPath)) {
+      console.error('FAIL: manifest/linkage_graph.json missing (run scripts/build_linkage_graph.mjs --write)');
+      process.exit(2);
+    }
+    const graph = JSON.parse(readFileSync(graphPath, 'utf8'));
+    const byModule = new Map((graph.modules || []).map((m) => [m.module, m.linkageLevel]));
+    if (!existsSync(statusPath)) {
+      console.error('FAIL: manifest/domain_status.json missing (run scripts/classify_domains.mjs --write)');
+      process.exit(1);
+    }
+    const data = JSON.parse(readFileSync(statusPath, 'utf8'));
+    const entriesSync = data.entries || [];
+    for (const e of entriesSync) {
+      if (!byModule.has(e.module)) {
+        console.error(`FAIL: domain_status lists unknown module ${e.module}`);
+        process.exit(1);
+      }
+      e.linkageLevel = byModule.get(e.module);
+    }
+    writeFileSync(
+      statusPath,
+      `${JSON.stringify({ generatedAt: new Date().toISOString(), entries: entriesSync }, null, 2)}\n`,
+    );
+    console.log(`Synced linkageLevel for ${entriesSync.length} entries.`);
+    process.exit(0);
+  }
+
+  const linksData = loadJson(path.join(root, 'manifest', 'linkage_graph.json'));
+  const links = linksData.modules || [];
 
   if (mode === 'write' || mode === 'write-docs') {
     let entries = [];
@@ -335,11 +356,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
         entries = JSON.parse(readFileSync(statusPath, 'utf8')).entries || [];
       }
       const have = new Set(entries.map((e) => e.module));
-      const tierOf = tierOfFactory(tier1);
       let added = 0;
       for (const link of links) {
         if (!have.has(link.module)) {
-          entries.push(defaultEntry(root, link, tierOf));
+          entries.push(defaultEntry(root, link));
           added += 1;
         }
       }

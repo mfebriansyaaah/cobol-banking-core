@@ -65,7 +65,7 @@ whole fixed malformed corpus (never bare `SUCCESS`), and the `users` table
 still present afterwards (injection must not escape validation).
 
 ```sh
-FUZZ_ACTIONS="GLA_CREATE BDR_CREATE" FUZZ_ITERATIONS=5 FUZZ_SEED=42 bash tests/fuzz/fuzz_inputs.sh
+FUZZ_ACTIONS="GLA_CREATE GLA_LIST" FUZZ_ITERATIONS=5 FUZZ_SEED=42 bash tests/fuzz/fuzz_inputs.sh
 ```
 
 - `FUZZ_ACTIONS`: space-separated subset (default: 5 validating actions).

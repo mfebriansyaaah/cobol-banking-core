@@ -22,7 +22,7 @@ Unblocks:
 - Gap 4 (Data safety): `VAULT_KMS_KEY_ID` pointed at a staging KMS key,
   probe upload asserting SSE-KMS headers, one rotation execution following
   `docs/runbooks/vault-kms.md`.
-- Gap 6 (Tier-1 linkage): 063/064 preconditions (backup + restore drill on
+- Gap 6 (core linkage): 063/064 preconditions (backup + restore drill on
   staging, DBA review) can actually be met; until then the deferral stands.
 
 Owner to name: whoever provisions infrastructure. No code change needed —

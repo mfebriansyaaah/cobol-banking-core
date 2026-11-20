@@ -12,7 +12,7 @@
 //   - the candidate set only shrinks (tests/code_candidates_baseline.txt).
 //
 // Evidence per candidate is derived, not asserted:
-//   - Tier-1 linkage level + scoring reason (manifest/tier1_links.json);
+//   - core linkage level + scoring reason (manifest/linkage_graph.json);
 //   - template-clone signal (tests/clone_baseline.txt) or explicit
 //     "custom unlinked code" marker for non-shaped modules;
 //   - primary own-domain table + how many modules reference it;
@@ -102,7 +102,7 @@ function readdirFiles(dir) {
 }
 
 function buildCandidates(rootDir) {
-  const links = loadJson(path.join(rootDir, 'manifest', 'tier1_links.json'));
+  const links = loadJson(path.join(rootDir, 'manifest', 'linkage_graph.json'));
   const domainStatus = loadJson(path.join(rootDir, 'manifest', 'domain_status.json'));
   const linkByModule = new Map((links.modules || []).map((m) => [m.module, m]));
   const statusByModule = new Map((domainStatus.entries || []).map((e) => [e.module, e]));
@@ -122,7 +122,7 @@ function buildCandidates(rootDir) {
     const link = linkByModule.get(module);
     const domain = module.endsWith('_core') ? module.slice(0, -5) : module;
     const evidence = [];
-    evidence.push(`linkage ${link ? link.linkageLevel : 'unknown'}: ${link ? link.reason : 'no tier1 entry'}`);
+    evidence.push(`linkage ${link ? link.linkageLevel : 'unknown'}: ${link ? link.reason : 'no linkage entry'}`);
     if (cloneBaseline.has(module)) {
       evidence.push('template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)');
     } else {
@@ -140,9 +140,7 @@ function buildCandidates(rootDir) {
       evidence.push('no own-domain table detected');
     }
     evidence.push('trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED');
-    evidence.push(
-      'CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions',
-    );
+    evidence.push('CORE_LINKED actions: none — core scoring found no business tables, core calls, or money actions');
     const kind = cloneBaseline.has(module) ? 'DUPLICATE' : 'UNLINKED';
     out.push({
       module,

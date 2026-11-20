@@ -1,4 +1,4 @@
-// Unit tests for scripts/build_tier1_graph.mjs and check_tier1_links.mjs.
+// Unit tests for scripts/build_linkage_graph.mjs and check_linkage.mjs.
 // No database, no build.
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
@@ -9,8 +9,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-const BUILD = path.join(ROOT, 'scripts', 'build_tier1_graph.mjs');
-const CHECK = path.join(ROOT, 'scripts', 'check_tier1_links.mjs');
+const BUILD = path.join(ROOT, 'scripts', 'build_linkage_graph.mjs');
+const CHECK = path.join(ROOT, 'scripts', 'check_linkage.mjs');
 
 const dirs = [];
 after(() => {
@@ -21,14 +21,14 @@ after(() => {
 // (single table + suite), one L0 (own table only), one L1 (users only),
 // one UTILITY, one dispatch table, one route file, one DB suite.
 function makeRoot() {
-  const d = mkdtempSync(path.join(tmpdir(), 'tier1-'));
+  const d = mkdtempSync(path.join(tmpdir(), 'linkage-'));
   dirs.push(d);
   const manifest = path.join(d, 'manifest');
   mkdirSync(manifest, { recursive: true });
   writeFileSync(
-    path.join(manifest, 'tier1.json'),
+    path.join(manifest, 'linkage.json'),
     JSON.stringify({
-      tier1Modules: ['core_core'],
+      coreModules: ['core_core'],
       utilityModules: ['util_core'],
       businessTables: ['ledger', 'accounts'],
       moneyTables: ['ledger', 'accounts'],
@@ -100,7 +100,7 @@ function runFail(gate, root, extra = []) {
 }
 
 function level(d, module) {
-  const links = JSON.parse(readFileSync(path.join(d, 'manifest', 'tier1_links.json'), 'utf8'));
+  const links = JSON.parse(readFileSync(path.join(d, 'manifest', 'linkage_graph.json'), 'utf8'));
   return links.modules.find((m) => m.module === module).linkageLevel;
 }
 
@@ -118,7 +118,7 @@ test('scoring assigns L3/L2/L1/L0/UTILITY', () => {
 test('admin-guard-only module is L1, not linked', () => {
   const d = makeRoot();
   run(BUILD, d, ['--write']);
-  const links = JSON.parse(readFileSync(path.join(d, 'manifest', 'tier1_links.json'), 'utf8'));
+  const links = JSON.parse(readFileSync(path.join(d, 'manifest', 'linkage_graph.json'), 'utf8'));
   const m = links.modules.find((x) => x.module === 'useronly_core');
   assert.equal(m.linkageLevel, 'L1');
   assert.deepEqual(m.businessTables, []);

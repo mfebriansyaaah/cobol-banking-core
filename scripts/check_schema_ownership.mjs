@@ -29,14 +29,14 @@ for (const t of fresh) {
     fail(`new table '${t}' matches a generic-name deny pattern (justify in table_ownership.json or rename)`);
     continue;
   }
-  fail(`new table '${t}' is unregistered (add owner/status/tier1Links/audit story to manifest/table_ownership.json)`);
+  fail(`new table '${t}' is unregistered (add owner/status/coreLinks/audit story to manifest/table_ownership.json)`);
 }
 for (const [name, meta] of Object.entries(reg.tables || {})) {
   if (!tables.includes(name.toLowerCase())) {
     fail(`registered table '${name}' missing from schema_full.sql (stale registry)`);
     continue;
   }
-  for (const k of ['owner', 'status', 'tier1Links', 'audited']) {
+  for (const k of ['owner', 'status', 'coreLinks', 'audited']) {
     if (meta[k] === undefined || meta[k] === null || meta[k] === '') fail(`registered table '${name}' lacks '${k}'`);
   }
 }

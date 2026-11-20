@@ -10,7 +10,7 @@
 // Usage:
 //   node scripts/check_coverage_modules.mjs --json coverage/cobol.json
 //       [--baseline tests/coverage_module_baseline.txt]
-//       [--tolerance 1.0] [--floor 70] [--write]
+//       [--tolerance 1.0] [--floor 70] [--linkage-graph manifest/linkage_graph.json] [--write]
 //       [--allow-stale] treats stale floor-backlog entries (module reached
 //       the floor but still listed) as warnings, not failures. CI passes
 //       --allow-stale; the weekly report flags entries stale >7 days.
@@ -26,6 +26,7 @@ let baselinePath = path.resolve('tests/coverage_module_baseline.txt');
 let tolerance = 1.0;
 let floor = 0;
 let floorBacklogPath = path.resolve('tests/coverage_floor_backlog.txt');
+let linkageGraphPath = path.resolve('manifest/linkage_graph.json');
 let write = false;
 let allowStale = false;
 for (let i = 0; i < args.length; i += 1) {
@@ -35,11 +36,12 @@ for (let i = 0; i < args.length; i += 1) {
   else if (a === '--tolerance') ((tolerance = Number(args[i + 1] ?? tolerance)), (i += 1));
   else if (a === '--floor') ((floor = Number(args[i + 1] ?? floor)), (i += 1));
   else if (a === '--floor-backlog') ((floorBacklogPath = path.resolve(args[i + 1] ?? floorBacklogPath)), (i += 1));
+  else if (a === '--linkage-graph') ((linkageGraphPath = path.resolve(args[i + 1] ?? linkageGraphPath)), (i += 1));
   else if (a === '--allow-stale') allowStale = true;
   else if (a === '--write') write = true;
   else if (a === '--help' || a === '-h') {
     console.log(
-      'usage: check_coverage_modules.mjs --json FILE [--baseline FILE] [--tolerance PP] [--floor N] [--allow-stale] [--write]',
+      'usage: check_coverage_modules.mjs --json FILE [--baseline FILE] [--tolerance PP] [--floor N] [--linkage-graph FILE] [--allow-stale] [--write]',
     );
     process.exit(0);
   } else {
@@ -150,17 +152,17 @@ if (failed) {
   process.exit(1);
 }
 
-// Stage-1 floor (PR-044): measured Tier-1 modules must sit at or above
+// L3 floor (linkage-only): measured L3 modules must sit at or above
 // --floor, unless explicitly recorded in the floor backlog (ratchet both
 // ways: unlisted sub-floor modules fail, and backlogged modules that reach
 // the floor must leave the backlog).
 if (floor > 0) {
-  let tier1 = [];
+  let l3 = [];
   try {
-    const t1 = JSON.parse(readFileSync(path.resolve('manifest/tier1.json'), 'utf8'));
-    tier1 = t1.tier1Modules || [];
+    const graph = JSON.parse(readFileSync(linkageGraphPath, 'utf8'));
+    l3 = (graph.modules || []).filter((m) => m.linkageLevel === 'L3').map((m) => m.module);
   } catch {
-    console.error('FAIL: cannot load manifest/tier1.json for floor check');
+    console.error(`FAIL: cannot load ${linkageGraphPath} for floor check`);
     process.exit(1);
   }
   const backlogged = new Set();
@@ -172,8 +174,13 @@ if (floor > 0) {
     }
   }
   let floorFailed = false;
-  for (const m of tier1) {
-    if (!actual.has(m)) continue; // unmeasured: baseline/measurement rules own it
+  const unmeasuredL3 = l3.filter((m) => !actual.has(m) && !backlogged.has(m));
+  for (const m of unmeasuredL3) {
+    console.error(`FLOOR VIOLATION: L3 ${m} is unmeasured; add it to the curated set or record it`);
+    floorFailed = true;
+  }
+  for (const m of l3) {
+    if (!actual.has(m)) continue; // unmeasured handled above
     const v = actual.get(m);
     if (v >= floor) {
       if (backlogged.has(m)) {
@@ -185,21 +192,21 @@ if (floor > 0) {
         }
       }
     } else if (!backlogged.has(m)) {
-      console.error(`FLOOR VIOLATION: Tier-1 ${m} at ${v}% (< ${floor}%); add tests or record it`);
+      console.error(`FLOOR VIOLATION: L3 ${m} at ${v}% (< ${floor}%); add tests or record it`);
       floorFailed = true;
     }
   }
   for (const m of backlogged) {
-    if (!tier1.includes(m)) {
-      console.error(`FLOOR-BACKLOG DEAD: ${m} is not a Tier-1 module; remove it`);
+    if (!l3.includes(m)) {
+      console.error(`FLOOR-BACKLOG DEAD: ${m} is not an L3 module; remove it`);
       floorFailed = true;
     }
   }
   if (floorFailed) {
-    console.error('\nFAIL: Tier-1 floor check');
+    console.error('\nFAIL: L3 floor check');
     process.exit(1);
   }
-  console.log(`OK: Tier-1 floor ${floor}% holds (${tier1.filter((m) => actual.has(m)).length} measured)`);
+  console.log(`OK: L3 floor ${floor}% holds (${l3.filter((m) => actual.has(m)).length} measured)`);
 }
 const improved = order.filter((k) => actual.has(k) && actual.get(k) - baseline.get(k) > 0);
 console.log(

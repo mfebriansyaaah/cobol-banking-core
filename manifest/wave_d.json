@@ -1,0 +1,5 @@
+{
+  "wave": "D",
+  "note": "Retire non-core IT/reporting support modules. Tables are retained. Approved by master plan 2026-11-19.",
+  "modules": ["backup_drill_core", "report_builder_core"]
+}

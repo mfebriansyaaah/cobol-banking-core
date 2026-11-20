@@ -16,8 +16,7 @@ crypto helpers COBOL cannot call directly.
 > (`push: [main]`, `pull_request`, schedules). See [docs/CI.md](docs/CI.md).
 >
 > **Status (2026-10-29):** COBOL modules follow the 9-action contract (see
-> `docs/MODULE_CLASSIFICATION.md`): Tier-1 hand-reviewed core (auth, wallet,
-> lending, …) plus Tier-2 generated domain modules and Tier-3 utilities.
+> `docs/MODULE_LINKAGE.md`): core anchors (auth, wallet, lending, …) plus business domain modules and utilities.
 > `tests/run_all.sh full` is green locally and in the hosted CI gate.
 > Counts in this README are generated from `manifest/modules.json` and the
 > source tree; see [docs/STATUS.md](docs/STATUS.md) and
@@ -82,13 +81,13 @@ Rules of the split:
 
 ## Implementation status
 
-Flagship hand-reviewed domains (Tier 1). The full generated inventory is
+Flagship hand-reviewed domains (core anchors). The full inventory is
 [docs/MODULE_INDEX.md](docs/MODULE_INDEX.md); counts are in
 [docs/STATUS.md](docs/STATUS.md).
 
 | Domain | Status | Modules |
 | --- | --- | --- |
-| Platform | Done | `auth_core`, `auth_password_core`, `auth_mfa_core`, `auth_recovery_core`, `auth_review_core`, `auth_session_core`, `auth_ops_core`, `user_core`, `wallet_core`, `wallet_transfer_core`, `wallet_reversal_core`, `wallet_hold_core`, `wallet_dispute_core`, `wallet_recon_core`, `wallet_statement_core`, `ref_engine`, `ref_ext_core`, `gl_core`, `report_core`, `fee_core`, `eod_core`, `eod_jobs_core`, `statement_core`, `dashboard_core`, `notification_template_core`, `sla_tracker_core`, `compliance_calendar_core`, `backup_drill_core`, `cost_center_core`, `corp_core`, `risk_core`, `identity_core`, `phone_otp_core` |
+| Platform | Done | `auth_core`, `auth_password_core`, `auth_mfa_core`, `auth_recovery_core`, `auth_review_core`, `auth_session_core`, `auth_ops_core`, `user_core`, `wallet_core`, `wallet_transfer_core`, `wallet_reversal_core`, `wallet_hold_core`, `wallet_dispute_core`, `wallet_recon_core`, `wallet_statement_core`, `ref_engine`, `ref_ext_core`, `gl_core`, `report_core`, `fee_core`, `eod_core`, `eod_jobs_core`, `statement_core`, `dashboard_core`, `notification_template_core`, `sla_tracker_core`, `compliance_calendar_core`, `cost_center_core`, `corp_core`, `risk_core`, `identity_core`, `phone_otp_core` |
 | D1 Lending | Done | `loan_schedule_core` (28 actions), `loan_core`, `loan_posting_core`, `loan_schedule_lifecycle_core`, `loan_schedule_posting_core`, `loan_schedule_report_core` |
 | D2 Deposit | Done | `deposit_core` (13 actions), `deposit_posting_core` |
 | D3 Cards | Done | `card_core` (16 actions), `card_posting_core` |
@@ -96,8 +95,8 @@ Flagship hand-reviewed domains (Tier 1). The full generated inventory is
 | D5 Payments | Done | `payment_clearing_core` (9 actions), `payment_core`, `payment_hold_core`, `payment_instruction_core` |
 | D6 Treasury / FX | Done | `treasury_liquidity_core` (9 actions), `fx_rate_core` |
 | D8 Finance | Done | `gl_allocation_core` (9 actions), `gl_core`, `fixed_asset_core`, `tax_management_core` |
-| D9 IT Ops | Done | `backup_drill_core` (9 actions), `eod_jobs_core`, `sla_tracker_core` |
-| D10 Data / Reporting | Done | `report_builder_core` (9 actions), `report_core`, `report_run_core`, `report_schedule_core`, `import_core`, `import_row_core`, `import_post_core`, `import_recon_core`, `statement_core`, `statement_recon_core` |
+| D9 IT Ops | Done | `eod_jobs_core`, `sla_tracker_core` |
+| D10 Data / Reporting | Done | `report_core`, `report_run_core`, `report_schedule_core`, `import_core`, `import_row_core`, `import_post_core`, `import_recon_core`, `statement_core`, `statement_recon_core` |
 | Compliance / risk | Done | `identity_core`, `risk_core`, `corp_core`, `auth_review_core`, `compliance_calendar_core`, `phone_otp_core` |
 | Collateral Mgmt | Done (pilot) | `collateral_core` (17 actions: register/appraise/revalue/pledge/allocate/release/repossess/dispose + CRUD/audit); legacy clones retired in `bc389970` |
 | Trade Finance | Done (pilot) | `letter_of_credit_core` (LC lifecycle + GL link), `bank_guarantee_core` (BG lifecycle + claim); legacy generic clones retired in `bc389970` |
@@ -156,12 +155,12 @@ suites, table cases, and the action/suite inventory gates. See
 <!-- BEGIN GENERATED STATS -->
 | Metric | Value |
 | --- | ---: |
-| COBOL modules | **71** |
-| COBOL source files (incl. dispatcher) | **72** |
-| COBOL lines | **49,228** |
-| Gateway route files | **54** |
-| Gateway route definitions | **577** |
-| Dispatch entries | **194** |
+| COBOL modules | **69** |
+| COBOL source files (incl. dispatcher) | **70** |
+| COBOL lines | **48,257** |
+| Gateway route files | **52** |
+| Gateway route definitions | **561** |
+| Dispatch entries | **192** |
 | Recorded migrations | **678** |
 | Tables in schema.sql | **466** |
 <!-- END GENERATED STATS -->
@@ -339,7 +338,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 <!-- BEGIN GENERATED TEST TABLE -->
 | Suite file | Assertions |
 | --- | ---: |
-| `tests/cobol/cases/*.cases` | 235 |
+| `tests/cobol/cases/*.cases` | 225 |
 | `tests/db/schema_db_tests.sh` | 76 |
 | `tests/db/loan_schedule_db_tests.sh` | 42 |
 | `tests/db/deposit_db_tests.sh` | 67 |
@@ -348,11 +347,9 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/payment_clearing_db_tests.sh` | 36 |
 | `tests/db/treasury_liquidity_db_tests.sh` | 39 |
 | `tests/db/gl_allocation_db_tests.sh` | 13 |
-| `tests/db/backup_drill_db_tests.sh` | 13 |
 | `tests/db/grants_db_tests.sh` | 6 |
 | `tests/db/migration_checksum_db_tests.sh` | 6 |
-| `tests/db/report_builder_db_tests.sh` | 13 |
-| `middleware/test/*.js` | 349 |
+| `middleware/test/*.js` | 347 |
 | `tests/db/cost_center_db_tests.sh` | 23 |
 | `tests/db/fixed_asset_db_tests.sh` | 21 |
 | `tests/db/fixed_asset_schema_db_tests.sh` | 8 |
@@ -426,7 +423,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/migration_baseline_db_tests.sh` | 16 |
 | `tests/db/migration_archive_db_tests.sh` | 12 |
 | `tests/db/commit_failure_db_tests.sh` | 6 |
-| **Total** | **2976** |
+| **Total** | **2938** |
 <!-- END GENERATED TEST TABLE -->
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database
@@ -479,11 +476,11 @@ route files are exported from `routes/index.js`, and that dispatch entries match
 
 ## Known gaps
 
-1. **Generated-domain depth varies by tier.** Every module implements the
-   9-action contract (`docs/MODULE_AUTHORING.md`), but Tier-2 modules follow the
+1. **Domain-module depth varies by linkage.** Every module implements the
+   9-action contract (`docs/MODULE_AUTHORING.md`), but some business modules follow the
    `cost_center_core` template closely. Treat the domain table above as the
    hand-reviewed flagship set; the full inventory is `manifest/modules.json`.
-   Tier definitions and strictness live in `docs/MODULE_CLASSIFICATION.md`.
+   Linkage definitions and strictness live in `docs/MODULE_LINKAGE.md`.
 2. **Copy-paste plumbing.** Boilerplate paragraphs (`TRIM-ALL`, `VALIDATE-ALL`,
    `TRIM-RESULT-LEN`) are repeated across most generated modules. Shared
    copybooks for trimming, validation, and audit are the main refactor target.

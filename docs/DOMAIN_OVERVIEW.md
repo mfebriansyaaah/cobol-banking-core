@@ -166,11 +166,16 @@ column-level catalog is in [DATA_DICTIONARY.md](DATA_DICTIONARY.md).
 
 ## Data, reporting & IT ops
 
-- `report_core`, `report_builder_core`, `report_run_core`, `report_schedule_core`
+> **Wave D (linkage-only PR-1):** the backup_drill and report_builder modules
+> were retired (routes, COBOL, suites, cases removed). Their tables
+> (backup_drill, report_builder + audits) remain in the migration history
+> and snapshots; owner: platform, retention: keep one cycle. Do not re-add
+> the modules.
+
+- `report_core`, `report_run_core`, `report_schedule_core`
 - `import_core` (batch lifecycle: create/validate/post/export/clone/retry;
   route `import.js` + table cases), `import_row_core` (row stage/correct/skip),
   `import_post_core` (ledger posting), `import_recon_core` (reconciliation)
-- `backup_drill_core` — backup drill runs (create/run/validate/close + audit)
 - `eod_core`, `eod_jobs_core` — end-of-day phases and orchestration
 - `sla_tracker_core`, `notification_template_core`, `dashboard_core`
 

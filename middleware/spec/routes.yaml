@@ -65,16 +65,6 @@ files:
     - { method: post, path: "/sessions/revoke", action: REVOKE_USER_SESSION, tokenIdentity: 'actor', fields: [email:EMAIL, actor:EMAIL, sessionId:KEY, BLANK, BLANK, BLANK] }
     - { method: post, path: "/sessions/revoke-all", action: REVOKE_ALL_SESSIONS, tokenIdentity: 'actor', fields: [email:EMAIL, actor:EMAIL, BLANK, BLANK, BLANK, BLANK] }
     - { method: post, path: "/sessions/revoke-others", action: REVOKE_OTHER_DEVICES, tokenIdentity: 'actor', tokenSid: true, fields: [email:EMAIL, actor:EMAIL, sid:KEY, BLANK, BLANK, BLANK] }
-- file: backup_drill.js
-  export: BACKUP_DRILL_ROUTES
-    - { method: post, path: "/it/backup-drills/validate", action: BDR_VALIDATE, tokenIdentity: 'actor', fields: [amount:AMOUNT, currency:CURRENCY, BLANK, BLANK, BLANK, ACTOR] }
-    - { method: get, path: "/it/backup-drills/summary", action: BDR_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
-    - { method: get, path: "/it/backup-drills/audit", action: BDR_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
-    - { method: get, path: "/it/backup-drills", action: BDR_LIST, tokenIdentity: 'actor', fields: [status:BDR_LIST_STATUS?, type:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
-    - { method: post, path: "/it/backup-drills", action: BDR_CREATE, tokenIdentity: 'actor', fields: [drillRef:KEY, targetTable:NAME, backupType:NAME, BLANK, BLANK, ACTOR] }
-    - { method: get, path: "/it/backup-drills/:id", action: BDR_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
-    - { method: post, path: "/it/backup-drills/:id/run", action: BDR_RUN, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
-    - { method: post, path: "/it/backup-drills/:id/close", action: BDR_CLOSE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
 - file: bank_guarantee.js
   export: BKG_ROUTES
     - { method: post, path: "/bank-guarantees/validate", action: BKG_VALIDATE, tokenIdentity: 'actor', fields: [amount:AMOUNT, currency:CURRENCY, BLANK, BLANK, BLANK, ACTOR] }
@@ -550,16 +540,6 @@ files:
     - { method: delete, path: "/reports/runs/:id", action: RPT_RUN_DELETE, tokenIdentity: 'actor', fields: [id:INT, BLANK, BLANK, BLANK, BLANK, ACTOR] }
     - { method: delete, path: "/reports/templates/:code/columns/:ordinal", action: RPT_COLUMN_DELETE, tokenIdentity: 'actor', fields: [code:RPT_CODE, ordinal:INT, BLANK, BLANK, BLANK, ACTOR] }
     - { method: patch, path: "/reports/templates/:code/columns/:ordinal", action: RPT_COLUMN_UPDATE, tokenIdentity: 'actor', fields: [code:RPT_CODE, ordinal:INT, header:RPT_NAME, source:KEY, options:RPT_COLUMN_OPTIONS, ACTOR] }
-- file: report_builder.js
-  export: REPORT_BUILDER_ROUTES
-    - { method: post, path: "/data/reports/validate", action: RPB_VALIDATE, tokenIdentity: 'actor', fields: [amount:AMOUNT, currency:CURRENCY, BLANK, BLANK, BLANK, ACTOR] }
-    - { method: get, path: "/data/reports/summary", action: RPB_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
-    - { method: get, path: "/data/reports/audit", action: RPB_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
-    - { method: get, path: "/data/reports", action: RPB_LIST, tokenIdentity: 'actor', fields: [status:RPB_LIST_STATUS?, type:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
-    - { method: post, path: "/data/reports", action: RPB_CREATE, tokenIdentity: 'actor', fields: [reportRef:KEY, reportName:NAME, reportType:NAME, BLANK, BLANK, ACTOR] }
-    - { method: get, path: "/data/reports/:id", action: RPB_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
-    - { method: post, path: "/data/reports/:id/run", action: RPB_RUN, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
-    - { method: post, path: "/data/reports/:id/close", action: RPB_CLOSE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
 - file: report_schedule.js
   export: RPS_ROUTES
     - { method: post, path: "/report-schedules/validate", action: RPS_VALIDATE, tokenIdentity: 'actor', fields: [amount:AMOUNT, currency:CURRENCY, BLANK, BLANK, BLANK, ACTOR] }

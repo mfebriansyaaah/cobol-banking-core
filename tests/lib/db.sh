@@ -119,14 +119,6 @@ db_reset_gl_allocation() {
     db_exec "DELETE FROM gl_allocation_audit; DELETE FROM gl_allocation;"
 }
 
-db_reset_backup_drill() {
-    db_exec "DELETE FROM backup_drill_audit; DELETE FROM backup_drill;"
-}
-
-db_reset_report_builder() {
-    db_exec "DELETE FROM report_builder_audit; DELETE FROM report_builder;"
-}
-
 db_reset_cost_center() {
     db_exec "DELETE FROM cost_center_audit; DELETE FROM cost_center;"
 }

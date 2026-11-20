@@ -1,27 +1,27 @@
 {
-  "generatedAt": "2026-11-12T06:41:42.371Z",
-  "commit": "498555b3",
-  "tier1": "manifest/tier1.json",
+  "generatedAt": "2026-11-20T02:51:15.160Z",
+  "commit": "4e68a6ce",
+  "linkageSource": "manifest/linkage.json",
   "summary": {
     "L3": 23,
     "L2": 6,
     "L1": 10,
-    "L0": 29,
+    "L0": 27,
     "UTILITY": 3
   },
   "modules": [
     {
       "module": "account_core",
       "source": "account_core.cob",
-      "linkageLevel": "L0",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/account_db_tests.sh",
         "tests/cobol/cases/account.cases"
       ],
+      "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": [
         "account.js"
@@ -32,11 +32,11 @@
       "source": "auth_core.cob",
       "linkageLevel": "L3",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [],
-      "reason": "Tier-1 core module",
+      "reason": "Core anchor module",
       "routeFiles": [
         "auth.js",
         "infra.js"
@@ -45,24 +45,24 @@
     {
       "module": "auth_mfa_core",
       "source": "auth_mfa_core.cob",
-      "linkageLevel": "L0",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": false,
       "testEvidence": [],
+      "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": []
     },
     {
       "module": "auth_ops_core",
       "source": "auth_ops_core.cob",
-      "linkageLevel": "L0",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": false,
       "testEvidence": [],
+      "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": []
     },
@@ -71,22 +71,22 @@
       "source": "auth_password_core.cob",
       "linkageLevel": "L3",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [],
-      "reason": "Tier-1 core module",
+      "reason": "Core anchor module",
       "routeFiles": []
     },
     {
       "module": "auth_recovery_core",
       "source": "auth_recovery_core.cob",
-      "linkageLevel": "L0",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": false,
       "testEvidence": [],
+      "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": [
         "admin.js"
@@ -95,58 +95,41 @@
     {
       "module": "auth_review_core",
       "source": "auth_review_core.cob",
-      "linkageLevel": "L0",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": false,
       "testEvidence": [],
+      "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": []
     },
     {
       "module": "auth_session_core",
       "source": "auth_session_core.cob",
-      "linkageLevel": "L0",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/auth_session_db_tests.sh"
       ],
+      "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": []
     },
     {
-      "module": "backup_drill_core",
-      "source": "backup_drill_core.cob",
-      "linkageLevel": "L0",
-      "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
-      "hasTests": true,
-      "testEvidence": [
-        "tests/db/backup_drill_db_tests.sh",
-        "tests/cobol/cases/backup_drill.cases"
-      ],
-      "reason": "own domain tables only, no core link",
-      "routeFiles": [
-        "backup_drill.js"
-      ]
-    },
-    {
       "module": "bank_guarantee_core",
       "source": "bank_guarantee_core.cob",
-      "linkageLevel": "L0",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/bank_guarantee_db_tests.sh",
         "tests/cobol/cases/bank_guarantee.cases"
       ],
+      "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": [
         "bank_guarantee.js"
@@ -157,11 +140,11 @@
       "source": "card_core.cob",
       "linkageLevel": "L3",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [],
-      "reason": "Tier-1 core module",
+      "reason": "Core anchor module",
       "routeFiles": [
         "card.js"
       ]
@@ -169,36 +152,36 @@
     {
       "module": "card_posting_core",
       "source": "card_posting_core.cob",
-      "linkageLevel": "L3",
       "businessTables": [
         "accounts",
         "card_account",
         "gl_journal"
       ],
-      "t1Calls": [
+      "coreCalls": [
         "gl_core"
       ],
-      "t1Actions": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/card_posting_db_tests.sh"
       ],
+      "linkageLevel": "L3",
       "reason": "money-table touch (accounts, gl_journal) with depth + test",
       "routeFiles": []
     },
     {
       "module": "chargeback_core",
       "source": "chargeback_core.cob",
-      "linkageLevel": "L0",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/chargeback_db_tests.sh",
         "tests/cobol/cases/chargeback.cases",
         "tests/integration/chargeback_flow.sh"
       ],
+      "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": [
         "chargeback.js"
@@ -207,18 +190,18 @@
     {
       "module": "collateral_core",
       "source": "collateral_core.cob",
-      "linkageLevel": "L2",
       "businessTables": [
         "loan_application"
       ],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/collateral_db_tests.sh",
         "tests/cobol/cases/collateral.cases",
         "tests/integration/collateral_loan_flow.sh"
       ],
+      "linkageLevel": "L2",
       "reason": "business link (tables loan_application) + test",
       "routeFiles": [
         "collateral.js"
@@ -229,11 +212,11 @@
       "source": "collection_core.cob",
       "linkageLevel": "L3",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [],
-      "reason": "Tier-1 core module",
+      "reason": "Core anchor module",
       "routeFiles": [
         "collection.js"
       ]
@@ -241,14 +224,14 @@
     {
       "module": "compliance_calendar_core",
       "source": "compliance_calendar_core.cob",
-      "linkageLevel": "L0",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/compliance_calendar_db_tests.sh"
       ],
+      "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": [
         "compliance_calendar.js"
@@ -257,12 +240,12 @@
     {
       "module": "corp_core",
       "source": "corp_core.cob",
-      "linkageLevel": "L0",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": false,
       "testEvidence": [],
+      "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": [
         "corporate.js"
@@ -271,15 +254,15 @@
     {
       "module": "cost_center_core",
       "source": "cost_center_core.cob",
-      "linkageLevel": "L0",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/cost_center_db_tests.sh",
         "tests/cobol/cases/cost_center.cases"
       ],
+      "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": [
         "cost_center.js"
@@ -288,17 +271,17 @@
     {
       "module": "dashboard_core",
       "source": "dashboard_core.cob",
-      "linkageLevel": "L3",
       "businessTables": [
         "accounts",
         "ledger"
       ],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/dashboard_db_tests.sh"
       ],
+      "linkageLevel": "L3",
       "reason": "money-table touch (accounts, ledger) with depth + test",
       "routeFiles": [
         "dashboard.js"
@@ -309,11 +292,11 @@
       "source": "deposit_core.cob",
       "linkageLevel": "L3",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [],
-      "reason": "Tier-1 core module",
+      "reason": "Core anchor module",
       "routeFiles": [
         "deposit.js"
       ]
@@ -321,35 +304,35 @@
     {
       "module": "deposit_posting_core",
       "source": "deposit_posting_core.cob",
-      "linkageLevel": "L3",
       "businessTables": [
         "accounts",
         "deposit_account",
         "deposit_accrual",
         "gl_journal"
       ],
-      "t1Calls": [
+      "coreCalls": [
         "gl_core"
       ],
-      "t1Actions": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/deposit_posting_db_tests.sh"
       ],
+      "linkageLevel": "L3",
       "reason": "money-table touch (accounts, gl_journal) with depth + test",
       "routeFiles": []
     },
     {
       "module": "eod_core",
       "source": "eod_core.cob",
-      "linkageLevel": "L0",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/cobol/cases/eod.cases"
       ],
+      "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": [
         "eod.js"
@@ -358,16 +341,16 @@
     {
       "module": "eod_jobs_core",
       "source": "eod_jobs_core.cob",
-      "linkageLevel": "L1",
       "businessTables": [
         "accounts"
       ],
-      "t1Calls": [
+      "coreCalls": [
         "user_core"
       ],
-      "t1Actions": [],
+      "coreActions": [],
       "hasTests": false,
       "testEvidence": [],
+      "linkageLevel": "L1",
       "reason": "linked code with no DB/table/integration test (downgraded)",
       "routeFiles": [
         "eod_jobs.js"
@@ -378,11 +361,11 @@
       "source": "fee_core.cob",
       "linkageLevel": "L3",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [],
-      "reason": "Tier-1 core module",
+      "reason": "Core anchor module",
       "routeFiles": [
         "fee.js"
       ]
@@ -390,16 +373,16 @@
     {
       "module": "fixed_asset_core",
       "source": "fixed_asset_core.cob",
-      "linkageLevel": "L0",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/fixed_asset_db_tests.sh",
         "tests/cobol/cases/fixed_asset.cases",
         "tests/integration/fixed_asset_flow.sh"
       ],
+      "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": [
         "fixed_asset.js"
@@ -408,14 +391,14 @@
     {
       "module": "fx_rate_core",
       "source": "fx_rate_core.cob",
-      "linkageLevel": "L0",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/integration/fx_rate_flow.sh"
       ],
+      "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": [
         "fx_rates.js"
@@ -424,15 +407,15 @@
     {
       "module": "gl_allocation_core",
       "source": "gl_allocation_core.cob",
-      "linkageLevel": "L0",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/gl_allocation_db_tests.sh",
         "tests/cobol/cases/gl_allocation.cases"
       ],
+      "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": [
         "gl_allocation.js"
@@ -443,11 +426,11 @@
       "source": "gl_core.cob",
       "linkageLevel": "L3",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [],
-      "reason": "Tier-1 core module",
+      "reason": "Core anchor module",
       "routeFiles": [
         "gl.js"
       ]
@@ -457,27 +440,27 @@
       "source": "hashlen_core.cob",
       "linkageLevel": "UTILITY",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [],
-      "reason": "Tier-3 utility (never a retire candidate)",
+      "reason": "Utility module (never a retire candidate)",
       "routeFiles": []
     },
     {
       "module": "identity_core",
       "source": "identity_core.cob",
-      "linkageLevel": "L2",
       "businessTables": [
         "accounts"
       ],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/identity_db_tests.sh",
         "tests/integration/identity_flow.sh"
       ],
+      "linkageLevel": "L2",
       "reason": "business link (tables accounts) + test",
       "routeFiles": [
         "identity.js",
@@ -487,14 +470,14 @@
     {
       "module": "import_core",
       "source": "import_core.cob",
-      "linkageLevel": "L0",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/cobol/cases/import.cases"
       ],
+      "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": [
         "import.js"
@@ -503,33 +486,33 @@
     {
       "module": "import_post_core",
       "source": "import_post_core.cob",
-      "linkageLevel": "L3",
       "businessTables": [
         "gl_journal",
         "gl_journal_line"
       ],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/cobol/cases/import_post.cases"
       ],
+      "linkageLevel": "L3",
       "reason": "money-table touch (gl_journal, gl_journal_line) with depth + test",
       "routeFiles": []
     },
     {
       "module": "import_recon_core",
       "source": "import_recon_core.cob",
-      "linkageLevel": "L2",
       "businessTables": [
         "gl_journal_line"
       ],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/cobol/cases/import_recon.cases"
       ],
+      "linkageLevel": "L2",
       "reason": "business link (tables gl_journal_line) + test",
       "routeFiles": [
         "import_recon.js"
@@ -538,27 +521,27 @@
     {
       "module": "import_row_core",
       "source": "import_row_core.cob",
-      "linkageLevel": "L0",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": false,
       "testEvidence": [],
+      "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": []
     },
     {
       "module": "letter_of_credit_core",
       "source": "letter_of_credit_core.cob",
-      "linkageLevel": "L0",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/letter_of_credit_db_tests.sh",
         "tests/cobol/cases/letter_of_credit.cases"
       ],
+      "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": [
         "letter_of_credit.js",
@@ -570,11 +553,11 @@
       "source": "loan_core.cob",
       "linkageLevel": "L3",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [],
-      "reason": "Tier-1 core module",
+      "reason": "Core anchor module",
       "routeFiles": [
         "loan.js"
       ]
@@ -582,21 +565,21 @@
     {
       "module": "loan_posting_core",
       "source": "loan_posting_core.cob",
-      "linkageLevel": "L3",
       "businessTables": [
         "accounts",
         "gl_journal",
         "loan_application",
         "loan_repayment"
       ],
-      "t1Calls": [
+      "coreCalls": [
         "gl_core"
       ],
-      "t1Actions": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/loan_posting_db_tests.sh"
       ],
+      "linkageLevel": "L3",
       "reason": "money-table touch (accounts, gl_journal) with depth + test",
       "routeFiles": []
     },
@@ -605,11 +588,11 @@
       "source": "loan_schedule_core.cob",
       "linkageLevel": "L3",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [],
-      "reason": "Tier-1 core module",
+      "reason": "Core anchor module",
       "routeFiles": [
         "loan_schedule.js"
       ]
@@ -617,59 +600,59 @@
     {
       "module": "loan_schedule_lifecycle_core",
       "source": "loan_schedule_lifecycle_core.cob",
-      "linkageLevel": "L1",
       "businessTables": [
         "loan_schedule"
       ],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": false,
       "testEvidence": [],
+      "linkageLevel": "L1",
       "reason": "linked code with no DB/table/integration test (downgraded)",
       "routeFiles": []
     },
     {
       "module": "loan_schedule_posting_core",
       "source": "loan_schedule_posting_core.cob",
-      "linkageLevel": "L1",
       "businessTables": [
         "loan_application",
         "loan_installment",
         "loan_schedule"
       ],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": false,
       "testEvidence": [],
+      "linkageLevel": "L1",
       "reason": "linked code with no DB/table/integration test (downgraded)",
       "routeFiles": []
     },
     {
       "module": "loan_schedule_report_core",
       "source": "loan_schedule_report_core.cob",
-      "linkageLevel": "L1",
       "businessTables": [
         "loan_schedule"
       ],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": false,
       "testEvidence": [],
+      "linkageLevel": "L1",
       "reason": "linked code with no DB/table/integration test (downgraded)",
       "routeFiles": []
     },
     {
       "module": "loyalty_core",
       "source": "loyalty_core.cob",
-      "linkageLevel": "L0",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/cobol/cases/loyalty.cases",
         "tests/integration/loyalty_flow.sh"
       ],
+      "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": [
         "loyalty.js"
@@ -678,18 +661,18 @@
     {
       "module": "merchant_core",
       "source": "merchant_core.cob",
-      "linkageLevel": "L2",
       "businessTables": [
         "accounts"
       ],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/merchant_db_tests.sh",
         "tests/cobol/cases/merchant.cases",
         "tests/integration/merchant_acquiring_flow.sh"
       ],
+      "linkageLevel": "L2",
       "reason": "business link (tables accounts) + test",
       "routeFiles": [
         "merchant.js"
@@ -698,15 +681,15 @@
     {
       "module": "merchant_settlement_core",
       "source": "merchant_settlement_core.cob",
-      "linkageLevel": "L0",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/merchant_settlement_db_tests.sh",
         "tests/cobol/cases/merchant_settlement.cases"
       ],
+      "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": [
         "merchant_settlement.js"
@@ -715,14 +698,14 @@
     {
       "module": "notification_template_core",
       "source": "notification_template_core.cob",
-      "linkageLevel": "L0",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/notification_template_db_tests.sh"
       ],
+      "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": [
         "notification_template.js"
@@ -733,11 +716,11 @@
       "source": "payment_clearing_core.cob",
       "linkageLevel": "L3",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [],
-      "reason": "Tier-1 core module",
+      "reason": "Core anchor module",
       "routeFiles": [
         "payment_clearing.js"
       ]
@@ -745,19 +728,19 @@
     {
       "module": "payment_core",
       "source": "payment_core.cob",
-      "linkageLevel": "L3",
       "businessTables": [
         "accounts",
         "ledger"
       ],
-      "t1Calls": [
+      "coreCalls": [
         "fee_core"
       ],
-      "t1Actions": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/cobol/cases/payment.cases"
       ],
+      "linkageLevel": "L3",
       "reason": "money-table touch (accounts, ledger) with depth + test",
       "routeFiles": [
         "payment.js"
@@ -766,19 +749,19 @@
     {
       "module": "payment_hold_core",
       "source": "payment_hold_core.cob",
-      "linkageLevel": "L3",
       "businessTables": [
         "accounts",
         "journal_entries",
         "ledger"
       ],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/payment_hold_db_tests.sh",
         "tests/cobol/cases/payment_hold.cases"
       ],
+      "linkageLevel": "L3",
       "reason": "money-table touch (accounts, journal_entries, ledger) with depth + test",
       "routeFiles": [
         "payment_hold.js"
@@ -787,18 +770,18 @@
     {
       "module": "payment_instruction_core",
       "source": "payment_instruction_core.cob",
-      "linkageLevel": "L2",
       "businessTables": [],
-      "t1Calls": [
+      "coreCalls": [
         "wallet_core"
       ],
-      "t1Actions": [
+      "coreActions": [
         "TRANSFER"
       ],
       "hasTests": true,
       "testEvidence": [
         "tests/cobol/cases/payment_instruction.cases"
       ],
+      "linkageLevel": "L2",
       "reason": "business link (calls wallet_core; actions TRANSFER) + test",
       "routeFiles": [
         "payment_instructions.js"
@@ -807,17 +790,17 @@
     {
       "module": "payroll_processing_core",
       "source": "payroll_processing_core.cob",
-      "linkageLevel": "L2",
       "businessTables": [
         "accounts"
       ],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/payroll_processing_db_tests.sh",
         "tests/cobol/cases/payroll_processing.cases"
       ],
+      "linkageLevel": "L2",
       "reason": "business link (tables accounts) + test",
       "routeFiles": [
         "payroll_processing.js"
@@ -826,14 +809,14 @@
     {
       "module": "phone_otp_core",
       "source": "phone_otp_core.cob",
-      "linkageLevel": "L0",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/phone_otp_db_tests.sh"
       ],
+      "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": [
         "phone.js"
@@ -844,11 +827,11 @@
       "source": "ref_engine.cob",
       "linkageLevel": "UTILITY",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [],
-      "reason": "Tier-3 utility (never a retire candidate)",
+      "reason": "Utility module (never a retire candidate)",
       "routeFiles": [
         "ref_engine.js"
       ]
@@ -858,43 +841,26 @@
       "source": "ref_ext_core.cob",
       "linkageLevel": "UTILITY",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [],
-      "reason": "Tier-3 utility (never a retire candidate)",
+      "reason": "Utility module (never a retire candidate)",
       "routeFiles": [
         "ref_ext.js"
       ]
     },
     {
-      "module": "report_builder_core",
-      "source": "report_builder_core.cob",
-      "linkageLevel": "L0",
-      "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
-      "hasTests": true,
-      "testEvidence": [
-        "tests/db/report_builder_db_tests.sh",
-        "tests/cobol/cases/report_builder.cases"
-      ],
-      "reason": "own domain tables only, no core link",
-      "routeFiles": [
-        "report_builder.js"
-      ]
-    },
-    {
       "module": "report_core",
       "source": "report_core.cob",
-      "linkageLevel": "L0",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/cobol/cases/report.cases"
       ],
+      "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": [
         "report.js"
@@ -903,29 +869,29 @@
     {
       "module": "report_run_core",
       "source": "report_run_core.cob",
-      "linkageLevel": "L1",
       "businessTables": [
         "gl_journal",
         "gl_journal_line"
       ],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": false,
       "testEvidence": [],
+      "linkageLevel": "L1",
       "reason": "linked code with no DB/table/integration test (downgraded)",
       "routeFiles": []
     },
     {
       "module": "report_schedule_core",
       "source": "report_schedule_core.cob",
-      "linkageLevel": "L0",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/report_schedule_db_tests.sh"
       ],
+      "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": [
         "report_schedule.js"
@@ -934,14 +900,14 @@
     {
       "module": "risk_core",
       "source": "risk_core.cob",
-      "linkageLevel": "L0",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/risk_db_tests.sh"
       ],
+      "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": [
         "risk.js"
@@ -950,14 +916,14 @@
     {
       "module": "sla_tracker_core",
       "source": "sla_tracker_core.cob",
-      "linkageLevel": "L0",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/sla_tracker_db_tests.sh"
       ],
+      "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": [
         "sla_tracker.js"
@@ -966,18 +932,18 @@
     {
       "module": "statement_core",
       "source": "statement_core.cob",
-      "linkageLevel": "L3",
       "businessTables": [
         "accounts",
         "journal_entries",
         "ledger"
       ],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/cobol/cases/statement.cases"
       ],
+      "linkageLevel": "L3",
       "reason": "money-table touch (accounts, journal_entries, ledger) with depth + test",
       "routeFiles": [
         "statement.js"
@@ -986,17 +952,17 @@
     {
       "module": "statement_recon_core",
       "source": "statement_recon_core.cob",
-      "linkageLevel": "L3",
       "businessTables": [
         "accounts",
         "ledger"
       ],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/cobol/cases/statement_recon.cases"
       ],
+      "linkageLevel": "L3",
       "reason": "money-table touch (accounts, ledger) with depth + test",
       "routeFiles": [
         "statement_recon.js"
@@ -1005,15 +971,15 @@
     {
       "module": "tax_management_core",
       "source": "tax_management_core.cob",
-      "linkageLevel": "L0",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/tax_management_db_tests.sh",
         "tests/cobol/cases/tax_management.cases"
       ],
+      "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": [
         "tax_management.js"
@@ -1024,11 +990,11 @@
       "source": "treasury_liquidity_core.cob",
       "linkageLevel": "L3",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [],
-      "reason": "Tier-1 core module",
+      "reason": "Core anchor module",
       "routeFiles": [
         "treasury_liquidity.js"
       ]
@@ -1038,11 +1004,11 @@
       "source": "user_core.cob",
       "linkageLevel": "L3",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [],
-      "reason": "Tier-1 core module",
+      "reason": "Core anchor module",
       "routeFiles": [
         "user_profile.js"
       ]
@@ -1052,11 +1018,11 @@
       "source": "wallet_core.cob",
       "linkageLevel": "L3",
       "businessTables": [],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [],
-      "reason": "Tier-1 core module",
+      "reason": "Core anchor module",
       "routeFiles": [
         "wallet.js"
       ]
@@ -1064,15 +1030,15 @@
     {
       "module": "wallet_dispute_core",
       "source": "wallet_dispute_core.cob",
-      "linkageLevel": "L1",
       "businessTables": [
         "accounts",
         "ledger"
       ],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": false,
       "testEvidence": [],
+      "linkageLevel": "L1",
       "reason": "linked code with no DB/table/integration test (downgraded)",
       "routeFiles": [
         "disputes.js"
@@ -1081,84 +1047,84 @@
     {
       "module": "wallet_hold_core",
       "source": "wallet_hold_core.cob",
-      "linkageLevel": "L1",
       "businessTables": [
         "accounts"
       ],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": false,
       "testEvidence": [],
+      "linkageLevel": "L1",
       "reason": "linked code with no DB/table/integration test (downgraded)",
       "routeFiles": []
     },
     {
       "module": "wallet_recon_core",
       "source": "wallet_recon_core.cob",
-      "linkageLevel": "L1",
       "businessTables": [
         "accounts",
         "ledger"
       ],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": false,
       "testEvidence": [],
+      "linkageLevel": "L1",
       "reason": "linked code with no DB/table/integration test (downgraded)",
       "routeFiles": []
     },
     {
       "module": "wallet_reversal_core",
       "source": "wallet_reversal_core.cob",
-      "linkageLevel": "L1",
       "businessTables": [
         "accounts",
         "journal_entries",
         "ledger"
       ],
-      "t1Calls": [],
-      "t1Actions": [
+      "coreCalls": [],
+      "coreActions": [
         "REVERSE_TRANSFER"
       ],
       "hasTests": false,
       "testEvidence": [],
+      "linkageLevel": "L1",
       "reason": "linked code with no DB/table/integration test (downgraded)",
       "routeFiles": []
     },
     {
       "module": "wallet_statement_core",
       "source": "wallet_statement_core.cob",
-      "linkageLevel": "L1",
       "businessTables": [
         "accounts",
         "journal_entries",
         "ledger"
       ],
-      "t1Calls": [],
-      "t1Actions": [],
+      "coreCalls": [],
+      "coreActions": [],
       "hasTests": false,
       "testEvidence": [],
+      "linkageLevel": "L1",
       "reason": "linked code with no DB/table/integration test (downgraded)",
       "routeFiles": []
     },
     {
       "module": "wallet_transfer_core",
       "source": "wallet_transfer_core.cob",
-      "linkageLevel": "L3",
       "businessTables": [
         "accounts",
         "fee_schedule",
         "journal_entries",
         "ledger"
       ],
-      "t1Calls": [
+      "coreCalls": [
         "fee_core"
       ],
-      "t1Actions": [],
+      "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/wallet_transfer_db_tests.sh"
       ],
+      "linkageLevel": "L3",
       "reason": "money-table touch (accounts, journal_entries, ledger) with depth + test",
       "routeFiles": []
     }
@@ -1167,7 +1133,6 @@
     "account.js": "account_core",
     "admin.js": "auth_recovery_core",
     "auth.js": "auth_core",
-    "backup_drill.js": "backup_drill_core",
     "bank_guarantee.js": "bank_guarantee_core",
     "card.js": "card_core",
     "chargeback.js": "chargeback_core",
@@ -1206,7 +1171,6 @@
     "ref_engine.js": "ref_engine",
     "ref_ext.js": "ref_ext_core",
     "report.js": "report_core",
-    "report_builder.js": "report_builder_core",
     "report_schedule.js": "report_schedule_core",
     "risk.js": "risk_core",
     "screening.js": "identity_core",

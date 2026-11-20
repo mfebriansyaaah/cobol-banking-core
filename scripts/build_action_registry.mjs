@@ -35,10 +35,10 @@ if (problems.length) {
   console.error(`dispatch problems:\n${problems.join('\n')}`);
   process.exit(1);
 }
-const tier1 = JSON.parse(readFileSync(`${ROOT}/manifest/tier1_links.json`, 'utf8'));
+const linkageGraph = JSON.parse(readFileSync(`${ROOT}/manifest/linkage_graph.json`, 'utf8'));
 const domains = JSON.parse(readFileSync(`${ROOT}/manifest/domain_status.json`, 'utf8'));
 const byModule = new Map();
-for (const e of tier1.modules || []) byModule.set(e.module, e);
+for (const e of linkageGraph.modules || []) byModule.set(e.module, e);
 for (const e of domains.entries || domains) {
   if (!byModule.has(e.module)) byModule.set(e.module, {});
   Object.assign(byModule.get(e.module), {
@@ -76,8 +76,8 @@ for (const r of ALL_ROUTES) {
     owner: owned ? owned.owner : null,
     authPolicy: owned ? owned.policy : null,
     linkageLevel: info.linkageLevel || null,
-    t1Actions: info.t1Actions || [],
-    t1Calls: info.t1Calls || [],
+    coreActions: info.coreActions || [],
+    coreCalls: info.coreCalls || [],
     tested: Boolean(info.hasTests),
     domain: info.domain || null,
     status: info.status || null,

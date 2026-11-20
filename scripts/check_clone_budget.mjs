@@ -1,8 +1,8 @@
 // Clone budget ratchet (PR-002): no new template clones without a proven
-// Tier-1 business link.
+// L2+ business link.
 //
 // A new `cobol/src/*_core.cob` fails this gate when it looks like a
-// cost_center_core.cob clone AND its linkage level (manifest/tier1_links.json,
+// cost_center_core.cob clone AND its linkage level (manifest/linkage_graph.json,
 // PR-009) is L0/L1. "Looks like a clone" is any of:
 //   - canonical 9-action shape (CREATE/LIST/GET/CALC/UPDATE/DELETE/SUMMARY/
 //     AUDIT/VALIDATE suffices), same definition as scripts/audit_complexity.mjs,
@@ -103,9 +103,9 @@ function countLines(file) {
 }
 
 function loadLinkage(rootDir) {
-  const p = path.join(rootDir, 'manifest', 'tier1_links.json');
+  const p = path.join(rootDir, 'manifest', 'linkage_graph.json');
   if (!existsSync(p)) {
-    console.error('FAIL: manifest/tier1_links.json missing (run scripts/build_tier1_graph.mjs --write)');
+    console.error('FAIL: manifest/linkage_graph.json missing (run scripts/build_linkage_graph.mjs --write)');
     process.exit(1);
   }
   const data = JSON.parse(readFileSync(p, 'utf8'));
@@ -209,7 +209,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
 
   if (unscored.length) {
     failed = true;
-    console.error('MODULES MISSING FROM manifest/tier1_links.json (run scripts/build_tier1_graph.mjs --write):');
+    console.error('MODULES MISSING FROM manifest/linkage_graph.json (run scripts/build_linkage_graph.mjs --write):');
     for (const r of unscored.slice(0, 30)) console.error(`  ${r.file}`);
     if (unscored.length > 30) console.error(`  ... and ${unscored.length - 30} more`);
   }

@@ -10,27 +10,23 @@
 >
 > Converting (in order): Collateral (done pilot), Trade Finance LC/BG,
 > Merchant Acquiring, Tax Withholding, Chargeback, Payroll, Fixed Asset,
-> Loyalty. All other Tier-2 clones are frozen.
+> Loyalty. All other business-module clones are frozen.
 >
 > Migration ranges (do not reuse, do not alter applied versions):
 > Collateral 0648–0651, Trade Finance 0652–0657, Merchant 0658–0662,
 > Tax 0663–0666, Chargeback 0667–0671, Payroll 0672–0675,
 > Fixed Asset 0676–0679, Loyalty 0680–0683.
 
-New SQL-backed COBOL modules should be generated from the canonical template
-rather than copied by hand, so the 9-action contract and boilerplate stay
-consistent.
+New SQL-backed COBOL modules must be hand-written with domain-specific
+tables and actions, following the 9-action contract below. Do not clone
+`cost_center_core.cob`; new clones fail `scripts/check_clone_budget.mjs`.
+New modules need L2+ linkage (a proven core business link).
 
 ## Generate a module
 
-```bash
-scripts/generate_module.py <domain> <PREFIX> <table> <ref_field> <name_field> <type_field>
-# example:
-scripts/generate_module.py vendor VND_ vendor vendor_ref vendor_name vendor_type
-```
-
-The generator copies `cobol/src/cost_center_core.cob` (the canonical template)
-and applies the domain-specific renames.
+The module generator (`scripts/generate_module.py`) has been removed
+(ADR-0014). New modules are authored directly; copy the contract shape,
+not the template body.
 
 ## Standard 9-action contract
 
@@ -116,6 +112,6 @@ Every domain module exposes these actions (prefix + action):
   similarity, or exactly `TEMPLATE_LINES` lines — see
   `scripts/lib/clone_template.mjs`) with L0/L1 linkage fails
   `scripts/check_clone_budget.mjs`. New modules need L2+ linkage
-  (a proven Tier-1 business link — see [module classification](MODULE_CLASSIFICATION.md))
+  (a proven core business link — see [module linkage](MODULE_LINKAGE.md))
   or `UTILITY`/`INFRA` status. The existing clones are frozen in
   `tests/clone_baseline.txt`, which must only shrink.

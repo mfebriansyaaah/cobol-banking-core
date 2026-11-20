@@ -16,7 +16,7 @@ non-recommended module (including all eight below) via
 | `notification_template_core` | 0.95 | L0 | **Retain, frozen.** Exact clone; notification-template CRUD is a support surface; excluded from `train`. |
 | `report_schedule_core` | 0.95 | L0 | **Retain, frozen.** Exact clone; report scheduling is covered by its DB suite; excluded from `train`. |
 | `sla_tracker_core` | 0.95 | L0 | **Retain, frozen.** Exact clone; SLA tracking is a support surface; excluded from `train`. |
-| `fixed_asset_core` | 0.67 | L0 | **Retain, frozen for now.** Template-shaped but carries a real depreciation/revalue/dispose lifecycle and GL link; keep out of `train` until a Tier-1 linkage proof or a dedicated refactor exists. |
+| `fixed_asset_core` | 0.67 | L0 | **Retain, frozen for now.** Template-shaped but carries a real depreciation/revalue/dispose lifecycle and GL link; keep out of `train` until a core linkage proof or a dedicated refactor exists. |
 | `merchant_settlement_core` | 0.68 | L0 | **Retain, frozen for now.** Template-shaped but carries fee/settlement/GL logic; keep out of `train` until the merchant linkage is proven. |
 | `tax_management_core` | 0.66 | L0 | **Retain, frozen for now.** Template-shaped but carries tax rule/calc/post/reverse logic; keep out of `train` until the linkage is proven. |
 

@@ -43,6 +43,15 @@ exist (`v1.0.1`, `v1.1.0`); entries below are grouped by date on `main`.
 
 ### Changed
 
+- Wave D retirement (linkage-only PR-1): `backup_drill_core` and
+  `report_builder_core` removed (routes, COBOL, suites, cases, dispatch
+  slots 89–90). Tables retained in migration history (owner: platform,
+  retention: keep one cycle). No migration changes.
+- Linkage-only classification (ADR-0014): `linkageLevel` (L0–L3) plus
+  `UTILITY` is the only module classification; tier fields/files renamed
+  (`tier1.json` → `linkage.json`, `tier1_links.json` → `linkage_graph.json`,
+  `build/check_tier1*` → `build/check_linkage*`); coverage floor applies to
+  L3 only; `scripts/generate_module.py` deleted.
 - Phase 2 maintainability ratchet: 14 JavaScript hotspots above complexity 20
   were split into named helpers across the gateway adapters, integration
   services, and tooling. ESLint's config-level threshold moved from 25 to 20

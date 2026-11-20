@@ -5,7 +5,6 @@
 # by a retirement wave. Never add an entry to make CI green.
 
 account_core CANDIDATE
-backup_drill_core CANDIDATE
 bank_guarantee_core CANDIDATE
 chargeback_core CANDIDATE
 compliance_calendar_core CANDIDATE
@@ -18,7 +17,6 @@ letter_of_credit_core CANDIDATE
 loyalty_core CANDIDATE
 merchant_settlement_core CANDIDATE
 notification_template_core CANDIDATE
-report_builder_core CANDIDATE
 report_schedule_core CANDIDATE
 sla_tracker_core CANDIDATE
 tax_management_core CANDIDATE

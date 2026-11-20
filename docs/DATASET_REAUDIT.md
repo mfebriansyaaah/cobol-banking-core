@@ -57,7 +57,7 @@ Full `tests/run_all.sh full/db` dilimpahkan ke CI (butuh Docker/DDL); CI `main` 
 | R-1 | Backup fisik `backups/physical/full-20261024T180027Z/` (72 MB, root-owned) masih di workspace; butuh root untuk pindah ke lokasi terenkripsi    | Owner             | MP-01; gitignored + export memakai `git archive`, tidak masuk dataset |
 | R-2 | Digest MinIO belum ter-pin (quay.io HTTP 401 tanpa auth di env ini); pakai `quay.io/minio/minio:latest` + catatan                               | Owner (quay auth) | MP-09; hanya dev-test                                                 |
 | R-3 | `check_schema_drift.sh` live + `tests/run_all.sh full/db` butuh DB DDL-capable; CI hijau, lokal hanya fast/probes                               | DBA/CI            | CI `main`                                                             |
-| R-4 | 40/71 modul FROZEN/REVIEW; 10 modul Tier-1 di bawah floor 70% — sudah diberi label di `module_quality.json`, `train` hanya untuk 31 recommended | Curator           | `manifest/module_quality.json`                                        |
+| R-4 | 40/71 modul FROZEN/REVIEW; 10 modul L3     di bawah floor 70% — sudah diberi label di `module_quality.json`, `train` hanya untuk 31 recommended | Curator           | `manifest/module_quality.json`                                        |
 | R-5 | `docs/PRODUCTION_READINESS.md` tetap NOT CERTIFIED (benar apa adanya; bukan target plan ini)                                                    | Owner             | —                                                                     |
 
 ## Sign-off

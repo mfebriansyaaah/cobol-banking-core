@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T06:40:47.672Z",
+  "generatedAt": "2026-11-20T02:51:15.061Z",
   "cobolModules": [
     {
       "source": "account_core.cob"
@@ -24,9 +24,6 @@
     },
     {
       "source": "auth_session_core.cob"
-    },
-    {
-      "source": "backup_drill_core.cob"
     },
     {
       "source": "bank_guarantee_core.cob"
@@ -161,9 +158,6 @@
       "source": "ref_ext_core.cob"
     },
     {
-      "source": "report_builder_core.cob"
-    },
-    {
       "source": "report_core.cob"
     },
     {
@@ -219,7 +213,6 @@
     "account.js",
     "admin.js",
     "auth.js",
-    "backup_drill.js",
     "bank_guarantee.js",
     "card.js",
     "chargeback.js",
@@ -258,7 +251,6 @@
     "ref_engine.js",
     "ref_ext.js",
     "report.js",
-    "report_builder.js",
     "report_schedule.js",
     "risk.js",
     "screening.js",
@@ -276,1165 +268,1345 @@
       "slot": 1,
       "prefixLen": 20,
       "prefix": "REQUEST_MFA_RECOVERY",
-      "program": "auth_recovery_core"
+      "program": "auth_recovery_core",
+      "paramMode": 2
     },
     {
       "slot": 2,
       "prefixLen": 20,
       "prefix": "REVOKE_OTHER_DEVICES",
-      "program": "auth_core"
+      "program": "auth_core",
+      "paramMode": 2
     },
     {
       "slot": 3,
       "prefixLen": 20,
       "prefix": "LIST_RECONCILIATIONS",
-      "program": "wallet_recon_core"
+      "program": "wallet_recon_core",
+      "paramMode": 2
     },
     {
       "slot": 4,
       "prefixLen": 20,
       "prefix": "APPROVE_MFA_RECOVERY",
-      "program": "auth_recovery_core"
+      "program": "auth_recovery_core",
+      "paramMode": 2
     },
     {
       "slot": 5,
       "prefixLen": 20,
       "prefix": "CONFIRM_EMAIL_CHANGE",
-      "program": "user_core"
+      "program": "user_core",
+      "paramMode": 1
     },
     {
       "slot": 6,
       "prefixLen": 20,
       "prefix": "REVOKE_ALL_SESSIONS",
-      "program": "auth_core"
+      "program": "auth_core",
+      "paramMode": 2
     },
     {
       "slot": 7,
       "prefixLen": 19,
       "prefix": "VERIFY_MFA_RECOVERY",
-      "program": "auth_recovery_core"
+      "program": "auth_recovery_core",
+      "paramMode": 2
     },
     {
       "slot": 8,
       "prefixLen": 19,
       "prefix": "RESEND_VERIFICATION",
-      "program": "auth_core"
+      "program": "auth_core",
+      "paramMode": 2
     },
     {
       "slot": 9,
       "prefixLen": 19,
       "prefix": "MFA_ENROLL_REQUIRED",
-      "program": "auth_mfa_core"
+      "program": "auth_mfa_core",
+      "paramMode": 2
     },
     {
       "slot": 10,
       "prefixLen": 19,
       "prefix": "CLOSE_ACCESS_REVIEW",
-      "program": "auth_review_core"
+      "program": "auth_review_core",
+      "paramMode": 2
     },
     {
       "slot": 11,
       "prefixLen": 19,
       "prefix": "LIST_ACCESS_REVIEWS",
-      "program": "auth_review_core"
+      "program": "auth_review_core",
+      "paramMode": 2
     },
     {
       "slot": 12,
       "prefixLen": 19,
       "prefix": "REVOKE_USER_SESSION",
-      "program": "auth_core"
+      "program": "auth_core",
+      "paramMode": 2
     },
     {
       "slot": 13,
       "prefixLen": 19,
       "prefix": "REJECT_MFA_RECOVERY",
-      "program": "auth_recovery_core"
+      "program": "auth_recovery_core",
+      "paramMode": 2
     },
     {
       "slot": 14,
       "prefixLen": 19,
       "prefix": "REVOKE_ACCESS_TOKEN",
-      "program": "auth_core"
+      "program": "auth_core",
+      "paramMode": 2
     },
     {
       "slot": 15,
       "prefixLen": 18,
       "prefix": "RUN_RECONCILIATION",
-      "program": "wallet_recon_core"
+      "program": "wallet_recon_core",
+      "paramMode": 2
     },
     {
       "slot": 16,
       "prefixLen": 18,
       "prefix": "REACTIVATE_DORMANT",
-      "program": "user_core"
+      "program": "user_core",
+      "paramMode": 1
     },
     {
       "slot": 17,
       "prefixLen": 18,
       "prefix": "DECIDE_ACCESS_ITEM",
-      "program": "auth_review_core"
+      "program": "auth_review_core",
+      "paramMode": 2
     },
     {
       "slot": 18,
       "prefixLen": 18,
       "prefix": "MFA_ENROLL_CONFIRM",
-      "program": "auth_mfa_core"
+      "program": "auth_mfa_core",
+      "paramMode": 2
     },
     {
       "slot": 19,
       "prefixLen": 18,
       "prefix": "OPEN_ACCESS_REVIEW",
-      "program": "auth_review_core"
+      "program": "auth_review_core",
+      "paramMode": 2
     },
     {
       "slot": 20,
       "prefixLen": 18,
       "prefix": "DEACTIVATE_ACCOUNT",
-      "program": "user_core"
+      "program": "user_core",
+      "paramMode": 1
     },
     {
       "slot": 21,
       "prefixLen": 17,
       "prefix": "REQUEST_OPERATION",
-      "program": "auth_recovery_core"
+      "program": "auth_recovery_core",
+      "paramMode": 2
     },
     {
       "slot": 22,
       "prefixLen": 17,
       "prefix": "LIST_MFA_RECOVERY",
-      "program": "auth_recovery_core"
+      "program": "auth_recovery_core",
+      "paramMode": 2
     },
     {
       "slot": 23,
       "prefixLen": 17,
       "prefix": "RESOLVE_EXCEPTION",
-      "program": "wallet_recon_core"
+      "program": "wallet_recon_core",
+      "paramMode": 2
     },
     {
       "slot": 24,
       "prefixLen": 17,
       "prefix": "GET_TOKEN_VERSION",
-      "program": "auth_core"
+      "program": "auth_core",
+      "paramMode": 2
     },
     {
       "slot": 25,
       "prefixLen": 17,
       "prefix": "GET_ACCESS_REVIEW",
-      "program": "auth_review_core"
+      "program": "auth_review_core",
+      "paramMode": 2
     },
     {
       "slot": 26,
       "prefixLen": 16,
       "prefix": "APPROVE_REQUEST",
-      "program": "auth_recovery_core"
+      "program": "auth_recovery_core",
+      "paramMode": 2
     },
     {
       "slot": 27,
       "prefixLen": 16,
       "prefix": "LIST_PERMISSIONS",
-      "program": "auth_review_core"
+      "program": "auth_review_core",
+      "paramMode": 2
     },
     {
       "slot": 28,
       "prefixLen": 16,
       "prefix": "CHECK_PERMISSION",
-      "program": "auth_review_core"
+      "program": "auth_review_core",
+      "paramMode": 2
     },
     {
       "slot": 29,
       "prefixLen": 16,
       "prefix": "MFA_BACKUP_CODES",
-      "program": "auth_mfa_core"
+      "program": "auth_mfa_core",
+      "paramMode": 2
     },
     {
       "slot": 30,
       "prefixLen": 16,
       "prefix": "REVERSE_TRANSFER",
-      "program": "wallet_reversal_core"
+      "program": "wallet_reversal_core",
+      "paramMode": 2
     },
     {
       "slot": 31,
       "prefixLen": 16,
       "prefix": "MFA_ENROLL_BEGIN",
-      "program": "auth_mfa_core"
+      "program": "auth_mfa_core",
+      "paramMode": 2
     },
     {
       "slot": 32,
       "prefixLen": 16,
       "prefix": "STEP_UP_REQUIRED",
-      "program": "auth_core"
+      "program": "auth_core",
+      "paramMode": 2
     },
     {
       "slot": 33,
       "prefixLen": 16,
       "prefix": "REQ_EMAIL_CHANGE",
-      "program": "user_core"
+      "program": "user_core",
+      "paramMode": 1
     },
     {
       "slot": 34,
       "prefixLen": 16,
       "prefix": "ADD_DISPUTE_NOTE",
-      "program": "wallet_dispute_core"
+      "program": "wallet_dispute_core",
+      "paramMode": 2
     },
     {
       "slot": 35,
       "prefixLen": 15,
       "prefix": "SUSPEND_DORMANT",
-      "program": "user_core"
+      "program": "user_core",
+      "paramMode": 1
     },
     {
       "slot": 36,
       "prefixLen": 15,
       "prefix": "RESOLVE_DISPUTE",
-      "program": "wallet_dispute_core"
+      "program": "wallet_dispute_core",
+      "paramMode": 2
     },
     {
       "slot": 37,
       "prefixLen": 15,
       "prefix": "CONSUME_SESSION",
-      "program": "auth_core"
+      "program": "auth_core",
+      "paramMode": 2
     },
     {
       "slot": 38,
       "prefixLen": 15,
       "prefix": "LIST_EXCEPTIONS",
-      "program": "wallet_recon_core"
+      "program": "wallet_recon_core",
+      "paramMode": 2
     },
     {
       "slot": 39,
       "prefixLen": 15,
       "prefix": "ADMIN_RESET_MFA",
-      "program": "user_core"
+      "program": "user_core",
+      "paramMode": 1
     },
     {
       "slot": 40,
       "prefixLen": 15,
       "prefix": "SET_USER_STATUS",
-      "program": "user_core"
+      "program": "user_core",
+      "paramMode": 1
     },
     {
       "slot": 41,
       "prefixLen": 15,
       "prefix": "FORGOT_PASSWORD",
-      "program": "auth_password_core"
+      "program": "auth_password_core",
+      "paramMode": 2
     },
     {
       "slot": 42,
       "prefixLen": 15,
       "prefix": "CHANGE_PASSWORD",
-      "program": "auth_password_core"
+      "program": "auth_password_core",
+      "paramMode": 2
     },
     {
       "slot": 43,
       "prefixLen": 14,
       "prefix": "REJECT_REQUEST",
-      "program": "auth_recovery_core"
+      "program": "auth_recovery_core",
+      "paramMode": 2
     },
     {
       "slot": 44,
       "prefixLen": 14,
       "prefix": "LIST_REQUESTS",
-      "program": "auth_recovery_core"
+      "program": "auth_recovery_core",
+      "paramMode": 2
     },
     {
       "slot": 45,
       "prefixLen": 14,
       "prefix": "REJECT_DISPUTE",
-      "program": "wallet_dispute_core"
+      "program": "wallet_dispute_core",
+      "paramMode": 2
     },
     {
       "slot": 46,
       "prefixLen": 14,
       "prefix": "REQUEST_SIGNUP",
-      "program": "auth_core"
+      "program": "auth_core",
+      "paramMode": 2
     },
     {
       "slot": 47,
       "prefixLen": 14,
       "prefix": "RESET_PASSWORD",
-      "program": "auth_password_core"
+      "program": "auth_password_core",
+      "paramMode": 2
     },
     {
       "slot": 48,
       "prefixLen": 14,
       "prefix": "UPDATE_PROFILE",
-      "program": "user_core"
+      "program": "user_core",
+      "paramMode": 1
     },
     {
       "slot": 49,
       "prefixLen": 14,
       "prefix": "REVOKE_SESSION",
-      "program": "auth_core"
+      "program": "auth_core",
+      "paramMode": 2
     },
     {
       "slot": 50,
       "prefixLen": 13,
       "prefix": "GET_DASHBOARD",
-      "program": "user_core"
+      "program": "user_core",
+      "paramMode": 1
     },
     {
       "slot": 51,
       "prefixLen": 13,
       "prefix": "LIST_SESSIONS",
-      "program": "auth_core"
+      "program": "auth_core",
+      "paramMode": 2
     },
     {
       "slot": 52,
       "prefixLen": 13,
       "prefix": "STORE_SESSION",
-      "program": "auth_core"
+      "program": "auth_core",
+      "paramMode": 2
     },
     {
       "slot": 53,
       "prefixLen": 13,
       "prefix": "CHECK_BALANCE",
-      "program": "wallet_core"
+      "program": "wallet_core",
+      "paramMode": 2
     },
     {
       "slot": 54,
       "prefixLen": 13,
       "prefix": "VERIFY_REAUTH",
-      "program": "auth_core"
+      "program": "auth_core",
+      "paramMode": 2
     },
     {
       "slot": 55,
       "prefixLen": 13,
       "prefix": "LIST_DISPUTES",
-      "program": "wallet_dispute_core"
+      "program": "wallet_dispute_core",
+      "paramMode": 2
     },
     {
       "slot": 56,
       "prefixLen": 13,
       "prefix": "ACK_EXCEPTION",
-      "program": "wallet_recon_core"
+      "program": "wallet_recon_core",
+      "paramMode": 2
     },
     {
       "slot": 57,
       "prefixLen": 13,
       "prefix": "ARCHIVE_AUDIT",
-      "program": "auth_ops_core"
+      "program": "auth_ops_core",
+      "paramMode": 2
     },
     {
       "slot": 58,
       "prefixLen": 12,
       "prefix": "LOGIN_NOTICE",
-      "program": "auth_core"
+      "program": "auth_core",
+      "paramMode": 2
     },
     {
       "slot": 59,
       "prefixLen": 12,
       "prefix": "OUTBOX_CLAIM",
-      "program": "auth_ops_core"
+      "program": "auth_ops_core",
+      "paramMode": 2
     },
     {
       "slot": 60,
       "prefixLen": 12,
       "prefix": "MARK_DORMANT",
-      "program": "user_core"
+      "program": "user_core",
+      "paramMode": 1
     },
     {
       "slot": 61,
       "prefixLen": 12,
       "prefix": "OPEN_DISPUTE",
-      "program": "wallet_dispute_core"
+      "program": "wallet_dispute_core",
+      "paramMode": 2
     },
     {
       "slot": 62,
       "prefixLen": 12,
       "prefix": "LIST_OUTBOX",
-      "program": "auth_ops_core"
+      "program": "auth_ops_core",
+      "paramMode": 2
     },
     {
       "slot": 63,
       "prefixLen": 12,
       "prefix": "RELEASE_HOLD",
-      "program": "wallet_hold_core"
+      "program": "wallet_hold_core",
+      "paramMode": 2
     },
     {
       "slot": 64,
       "prefixLen": 12,
       "prefix": "VERIFY_EMAIL",
-      "program": "auth_core"
+      "program": "auth_core",
+      "paramMode": 2
     },
     {
       "slot": 65,
       "prefixLen": 11,
       "prefix": "MFA_DISABLE",
-      "program": "auth_mfa_core"
+      "program": "auth_mfa_core",
+      "paramMode": 2
     },
     {
       "slot": 66,
       "prefixLen": 11,
       "prefix": "CHECK_TOKEN",
-      "program": "auth_core"
+      "program": "auth_core",
+      "paramMode": 2
     },
     {
       "slot": 67,
       "prefixLen": 11,
       "prefix": "ACK_DISPUTE",
-      "program": "wallet_dispute_core"
+      "program": "wallet_dispute_core",
+      "paramMode": 2
     },
     {
       "slot": 68,
       "prefixLen": 11,
       "prefix": "CHANGE_ROLE",
-      "program": "auth_core"
+      "program": "auth_core",
+      "paramMode": 2
     },
     {
       "slot": 69,
       "prefixLen": 11,
       "prefix": "UNLOCK_USER",
-      "program": "user_core"
+      "program": "user_core",
+      "paramMode": 1
     },
     {
       "slot": 70,
       "prefixLen": 11,
       "prefix": "GET_DISPUTE",
-      "program": "wallet_dispute_core"
+      "program": "wallet_dispute_core",
+      "paramMode": 2
     },
     {
       "slot": 71,
       "prefixLen": 11,
       "prefix": "OUTBOX_MARK",
-      "program": "auth_ops_core"
+      "program": "auth_ops_core",
+      "paramMode": 2
     },
     {
       "slot": 72,
       "prefixLen": 10,
       "prefix": "LIST_USERS",
-      "program": "user_core"
+      "program": "user_core",
+      "paramMode": 1
     },
     {
       "slot": 73,
       "prefixLen": 10,
       "prefix": "PLACE_HOLD",
-      "program": "wallet_hold_core"
+      "program": "wallet_hold_core",
+      "paramMode": 2
     },
     {
       "slot": 74,
       "prefixLen": 10,
       "prefix": "CHECK_ROLE",
-      "program": "auth_core"
+      "program": "auth_core",
+      "paramMode": 2
     },
     {
       "slot": 75,
       "prefixLen": 10,
       "prefix": "AUTH_LOGIN",
-      "program": "auth_core"
+      "program": "auth_core",
+      "paramMode": 2
     },
     {
       "slot": 76,
       "prefixLen": 10,
       "prefix": "LIST_AUDIT",
-      "program": "auth_ops_core"
+      "program": "auth_ops_core",
+      "paramMode": 2
     },
     {
       "slot": 77,
       "prefixLen": 9,
       "prefix": "TX_STATUS",
-      "program": "wallet_core"
+      "program": "wallet_core",
+      "paramMode": 2
     },
     {
       "slot": 78,
       "prefixLen": 9,
       "prefix": "RECONCILE",
-      "program": "wallet_recon_core"
+      "program": "wallet_recon_core",
+      "paramMode": 2
     },
     {
       "slot": 79,
       "prefixLen": 9,
       "prefix": "STATEMENT",
-      "program": "wallet_statement_core"
+      "program": "wallet_statement_core",
+      "paramMode": 2
     },
     {
       "slot": 80,
       "prefixLen": 8,
       "prefix": "GET_USER",
-      "program": "user_core"
+      "program": "user_core",
+      "paramMode": 1
     },
     {
       "slot": 81,
       "prefixLen": 8,
       "prefix": "TRANSFER",
-      "program": "wallet_core"
+      "program": "wallet_core",
+      "paramMode": 2
     },
     {
       "slot": 82,
       "prefixLen": 7,
       "prefix": "EODJOB_",
-      "program": "eod_jobs_core"
+      "program": "eod_jobs_core",
+      "paramMode": 2
     },
     {
       "slot": 83,
       "prefixLen": 5,
       "prefix": "LOAN_",
-      "program": "loan_core"
+      "program": "loan_core",
+      "paramMode": 2
     },
     {
       "slot": 84,
       "prefixLen": 5,
       "prefix": "STMT_",
-      "program": "statement_core"
+      "program": "statement_core",
+      "paramMode": 2
     },
     {
       "slot": 85,
       "prefixLen": 5,
       "prefix": "CARD_",
-      "program": "card_core"
+      "program": "card_core",
+      "paramMode": 2
     },
     {
       "slot": 86,
       "prefixLen": 5,
       "prefix": "IMPP_",
-      "program": "import_post_core"
+      "program": "import_post_core",
+      "paramMode": 2
     },
     {
       "slot": 87,
       "prefixLen": 4,
       "prefix": "TRL_",
-      "program": "treasury_liquidity_core"
+      "program": "treasury_liquidity_core",
+      "paramMode": 2
     },
     {
       "slot": 88,
       "prefixLen": 4,
       "prefix": "SRC_",
-      "program": "statement_recon_core"
+      "program": "statement_recon_core",
+      "paramMode": 2
     },
     {
       "slot": 89,
       "prefixLen": 4,
-      "prefix": "RPB_",
-      "program": "report_builder_core"
+      "prefix": "PMC_",
+      "program": "payment_clearing_core",
+      "paramMode": 2
     },
     {
       "slot": 90,
       "prefixLen": 4,
-      "prefix": "BDR_",
-      "program": "backup_drill_core"
+      "prefix": "FEE_",
+      "program": "fee_core",
+      "paramMode": 2
     },
     {
       "slot": 91,
       "prefixLen": 4,
-      "prefix": "PMC_",
-      "program": "payment_clearing_core"
+      "prefix": "PAY_",
+      "program": "payment_core",
+      "paramMode": 2
     },
     {
       "slot": 92,
       "prefixLen": 4,
-      "prefix": "FEE_",
-      "program": "fee_core"
+      "prefix": "EOD_",
+      "program": "eod_core",
+      "paramMode": 2
     },
     {
       "slot": 93,
       "prefixLen": 4,
-      "prefix": "PAY_",
-      "program": "payment_core"
+      "prefix": "PIC_",
+      "program": "payment_instruction_core",
+      "paramMode": 2
     },
     {
       "slot": 94,
       "prefixLen": 4,
-      "prefix": "EOD_",
-      "program": "eod_core"
+      "prefix": "PING",
+      "program": "auth_core",
+      "paramMode": 2
     },
     {
       "slot": 95,
       "prefixLen": 4,
-      "prefix": "PIC_",
-      "program": "payment_instruction_core"
+      "prefix": "DSH_",
+      "program": "dashboard_core",
+      "paramMode": 2
     },
     {
       "slot": 96,
       "prefixLen": 4,
-      "prefix": "PING",
-      "program": "auth_core"
+      "prefix": "FAS_",
+      "program": "fixed_asset_core",
+      "paramMode": 2
     },
     {
       "slot": 97,
       "prefixLen": 4,
-      "prefix": "DSH_",
-      "program": "dashboard_core"
+      "prefix": "CSC_",
+      "program": "cost_center_core",
+      "paramMode": 2
     },
     {
       "slot": 98,
       "prefixLen": 4,
-      "prefix": "FAS_",
-      "program": "fixed_asset_core"
+      "prefix": "IRC_",
+      "program": "import_recon_core",
+      "paramMode": 2
     },
     {
       "slot": 99,
       "prefixLen": 4,
-      "prefix": "CSC_",
-      "program": "cost_center_core"
+      "prefix": "ACC_",
+      "program": "account_core",
+      "paramMode": 2
     },
     {
       "slot": 100,
       "prefixLen": 4,
-      "prefix": "IRC_",
-      "program": "import_recon_core"
+      "prefix": "VEL_",
+      "program": "fee_core",
+      "paramMode": 2
     },
     {
       "slot": 101,
       "prefixLen": 4,
-      "prefix": "ACC_",
-      "program": "account_core"
+      "prefix": "GLA_",
+      "program": "gl_allocation_core",
+      "paramMode": 2
     },
     {
       "slot": 102,
       "prefixLen": 4,
-      "prefix": "VEL_",
-      "program": "fee_core"
+      "prefix": "DEP_",
+      "program": "deposit_core",
+      "paramMode": 3
     },
     {
       "slot": 103,
       "prefixLen": 4,
-      "prefix": "GLA_",
-      "program": "gl_allocation_core"
+      "prefix": "COL_",
+      "program": "collection_core",
+      "paramMode": 2
     },
     {
       "slot": 104,
       "prefixLen": 4,
-      "prefix": "DEP_",
-      "program": "deposit_core"
+      "prefix": "RFE_",
+      "program": "ref_engine",
+      "paramMode": 2
     },
     {
       "slot": 105,
       "prefixLen": 4,
-      "prefix": "COL_",
-      "program": "collection_core"
+      "prefix": "PHL_",
+      "program": "payment_hold_core",
+      "paramMode": 2
     },
     {
       "slot": 106,
       "prefixLen": 4,
-      "prefix": "RFE_",
-      "program": "ref_engine"
+      "prefix": "CLT_",
+      "program": "collateral_core",
+      "paramMode": 2
     },
     {
       "slot": 107,
-      "prefixLen": 4,
-      "prefix": "PHL_",
-      "program": "payment_hold_core"
+      "prefixLen": 3,
+      "prefix": "RX_",
+      "program": "ref_ext_core",
+      "paramMode": 2
     },
     {
       "slot": 108,
-      "prefixLen": 4,
-      "prefix": "CLT_",
-      "program": "collateral_core"
+      "prefixLen": 3,
+      "prefix": "GL_",
+      "program": "gl_core",
+      "paramMode": 2
     },
     {
       "slot": 109,
-      "prefixLen": 3,
-      "prefix": "RX_",
-      "program": "ref_ext_core"
+      "prefixLen": 4,
+      "prefix": "MRT_",
+      "program": "merchant_core",
+      "paramMode": 2
     },
     {
       "slot": 110,
-      "prefixLen": 3,
-      "prefix": "GL_",
-      "program": "gl_core"
+      "prefixLen": 4,
+      "prefix": "NTP_",
+      "program": "notification_template_core",
+      "paramMode": 2
     },
     {
       "slot": 111,
       "prefixLen": 4,
-      "prefix": "MRT_",
-      "program": "merchant_core"
+      "prefix": "RPS_",
+      "program": "report_schedule_core",
+      "paramMode": 2
     },
     {
       "slot": 112,
       "prefixLen": 4,
-      "prefix": "NTP_",
-      "program": "notification_template_core"
+      "prefix": "SLT_",
+      "program": "sla_tracker_core",
+      "paramMode": 2
     },
     {
       "slot": 113,
       "prefixLen": 4,
-      "prefix": "RPS_",
-      "program": "report_schedule_core"
+      "prefix": "CCL_",
+      "program": "compliance_calendar_core",
+      "paramMode": 2
     },
     {
       "slot": 114,
       "prefixLen": 4,
-      "prefix": "SLT_",
-      "program": "sla_tracker_core"
+      "prefix": "LOC_",
+      "program": "letter_of_credit_core",
+      "paramMode": 2
     },
     {
       "slot": 115,
       "prefixLen": 4,
-      "prefix": "CCL_",
-      "program": "compliance_calendar_core"
+      "prefix": "BKG_",
+      "program": "bank_guarantee_core",
+      "paramMode": 2
     },
     {
       "slot": 116,
       "prefixLen": 4,
-      "prefix": "LOC_",
-      "program": "letter_of_credit_core"
+      "prefix": "PRL_",
+      "program": "payroll_processing_core",
+      "paramMode": 2
     },
     {
       "slot": 117,
       "prefixLen": 4,
-      "prefix": "BKG_",
-      "program": "bank_guarantee_core"
+      "prefix": "MCS_",
+      "program": "merchant_settlement_core",
+      "paramMode": 2
     },
     {
       "slot": 118,
       "prefixLen": 4,
-      "prefix": "PRL_",
-      "program": "payroll_processing_core"
+      "prefix": "TXM_",
+      "program": "tax_management_core",
+      "paramMode": 2
     },
     {
       "slot": 119,
       "prefixLen": 4,
-      "prefix": "MCS_",
-      "program": "merchant_settlement_core"
+      "prefix": "CHB_",
+      "program": "chargeback_core",
+      "paramMode": 2
     },
     {
       "slot": 120,
       "prefixLen": 4,
-      "prefix": "TXM_",
-      "program": "tax_management_core"
+      "prefix": "LOY_",
+      "program": "loyalty_core",
+      "paramMode": 2
     },
     {
       "slot": 121,
       "prefixLen": 4,
-      "prefix": "CHB_",
-      "program": "chargeback_core"
+      "prefix": "OTP_",
+      "program": "phone_otp_core",
+      "paramMode": 2
     },
     {
       "slot": 122,
       "prefixLen": 4,
-      "prefix": "LOY_",
-      "program": "loyalty_core"
+      "prefix": "IDV_",
+      "program": "identity_core",
+      "paramMode": 2
     },
     {
       "slot": 123,
       "prefixLen": 4,
-      "prefix": "OTP_",
-      "program": "phone_otp_core"
+      "prefix": "SCR_",
+      "program": "identity_core",
+      "paramMode": 2
     },
     {
       "slot": 124,
-      "prefixLen": 4,
-      "prefix": "IDV_",
-      "program": "identity_core"
+      "prefixLen": 3,
+      "prefix": "FX_",
+      "program": "fx_rate_core",
+      "paramMode": 2
     },
     {
       "slot": 125,
-      "prefixLen": 4,
-      "prefix": "SCR_",
-      "program": "identity_core"
+      "prefixLen": 5,
+      "prefix": "RISK_",
+      "program": "risk_core",
+      "paramMode": 2
     },
     {
       "slot": 126,
-      "prefixLen": 3,
-      "prefix": "FX_",
-      "program": "fx_rate_core"
+      "prefixLen": 5,
+      "prefix": "CORP_",
+      "program": "corp_core",
+      "paramMode": 2
     },
     {
       "slot": 127,
-      "prefixLen": 5,
-      "prefix": "RISK_",
-      "program": "risk_core"
+      "prefixLen": 10,
+      "prefix": "LSC_CREATE",
+      "program": "loan_schedule_core",
+      "paramMode": 2
     },
     {
       "slot": 128,
-      "prefixLen": 5,
-      "prefix": "CORP_",
-      "program": "corp_core"
+      "prefixLen": 7,
+      "prefix": "LSC_GET",
+      "program": "loan_schedule_core",
+      "paramMode": 2
     },
     {
       "slot": 129,
-      "prefixLen": 10,
-      "prefix": "LSC_CREATE",
-      "program": "loan_schedule_core"
+      "prefixLen": 8,
+      "prefix": "LSC_LIST",
+      "program": "loan_schedule_core",
+      "paramMode": 2
     },
     {
       "slot": 130,
-      "prefixLen": 7,
-      "prefix": "LSC_GET",
-      "program": "loan_schedule_core"
+      "prefixLen": 10,
+      "prefix": "LSC_DETAIL",
+      "program": "loan_schedule_core",
+      "paramMode": 2
     },
     {
       "slot": 131,
-      "prefixLen": 8,
-      "prefix": "LSC_LIST",
-      "program": "loan_schedule_core"
+      "prefixLen": 10,
+      "prefix": "LSC_UPDATE",
+      "program": "loan_schedule_core",
+      "paramMode": 2
     },
     {
       "slot": 132,
       "prefixLen": 10,
-      "prefix": "LSC_DETAIL",
-      "program": "loan_schedule_core"
+      "prefix": "LSC_DELETE",
+      "program": "loan_schedule_core",
+      "paramMode": 2
     },
     {
       "slot": 133,
       "prefixLen": 10,
-      "prefix": "LSC_UPDATE",
-      "program": "loan_schedule_core"
+      "prefix": "LSC_SEARCH",
+      "program": "loan_schedule_core",
+      "paramMode": 2
     },
     {
       "slot": 134,
-      "prefixLen": 10,
-      "prefix": "LSC_DELETE",
-      "program": "loan_schedule_core"
+      "prefixLen": 11,
+      "prefix": "LSC_HISTORY",
+      "program": "loan_schedule_core",
+      "paramMode": 2
     },
     {
       "slot": 135,
-      "prefixLen": 10,
-      "prefix": "LSC_SEARCH",
-      "program": "loan_schedule_core"
+      "prefixLen": 12,
+      "prefix": "LSC_VALIDATE",
+      "program": "loan_schedule_core",
+      "paramMode": 2
     },
     {
       "slot": 136,
       "prefixLen": 11,
-      "prefix": "LSC_HISTORY",
-      "program": "loan_schedule_core"
+      "prefix": "LSC_APPROVE",
+      "program": "loan_schedule_lifecycle_core",
+      "paramMode": 2
     },
     {
       "slot": 137,
-      "prefixLen": 12,
-      "prefix": "LSC_VALIDATE",
-      "program": "loan_schedule_core"
+      "prefixLen": 10,
+      "prefix": "LSC_REJECT",
+      "program": "loan_schedule_lifecycle_core",
+      "paramMode": 2
     },
     {
       "slot": 138,
-      "prefixLen": 11,
-      "prefix": "LSC_APPROVE",
-      "program": "loan_schedule_lifecycle_core"
+      "prefixLen": 9,
+      "prefix": "LSC_CLOSE",
+      "program": "loan_schedule_lifecycle_core",
+      "paramMode": 2
     },
     {
       "slot": 139,
       "prefixLen": 10,
-      "prefix": "LSC_REJECT",
-      "program": "loan_schedule_lifecycle_core"
+      "prefix": "LSC_REOPEN",
+      "program": "loan_schedule_lifecycle_core",
+      "paramMode": 2
     },
     {
       "slot": 140,
-      "prefixLen": 9,
-      "prefix": "LSC_CLOSE",
-      "program": "loan_schedule_lifecycle_core"
+      "prefixLen": 10,
+      "prefix": "LSC_CANCEL",
+      "program": "loan_schedule_lifecycle_core",
+      "paramMode": 2
     },
     {
       "slot": 141,
-      "prefixLen": 10,
-      "prefix": "LSC_REOPEN",
-      "program": "loan_schedule_lifecycle_core"
+      "prefixLen": 8,
+      "prefix": "LSC_HOLD",
+      "program": "loan_schedule_lifecycle_core",
+      "paramMode": 2
     },
     {
       "slot": 142,
-      "prefixLen": 10,
-      "prefix": "LSC_CANCEL",
-      "program": "loan_schedule_lifecycle_core"
+      "prefixLen": 11,
+      "prefix": "LSC_RELEASE",
+      "program": "loan_schedule_lifecycle_core",
+      "paramMode": 2
     },
     {
       "slot": 143,
-      "prefixLen": 8,
-      "prefix": "LSC_HOLD",
-      "program": "loan_schedule_lifecycle_core"
+      "prefixLen": 10,
+      "prefix": "LSC_STATUS",
+      "program": "loan_schedule_lifecycle_core",
+      "paramMode": 2
     },
     {
       "slot": 144,
-      "prefixLen": 11,
-      "prefix": "LSC_RELEASE",
-      "program": "loan_schedule_lifecycle_core"
+      "prefixLen": 8,
+      "prefix": "LSC_POST",
+      "program": "loan_schedule_posting_core",
+      "paramMode": 2
     },
     {
       "slot": 145,
       "prefixLen": 10,
-      "prefix": "LSC_STATUS",
-      "program": "loan_schedule_lifecycle_core"
+      "prefix": "LSC_ACCRUE",
+      "program": "loan_schedule_posting_core",
+      "paramMode": 2
     },
     {
       "slot": 146,
-      "prefixLen": 8,
-      "prefix": "LSC_POST",
-      "program": "loan_schedule_posting_core"
+      "prefixLen": 10,
+      "prefix": "LSC_SETTLE",
+      "program": "loan_schedule_posting_core",
+      "paramMode": 2
     },
     {
       "slot": 147,
-      "prefixLen": 10,
-      "prefix": "LSC_ACCRUE",
-      "program": "loan_schedule_posting_core"
+      "prefixLen": 8,
+      "prefix": "LSC_CALC",
+      "program": "loan_schedule_posting_core",
+      "paramMode": 2
     },
     {
       "slot": 148,
-      "prefixLen": 10,
-      "prefix": "LSC_SETTLE",
-      "program": "loan_schedule_posting_core"
+      "prefixLen": 13,
+      "prefix": "LSC_SCHEDULED",
+      "program": "loan_schedule_posting_core",
+      "paramMode": 2
     },
     {
       "slot": 149,
-      "prefixLen": 8,
-      "prefix": "LSC_CALC",
-      "program": "loan_schedule_posting_core"
+      "prefixLen": 12,
+      "prefix": "LSC_FORECAST",
+      "program": "loan_schedule_posting_core",
+      "paramMode": 2
     },
     {
       "slot": 150,
-      "prefixLen": 13,
-      "prefix": "LSC_SCHEDULED",
-      "program": "loan_schedule_posting_core"
+      "prefixLen": 12,
+      "prefix": "LSC_OVERRIDE",
+      "program": "loan_schedule_posting_core",
+      "paramMode": 2
     },
     {
       "slot": 151,
-      "prefixLen": 12,
-      "prefix": "LSC_FORECAST",
-      "program": "loan_schedule_posting_core"
+      "prefixLen": 10,
+      "prefix": "LSC_ADJUST",
+      "program": "loan_schedule_posting_core",
+      "paramMode": 2
     },
     {
       "slot": 152,
-      "prefixLen": 12,
-      "prefix": "LSC_OVERRIDE",
-      "program": "loan_schedule_posting_core"
+      "prefixLen": 11,
+      "prefix": "LSC_SUMMARY",
+      "program": "loan_schedule_report_core",
+      "paramMode": 2
     },
     {
       "slot": 153,
       "prefixLen": 10,
-      "prefix": "LSC_ADJUST",
-      "program": "loan_schedule_posting_core"
+      "prefix": "LSC_EXPORT",
+      "program": "loan_schedule_report_core",
+      "paramMode": 2
     },
     {
       "slot": 154,
-      "prefixLen": 11,
-      "prefix": "LSC_SUMMARY",
-      "program": "loan_schedule_report_core"
+      "prefixLen": 9,
+      "prefix": "LSC_AUDIT",
+      "program": "loan_schedule_report_core",
+      "paramMode": 2
     },
     {
       "slot": 155,
-      "prefixLen": 10,
-      "prefix": "LSC_EXPORT",
-      "program": "loan_schedule_report_core"
+      "prefixLen": 19,
+      "prefix": "RPT_TEMPLATE_CREATE",
+      "program": "report_core",
+      "paramMode": 2
     },
     {
       "slot": 156,
-      "prefixLen": 9,
-      "prefix": "LSC_AUDIT",
-      "program": "loan_schedule_report_core"
+      "prefixLen": 17,
+      "prefix": "RPT_TEMPLATE_LIST",
+      "program": "report_core",
+      "paramMode": 2
     },
     {
       "slot": 157,
-      "prefixLen": 19,
-      "prefix": "RPT_TEMPLATE_CREATE",
-      "program": "report_core"
+      "prefixLen": 16,
+      "prefix": "RPT_TEMPLATE_GET",
+      "program": "report_core",
+      "paramMode": 2
     },
     {
       "slot": 158,
       "prefixLen": 17,
-      "prefix": "RPT_TEMPLATE_LIST",
-      "program": "report_core"
+      "prefix": "RPT_COLUMN_CREATE",
+      "program": "report_core",
+      "paramMode": 2
     },
     {
       "slot": 159,
-      "prefixLen": 16,
-      "prefix": "RPT_TEMPLATE_GET",
-      "program": "report_core"
+      "prefixLen": 15,
+      "prefix": "RPT_COLUMN_LIST",
+      "program": "report_core",
+      "paramMode": 2
     },
     {
       "slot": 160,
       "prefixLen": 17,
-      "prefix": "RPT_COLUMN_CREATE",
-      "program": "report_core"
+      "prefix": "RPT_COLUMN_DELETE",
+      "program": "report_core",
+      "paramMode": 2
     },
     {
       "slot": 161,
-      "prefixLen": 15,
-      "prefix": "RPT_COLUMN_LIST",
-      "program": "report_core"
+      "prefixLen": 17,
+      "prefix": "RPT_COLUMN_UPDATE",
+      "program": "report_core",
+      "paramMode": 2
     },
     {
       "slot": 162,
-      "prefixLen": 17,
-      "prefix": "RPT_COLUMN_DELETE",
-      "program": "report_core"
+      "prefixLen": 19,
+      "prefix": "RPT_TEMPLATE_UPDATE",
+      "program": "report_core",
+      "paramMode": 2
     },
     {
       "slot": 163,
-      "prefixLen": 17,
-      "prefix": "RPT_COLUMN_UPDATE",
-      "program": "report_core"
+      "prefixLen": 18,
+      "prefix": "RPT_TEMPLATE_CLONE",
+      "program": "report_core",
+      "paramMode": 2
     },
     {
       "slot": 164,
       "prefixLen": 19,
-      "prefix": "RPT_TEMPLATE_UPDATE",
-      "program": "report_core"
+      "prefix": "RPT_TEMPLATE_DELETE",
+      "program": "report_core",
+      "paramMode": 2
     },
     {
       "slot": 165,
-      "prefixLen": 18,
-      "prefix": "RPT_TEMPLATE_CLONE",
-      "program": "report_core"
+      "prefixLen": 13,
+      "prefix": "RPT_RUN_START",
+      "program": "report_run_core",
+      "paramMode": 2
     },
     {
       "slot": 166,
-      "prefixLen": 19,
-      "prefix": "RPT_TEMPLATE_DELETE",
-      "program": "report_core"
+      "prefixLen": 11,
+      "prefix": "RPT_RUN_ROW",
+      "program": "report_run_core",
+      "paramMode": 2
     },
     {
       "slot": 167,
-      "prefixLen": 13,
-      "prefix": "RPT_RUN_START",
-      "program": "report_run_core"
+      "prefixLen": 14,
+      "prefix": "RPT_RUN_STATUS",
+      "program": "report_run_core",
+      "paramMode": 2
     },
     {
       "slot": 168,
-      "prefixLen": 11,
-      "prefix": "RPT_RUN_ROW",
-      "program": "report_run_core"
+      "prefixLen": 16,
+      "prefix": "RPT_RUN_COMPLETE",
+      "program": "report_run_core",
+      "paramMode": 2
     },
     {
       "slot": 169,
-      "prefixLen": 14,
-      "prefix": "RPT_RUN_STATUS",
-      "program": "report_run_core"
+      "prefixLen": 12,
+      "prefix": "RPT_RUN_FAIL",
+      "program": "report_run_core",
+      "paramMode": 2
     },
     {
       "slot": 170,
-      "prefixLen": 16,
-      "prefix": "RPT_RUN_COMPLETE",
-      "program": "report_run_core"
+      "prefixLen": 12,
+      "prefix": "RPT_RUN_LIST",
+      "program": "report_run_core",
+      "paramMode": 2
     },
     {
       "slot": 171,
-      "prefixLen": 12,
-      "prefix": "RPT_RUN_FAIL",
-      "program": "report_run_core"
+      "prefixLen": 14,
+      "prefix": "RPT_RUN_EXPORT",
+      "program": "report_run_core",
+      "paramMode": 2
     },
     {
       "slot": 172,
-      "prefixLen": 12,
-      "prefix": "RPT_RUN_LIST",
-      "program": "report_run_core"
+      "prefixLen": 14,
+      "prefix": "RPT_RUN_DELETE",
+      "program": "report_run_core",
+      "paramMode": 2
     },
     {
       "slot": 173,
-      "prefixLen": 14,
-      "prefix": "RPT_RUN_EXPORT",
-      "program": "report_run_core"
+      "prefixLen": 13,
+      "prefix": "RPT_RUN_RETRY",
+      "program": "report_run_core",
+      "paramMode": 2
     },
     {
       "slot": 174,
-      "prefixLen": 14,
-      "prefix": "RPT_RUN_DELETE",
-      "program": "report_run_core"
+      "prefixLen": 16,
+      "prefix": "RPT_RUN_GENERATE",
+      "program": "report_run_core",
+      "paramMode": 2
     },
     {
       "slot": 175,
-      "prefixLen": 13,
-      "prefix": "RPT_RUN_RETRY",
-      "program": "report_run_core"
+      "prefixLen": 16,
+      "prefix": "IMP_BATCH_CREATE",
+      "program": "import_core",
+      "paramMode": 2
     },
     {
       "slot": 176,
-      "prefixLen": 16,
-      "prefix": "RPT_RUN_GENERATE",
-      "program": "report_run_core"
+      "prefixLen": 14,
+      "prefix": "IMP_BATCH_LIST",
+      "program": "import_core",
+      "paramMode": 2
     },
     {
       "slot": 177,
-      "prefixLen": 16,
-      "prefix": "IMP_BATCH_CREATE",
-      "program": "import_core"
+      "prefixLen": 13,
+      "prefix": "IMP_BATCH_GET",
+      "program": "import_core",
+      "paramMode": 2
     },
     {
       "slot": 178,
-      "prefixLen": 14,
-      "prefix": "IMP_BATCH_LIST",
-      "program": "import_core"
+      "prefixLen": 18,
+      "prefix": "IMP_BATCH_VALIDATE",
+      "program": "import_core",
+      "paramMode": 2
     },
     {
       "slot": 179,
-      "prefixLen": 13,
-      "prefix": "IMP_BATCH_GET",
-      "program": "import_core"
+      "prefixLen": 14,
+      "prefix": "IMP_BATCH_POST",
+      "program": "import_core",
+      "paramMode": 2
     },
     {
       "slot": 180,
-      "prefixLen": 18,
-      "prefix": "IMP_BATCH_VALIDATE",
-      "program": "import_core"
+      "prefixLen": 14,
+      "prefix": "IMP_BATCH_FAIL",
+      "program": "import_core",
+      "paramMode": 2
     },
     {
       "slot": 181,
-      "prefixLen": 14,
-      "prefix": "IMP_BATCH_POST",
-      "program": "import_core"
+      "prefixLen": 16,
+      "prefix": "IMP_BATCH_EXPORT",
+      "program": "import_core",
+      "paramMode": 2
     },
     {
       "slot": 182,
-      "prefixLen": 14,
-      "prefix": "IMP_BATCH_FAIL",
-      "program": "import_core"
+      "prefixLen": 15,
+      "prefix": "IMP_BATCH_CLONE",
+      "program": "import_core",
+      "paramMode": 2
     },
     {
       "slot": 183,
       "prefixLen": 16,
-      "prefix": "IMP_BATCH_EXPORT",
-      "program": "import_core"
+      "prefix": "IMP_BATCH_DELETE",
+      "program": "import_core",
+      "paramMode": 2
     },
     {
       "slot": 184,
       "prefixLen": 15,
-      "prefix": "IMP_BATCH_CLONE",
-      "program": "import_core"
+      "prefix": "IMP_BATCH_RETRY",
+      "program": "import_core",
+      "paramMode": 2
     },
     {
       "slot": 185,
-      "prefixLen": 16,
-      "prefix": "IMP_BATCH_DELETE",
-      "program": "import_core"
+      "prefixLen": 17,
+      "prefix": "IMP_BATCH_SUMMARY",
+      "program": "import_core",
+      "paramMode": 2
     },
     {
       "slot": 186,
-      "prefixLen": 15,
-      "prefix": "IMP_BATCH_RETRY",
-      "program": "import_core"
+      "prefixLen": 13,
+      "prefix": "IMP_ROW_STAGE",
+      "program": "import_row_core",
+      "paramMode": 2
     },
     {
       "slot": 187,
-      "prefixLen": 17,
-      "prefix": "IMP_BATCH_SUMMARY",
-      "program": "import_core"
+      "prefixLen": 15,
+      "prefix": "IMP_ROW_CORRECT",
+      "program": "import_row_core",
+      "paramMode": 2
     },
     {
       "slot": 188,
-      "prefixLen": 13,
-      "prefix": "IMP_ROW_STAGE",
-      "program": "import_row_core"
+      "prefixLen": 14,
+      "prefix": "IMP_ERROR_LIST",
+      "program": "import_row_core",
+      "paramMode": 2
     },
     {
       "slot": 189,
-      "prefixLen": 15,
-      "prefix": "IMP_ROW_CORRECT",
-      "program": "import_row_core"
+      "prefixLen": 20,
+      "prefix": "IMP_BATCH_STAGE_BULK",
+      "program": "import_row_core",
+      "paramMode": 2
     },
     {
       "slot": 190,
-      "prefixLen": 14,
-      "prefix": "IMP_ERROR_LIST",
-      "program": "import_row_core"
+      "prefixLen": 12,
+      "prefix": "IMP_ROW_SKIP",
+      "program": "import_row_core",
+      "paramMode": 2
     },
     {
       "slot": 191,
-      "prefixLen": 20,
-      "prefix": "IMP_BATCH_STAGE_BULK",
-      "program": "import_row_core"
+      "prefixLen": 14,
+      "prefix": "IMP_ROW_UNSKIP",
+      "program": "import_row_core",
+      "paramMode": 2
     },
     {
       "slot": 192,
-      "prefixLen": 12,
-      "prefix": "IMP_ROW_SKIP",
-      "program": "import_row_core"
-    },
-    {
-      "slot": 193,
-      "prefixLen": 14,
-      "prefix": "IMP_ROW_UNSKIP",
-      "program": "import_row_core"
-    },
-    {
-      "slot": 194,
       "prefixLen": 8,
       "prefix": "ACCOUNT_",
-      "program": "identity_core"
+      "program": "identity_core",
+      "paramMode": 2
     }
   ]
 }
