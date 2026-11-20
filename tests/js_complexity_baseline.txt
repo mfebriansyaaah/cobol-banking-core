@@ -17,7 +17,7 @@ middleware/workers/outbox.js|deliverRow|20
 scripts/audit_complexity.mjs|@158|18
 scripts/build_linkage_graph.mjs|@179|19
 scripts/check_route_auth.mjs|@26|16
-scripts/check_test_counts.mjs|@148|17
+scripts/check_test_counts.mjs|@150|17
 scripts/classify_code_candidates.mjs|@104|19
 scripts/generate_data_dictionary.mjs|@40|16
 scripts/lib/contract.mjs|@103|17
