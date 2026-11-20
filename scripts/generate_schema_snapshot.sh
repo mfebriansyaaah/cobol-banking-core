@@ -3,17 +3,38 @@
 # database/schema.sql plus every migration, then mysqldump --no-data emits
 # the result with volatile bits normalized away. The committed output is
 # database/schema_full.sql; scripts/check_schema_drift.sh fails when a fresh
-# build differs (schema.sql changed without a migration, or a migration file
-# was edited after apply -- which migrate.sh --check also catches).
+# build differs.
+#
+# --from-db reuses an already-migrated database instead of provisioning a
+# throwaway copy. CI uses it so the db-snapshot producer can emit the schema
+# snapshot and the DB data snapshot from one migration run.
+#
 # Usage: bash scripts/generate_schema_snapshot.sh [--out <file>]
+#        bash scripts/generate_schema_snapshot.sh --from-db <name> [--out <file>]
 #   default out: database/schema_full.sql
 set -euo pipefail
 
 OUT="database/schema_full.sql"
-if [ "${1:-}" = "--out" ]; then
-    [ -n "${2:-}" ] || { echo "usage: $0 [--out <file>]" >&2; exit 2; }
-    OUT="$2"
-fi
+FROM_DB=""
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --out)
+            [ -n "${2:-}" ] || { echo "usage: $0 [--out <file>]" >&2; exit 2; }
+            OUT="$2"
+            shift 2
+            ;;
+        --from-db)
+            [ -n "${2:-}" ] || { echo "usage: $0 --from-db <name> [--out <file>]" >&2; exit 2; }
+            FROM_DB="$2"
+            shift 2
+            ;;
+        *)
+            echo "unknown argument: $1" >&2
+            echo "usage: $0 [--from-db <name>] [--out <file>]" >&2
+            exit 2
+            ;;
+    esac
+done
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
@@ -21,11 +42,24 @@ cd "$ROOT"
 # shellcheck disable=SC1091
 . "$ROOT/tests/lib/guard.sh"
 
-# cobol_db_test_* matches the app/migrate grants from
-# scripts/dev/setup-test-db.sh and the orphan cleanup patterns, so this works
-# with least-privilege accounts and never litters.
-SNAP_DB="cobol_db_test_snapshot_$$"
-db_require_safe_target "$SNAP_DB"
+TEMP_DB=0
+if [ -n "$FROM_DB" ]; then
+    # Read-only source: cobol_db is allowed here because nothing is dropped.
+    case "$FROM_DB" in
+        mysql|performance_schema|sys|information_schema)
+            echo "FAIL: refusing to dump system database '$FROM_DB'" >&2
+            exit 2
+            ;;
+    esac
+    SNAP_DB="$FROM_DB"
+else
+    # cobol_db_test_* matches the app/migrate grants from
+    # scripts/dev/setup-test-db.sh and the orphan cleanup patterns, so this
+    # works with least-privilege accounts and never litters.
+    SNAP_DB="cobol_db_test_snapshot_$$"
+    db_require_safe_target "$SNAP_DB"
+    TEMP_DB=1
+fi
 
 DB_HOST="${DB_HOST:-localhost}"
 DB_PORT="${DB_PORT:-3306}"
@@ -37,18 +71,28 @@ DB_MIGRATE_PASS="${DB_MIGRATE_PASS:-$DB_PASS}"
 mysqlc() { mysql --default-character-set=utf8mb4 -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$@"; }
 
 cleanup() {
-    mysqlc -e "DROP DATABASE IF EXISTS \`$SNAP_DB\`;" >/dev/null 2>&1 || true
+    if [ "$TEMP_DB" = "1" ]; then
+        mysqlc -e "DROP DATABASE IF EXISTS \`$SNAP_DB\`;" >/dev/null 2>&1 || true
+    fi
 }
 trap cleanup EXIT
 
 echo "=== snapshot source: $SNAP_DB ==="
-mysqlc -e "DROP DATABASE IF EXISTS \`$SNAP_DB\`; CREATE DATABASE \`$SNAP_DB\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-mysql --default-character-set=utf8mb4 -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$SNAP_DB" < database/schema.sql
-# env (not VAR=x prefix): forwarding outer values self-referentially trips SC2097.
-env "DB_NAME=$SNAP_DB" "DB_HOST=$DB_HOST" "DB_PORT=$DB_PORT" \
-    "DB_MIGRATE_USER=$DB_MIGRATE_USER" "DB_MIGRATE_PASS=$DB_MIGRATE_PASS" \
-    "DB_USER=$DB_MIGRATE_USER" "DB_PASS=$DB_MIGRATE_PASS" \
-    ./database/migrate.sh > /dev/null
+if [ "$TEMP_DB" = "1" ]; then
+    mysqlc -e "DROP DATABASE IF EXISTS \`$SNAP_DB\`; CREATE DATABASE \`$SNAP_DB\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+    mysql --default-character-set=utf8mb4 -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" "$SNAP_DB" < database/schema.sql
+    # env (not VAR=x prefix): forwarding outer values self-referentially trips SC2097.
+    env "DB_NAME=$SNAP_DB" "DB_HOST=$DB_HOST" "DB_PORT=$DB_PORT" \
+        "DB_MIGRATE_USER=$DB_MIGRATE_USER" "DB_MIGRATE_PASS=$DB_MIGRATE_PASS" \
+        "DB_USER=$DB_MIGRATE_USER" "DB_PASS=$DB_MIGRATE_PASS" \
+        ./database/migrate.sh > /dev/null
+else
+    TABLES="$(mysqlc -N -B -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='$SNAP_DB';")"
+    case "$TABLES" in
+        ''|*[!0-9]*) echo "FAIL: bad table count for source database '$SNAP_DB'" >&2; exit 1 ;;
+    esac
+    [ "$TABLES" -gt 0 ] || { echo "FAIL: source database '$SNAP_DB' has no tables" >&2; exit 1; }
+fi
 
 tmp="$(mktemp "${TMPDIR:-/tmp}/schema-snapshot.XXXXXX.sql")"
 mysqldump --default-character-set=utf8mb4 -h "$DB_HOST" -P "$DB_PORT" -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS" \

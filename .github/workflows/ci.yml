@@ -324,8 +324,9 @@ jobs:
             exit 1
           fi
 
-  # One migrated snapshot serves every DB consumer. It does not need the
-  # binary, so it starts immediately instead of queueing behind `build`.
+  # One migration run produces both the DB data snapshot and the normalized
+  # schema snapshot. It does not need the binary, so it starts immediately
+  # instead of queueing behind `build`.
   db-snapshot:
     name: db-snapshot
     needs: changes
@@ -379,6 +380,9 @@ jobs:
       - name: Build DB snapshot
         run: bash scripts/ci/build_db_snapshot.sh /tmp/cobol-snapshot.sql.gz
 
+      - name: Build normalized schema snapshot
+        run: bash scripts/generate_schema_snapshot.sh --from-db "$DB_NAME" --out /tmp/schema-fresh.sql
+
       - name: Upload DB snapshot
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
@@ -388,51 +392,42 @@ jobs:
           retention-days: 1
           if-no-files-found: error
 
-  # Correctness gate kept parallel to db-snapshot so a stale committed
-  # snapshot cannot block every DB consumer. The required `db aggregate` job
-  # surfaces its failure. Push runs are skipped: the PR gate and nightly
-  # already cover drift, so a post-merge re-run only burns a runner.
+      - name: Upload schema snapshot for drift check
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: schema-fresh
+          overwrite: true
+          path: /tmp/schema-fresh.sql
+          retention-days: 1
+          if-no-files-found: error
+
+  # Compares the producer's normalized schema snapshot with the committed
+  # baselines. It needs the producer artifact but is not a dependency of
+  # test/db-shards/coverage-pr: a drift failure blocks merge via the required
+  # `db aggregate` job without withholding the DB data snapshot. Push runs are
+  # skipped because the PR gate and nightly already cover drift.
   schema-drift:
     name: schema-drift
-    needs: changes
+    needs: [db-snapshot, changes]
     if: >
       (github.event_name == 'pull_request' && needs.changes.outputs.docs_only != 'true') ||
       github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    services:
-      mariadb:
-        image: mariadb:11.8
-        env:
-          MARIADB_ROOT_PASSWORD: root
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="healthcheck.sh --connect --innodb_initialized"
-          --health-interval=5s
-          --health-timeout=5s
-          --health-retries=20
-    env:
-      DB_HOST: 127.0.0.1
-      DB_PORT: 3306
-      DB_MIGRATE_USER: root
-      DB_MIGRATE_PASS: root
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
-      - name: Install runtime dependencies
-        run: |
-          set -euo pipefail
-          sudo timeout 180 apt-get install -y --no-install-recommends mariadb-client || {
-            sudo timeout 120 apt-get update
-            sudo timeout 180 apt-get install -y --no-install-recommends mariadb-client
-          }
+      - name: Download normalized schema snapshot
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        with:
+          name: schema-fresh
+          path: /tmp/schema-fresh
 
       - name: Schema snapshot hash (PR-065 artifact policy)
         run: sha256sum database/schema_full.sql | tee /tmp/schema-full.sha256
 
       - name: Schema drift check (PR-065)
-        run: bash scripts/check_schema_drift.sh
+        run: bash scripts/check_schema_drift.sh --from /tmp/schema-fresh/schema-fresh.sql
 
       - name: Upload schema hash
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
