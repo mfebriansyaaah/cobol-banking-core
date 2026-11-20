@@ -157,9 +157,9 @@ suites, table cases, and the action/suite inventory gates. See
 | --- | ---: |
 | COBOL modules | **69** |
 | COBOL source files (incl. dispatcher) | **70** |
-| COBOL lines | **48,503** |
+| COBOL lines | **48,608** |
 | Gateway route files | **52** |
-| Gateway route definitions | **565** |
+| Gateway route definitions | **567** |
 | Dispatch entries | **192** |
 | Recorded migrations | **678** |
 | Tables in schema.sql | **466** |
@@ -338,7 +338,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 <!-- BEGIN GENERATED TEST TABLE -->
 | Suite file | Assertions |
 | --- | ---: |
-| `tests/cobol/cases/*.cases` | 229 |
+| `tests/cobol/cases/*.cases` | 233 |
 | `tests/db/schema_db_tests.sh` | 76 |
 | `tests/db/loan_schedule_db_tests.sh` | 42 |
 | `tests/db/deposit_db_tests.sh` | 67 |
@@ -373,8 +373,8 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/letter_of_credit_domain_db_tests.sh` | 25 |
 | `tests/db/trade_finance_schema_db_tests.sh` | 10 |
 | `tests/db/sla_tracker_db_tests.sh` | 21 |
-| `tests/db/report_schedule_db_tests.sh` | 21 |
-| `tests/db/notification_template_db_tests.sh` | 21 |
+| `tests/db/report_schedule_db_tests.sh` | 40 |
+| `tests/db/notification_template_db_tests.sh` | 36 |
 | `tests/db/loan_db_tests.sh` | 40 |
 | `tests/db/lending_posting_db_tests.sh` | 173 |
 | `tests/db/collateral_db_tests.sh` | 21 |
@@ -423,7 +423,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/migration_baseline_db_tests.sh` | 16 |
 | `tests/db/migration_archive_db_tests.sh` | 12 |
 | `tests/db/commit_failure_db_tests.sh` | 6 |
-| **Total** | **2986** |
+| **Total** | **3024** |
 <!-- END GENERATED TEST TABLE -->
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database

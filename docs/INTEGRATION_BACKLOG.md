@@ -11,9 +11,9 @@
 | Module status | Modules |
 | --- | ---: |
 | CONNECTED (no open items) | 0 |
-| PARTIAL (open items) | 31 |
+| PARTIAL (open items) | 33 |
 
-Open/in-progress items: 147 of 205 recorded.
+Open/in-progress items: 147 of 207 recorded.
 
 | Module | Status | Items |
 | --- | --- | ---: |
@@ -37,11 +37,13 @@ Open/in-progress items: 147 of 205 recorded.
 | `loan_posting_core` | PARTIAL | 1 |
 | `loan_schedule_core` | PARTIAL | 1 |
 | `merchant_core` | PARTIAL | 13 |
+| `notification_template_core` | PARTIAL | 1 |
 | `payment_clearing_core` | PARTIAL | 6 |
 | `payment_core` | PARTIAL | 6 |
 | `payment_hold_core` | PARTIAL | 4 |
 | `payment_instruction_core` | PARTIAL | 6 |
 | `payroll_processing_core` | PARTIAL | 13 |
+| `report_schedule_core` | PARTIAL | 1 |
 | `statement_core` | PARTIAL | 6 |
 | `statement_recon_core` | PARTIAL | 8 |
 | `treasury_liquidity_core` | PARTIAL | 6 |
@@ -159,6 +161,7 @@ Open/in-progress items: 147 of 205 recorded.
 | `merchant_core:table:customer` | `merchant_core` | table | OPEN | merchant | Domain table has no core business key or FK into a core table |
 | `merchant_core:table:merchant` | `merchant_core` | table | OPEN | merchant | Domain table has no core business key or FK into a core table |
 | `merchant_core:table:merchant-settlement` | `merchant_core` | table | OPEN | merchant | Domain table has no core business key or FK into a core table |
+| `notification_template_core:audit:core-reference` | `notification_template_core` | audit | DONE | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `payment_clearing_core:action:action-cancel` | `payment_clearing_core` | action | OPEN | payments | Write paragraph with no core link (writes payment_clearing) |
 | `payment_clearing_core:action:action-create` | `payment_clearing_core` | action | OPEN | payments | Write paragraph with no core link (writes payment_clearing) |
 | `payment_clearing_core:action:action-post` | `payment_clearing_core` | action | OPEN | payments | Write paragraph with no core link (writes payment_clearing) |
@@ -210,6 +213,7 @@ Open/in-progress items: 147 of 205 recorded.
 | `report_core:table:report-run-row` | `report_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a core table |
 | `report_core:table:report-template` | `report_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a core table |
 | `report_core:table:report-template-column` | `report_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a core table |
+| `report_schedule_core:audit:core-reference` | `report_schedule_core` | audit | DONE | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `statement_core:action:action-run-fail` | `statement_core` | action | OPEN | reporting | Write paragraph with no core link (writes statement_run) |
 | `statement_core:action:action-run-start` | `statement_core` | action | OPEN | reporting | Write paragraph with no core link (writes statement_run) |
 | `statement_core:audit:core-reference` | `statement_core` | audit | OPEN | reporting | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |

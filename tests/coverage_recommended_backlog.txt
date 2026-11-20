@@ -24,3 +24,5 @@ payroll_processing_core  covered by payroll_domain_db_tests.sh; add to curated c
 statement_recon_core  covered by report_statement_db_tests.sh; add to curated coverage set
 wallet_transfer_core  covered by wallet_transfer_db_tests.sh; add to curated coverage set
 compliance_calendar_core  covered by compliance_calendar_db_tests.sh; add to curated coverage set
+notification_template_core  covered by notification_template_db_tests.sh; add to curated coverage set
+report_schedule_core  covered by report_schedule_db_tests.sh; add to curated coverage set

@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-20T04:45:43.654Z",
-  "commit": "5a54a340",
+  "generatedAt": "2026-11-20T05:26:28.617Z",
+  "commit": "4c7345c3",
   "linkageSource": "manifest/linkage.json",
   "summary": {
     "L3": 23,
-    "L2": 8,
+    "L2": 10,
     "L1": 10,
-    "L0": 25,
+    "L0": 23,
     "UTILITY": 3
   },
   "modules": [
@@ -702,15 +702,17 @@
     {
       "module": "notification_template_core",
       "source": "notification_template_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "ntf_template_config"
+      ],
       "coreCalls": [],
       "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/notification_template_db_tests.sh"
       ],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
+      "linkageLevel": "L2",
+      "reason": "business link (tables ntf_template_config) + test",
       "routeFiles": [
         "notification_template.js"
       ]
@@ -888,15 +890,17 @@
     {
       "module": "report_schedule_core",
       "source": "report_schedule_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "rpt_schedule_config"
+      ],
       "coreCalls": [],
       "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/report_schedule_db_tests.sh"
       ],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
+      "linkageLevel": "L2",
+      "reason": "business link (tables rpt_schedule_config) + test",
       "routeFiles": [
         "report_schedule.js"
       ]

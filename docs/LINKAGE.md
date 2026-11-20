@@ -6,15 +6,15 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-20T04:45:43.654Z
-- Commit: `5a54a340`
+- Generated at: 2026-11-20T05:26:28.617Z
+- Commit: `4c7345c3`
 
 | Level | Modules |
 | --- | ---: |
 | L3 (core transaction) | 23 |
-| L2 (business reference) | 8 |
+| L2 (business reference) | 10 |
 | L1 (weak / untested link) | 10 |
-| L0 (isolated) | 25 |
+| L0 (isolated) | 23 |
 | UTILITY | 3 |
 
 Unresolved route files: none.
@@ -64,7 +64,7 @@ Unresolved route files: none.
 | `loyalty_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `merchant_core` | L2 | accounts | — | 1 | business link (tables accounts) + test |
 | `merchant_settlement_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `notification_template_core` | L0 | — | — | 1 | own domain tables only, no core link |
+| `notification_template_core` | L2 | ntf_template_config | — | 1 | business link (tables ntf_template_config) + test |
 | `payment_clearing_core` | L3 | — | — | 1 | Core anchor module |
 | `payment_core` | L3 | accounts, ledger | fee_core | 1 | money-table touch (accounts, ledger) with depth + test |
 | `payment_hold_core` | L3 | accounts, journal_entries, ledger | — | 1 | money-table touch (accounts, journal_entries, ledger) with depth + test |
@@ -75,7 +75,7 @@ Unresolved route files: none.
 | `ref_ext_core` | UTILITY | — | — | 1 | Utility module (never a retire candidate) |
 | `report_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `report_run_core` | L1 | gl_journal, gl_journal_line | — | 0 | linked code with no DB/table/integration test (downgraded) |
-| `report_schedule_core` | L0 | — | — | 1 | own domain tables only, no core link |
+| `report_schedule_core` | L2 | rpt_schedule_config | — | 1 | business link (tables rpt_schedule_config) + test |
 | `risk_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `sla_tracker_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `statement_core` | L3 | accounts, journal_entries, ledger | — | 1 | money-table touch (accounts, journal_entries, ledger) with depth + test |

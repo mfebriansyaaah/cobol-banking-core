@@ -182,5 +182,53 @@
   "",
   "",
   "actor"
+ ],
+ "NTP_DEACTIVATE": [
+  "id",
+  "reason",
+  "",
+  "",
+  "",
+  "actor"
+ ],
+ "NTP_PREVIEW": [
+  "id",
+  "",
+  "",
+  "",
+  "",
+  "actor"
+ ],
+ "NTP_VERSION": [
+  "id",
+  "",
+  "",
+  "",
+  "",
+  "actor"
+ ],
+ "RPS_DISABLE": [
+  "id",
+  "reason",
+  "",
+  "",
+  "",
+  "actor"
+ ],
+ "RPS_ENABLE": [
+  "id",
+  "",
+  "",
+  "",
+  "",
+  "actor"
+ ],
+ "RPS_RUN_NOW": [
+  "id",
+  "",
+  "",
+  "",
+  "",
+  "actor"
  ]
 }

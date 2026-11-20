@@ -77,10 +77,24 @@ export const NTP_ROUTES = [
   },
   {
     method: 'post',
-    path: '/notification-templates/:id/calc',
-    action: 'NTP_CALC',
+    path: '/notification-templates/:id/preview',
+    action: 'NTP_PREVIEW',
     tokenIdentity: 'actor',
     fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR],
+  },
+  {
+    method: 'post',
+    path: '/notification-templates/:id/version',
+    action: 'NTP_VERSION',
+    tokenIdentity: 'actor',
+    fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR],
+  },
+  {
+    method: 'post',
+    path: '/notification-templates/:id/deactivate',
+    action: 'NTP_DEACTIVATE',
+    tokenIdentity: 'actor',
+    fields: [ID, { name: 'reason', pattern: PATTERNS.NAME, required: false }, BLANK, BLANK, BLANK, ACTOR],
   },
   {
     method: 'post',
@@ -95,12 +109,5 @@ export const NTP_ROUTES = [
       BLANK,
       ACTOR,
     ],
-  },
-  {
-    method: 'post',
-    path: '/notification-templates/:id/delete',
-    action: 'NTP_DELETE',
-    tokenIdentity: 'actor',
-    fields: [ID, { name: 'reason', pattern: PATTERNS.NAME, required: false }, BLANK, BLANK, BLANK, ACTOR],
   },
 ];

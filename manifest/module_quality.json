@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T04:45:58.289Z",
+  "generatedAt": "2026-11-20T05:26:35.683Z",
   "modules": [
     {
       "module": "account_core",
@@ -519,15 +519,15 @@
     },
     {
       "module": "notification_template_core",
-      "linkageLevel": "L0",
-      "domainStatus": "FROZEN",
-      "candidateStatus": "DUPLICATE",
-      "cloneSimilarity": 0.95,
+      "linkageLevel": "L2",
+      "domainStatus": "PILOT",
+      "candidateStatus": null,
+      "cloneSimilarity": null,
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": "notification_template.js",
       "dbSuite": "tests/db/notification_template_db_tests.sh",
-      "recommendedForTraining": false
+      "recommendedForTraining": true
     },
     {
       "module": "payment_clearing_core",
@@ -651,15 +651,15 @@
     },
     {
       "module": "report_schedule_core",
-      "linkageLevel": "L0",
-      "domainStatus": "FROZEN",
-      "candidateStatus": "DUPLICATE",
-      "cloneSimilarity": 0.95,
+      "linkageLevel": "L2",
+      "domainStatus": "PILOT",
+      "candidateStatus": null,
+      "cloneSimilarity": null,
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": "report_schedule.js",
       "dbSuite": "tests/db/report_schedule_db_tests.sh",
-      "recommendedForTraining": false
+      "recommendedForTraining": true
     },
     {
       "module": "risk_core",
