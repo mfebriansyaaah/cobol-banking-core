@@ -29,3 +29,8 @@ report_schedule_core  covered by report_schedule_db_tests.sh; add to curated cov
 sla_tracker_core  covered by sla_tracker_db_tests.sh; add to curated coverage set
 merchant_settlement_core  covered by merchant_settlement_db_tests.sh + domain suite; add to curated coverage set
 tax_management_core  covered by tax_management_db_tests.sh + tax_domain_db_tests.sh; add to curated coverage set
+bank_guarantee_core  covered by bank_guarantee_db_tests.sh + domain suite; add to curated coverage set
+chargeback_core  covered by chargeback_db_tests.sh + domain suite; add to curated coverage set
+letter_of_credit_core  covered by letter_of_credit_db_tests.sh + domain suite; add to curated coverage set
+loyalty_core  covered by loyalty_domain_db_tests.sh; add to curated coverage set
+import_core  covered by import_ops_db_tests.sh; add to curated coverage set

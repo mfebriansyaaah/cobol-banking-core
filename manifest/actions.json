@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-20T08:04:41.680Z",
-  "commit": "cf45e0c4",
+  "generatedAt": "2026-11-20T08:29:24.735Z",
+  "commit": "cf08102e",
   "generator": "scripts/build_action_registry.mjs (do not hand-edit)",
   "count": 536,
   "actions": [
@@ -745,12 +745,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "bank_guarantee",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "BKG_AUDIT",
@@ -779,12 +779,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "bank_guarantee",
-      "status": "FROZEN",
+      "status": "PILOT",
       "duplicatePaths": true
     },
     {
@@ -814,12 +814,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "bank_guarantee",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "BKG_CLAIM",
@@ -848,12 +848,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "bank_guarantee",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "BKG_CLOSE",
@@ -882,12 +882,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "bank_guarantee",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "BKG_CREATE",
@@ -916,12 +916,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "bank_guarantee",
-      "status": "FROZEN",
+      "status": "PILOT",
       "duplicatePaths": true
     },
     {
@@ -951,12 +951,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "bank_guarantee",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "BKG_GET",
@@ -985,12 +985,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "bank_guarantee",
-      "status": "FROZEN",
+      "status": "PILOT",
       "duplicatePaths": true
     },
     {
@@ -1020,12 +1020,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "bank_guarantee",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "BKG_LIST",
@@ -1054,12 +1054,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "bank_guarantee",
-      "status": "FROZEN",
+      "status": "PILOT",
       "duplicatePaths": true
     },
     {
@@ -1089,12 +1089,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "bank_guarantee",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "BKG_SUBMIT",
@@ -1123,12 +1123,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "bank_guarantee",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "BKG_SUMMARY",
@@ -1157,12 +1157,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "bank_guarantee",
-      "status": "FROZEN",
+      "status": "PILOT",
       "duplicatePaths": true
     },
     {
@@ -1192,12 +1192,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "bank_guarantee",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "BKG_VALIDATE",
@@ -1226,12 +1226,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "bank_guarantee",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CARD_AUDIT",
@@ -2246,12 +2246,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "chargeback",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CHB_ARBITRATE",
@@ -2280,12 +2280,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "chargeback",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CHB_ASSIGN",
@@ -2314,12 +2314,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "chargeback",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CHB_AUDIT",
@@ -2348,12 +2348,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "chargeback",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CHB_CALC",
@@ -2382,12 +2382,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "chargeback",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CHB_CASE_GET",
@@ -2416,12 +2416,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "chargeback",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CHB_CASE_LIST",
@@ -2450,12 +2450,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "chargeback",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CHB_CASE_SUMMARY",
@@ -2484,12 +2484,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "chargeback",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CHB_CLOSE",
@@ -2518,12 +2518,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "chargeback",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CHB_CREATE",
@@ -2552,12 +2552,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "chargeback",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CHB_DELETE",
@@ -2586,12 +2586,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "chargeback",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CHB_EVIDENCE",
@@ -2620,12 +2620,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "chargeback",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CHB_GET",
@@ -2654,12 +2654,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "chargeback",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CHB_LIST",
@@ -2688,12 +2688,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "chargeback",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CHB_OPEN",
@@ -2722,12 +2722,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "chargeback",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CHB_REJECT",
@@ -2756,12 +2756,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "chargeback",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CHB_REPRESENT",
@@ -2790,12 +2790,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "chargeback",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CHB_SUMMARY",
@@ -2824,12 +2824,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "chargeback",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CHB_UPDATE",
@@ -2858,12 +2858,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "chargeback",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CHB_VALIDATE",
@@ -2892,12 +2892,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "chargeback",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CHECK_BALANCE",
@@ -4238,12 +4238,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "cost_center",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CSC_AUDIT",
@@ -4272,12 +4272,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "cost_center",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CSC_CLOSE",
@@ -4306,12 +4306,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "cost_center",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CSC_CREATE",
@@ -4340,12 +4340,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "cost_center",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CSC_GET",
@@ -4374,12 +4374,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "cost_center",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CSC_LIST",
@@ -4408,12 +4408,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "cost_center",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CSC_SUMMARY",
@@ -4442,12 +4442,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "cost_center",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CSC_UPDATE",
@@ -4476,12 +4476,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "cost_center",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CSC_VALIDATE",
@@ -4510,12 +4510,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "cost_center",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "DEACTIVATE_ACCOUNT",
@@ -5680,12 +5680,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "eod",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "EOD_CAL_OPEN",
@@ -5714,12 +5714,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "eod",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "EOD_PHASE_SET",
@@ -5748,12 +5748,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "eod",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "EOD_RUN_CLOSE",
@@ -5782,12 +5782,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "eod",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "EOD_RUN_FAIL",
@@ -5816,12 +5816,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "eod",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "EOD_RUN_LIST",
@@ -5850,12 +5850,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "eod",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "EOD_RUN_START",
@@ -5884,12 +5884,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "eod",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "EOD_RUN_STATUS",
@@ -5918,12 +5918,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "eod",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "FAS_AUDIT",
@@ -6874,12 +6874,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "gl_allocation",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "GLA_AUDIT",
@@ -6908,12 +6908,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "gl_allocation",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "GLA_CLOSE",
@@ -6942,12 +6942,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "gl_allocation",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "GLA_CREATE",
@@ -6976,12 +6976,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "gl_allocation",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "GLA_GET",
@@ -7010,12 +7010,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "gl_allocation",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "GLA_LIST",
@@ -7044,12 +7044,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "gl_allocation",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "GLA_SUMMARY",
@@ -7078,12 +7078,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "gl_allocation",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "GLA_VALIDATE",
@@ -7112,12 +7112,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "gl_allocation",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "GL_ACCOUNT_CREATE",
@@ -7726,12 +7726,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "import",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "IMP_BATCH_CREATE",
@@ -7760,12 +7760,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "import",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "IMP_BATCH_DELETE",
@@ -7794,12 +7794,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "import",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "IMP_BATCH_EXPORT",
@@ -7828,12 +7828,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "import",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "IMP_BATCH_FAIL",
@@ -7862,12 +7862,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "import",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "IMP_BATCH_GET",
@@ -7896,12 +7896,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "import",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "IMP_BATCH_LIST",
@@ -7930,12 +7930,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "import",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "IMP_BATCH_POST",
@@ -7964,12 +7964,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "import",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "IMP_BATCH_RETRY",
@@ -7998,12 +7998,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "import",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "IMP_BATCH_STAGE_BULK",
@@ -8066,12 +8066,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "import",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "IMP_BATCH_VALIDATE",
@@ -8100,12 +8100,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "import",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "IMP_ERROR_LIST",
@@ -9222,12 +9222,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "letter_of_credit",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "LOC_APPROVE",
@@ -9256,12 +9256,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "letter_of_credit",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "LOC_AUDIT",
@@ -9290,12 +9290,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "letter_of_credit",
-      "status": "FROZEN",
+      "status": "PILOT",
       "duplicatePaths": true
     },
     {
@@ -9325,12 +9325,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "letter_of_credit",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "LOC_CLOSE",
@@ -9359,12 +9359,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "letter_of_credit",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "LOC_CREATE",
@@ -9393,12 +9393,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "letter_of_credit",
-      "status": "FROZEN",
+      "status": "PILOT",
       "duplicatePaths": true
     },
     {
@@ -9428,12 +9428,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "letter_of_credit",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "LOC_DOCUMENT",
@@ -9462,12 +9462,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "letter_of_credit",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "LOC_DRAW",
@@ -9496,12 +9496,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "letter_of_credit",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "LOC_GET",
@@ -9530,12 +9530,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "letter_of_credit",
-      "status": "FROZEN",
+      "status": "PILOT",
       "duplicatePaths": true
     },
     {
@@ -9565,12 +9565,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "letter_of_credit",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "LOC_LIST",
@@ -9599,12 +9599,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "letter_of_credit",
-      "status": "FROZEN",
+      "status": "PILOT",
       "duplicatePaths": true
     },
     {
@@ -9634,12 +9634,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "letter_of_credit",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "LOC_SUBMIT",
@@ -9668,12 +9668,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "letter_of_credit",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "LOC_SUMMARY",
@@ -9702,12 +9702,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "letter_of_credit",
-      "status": "FROZEN",
+      "status": "PILOT",
       "duplicatePaths": true
     },
     {
@@ -9737,12 +9737,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "letter_of_credit",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "LOC_VALIDATE",
@@ -9771,12 +9771,12 @@
       "tokenIdentity": "actor",
       "owner": "lending",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "letter_of_credit",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "LOY_ACTIVATE",
@@ -9805,12 +9805,12 @@
       "tokenIdentity": "actor",
       "owner": "growth",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "loyalty",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "LOY_ADJUST",
@@ -9839,12 +9839,12 @@
       "tokenIdentity": "actor",
       "owner": "growth",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "loyalty",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "LOY_AUDIT",
@@ -9873,12 +9873,12 @@
       "tokenIdentity": "actor",
       "owner": "growth",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "loyalty",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "LOY_CREATE",
@@ -9907,12 +9907,12 @@
       "tokenIdentity": "actor",
       "owner": "growth",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "loyalty",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "LOY_EARN",
@@ -9941,12 +9941,12 @@
       "tokenIdentity": "actor",
       "owner": "growth",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "loyalty",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "LOY_ENROLL",
@@ -9975,12 +9975,12 @@
       "tokenIdentity": "actor",
       "owner": "growth",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "loyalty",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "LOY_EXPIRE",
@@ -10009,12 +10009,12 @@
       "tokenIdentity": "actor",
       "owner": "growth",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "loyalty",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "LOY_GET",
@@ -10043,12 +10043,12 @@
       "tokenIdentity": "actor",
       "owner": "growth",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "loyalty",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "LOY_LIST",
@@ -10077,12 +10077,12 @@
       "tokenIdentity": "actor",
       "owner": "growth",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "loyalty",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "LOY_REDEEM",
@@ -10111,12 +10111,12 @@
       "tokenIdentity": "actor",
       "owner": "growth",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "loyalty",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "LOY_SUMMARY",
@@ -10145,12 +10145,12 @@
       "tokenIdentity": "actor",
       "owner": "growth",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "loyalty",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "LOY_VALIDATE",
@@ -10179,12 +10179,12 @@
       "tokenIdentity": "actor",
       "owner": "growth",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "loyalty",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "LSC_CREATE",

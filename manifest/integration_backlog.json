@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T08:05:04.941121Z",
+  "generatedAt": "2026-11-20T08:25:13.211Z",
   "items": [
     {
       "id": "account_core:audit:core-reference",
@@ -298,6 +298,30 @@
       "owner": "assistant"
     },
     {
+      "id": "bank_guarantee_core:audit:core-reference",
+      "module": "bank_guarantee_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": "backend"
+    },
+    {
+      "id": "bank_guarantee_core:table:customer",
+      "module": "bank_guarantee_core",
+      "kind": "table",
+      "subject": "customer",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'closed', 'deleted'), 'onboarded', 4), close_reason, closed_at, created_at, created_by, credit_limit, customer_ref, customer_type, customer_type), deleted_at, full_name, id, index, kyc_status, onboarded_at, status, unique, updated_at, used_credit, version",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
+    },
+    {
       "id": "card_core:audit:core-reference",
       "module": "card_core",
       "kind": "audit",
@@ -316,6 +340,96 @@
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
       "owner": "cards"
+    },
+    {
+      "id": "chargeback_core:action:action-close",
+      "module": "chargeback_core",
+      "kind": "action",
+      "subject": "ACTION-CLOSE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes chargeback)",
+      "evidence": [
+        "paragraph ACTION-CLOSE",
+        "touched tables: chargeback"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "chargeback_core:action:action-create",
+      "module": "chargeback_core",
+      "kind": "action",
+      "subject": "ACTION-CREATE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes chargeback)",
+      "evidence": [
+        "paragraph ACTION-CREATE",
+        "touched tables: chargeback"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "chargeback_core:action:action-submit",
+      "module": "chargeback_core",
+      "kind": "action",
+      "subject": "ACTION-SUBMIT",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes chargeback)",
+      "evidence": [
+        "paragraph ACTION-SUBMIT",
+        "touched tables: chargeback"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "chargeback_core:action:action-update",
+      "module": "chargeback_core",
+      "kind": "action",
+      "subject": "ACTION-UPDATE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes chargeback)",
+      "evidence": [
+        "paragraph ACTION-UPDATE",
+        "touched tables: chargeback"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "chargeback_core:audit:core-reference",
+      "module": "chargeback_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": "backend"
+    },
+    {
+      "id": "chargeback_core:table:chargeback",
+      "module": "chargeback_core",
+      "kind": "table",
+      "subject": "chargeback",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'active', 'closed', 'deleted'), 4), activated_at, budget_amount, cb_ref, closed_at, closure_reason, created_at, created_by, deleted_at, id, index, name, spent_amount, status, type, type), unique, updated_at, version",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "chargeback_core:table:merchant",
+      "module": "chargeback_core",
+      "kind": "table",
+      "subject": "merchant",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'active', 'closed', 'deleted'), 4), activated_at, close_reason, closed_at, created_at, created_by, deleted_at, id, if, index, merchant_name, merchant_ref, merchant_type, merchant_type), settled_volume, status, transaction_volume, unique, updated_at, version",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
     },
     {
       "id": "collateral_core:action:action-allocate",
@@ -508,6 +622,16 @@
       "owner": "backend"
     },
     {
+      "id": "cost_center_core:audit:core-reference",
+      "module": "cost_center_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": "backend"
+    },
+    {
       "id": "dashboard_core:audit:core-reference",
       "module": "dashboard_core",
       "kind": "audit",
@@ -692,6 +816,70 @@
       "owner": "deposit"
     },
     {
+      "id": "eod_core:action:action-cal-open",
+      "module": "eod_core",
+      "kind": "action",
+      "subject": "ACTION-CAL-OPEN",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes eod_calendar)",
+      "evidence": [
+        "paragraph ACTION-CAL-OPEN",
+        "touched tables: eod_calendar"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "eod_core:action:action-run-fail",
+      "module": "eod_core",
+      "kind": "action",
+      "subject": "ACTION-RUN-FAIL",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes eod_run)",
+      "evidence": [
+        "paragraph ACTION-RUN-FAIL",
+        "touched tables: eod_run"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "eod_core:audit:core-reference",
+      "module": "eod_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": "backend"
+    },
+    {
+      "id": "eod_core:table:eod-calendar",
+      "module": "eod_core",
+      "kind": "table",
+      "subject": "eod_calendar",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'closed'), business_date, closed_at, closed_by, cutoff_time, opened_at, opened_by, status, version",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "eod_core:table:eod-run",
+      "module": "eod_core",
+      "kind": "table",
+      "subject": "eod_run",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'completed', 'failed'), 10), business_date, check, completed_phases, control_credit, control_debit, created_by, error_code, error_detail, finished_at, id, index, phase_count, started_at, status, status), version",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
+    },
+    {
       "id": "fee_core:action:action-vel-profile-create",
       "module": "fee_core",
       "kind": "action",
@@ -796,15 +984,24 @@
       "owner": "backend"
     },
     {
+      "id": "gl_allocation_core:audit:core-reference",
+      "module": "gl_allocation_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": "backend"
+    },
+    {
       "id": "gl_core:action:action-account-create",
       "module": "gl_core",
       "kind": "action",
       "subject": "ACTION-ACCOUNT-CREATE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes gl_account)",
       "evidence": [
-        "paragraph ACTION-ACCOUNT-CREATE",
-        "touched tables: gl_account"
+        "gl_account registered as a business table in manifest/linkage.json (PR-3B); ACTION-ACCOUNT-CREATE now writes a linked core table"
       ],
       "owner": "finance"
     },
@@ -863,12 +1060,10 @@
       "module": "gl_core",
       "kind": "table",
       "subject": "gl_account",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "columns: 'credit'), 'equity', 'expense'), 'liability', 'revenue', account_code, account_type, constraint, created_at, is_active, name, normal_side, parent_code",
-        "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "gl_account is the GL chart-of-accounts master and is now a registered business table; parent_code self-FK is the only hierarchy link needed"
       ],
       "owner": "finance"
     },
@@ -978,6 +1173,122 @@
         "no FOREIGN KEY into core tables"
       ],
       "owner": "identity"
+    },
+    {
+      "id": "import_core:action:action-batch-clone",
+      "module": "import_core",
+      "kind": "action",
+      "subject": "ACTION-BATCH-CLONE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes import_batch, import_row)",
+      "evidence": [
+        "paragraph ACTION-BATCH-CLONE",
+        "touched tables: import_batch, import_row"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "import_core:action:action-batch-create",
+      "module": "import_core",
+      "kind": "action",
+      "subject": "ACTION-BATCH-CREATE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes import_batch)",
+      "evidence": [
+        "paragraph ACTION-BATCH-CREATE",
+        "touched tables: import_batch"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "import_core:action:action-batch-fail",
+      "module": "import_core",
+      "kind": "action",
+      "subject": "ACTION-BATCH-FAIL",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes import_batch)",
+      "evidence": [
+        "paragraph ACTION-BATCH-FAIL",
+        "touched tables: import_batch"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "import_core:action:action-batch-post",
+      "module": "import_core",
+      "kind": "action",
+      "subject": "ACTION-BATCH-POST",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes import_batch, import_row)",
+      "evidence": [
+        "paragraph ACTION-BATCH-POST",
+        "touched tables: import_batch, import_row"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "import_core:action:action-batch-retry",
+      "module": "import_core",
+      "kind": "action",
+      "subject": "ACTION-BATCH-RETRY",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes import_batch, import_row)",
+      "evidence": [
+        "paragraph ACTION-BATCH-RETRY",
+        "touched tables: import_batch, import_row"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "import_core:action:action-batch-validate",
+      "module": "import_core",
+      "kind": "action",
+      "subject": "ACTION-BATCH-VALIDATE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes import_batch, import_row)",
+      "evidence": [
+        "paragraph ACTION-BATCH-VALIDATE",
+        "touched tables: import_batch, import_row"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "import_core:audit:core-reference",
+      "module": "import_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": "backend"
+    },
+    {
+      "id": "import_core:table:import-batch",
+      "module": "import_core",
+      "kind": "table",
+      "subject": "import_batch",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'accounts', 'completed', 'failed'), 'payments'), 'reference', 'validated', 'validating', batch_code, check, created_at, created_at), created_by, error_code, error_detail, id, import_type, index, invalid_rows, posted_rows, source_name, status, total_rows, updated_at, valid_rows, version",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "import_core:table:import-row",
+      "module": "import_core",
+      "kind": "table",
+      "subject": "import_row",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'invalid', 'posted', 'skipped'), 'valid', batch_id, check, constraint, created_at, error_code, error_detail, id, if, raw_data, row_no, row_no), status, unique, updated_at",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
     },
     {
       "id": "import_post_core:audit:core-reference",
@@ -1123,6 +1434,30 @@
       "owner": "reporting"
     },
     {
+      "id": "letter_of_credit_core:audit:core-reference",
+      "module": "letter_of_credit_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": "backend"
+    },
+    {
+      "id": "letter_of_credit_core:table:customer",
+      "module": "letter_of_credit_core",
+      "kind": "table",
+      "subject": "customer",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'closed', 'deleted'), 'onboarded', 4), close_reason, closed_at, created_at, created_by, credit_limit, customer_ref, customer_type, customer_type), deleted_at, full_name, id, index, kyc_status, onboarded_at, status, unique, updated_at, used_credit, version",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
+    },
+    {
       "id": "loan_core:action:action-close",
       "module": "loan_core",
       "kind": "action",
@@ -1217,6 +1552,70 @@
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
       "owner": "lending"
+    },
+    {
+      "id": "loyalty_core:action:action-activate",
+      "module": "loyalty_core",
+      "kind": "action",
+      "subject": "ACTION-ACTIVATE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes loyalty_program)",
+      "evidence": [
+        "paragraph ACTION-ACTIVATE",
+        "touched tables: loyalty_program"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "loyalty_core:action:action-create",
+      "module": "loyalty_core",
+      "kind": "action",
+      "subject": "ACTION-CREATE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes loyalty_program)",
+      "evidence": [
+        "paragraph ACTION-CREATE",
+        "touched tables: loyalty_program"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "loyalty_core:audit:core-reference",
+      "module": "loyalty_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": "backend"
+    },
+    {
+      "id": "loyalty_core:table:customer",
+      "module": "loyalty_core",
+      "kind": "table",
+      "subject": "customer",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'closed', 'deleted'), 'onboarded', 4), close_reason, closed_at, created_at, created_by, credit_limit, customer_ref, customer_type, customer_type), deleted_at, full_name, id, index, kyc_status, onboarded_at, status, unique, updated_at, used_credit, version",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "loyalty_core:table:loyalty-program",
+      "module": "loyalty_core",
+      "kind": "table",
+      "subject": "loyalty_program",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'active', 'closed', 'deleted'), 4), activated_at, budget_amount, closed_at, closure_reason, created_at, created_by, deleted_at, id, if, index, loyalty_ref, name, spent_amount, status, type, type), unique, updated_at, version",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
     },
     {
       "id": "merchant_core:action:action-approve",
@@ -2078,7 +2477,7 @@
       "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [
-        "verified by inspection: AUDIT-REPORT inserts (action, actor_email, template_code, run_id, detail) \u2014 run_id and template_code are the core references"
+        "verified by inspection: AUDIT-REPORT inserts (action, actor_email, template_code, run_id, detail) — run_id and template_code are the core references"
       ],
       "owner": "assistant"
     },

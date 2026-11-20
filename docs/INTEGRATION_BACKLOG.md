@@ -11,32 +11,40 @@
 | Module status | Modules |
 | --- | ---: |
 | CONNECTED (no open items) | 0 |
-| PARTIAL (open items) | 37 |
+| PARTIAL (open items) | 45 |
 
-Open/in-progress items: 158 of 222 recorded.
+Open/in-progress items: 188 of 254 recorded.
 
 | Module | Status | Items |
 | --- | --- | ---: |
 | `account_core` | PARTIAL | 1 |
 | `auth_core` | PARTIAL | 22 |
 | `auth_password_core` | PARTIAL | 1 |
+| `bank_guarantee_core` | PARTIAL | 2 |
 | `card_core` | PARTIAL | 1 |
 | `card_posting_core` | PARTIAL | 1 |
+| `chargeback_core` | PARTIAL | 7 |
 | `collateral_core` | PARTIAL | 13 |
 | `collection_core` | PARTIAL | 1 |
 | `compliance_calendar_core` | PARTIAL | 1 |
+| `cost_center_core` | PARTIAL | 1 |
 | `dashboard_core` | PARTIAL | 12 |
 | `deposit_core` | PARTIAL | 1 |
 | `deposit_posting_core` | PARTIAL | 1 |
+| `eod_core` | PARTIAL | 5 |
 | `fee_core` | PARTIAL | 7 |
 | `fixed_asset_core` | PARTIAL | 1 |
+| `gl_allocation_core` | PARTIAL | 1 |
 | `gl_core` | PARTIAL | 7 |
 | `identity_core` | PARTIAL | 7 |
+| `import_core` | PARTIAL | 9 |
 | `import_post_core` | PARTIAL | 4 |
 | `import_recon_core` | PARTIAL | 7 |
+| `letter_of_credit_core` | PARTIAL | 2 |
 | `loan_core` | PARTIAL | 6 |
 | `loan_posting_core` | PARTIAL | 1 |
 | `loan_schedule_core` | PARTIAL | 1 |
+| `loyalty_core` | PARTIAL | 5 |
 | `merchant_core` | PARTIAL | 13 |
 | `merchant_settlement_core` | PARTIAL | 7 |
 | `notification_template_core` | PARTIAL | 1 |
@@ -81,8 +89,17 @@ Open/in-progress items: 158 of 222 recorded.
 | `auth_core:table:step-up-policy` | `auth_core` | table | DONE | assistant | Domain table has no core business key or FK into a core table |
 | `auth_core:table:verification-logs` | `auth_core` | table | DONE | assistant | Domain table has no core business key or FK into a core table |
 | `auth_password_core:audit:core-reference` | `auth_password_core` | audit | DONE | assistant | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `bank_guarantee_core:audit:core-reference` | `bank_guarantee_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `bank_guarantee_core:table:customer` | `bank_guarantee_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
 | `card_core:audit:core-reference` | `card_core` | audit | OPEN | cards | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `card_posting_core:audit:core-reference` | `card_posting_core` | audit | OPEN | cards | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `chargeback_core:action:action-close` | `chargeback_core` | action | OPEN | backend | Write paragraph with no core link (writes chargeback) |
+| `chargeback_core:action:action-create` | `chargeback_core` | action | OPEN | backend | Write paragraph with no core link (writes chargeback) |
+| `chargeback_core:action:action-submit` | `chargeback_core` | action | OPEN | backend | Write paragraph with no core link (writes chargeback) |
+| `chargeback_core:action:action-update` | `chargeback_core` | action | OPEN | backend | Write paragraph with no core link (writes chargeback) |
+| `chargeback_core:audit:core-reference` | `chargeback_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `chargeback_core:table:chargeback` | `chargeback_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
+| `chargeback_core:table:merchant` | `chargeback_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
 | `collateral_core:action:action-allocate` | `collateral_core` | action | OPEN | collateral | Write paragraph with no core link (writes collateral_allocation) |
 | `collateral_core:action:action-appraise` | `collateral_core` | action | OPEN | collateral | Write paragraph with no core link (writes collateral, collateral_valuation) |
 | `collateral_core:action:action-close` | `collateral_core` | action | OPEN | collateral | Write paragraph with no core link (writes collateral) |
@@ -98,6 +115,7 @@ Open/in-progress items: 158 of 222 recorded.
 | `collateral_core:table:collateral-valuation` | `collateral_core` | table | OPEN | collateral | Domain table has no core business key or FK into a core table |
 | `collection_core:audit:core-reference` | `collection_core` | audit | OPEN | collection | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `compliance_calendar_core:audit:core-reference` | `compliance_calendar_core` | audit | DONE | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `cost_center_core:audit:core-reference` | `cost_center_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `dashboard_core:audit:core-reference` | `dashboard_core` | audit | OPEN | reporting | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `dashboard_core:table:audit-trail` | `dashboard_core` | table | OPEN | reporting | Domain table has no core business key or FK into a core table |
 | `dashboard_core:table:dispute-cases` | `dashboard_core` | table | OPEN | reporting | Domain table has no core business key or FK into a core table |
@@ -112,6 +130,11 @@ Open/in-progress items: 158 of 222 recorded.
 | `dashboard_core:table:report-schedule` | `dashboard_core` | table | OPEN | reporting | Domain table has no core business key or FK into a core table |
 | `deposit_core:audit:core-reference` | `deposit_core` | audit | OPEN | deposit | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `deposit_posting_core:audit:core-reference` | `deposit_posting_core` | audit | OPEN | deposit | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `eod_core:action:action-cal-open` | `eod_core` | action | OPEN | backend | Write paragraph with no core link (writes eod_calendar) |
+| `eod_core:action:action-run-fail` | `eod_core` | action | OPEN | backend | Write paragraph with no core link (writes eod_run) |
+| `eod_core:audit:core-reference` | `eod_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `eod_core:table:eod-calendar` | `eod_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
+| `eod_core:table:eod-run` | `eod_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
 | `fee_core:action:action-vel-profile-create` | `fee_core` | action | OPEN | finance | Write paragraph with no core link (writes velocity_profile) |
 | `fee_core:action:action-vel-record` | `fee_core` | action | OPEN | finance | Write paragraph with no core link (writes used_count, velocity_counter) |
 | `fee_core:action:action-vel-record-all-txn` | `fee_core` | action | OPEN | finance | Write paragraph with no core link (writes used_count, velocity_counter) |
@@ -120,12 +143,13 @@ Open/in-progress items: 158 of 222 recorded.
 | `fee_core:table:velocity-counter` | `fee_core` | table | OPEN | finance | Domain table has no core business key or FK into a core table |
 | `fee_core:table:velocity-profile` | `fee_core` | table | OPEN | finance | Domain table has no core business key or FK into a core table |
 | `fixed_asset_core:audit:core-reference` | `fixed_asset_core` | audit | DONE | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
-| `gl_core:action:action-account-create` | `gl_core` | action | OPEN | finance | Write paragraph with no core link (writes gl_account) |
+| `gl_allocation_core:audit:core-reference` | `gl_allocation_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `gl_core:action:action-account-create` | `gl_core` | action | DONE | finance | Write paragraph with no core link (writes gl_account) |
 | `gl_core:action:action-period-close` | `gl_core` | action | OPEN | finance | Write paragraph with no core link (writes gl_period) |
 | `gl_core:action:action-period-open` | `gl_core` | action | OPEN | finance | Write paragraph with no core link (writes gl_period) |
 | `gl_core:audit:core-reference` | `gl_core` | audit | OPEN | finance | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `gl_core:table:audit-trail` | `gl_core` | table | OPEN | finance | Domain table has no core business key or FK into a core table |
-| `gl_core:table:gl-account` | `gl_core` | table | OPEN | finance | Domain table has no core business key or FK into a core table |
+| `gl_core:table:gl-account` | `gl_core` | table | DONE | finance | Domain table has no core business key or FK into a core table |
 | `gl_core:table:gl-period` | `gl_core` | table | OPEN | finance | Domain table has no core business key or FK into a core table |
 | `identity_core:action:action-scr-screen` | `identity_core` | action | OPEN | identity | Write paragraph with no core link (writes manual_reviews, screening_checks) |
 | `identity_core:audit:core-reference` | `identity_core` | audit | OPEN | identity | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
@@ -134,6 +158,15 @@ Open/in-progress items: 158 of 222 recorded.
 | `identity_core:table:manual-reviews` | `identity_core` | table | OPEN | identity | Domain table has no core business key or FK into a core table |
 | `identity_core:table:phone-links` | `identity_core` | table | OPEN | identity | Domain table has no core business key or FK into a core table |
 | `identity_core:table:screening-checks` | `identity_core` | table | OPEN | identity | Domain table has no core business key or FK into a core table |
+| `import_core:action:action-batch-clone` | `import_core` | action | OPEN | backend | Write paragraph with no core link (writes import_batch, import_row) |
+| `import_core:action:action-batch-create` | `import_core` | action | OPEN | backend | Write paragraph with no core link (writes import_batch) |
+| `import_core:action:action-batch-fail` | `import_core` | action | OPEN | backend | Write paragraph with no core link (writes import_batch) |
+| `import_core:action:action-batch-post` | `import_core` | action | OPEN | backend | Write paragraph with no core link (writes import_batch, import_row) |
+| `import_core:action:action-batch-retry` | `import_core` | action | OPEN | backend | Write paragraph with no core link (writes import_batch, import_row) |
+| `import_core:action:action-batch-validate` | `import_core` | action | OPEN | backend | Write paragraph with no core link (writes import_batch, import_row) |
+| `import_core:audit:core-reference` | `import_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `import_core:table:import-batch` | `import_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
+| `import_core:table:import-row` | `import_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
 | `import_post_core:audit:core-reference` | `import_post_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `import_post_core:table:gl-period` | `import_post_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
 | `import_post_core:table:import-batch` | `import_post_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
@@ -145,6 +178,8 @@ Open/in-progress items: 158 of 222 recorded.
 | `import_recon_core:table:import-batch` | `import_recon_core` | table | OPEN | reporting | Domain table has no core business key or FK into a core table |
 | `import_recon_core:table:import-recon-run` | `import_recon_core` | table | OPEN | reporting | Domain table has no core business key or FK into a core table |
 | `import_recon_core:table:import-row` | `import_recon_core` | table | OPEN | reporting | Domain table has no core business key or FK into a core table |
+| `letter_of_credit_core:audit:core-reference` | `letter_of_credit_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `letter_of_credit_core:table:customer` | `letter_of_credit_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
 | `loan_core:action:action-close` | `loan_core` | action | OPEN | lending | Write paragraph with no core link (writes loan) |
 | `loan_core:action:action-create` | `loan_core` | action | OPEN | lending | Write paragraph with no core link (writes loan) |
 | `loan_core:action:action-submit` | `loan_core` | action | OPEN | lending | Write paragraph with no core link (writes loan) |
@@ -153,6 +188,11 @@ Open/in-progress items: 158 of 222 recorded.
 | `loan_core:table:loan` | `loan_core` | table | OPEN | lending | Domain table has no core business key or FK into a core table |
 | `loan_posting_core:audit:core-reference` | `loan_posting_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `loan_schedule_core:audit:core-reference` | `loan_schedule_core` | audit | OPEN | lending | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `loyalty_core:action:action-activate` | `loyalty_core` | action | OPEN | backend | Write paragraph with no core link (writes loyalty_program) |
+| `loyalty_core:action:action-create` | `loyalty_core` | action | OPEN | backend | Write paragraph with no core link (writes loyalty_program) |
+| `loyalty_core:audit:core-reference` | `loyalty_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `loyalty_core:table:customer` | `loyalty_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
+| `loyalty_core:table:loyalty-program` | `loyalty_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
 | `merchant_core:action:action-approve` | `merchant_core` | action | OPEN | merchant | Write paragraph with no core link (writes merchant, merchant_fee_profile) |
 | `merchant_core:action:action-close` | `merchant_core` | action | OPEN | merchant | Write paragraph with no core link (writes merchant) |
 | `merchant_core:action:action-close-mch` | `merchant_core` | action | OPEN | merchant | Write paragraph with no core link (writes merchant) |

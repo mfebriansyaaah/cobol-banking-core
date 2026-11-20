@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T08:06:33.349Z",
+  "generatedAt": "2026-11-20T08:25:13.004Z",
   "modules": [
     {
       "module": "account_core",
@@ -99,15 +99,15 @@
     },
     {
       "module": "bank_guarantee_core",
-      "linkageLevel": "L0",
-      "domainStatus": "FROZEN",
-      "candidateStatus": "UNLINKED",
+      "linkageLevel": "L2",
+      "domainStatus": "PILOT",
+      "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": "bank_guarantee.js",
       "dbSuite": "tests/db/bank_guarantee_db_tests.sh",
-      "recommendedForTraining": false
+      "recommendedForTraining": true
     },
     {
       "module": "card_core",
@@ -135,15 +135,15 @@
     },
     {
       "module": "chargeback_core",
-      "linkageLevel": "L0",
-      "domainStatus": "FROZEN",
-      "candidateStatus": "UNLINKED",
+      "linkageLevel": "L2",
+      "domainStatus": "PILOT",
+      "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": "chargeback.js",
       "dbSuite": "tests/db/chargeback_db_tests.sh",
-      "recommendedForTraining": false
+      "recommendedForTraining": true
     },
     {
       "module": "collateral_core",
@@ -195,15 +195,15 @@
     },
     {
       "module": "cost_center_core",
-      "linkageLevel": "L0",
-      "domainStatus": "FROZEN",
-      "candidateStatus": "UNLINKED",
+      "linkageLevel": "L2",
+      "domainStatus": "PILOT",
+      "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": 62.01,
       "coverageStatus": "below-floor",
       "routeFile": "cost_center.js",
       "dbSuite": "tests/db/cost_center_db_tests.sh",
-      "recommendedForTraining": false
+      "recommendedForTraining": true
     },
     {
       "module": "dashboard_core",
@@ -243,15 +243,15 @@
     },
     {
       "module": "eod_core",
-      "linkageLevel": "L0",
-      "domainStatus": "FROZEN",
-      "candidateStatus": "UNLINKED",
+      "linkageLevel": "L2",
+      "domainStatus": "PILOT",
+      "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": 60.82,
       "coverageStatus": "below-floor",
       "routeFile": "eod.js",
       "dbSuite": null,
-      "recommendedForTraining": false
+      "recommendedForTraining": true
     },
     {
       "module": "eod_jobs_core",
@@ -303,15 +303,15 @@
     },
     {
       "module": "gl_allocation_core",
-      "linkageLevel": "L0",
-      "domainStatus": "FROZEN",
-      "candidateStatus": "UNLINKED",
+      "linkageLevel": "L2",
+      "domainStatus": "PILOT",
+      "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": 61.86,
       "coverageStatus": "below-floor",
       "routeFile": "gl_allocation.js",
       "dbSuite": "tests/db/gl_allocation_db_tests.sh",
-      "recommendedForTraining": false
+      "recommendedForTraining": true
     },
     {
       "module": "gl_core",
@@ -351,15 +351,15 @@
     },
     {
       "module": "import_core",
-      "linkageLevel": "L0",
-      "domainStatus": "FROZEN",
-      "candidateStatus": "UNLINKED",
+      "linkageLevel": "L2",
+      "domainStatus": "PILOT",
+      "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": "import.js",
       "dbSuite": null,
-      "recommendedForTraining": false
+      "recommendedForTraining": true
     },
     {
       "module": "import_post_core",
@@ -399,15 +399,15 @@
     },
     {
       "module": "letter_of_credit_core",
-      "linkageLevel": "L0",
-      "domainStatus": "FROZEN",
-      "candidateStatus": "UNLINKED",
+      "linkageLevel": "L2",
+      "domainStatus": "PILOT",
+      "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": "letter_of_credit.js",
       "dbSuite": "tests/db/letter_of_credit_db_tests.sh",
-      "recommendedForTraining": false
+      "recommendedForTraining": true
     },
     {
       "module": "loan_core",
@@ -483,15 +483,15 @@
     },
     {
       "module": "loyalty_core",
-      "linkageLevel": "L0",
-      "domainStatus": "FROZEN",
-      "candidateStatus": "UNLINKED",
+      "linkageLevel": "L2",
+      "domainStatus": "PILOT",
+      "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": "loyalty.js",
       "dbSuite": null,
-      "recommendedForTraining": false
+      "recommendedForTraining": true
     },
     {
       "module": "merchant_core",

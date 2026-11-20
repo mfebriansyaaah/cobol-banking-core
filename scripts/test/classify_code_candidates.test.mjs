@@ -187,6 +187,17 @@ test('unlisted candidate fails baseline', () => {
   assert.match(runFail(d), /not in baseline/);
 });
 
+test('empty baseline is accepted when no candidates remain', () => {
+  const d = makeRoot();
+  writeFileSync(path.join(d, 'tests', 'clone_baseline.txt'), '');
+  const statusPath = path.join(d, 'manifest', 'domain_status.json');
+  const status = JSON.parse(readFileSync(statusPath, 'utf8'));
+  for (const e of status.entries) e.status = 'ACTIVE';
+  writeFileSync(statusPath, JSON.stringify(status));
+  run(d, ['--write']);
+  assert.match(run(d), /OK: 0 code candidates/);
+});
+
 test('unknown flag exits 2', () => {
   const d = makeRoot();
   try {

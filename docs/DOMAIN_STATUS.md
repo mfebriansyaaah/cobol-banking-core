@@ -9,9 +9,9 @@
 | Status | Modules |
 | --- | ---: |
 | ACTIVE | 26 |
-| PILOT | 5 |
+| PILOT | 21 |
 | REVIEW | 22 |
-| FROZEN | 16 |
+| FROZEN | 0 |
 | RETIRED | 0 |
 
 > **Retired from the active ledger:** 17 modules removed in
@@ -25,7 +25,7 @@ removed modules are archived in `manifest/wave_legacy.json`).
 
 | Domain | Module | Link | Status | Route | Table | Replacement | Reason |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `account` | `account_core` | L0 | FROZEN | account.js | account | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
+| `account` | `account_core` | L2 | PILOT | account.js | account | — | Business-linked account module; account table + tests/db/account_db_tests.sh. |
 | `auth` | `auth_core` | L3 | ACTIVE | auth.js | audit_trail | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `auth` | `auth_mfa_core` | L0 | REVIEW | auth.js | mfa_secret | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 4 gateway-dispatched action(s); coverage tests/db/auth_invariants_db_tests.sh. L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
 | `auth` | `auth_ops_core` | L0 | REVIEW | admin.js | notification_outbox | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 3 gateway-dispatched action(s); coverage tests/db/auth_invariants_db_tests.sh. L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
@@ -33,42 +33,42 @@ removed modules are archived in `manifest/wave_legacy.json`).
 | `auth` | `auth_recovery_core` | L0 | REVIEW | auth.js | mfa_recovery | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 9 gateway-dispatched action(s); coverage tests/db/auth_invariants_db_tests.sh. L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
 | `auth` | `auth_review_core` | L0 | REVIEW | admin.js | access_review | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 5 gateway-dispatched action(s); coverage tests/db/auth_invariants_db_tests.sh. L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
 | `auth_session` | `auth_session_core` | L0 | REVIEW | — | refresh_sessions | — | Split audit maint-08: RETAIN (reviewed, not pending). 9 internal-CALL actions (STORE/REVOKE/CONSUME/CHECK_TOKEN/REVOKE_TOKEN/LIST/REVOKE_USER/REVOKE_ALL/GET_VERSION); coverage tests/db/auth_session_db_tests.sh (21 assertions). L0 linkage is structural (session/token tables, no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
-| `bank_guarantee` | `bank_guarantee_core` | L0 | FROZEN | bank_guarantee.js | bank_guarantee | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
+| `bank_guarantee` | `bank_guarantee_core` | L2 | PILOT | bank_guarantee.js | bank_guarantee | — | Business-linked bank guarantee; anchors bank_guarantee + bg_claim; tests bank_guarantee_db_tests.sh + bank_guarantee_domain_db_tests.sh. |
 | `card` | `card_core` | L3 | ACTIVE | card.js | card_account | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `card_posting` | `card_posting_core` | L3 | ACTIVE | — | accounts | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
-| `chargeback` | `chargeback_core` | L0 | FROZEN | chargeback.js | chargeback_case | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
+| `chargeback` | `chargeback_core` | L2 | PILOT | chargeback.js | chargeback_case | — | Business-linked chargeback; anchors chargeback_case + chargeback_ledger; tests chargeback_db_tests.sh + chargeback_domain_db_tests.sh. |
 | `collateral` | `collateral_core` | L2 | PILOT | collateral.js | collateral | — | Business link proven; integration completion (PR-010E) still open before ACTIVE. |
 | `collection` | `collection_core` | L3 | ACTIVE | collection.js | collection_case | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
-| `compliance_calendar` | `compliance_calendar_core` | L0 | FROZEN | compliance_calendar.js | compliance_calendar | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
+| `compliance_calendar` | `compliance_calendar_core` | L2 | PILOT | compliance_calendar.js | compliance_calendar | — | Business-linked compliance calendar; compliance_calendar table + tests/db/compliance_calendar_db_tests.sh. |
 | `corporate` | `corp_core` | L0 | REVIEW | corporate.js | corporate_entities | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 2 gateway-dispatched action(s); coverage GLEIF corporate resolve/status (PR-097). L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
-| `cost_center` | `cost_center_core` | L0 | FROZEN | cost_center.js | cost_center | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
+| `cost_center` | `cost_center_core` | L2 | PILOT | cost_center.js | cost_center | — | Business-linked cost center; anchor cost_center; cost_center_db_tests.sh (measured 62.01%). |
 | `dashboard` | `dashboard_core` | L3 | ACTIVE | dashboard.js | accounts | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `deposit` | `deposit_core` | L3 | ACTIVE | deposit.js | deposit_account | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `deposit_posting` | `deposit_posting_core` | L3 | ACTIVE | — | deposit_settle_request | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
-| `eod` | `eod_core` | L0 | FROZEN | eod.js | eod_phase | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
+| `eod` | `eod_core` | L2 | PILOT | eod.js | eod_phase | — | Business-linked end-of-day; anchor eod_phase; eod_ops_db_tests.sh (measured 60.82%). |
 | `eod_jobs` | `eod_jobs_core` | L1 | REVIEW | eod_jobs.js | eod_job_run | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 6 gateway-dispatched action(s); coverage tests/db/eod_ops_db_tests.sh (7 EODJOB assertions). L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
 | `fee` | `fee_core` | L3 | ACTIVE | fee.js | fee_rule | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
-| `fixed_asset` | `fixed_asset_core` | L0 | FROZEN | fixed_asset.js | fixed_asset | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
+| `fixed_asset` | `fixed_asset_core` | L2 | PILOT | fixed_asset.js | fixed_asset | — | Business-linked fixed assets; fixed_asset tables + GL linkage + tests/db/fixed_asset_db_tests.sh. |
 | `fx` | `fx_rate_core` | L0 | REVIEW | fx_rates.js | fx_rate_snapshots | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 2 gateway-dispatched action(s); coverage FX fresh/stale e2e (nightly evidence runs). L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
-| `gl_allocation` | `gl_allocation_core` | L0 | FROZEN | gl_allocation.js | gl_allocation | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
+| `gl_allocation` | `gl_allocation_core` | L2 | PILOT | gl_allocation.js | gl_allocation | — | Business-linked GL allocation; anchor gl_allocation; gl_allocation_db_tests.sh (measured 61.86%, L2 so no L3 floor). |
 | `gl` | `gl_core` | L3 | ACTIVE | gl.js | gl_account | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `hashlen` | `hashlen_core` | UTILITY | ACTIVE | — | — | — | Utility module; never a retire candidate. |
 | `identity` | `identity_core` | L2 | REVIEW | identity.js | identity_verifications | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 8 gateway-dispatched action(s); coverage KYC gates TRANSFER (mutation M11 kill) + identity/screening e2e. L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). 2026-11-11: ACCOUNT_FREEZE/UNFREEZE link the accounts table (sanctions enforcement), promoting linkage to L2. |
-| `import` | `import_core` | L0 | FROZEN | import.js | import_row | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
+| `import` | `import_core` | L2 | PILOT | import.js | import_row | — | Business-linked import; anchor gl_account validation; import_ops_db_tests.sh (import_row anchor avoided to prevent promoting import_row_core). |
 | `import_post` | `import_post_core` | L3 | ACTIVE | — | import_batch | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `import_recon` | `import_recon_core` | L2 | PILOT | import_recon.js | import_recon_item | — | Business link proven; integration completion (PR-010E) still open before ACTIVE. |
 | `import` | `import_row_core` | L0 | REVIEW | import.js | import_row | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 6 gateway-dispatched action(s); coverage tests/db/import_ops_db_tests.sh. L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
-| `letter_of_credit` | `letter_of_credit_core` | L0 | FROZEN | letter_of_credit.js | letter_of_credit | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
+| `letter_of_credit` | `letter_of_credit_core` | L2 | PILOT | letter_of_credit.js | letter_of_credit | — | Business-linked letter of credit; anchors letter_of_credit + lc_drawing + lc_settlement; tests letter_of_credit_db_tests.sh + domain suite. |
 | `loan` | `loan_core` | L3 | ACTIVE | loan.js | loan | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `loan_posting` | `loan_posting_core` | L3 | ACTIVE | — | loan_disburse_request | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `loan_schedule` | `loan_schedule_core` | L3 | ACTIVE | loan_schedule.js | loan_schedule | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `loan_schedule` | `loan_schedule_lifecycle_core` | L1 | REVIEW | loan_schedule.js | loan_schedule | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 8 gateway-dispatched action(s); coverage tests/db/loan_schedule_db_tests.sh (8 dispatched slots). L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
 | `loan_schedule` | `loan_schedule_posting_core` | L1 | REVIEW | loan_schedule.js | loan_schedule | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 8 gateway-dispatched action(s); coverage tests/db/loan_schedule_db_tests.sh (8 dispatched slots). L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
 | `loan_schedule` | `loan_schedule_report_core` | L1 | REVIEW | loan_schedule.js | loan_schedule | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 3 gateway-dispatched action(s); coverage tests/db/loan_schedule_db_tests.sh (3 dispatched slots). L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
-| `loyalty` | `loyalty_core` | L0 | FROZEN | loyalty.js | loyalty_member | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
+| `loyalty` | `loyalty_core` | L2 | PILOT | loyalty.js | loyalty_member | — | Business-linked loyalty; anchors loyalty_member + loyalty_points_ledger + loyalty_redemption; tests loyalty_domain_db_tests.sh. |
 | `merchant` | `merchant_core` | L2 | PILOT | merchant.js | merchant | — | Business link proven; integration completion (PR-010E) still open before ACTIVE. |
-| `merchant_settlement` | `merchant_settlement_core` | L0 | FROZEN | merchant_settlement.js | merchant_settlement | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
-| `notification_template` | `notification_template_core` | L0 | FROZEN | notification_template.js | ntf_template_config | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
+| `merchant_settlement` | `merchant_settlement_core` | L2 | PILOT | merchant_settlement.js | merchant_settlement | — | Business-linked merchant settlement; merchant_transaction anchor + tests/db/merchant_settlement_db_tests.sh + domain suite. |
+| `notification_template` | `notification_template_core` | L2 | PILOT | notification_template.js | ntf_template_config | — | Business-linked notification template; ntf_template_config table + tests/db/notification_template_db_tests.sh. |
 | `payment_clearing` | `payment_clearing_core` | L3 | ACTIVE | payment_clearing.js | payment_clearing | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `payment` | `payment_core` | L3 | ACTIVE | payment.js | payment_policy | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `payment_hold` | `payment_hold_core` | L3 | ACTIVE | payment_hold.js | payment_hold | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. Fase 1 (PR #607): CAPTURE posts ledger legs + journal atomically. |
@@ -79,12 +79,12 @@ removed modules are archived in `manifest/wave_legacy.json`).
 | `ref_ext` | `ref_ext_core` | UTILITY | ACTIVE | ref_ext.js | label | — | Utility module; never a retire candidate. |
 | `report` | `report_core` | L0 | REVIEW | report.js | report_template | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 10 gateway-dispatched action(s); coverage tests/db/report_statement_db_tests.sh (templates). L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
 | `report` | `report_run_core` | L1 | REVIEW | report.js | report_run | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 10 gateway-dispatched action(s); coverage tests/db/report_statement_db_tests.sh (runs). L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
-| `report_schedule` | `report_schedule_core` | L0 | FROZEN | report_schedule.js | rpt_schedule_config | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
+| `report_schedule` | `report_schedule_core` | L2 | PILOT | report_schedule.js | rpt_schedule_config | — | Business-linked report schedule; rpt_schedule_config table + tests/db/report_schedule_db_tests.sh. |
 | `risk` | `risk_core` | L0 | REVIEW | risk.js | risk_events | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 2 gateway-dispatched action(s); coverage geo-risk e2e (nightly evidence runs). L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
-| `sla_tracker` | `sla_tracker_core` | L0 | FROZEN | sla_tracker.js | sla_tracker | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
+| `sla_tracker` | `sla_tracker_core` | L2 | PILOT | sla_tracker.js | sla_tracker | — | Business-linked SLA tracker; sla_tracker table + tests/db/sla_tracker_db_tests.sh. |
 | `statement` | `statement_core` | L3 | ACTIVE | statement.js | statement_archive | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `statement_recon` | `statement_recon_core` | L3 | ACTIVE | statement_recon.js | statement_recon_item | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
-| `tax_management` | `tax_management_core` | L0 | FROZEN | tax_management.js | tax_management | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
+| `tax_management` | `tax_management_core` | L2 | PILOT | tax_management.js | tax_management | — | Business-linked tax rules; tax_withholding_entry anchor + tests/db/tax_management_db_tests.sh + tax_domain_db_tests.sh. |
 | `treasury_liquidity` | `treasury_liquidity_core` | L3 | ACTIVE | treasury_liquidity.js | treasury_liquidity | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `user` | `user_core` | L3 | ACTIVE | — | audit_trail | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `wallet` | `wallet_core` | L3 | ACTIVE | — | accounts | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
