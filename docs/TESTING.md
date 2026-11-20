@@ -170,9 +170,9 @@ node scripts/ci/shard_timings.mjs /tmp/merged/run-all.json
 Assignment is deterministic for identical inputs; `scripts/test/shard_suites.test.mjs`
 pins that.
 
-Right-sizing rationale (CI-010): with 82 suites, two shards are balanced from
-measured durations (~2.5 min of suite work each) against the fixed container +
-migration setup. Revisit shard count if the fleet or setup cost changes.
+Right-sizing rationale (CI-010): two shards are balanced from measured
+durations (~2.5 min of suite work each) against the fixed container + migration
+setup. Revisit shard count if the fleet or setup cost changes.
 
 `coverage-pr` restores `cobol/build` from cache (key pins GnuCOBOL 3.2 plus
 every build input) so `./build.sh` inside coverage is a warm relink; the

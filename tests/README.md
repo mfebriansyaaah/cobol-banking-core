@@ -9,9 +9,8 @@ This directory holds the whole verification fleet. For the safety model
 - `run_all.sh` — the unified runner. Modes: `fast db db-shard full probes
   affected integration gates` (default `full`). Run `./tests/run_all.sh --help`
   for the flag list.
-- `db/*_db_tests.sh` — one DB domain suite per file (82 files at this
-  snapshot, plus `schema_tests.sh`; 83 `db_*` entries in
-  `tests/baseline_counts.txt`). Each is
+- `db/*_db_tests.sh` — one DB domain suite per file, plus `schema_tests.sh`; every suite has a
+  matching `db_*` entry in `tests/baseline_counts.txt`. Each is
   self-contained: it resets its own tables, seeds idempotently, and records
   TAP plus one `report.tsv` row. New suites must end in `_db_tests.sh` and
   get a `db_<name>_tests` line in `tests/baseline_counts.txt` (see below).

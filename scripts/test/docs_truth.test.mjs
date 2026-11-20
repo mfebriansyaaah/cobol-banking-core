@@ -3,7 +3,7 @@
 // No database, no build. Run via npm run test:scripts.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readdirSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 
 const read = (p) => readFileSync(p, 'utf8');
 
@@ -16,14 +16,16 @@ test('branch protection docs match verified API state', () => {
   assert.match(ci, /ACTIVE/);
 });
 
-test('DB suite counts are current', () => {
+test('DB suite prose does not pin a stale count', () => {
   const testsReadme = read('tests/README.md');
   const testing = read('docs/TESTING.md');
-  const suites = readdirSync('tests/db').filter((f) => f.endsWith('_db_tests.sh')).length;
-  assert.doesNotMatch(testsReadme, /57 files plus/i);
-  assert.doesNotMatch(testing, /with 58 suites/i);
-  assert.match(testsReadme, new RegExp(`\\(${suites} files at this`));
-  assert.match(testing, new RegExp(`with ${suites} suites`));
+  // The generated README table is the authoritative count. Prose must not
+  // duplicate it: main adds suites concurrently and a pinned number goes
+  // stale between a PR and its merge commit.
+  assert.doesNotMatch(testsReadme, /\d+ files at this snapshot/i);
+  assert.doesNotMatch(testing, /with \d+ suites/i);
+  assert.match(testsReadme, /one DB domain suite per file/);
+  assert.match(testing, /Planner weights/);
 });
 
 test('route definitions use one metric', () => {
