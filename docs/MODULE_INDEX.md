@@ -48,9 +48,9 @@ column-level catalogue ([data dictionary](DATA_DICTIONARY.md)).
 | `loan_core` | `LOAN_` | [loan.js](../middleware/src/routes/loan.js) | [loan.cases](../tests/cobol/cases/loan.cases) | [loan_db_tests.sh](../tests/db/loan_db_tests.sh) |
 | `loan_posting_core` | — | — | — | [loan_posting_db_tests.sh](../tests/db/loan_posting_db_tests.sh) |
 | `loan_schedule_core` | `LSC_CREATE`, `LSC_GET`, `LSC_LIST`, `LSC_DETAIL`, `LSC_UPDATE`, `LSC_DELETE`, `LSC_SEARCH`, `LSC_HISTORY`, `LSC_VALIDATE` | [loan_schedule.js](../middleware/src/routes/loan_schedule.js) | [loan_schedule.cases](../tests/cobol/cases/loan_schedule.cases) | [loan_schedule_db_tests.sh](../tests/db/loan_schedule_db_tests.sh) |
-| `loan_schedule_lifecycle_core` | `LSC_APPROVE`, `LSC_REJECT`, `LSC_CLOSE`, `LSC_REOPEN`, `LSC_CANCEL`, `LSC_HOLD`, `LSC_RELEASE`, `LSC_STATUS` | — | — | — |
-| `loan_schedule_posting_core` | `LSC_POST`, `LSC_ACCRUE`, `LSC_SETTLE`, `LSC_CALC`, `LSC_SCHEDULED`, `LSC_FORECAST`, `LSC_OVERRIDE`, `LSC_ADJUST` | — | — | — |
-| `loan_schedule_report_core` | `LSC_SUMMARY`, `LSC_EXPORT`, `LSC_AUDIT` | — | — | — |
+| `loan_schedule_lifecycle_core` | `LSC_APPROVE`, `LSC_REJECT`, `LSC_CLOSE`, `LSC_REOPEN`, `LSC_CANCEL`, `LSC_HOLD`, `LSC_RELEASE`, `LSC_STATUS` | — | — | [loan_schedule_lifecycle_db_tests.sh](../tests/db/loan_schedule_lifecycle_db_tests.sh) |
+| `loan_schedule_posting_core` | `LSC_POST`, `LSC_ACCRUE`, `LSC_SETTLE`, `LSC_CALC`, `LSC_SCHEDULED`, `LSC_FORECAST`, `LSC_OVERRIDE`, `LSC_ADJUST` | — | — | [loan_schedule_posting_db_tests.sh](../tests/db/loan_schedule_posting_db_tests.sh) |
+| `loan_schedule_report_core` | `LSC_SUMMARY`, `LSC_EXPORT`, `LSC_AUDIT` | — | — | [loan_schedule_report_db_tests.sh](../tests/db/loan_schedule_report_db_tests.sh) |
 | `loyalty_core` | `LOY_` | [loyalty.js](../middleware/src/routes/loyalty.js) | [loyalty.cases](../tests/cobol/cases/loyalty.cases) | — |
 | `merchant_core` | `MRT_` | [merchant.js](../middleware/src/routes/merchant.js) | [merchant.cases](../tests/cobol/cases/merchant.cases) | [merchant_db_tests.sh](../tests/db/merchant_db_tests.sh) |
 | `merchant_settlement_core` | `MCS_` | [merchant_settlement.js](../middleware/src/routes/merchant_settlement.js) | [merchant_settlement.cases](../tests/cobol/cases/merchant_settlement.cases) | [merchant_settlement_db_tests.sh](../tests/db/merchant_settlement_db_tests.sh) |
@@ -74,9 +74,9 @@ column-level catalogue ([data dictionary](DATA_DICTIONARY.md)).
 | `treasury_liquidity_core` | `TRL_` | [treasury_liquidity.js](../middleware/src/routes/treasury_liquidity.js) | [treasury_liquidity.cases](../tests/cobol/cases/treasury_liquidity.cases) | [treasury_liquidity_db_tests.sh](../tests/db/treasury_liquidity_db_tests.sh) |
 | `user_core` | `CONFIRM_EMAIL_CHANGE`, `REACTIVATE_DORMANT`, `DEACTIVATE_ACCOUNT`, `REQ_EMAIL_CHANGE`, `SUSPEND_DORMANT`, `ADMIN_RESET_MFA`, `SET_USER_STATUS`, `UPDATE_PROFILE`, `GET_DASHBOARD`, `MARK_DORMANT`, `UNLOCK_USER`, `LIST_USERS`, `GET_USER` | — | — | — |
 | `wallet_core` | `CHECK_BALANCE`, `TX_STATUS`, `TRANSFER` | [wallet.js](../middleware/src/routes/wallet.js) | — | — |
-| `wallet_dispute_core` | `ADD_DISPUTE_NOTE`, `RESOLVE_DISPUTE`, `REJECT_DISPUTE`, `LIST_DISPUTES`, `OPEN_DISPUTE`, `ACK_DISPUTE`, `GET_DISPUTE` | — | — | — |
-| `wallet_hold_core` | `RELEASE_HOLD`, `PLACE_HOLD` | — | — | — |
-| `wallet_recon_core` | `LIST_RECONCILIATIONS`, `RUN_RECONCILIATION`, `RESOLVE_EXCEPTION`, `LIST_EXCEPTIONS`, `ACK_EXCEPTION`, `RECONCILE` | — | — | — |
-| `wallet_reversal_core` | `REVERSE_TRANSFER` | — | — | — |
-| `wallet_statement_core` | `STATEMENT` | — | — | — |
+| `wallet_dispute_core` | `ADD_DISPUTE_NOTE`, `RESOLVE_DISPUTE`, `REJECT_DISPUTE`, `LIST_DISPUTES`, `OPEN_DISPUTE`, `ACK_DISPUTE`, `GET_DISPUTE` | — | — | [wallet_dispute_db_tests.sh](../tests/db/wallet_dispute_db_tests.sh) |
+| `wallet_hold_core` | `RELEASE_HOLD`, `PLACE_HOLD` | — | — | [wallet_hold_db_tests.sh](../tests/db/wallet_hold_db_tests.sh) |
+| `wallet_recon_core` | `LIST_RECONCILIATIONS`, `RUN_RECONCILIATION`, `RESOLVE_EXCEPTION`, `LIST_EXCEPTIONS`, `ACK_EXCEPTION`, `RECONCILE` | — | — | [wallet_recon_db_tests.sh](../tests/db/wallet_recon_db_tests.sh) |
+| `wallet_reversal_core` | `REVERSE_TRANSFER` | — | — | [wallet_reversal_db_tests.sh](../tests/db/wallet_reversal_db_tests.sh) |
+| `wallet_statement_core` | `STATEMENT` | — | — | [wallet_statement_db_tests.sh](../tests/db/wallet_statement_db_tests.sh) |
 | `wallet_transfer_core` | — | — | — | [wallet_transfer_db_tests.sh](../tests/db/wallet_transfer_db_tests.sh) |

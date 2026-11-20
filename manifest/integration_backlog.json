@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T09:49:52.167Z",
+  "generatedAt": "2026-11-20T10:20:49.945Z",
   "items": [
     {
       "id": "account_core:audit:core-reference",
@@ -1797,6 +1797,36 @@
       "owner": "lending"
     },
     {
+      "id": "loan_schedule_lifecycle_core:audit:core-reference",
+      "module": "loan_schedule_lifecycle_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": "backend"
+    },
+    {
+      "id": "loan_schedule_posting_core:audit:core-reference",
+      "module": "loan_schedule_posting_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": "backend"
+    },
+    {
+      "id": "loan_schedule_report_core:audit:core-reference",
+      "module": "loan_schedule_report_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": "backend"
+    },
+    {
       "id": "loyalty_core:action:action-activate",
       "module": "loyalty_core",
       "kind": "action",
@@ -3469,6 +3499,236 @@
         "no FOREIGN KEY into core tables"
       ],
       "owner": "wallet"
+    },
+    {
+      "id": "wallet_dispute_core:action:reject-dispute-logic",
+      "module": "wallet_dispute_core",
+      "kind": "action",
+      "subject": "REJECT-DISPUTE-LOGIC",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes audit_trail, dispute_cases)",
+      "evidence": [
+        "paragraph REJECT-DISPUTE-LOGIC",
+        "touched tables: audit_trail, dispute_cases"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "wallet_dispute_core:action:resolve-dispute-logic",
+      "module": "wallet_dispute_core",
+      "kind": "action",
+      "subject": "RESOLVE-DISPUTE-LOGIC",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes audit_trail, dispute_cases)",
+      "evidence": [
+        "paragraph RESOLVE-DISPUTE-LOGIC",
+        "touched tables: audit_trail, dispute_cases"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "wallet_dispute_core:audit:core-reference",
+      "module": "wallet_dispute_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": "backend"
+    },
+    {
+      "id": "wallet_dispute_core:table:audit-trail",
+      "module": "wallet_dispute_core",
+      "kind": "table",
+      "subject": "audit_trail",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "wallet_dispute_core:table:dispute-cases",
+      "module": "wallet_dispute_core",
+      "kind": "table",
+      "subject": "dispute_cases",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'acknowledged', 'rejected'), 'resolved', assigned_to, case_id, constraint, created_at, decided_at, detail, due_date, if, key, resolution, state, state), subject, txn_ref, updated_at, user_id",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "wallet_dispute_core:table:dispute-messages",
+      "module": "wallet_dispute_core",
+      "kind": "table",
+      "subject": "dispute_messages",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: author_id, body, case_id, constraint, created_at, key, msg_id, msg_id)",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "wallet_dispute_core:table:pending-transactions",
+      "module": "wallet_dispute_core",
+      "kind": "table",
+      "subject": "pending_transactions",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'committed', 'failed'), 4), amount, constraint, created_at, from_email, id, status, to_email, txn_ref, txn_ref), unique, updated_at",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "wallet_hold_core:audit:core-reference",
+      "module": "wallet_hold_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": "backend"
+    },
+    {
+      "id": "wallet_hold_core:table:audit-trail",
+      "module": "wallet_hold_core",
+      "kind": "table",
+      "subject": "audit_trail",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "wallet_recon_core:audit:core-reference",
+      "module": "wallet_recon_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": "backend"
+    },
+    {
+      "id": "wallet_recon_core:table:audit-trail",
+      "module": "wallet_recon_core",
+      "kind": "table",
+      "subject": "audit_trail",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "wallet_recon_core:table:reconciliation-runs",
+      "module": "wallet_recon_core",
+      "kind": "table",
+      "subject": "reconciliation_runs",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'mismatch'), 'scheduled'), actor_email, created_at, key, mismatch_count, run_id, status, trigger_src",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "wallet_recon_core:table:role-permissions",
+      "module": "wallet_recon_core",
+      "kind": "table",
+      "subject": "role_permissions",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'manager', 'super_admin'), constraint, permission, permission), primary, role",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "wallet_reversal_core:audit:core-reference",
+      "module": "wallet_reversal_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": "backend"
+    },
+    {
+      "id": "wallet_reversal_core:table:audit-trail",
+      "module": "wallet_reversal_core",
+      "kind": "table",
+      "subject": "audit_trail",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "wallet_reversal_core:table:reversal-fee-policy",
+      "module": "wallet_reversal_core",
+      "kind": "table",
+      "subject": "reversal_fee_policy",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: reason, refund_fee, updated_at",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "wallet_reversal_core:table:transfer-reversals",
+      "module": "wallet_reversal_core",
+      "kind": "table",
+      "subject": "transfer_reversals",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: --, actor_id, constraint, from_email, from_email), if, orig_ref, primary, reason, reversed_at",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "wallet_statement_core:audit:core-reference",
+      "module": "wallet_statement_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": "backend"
     },
     {
       "id": "wallet_transfer_core:action:transfer-logic",

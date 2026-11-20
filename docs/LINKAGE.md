@@ -6,14 +6,14 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-20T09:49:32.664Z
-- Commit: `3ce78592`
+- Generated at: 2026-11-20T10:20:28.595Z
+- Commit: `28a2146a`
 
 | Level | Modules |
 | --- | ---: |
-| L3 (core transaction) | 23 |
-| L2 (business reference) | 28 |
-| L1 (weak / untested link) | 10 |
+| L3 (core transaction) | 27 |
+| L2 (business reference) | 32 |
+| L1 (weak / untested link) | 2 |
 | L0 (isolated) | 5 |
 | UTILITY | 3 |
 
@@ -58,9 +58,9 @@ Unresolved route files: none.
 | `loan_core` | L3 | — | — | 1 | Core anchor module |
 | `loan_posting_core` | L3 | accounts, gl_journal, loan_application, loan_repayment | gl_core | 0 | money-table touch (accounts, gl_journal) with depth + test |
 | `loan_schedule_core` | L3 | — | — | 1 | Core anchor module |
-| `loan_schedule_lifecycle_core` | L1 | loan_schedule | — | 0 | linked code with no DB/table/integration test (downgraded) |
-| `loan_schedule_posting_core` | L1 | loan_application, loan_installment, loan_schedule | — | 0 | linked code with no DB/table/integration test (downgraded) |
-| `loan_schedule_report_core` | L1 | loan_schedule | — | 0 | linked code with no DB/table/integration test (downgraded) |
+| `loan_schedule_lifecycle_core` | L2 | loan_schedule | — | 0 | business link (tables loan_schedule) + test |
+| `loan_schedule_posting_core` | L2 | loan_application, loan_installment, loan_schedule | — | 0 | business link (tables loan_application, loan_installment, loan_schedule) + test |
+| `loan_schedule_report_core` | L2 | loan_schedule | — | 0 | business link (tables loan_schedule) + test |
 | `loyalty_core` | L2 | loyalty_member, loyalty_points_ledger, loyalty_redemption | — | 1 | business link (tables loyalty_member, loyalty_points_ledger, loyalty_redemption) + test |
 | `merchant_core` | L2 | accounts | — | 1 | business link (tables accounts) + test |
 | `merchant_settlement_core` | L2 | merchant_transaction | — | 1 | business link (tables merchant_transaction) + test |
@@ -84,9 +84,9 @@ Unresolved route files: none.
 | `treasury_liquidity_core` | L3 | — | — | 1 | Core anchor module |
 | `user_core` | L3 | — | — | 1 | Core anchor module |
 | `wallet_core` | L3 | — | — | 1 | Core anchor module |
-| `wallet_dispute_core` | L1 | accounts, ledger | — | 1 | linked code with no DB/table/integration test (downgraded) |
-| `wallet_hold_core` | L1 | accounts | — | 0 | linked code with no DB/table/integration test (downgraded) |
-| `wallet_recon_core` | L1 | accounts, ledger | — | 0 | linked code with no DB/table/integration test (downgraded) |
-| `wallet_reversal_core` | L1 | accounts, journal_entries, ledger | — | 0 | linked code with no DB/table/integration test (downgraded) |
-| `wallet_statement_core` | L1 | accounts, journal_entries, ledger | — | 0 | linked code with no DB/table/integration test (downgraded) |
+| `wallet_dispute_core` | L3 | accounts, ledger | — | 1 | money-table touch (accounts, ledger) with depth + test |
+| `wallet_hold_core` | L2 | accounts | — | 0 | business link (tables accounts) + test |
+| `wallet_recon_core` | L3 | accounts, ledger | — | 0 | money-table touch (accounts, ledger) with depth + test |
+| `wallet_reversal_core` | L3 | accounts, journal_entries, ledger | — | 0 | money-table touch (accounts, journal_entries, ledger) with depth + test |
+| `wallet_statement_core` | L3 | accounts, journal_entries, ledger | — | 0 | money-table touch (accounts, journal_entries, ledger) with depth + test |
 | `wallet_transfer_core` | L3 | accounts, fee_schedule, journal_entries, ledger | fee_core | 0 | money-table touch (accounts, journal_entries, ledger) with depth + test |

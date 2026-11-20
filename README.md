@@ -157,7 +157,7 @@ suites, table cases, and the action/suite inventory gates. See
 | --- | ---: |
 | COBOL modules | **69** |
 | COBOL source files (incl. dispatcher) | **70** |
-| COBOL lines | **48,404** |
+| COBOL lines | **48,406** |
 | Gateway route files | **52** |
 | Gateway route definitions | **561** |
 | Dispatch entries | **192** |
@@ -433,7 +433,15 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/auth_ops_db_tests.sh` | 10 |
 | `tests/db/auth_recovery_db_tests.sh` | 12 |
 | `tests/db/auth_review_db_tests.sh` | 6 |
-| **Total** | **3179** |
+| `tests/db/loan_schedule_lifecycle_db_tests.sh` | 14 |
+| `tests/db/loan_schedule_posting_db_tests.sh` | 8 |
+| `tests/db/loan_schedule_report_db_tests.sh` | 5 |
+| `tests/db/wallet_dispute_db_tests.sh` | 12 |
+| `tests/db/wallet_hold_db_tests.sh` | 8 |
+| `tests/db/wallet_recon_db_tests.sh` | 9 |
+| `tests/db/wallet_reversal_db_tests.sh` | 8 |
+| `tests/db/wallet_statement_db_tests.sh` | 5 |
+| **Total** | **3248** |
 <!-- END GENERATED TEST TABLE -->
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database

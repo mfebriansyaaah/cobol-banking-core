@@ -23,3 +23,7 @@ payment_hold_core  hold lifecycle branches beyond release are thin (58.88%)
 statement_core  run/archive branches thin in the dedicated suite (58.19%)
 statement_recon_core  match/read/finish covered; mismatch and retry branches thin (60.53%)
 wallet_transfer_core  transfer lifecycle branches remain thin in the curated run (45.45%)
+wallet_dispute_core  not yet in curated coverage set — Phase 5
+wallet_recon_core  not yet in curated coverage set — Phase 5
+wallet_reversal_core  not yet in curated coverage set — Phase 5
+wallet_statement_core  not yet in curated coverage set — Phase 5

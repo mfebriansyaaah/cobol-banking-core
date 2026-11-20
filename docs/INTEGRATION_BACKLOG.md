@@ -11,9 +11,9 @@
 | Module status | Modules |
 | --- | ---: |
 | CONNECTED (no open items) | 0 |
-| PARTIAL (open items) | 51 |
+| PARTIAL (open items) | 59 |
 
-Open/in-progress items: 208 of 277 recorded.
+Open/in-progress items: 229 of 298 recorded.
 
 | Module | Status | Items |
 | --- | --- | ---: |
@@ -49,6 +49,9 @@ Open/in-progress items: 208 of 277 recorded.
 | `loan_core` | PARTIAL | 6 |
 | `loan_posting_core` | PARTIAL | 1 |
 | `loan_schedule_core` | PARTIAL | 1 |
+| `loan_schedule_lifecycle_core` | PARTIAL | 1 |
+| `loan_schedule_posting_core` | PARTIAL | 1 |
+| `loan_schedule_report_core` | PARTIAL | 1 |
 | `loyalty_core` | PARTIAL | 5 |
 | `merchant_core` | PARTIAL | 13 |
 | `merchant_settlement_core` | PARTIAL | 7 |
@@ -67,6 +70,11 @@ Open/in-progress items: 208 of 277 recorded.
 | `treasury_liquidity_core` | PARTIAL | 6 |
 | `user_core` | PARTIAL | 6 |
 | `wallet_core` | PARTIAL | 15 |
+| `wallet_dispute_core` | PARTIAL | 7 |
+| `wallet_hold_core` | PARTIAL | 2 |
+| `wallet_recon_core` | PARTIAL | 4 |
+| `wallet_reversal_core` | PARTIAL | 4 |
+| `wallet_statement_core` | PARTIAL | 1 |
 | `wallet_transfer_core` | PARTIAL | 5 |
 
 | Item | Module | Kind | Status | Owner | Reason |
@@ -213,6 +221,9 @@ Open/in-progress items: 208 of 277 recorded.
 | `loan_core:table:loan` | `loan_core` | table | OPEN | lending | Domain table has no core business key or FK into a core table |
 | `loan_posting_core:audit:core-reference` | `loan_posting_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `loan_schedule_core:audit:core-reference` | `loan_schedule_core` | audit | OPEN | lending | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `loan_schedule_lifecycle_core:audit:core-reference` | `loan_schedule_lifecycle_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `loan_schedule_posting_core:audit:core-reference` | `loan_schedule_posting_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `loan_schedule_report_core:audit:core-reference` | `loan_schedule_report_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `loyalty_core:action:action-activate` | `loyalty_core` | action | OPEN | backend | Write paragraph with no core link (writes loyalty_program) |
 | `loyalty_core:action:action-create` | `loyalty_core` | action | OPEN | backend | Write paragraph with no core link (writes loyalty_program) |
 | `loyalty_core:audit:core-reference` | `loyalty_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
@@ -343,6 +354,24 @@ Open/in-progress items: 208 of 277 recorded.
 | `wallet_core:table:reversal-fee-policy` | `wallet_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a core table |
 | `wallet_core:table:role-permissions` | `wallet_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a core table |
 | `wallet_core:table:transfer-reversals` | `wallet_core` | table | OPEN | wallet | Domain table has no core business key or FK into a core table |
+| `wallet_dispute_core:action:reject-dispute-logic` | `wallet_dispute_core` | action | OPEN | backend | Write paragraph with no core link (writes audit_trail, dispute_cases) |
+| `wallet_dispute_core:action:resolve-dispute-logic` | `wallet_dispute_core` | action | OPEN | backend | Write paragraph with no core link (writes audit_trail, dispute_cases) |
+| `wallet_dispute_core:audit:core-reference` | `wallet_dispute_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `wallet_dispute_core:table:audit-trail` | `wallet_dispute_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
+| `wallet_dispute_core:table:dispute-cases` | `wallet_dispute_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
+| `wallet_dispute_core:table:dispute-messages` | `wallet_dispute_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
+| `wallet_dispute_core:table:pending-transactions` | `wallet_dispute_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
+| `wallet_hold_core:audit:core-reference` | `wallet_hold_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `wallet_hold_core:table:audit-trail` | `wallet_hold_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
+| `wallet_recon_core:audit:core-reference` | `wallet_recon_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `wallet_recon_core:table:audit-trail` | `wallet_recon_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
+| `wallet_recon_core:table:reconciliation-runs` | `wallet_recon_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
+| `wallet_recon_core:table:role-permissions` | `wallet_recon_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
+| `wallet_reversal_core:audit:core-reference` | `wallet_reversal_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `wallet_reversal_core:table:audit-trail` | `wallet_reversal_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
+| `wallet_reversal_core:table:reversal-fee-policy` | `wallet_reversal_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
+| `wallet_reversal_core:table:transfer-reversals` | `wallet_reversal_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
+| `wallet_statement_core:audit:core-reference` | `wallet_statement_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `wallet_transfer_core:action:transfer-logic` | `wallet_transfer_core` | action | WAIVED | wallet | TRANSFER-LOGIC is an orchestrator; core account/FX reads and writes moved to RESOLVE-SENDER-ACCOUNT, RESOLVE-TARGET-ACCOUNT and LOAD-TRANSFER-CONTEXT |
 | `wallet_transfer_core:audit:core-reference` | `wallet_transfer_core` | audit | OPEN | wallet | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `wallet_transfer_core:table:audit-trail` | `wallet_transfer_core` | table | OPEN | wallet | Domain table has no core business key or FK into a core table |
