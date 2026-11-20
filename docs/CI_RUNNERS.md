@@ -12,7 +12,7 @@ they are **waiting**:
 | Job (run 42336537277, created 04:01:00Z) | Started   | Wait               |
 | ---------------------------------------- | --------- | ------------------ |
 | lint / build / changes                   | 04:01:03Z | ~3s (no queue)     |
-| db-snapshot (needs build)                | 04:01:56Z | dependency         |
+| db-snapshot (no `build` dependency)      | 04:01:56Z | no dependency      |
 | db shard 0/1, test, coverage-pr          | 04:04:51Z | **~2-4 min queue** |
 
 The four heavy jobs all start in the same second: that is a batch of runners
