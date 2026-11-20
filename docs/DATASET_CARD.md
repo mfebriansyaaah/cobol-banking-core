@@ -13,8 +13,16 @@
 - Date: 2026-11-18
 - Profile default: `source` (see `scripts/export_dataset.sh`)
 
-> **Phase 1 update (2026-11-18):** the `train` profile is now data-driven from
-> `manifest/module_quality.json`. It excludes all 40 non-recommended modules
+> **Phase 6 update (2026-11-20):** the linkage-only migration is complete.
+> Every retained module is L2+ or `UTILITY`; `REVIEW`/`FROZEN` are empty and
+> the code-candidate registry is empty. `train` now excludes only the three
+> non-recommended utility modules (`hashlen_core`, `ref_engine`,
+> `ref_ext_core`) plus generated route files; 66 modules are recommended.
+> Clone-shaped modules no longer exist. Counts in the Phase 1 snapshot below
+> are historical.
+>
+> **Phase 1 snapshot (2026-11-18):** the `train` profile became data-driven from
+> `manifest/module_quality.json`. It excluded the then-40 non-recommended modules
 > (including the 8 clone-shaped modules), their DB suites and dedicated table
 > cases, and all generated route files except the `card.js` exemplar. The
 > route spec (`middleware/spec/routes.yaml`) remains the source of truth. See
@@ -86,15 +94,15 @@ exemplar.
 `source` is the reproducible repository minus generated snapshots and local
 artifacts. `train` starts from `source` and additionally drops:
 
-- all 40 non-recommended modules (`manifest/module_quality.json`,
-  `recommendedForTraining: false`): 18 FROZEN (8 DUPLICATE template clones
-  and 10 UNLINKED support surfaces) and 22 REVIEW-tracked modules —
-  implementation detail, not reusable patterns;
+- the three non-recommended utility modules (`manifest/module_quality.json`,
+  `recommendedForTraining: false`): `hashlen_core`, `ref_engine`,
+  `ref_ext_core` — implementation detail, not reusable patterns, and
+  therefore excluded from the `train` profile;
 - their dedicated DB suites and table-case files;
 - all generated gateway route files except the `card.js` exemplar
   (the route spec `middleware/spec/routes.yaml` remains the source of truth).
 
-What `train` keeps: the 31 recommended modules, `main_logic`, the route
+What `train` keeps: the 66 recommended modules, `main_logic`, the route
 spec, one generated-route exemplar, the gateway transport, the C bridge,
 tests, docs, and tooling (including gates, so curation itself is learnable).
 
@@ -179,14 +187,15 @@ fileCount) and `SHA256SUMS`, then runs a gitleaks scan (must be clean).
 
 ## Known gaps (honest)
 
-1. All 40 non-recommended modules (including 8 clone-shaped and 5 exact
-   clones) are kept in `source` for reproducibility but excluded from the
-   `train` profile. The `source` file count therefore includes them; `train`
-   keeps only the 31 recommended modules.
-2. Integration backlog: 203 items, 147 OPEN (registry/parser fixed A-04;
-   items are linkage evidence gaps, not code defects).
-3. `ref_engine` COBOL coverage 0% (curated-core floor; tracked in
-   `tests/coverage_floor_backlog.txt`, 7 entries).
+1. The three non-recommended utility modules are kept in `source` for
+   reproducibility but excluded from `train`. The `source` file count
+   therefore includes them; `train` keeps the 66 recommended modules.
+   No clone-shaped modules remain.
+2. Integration backlog: 309 items, 232 OPEN (items are linkage evidence gaps,
+   not code defects).
+3. `ref_engine` COBOL coverage is 0% as a measured utility (no L3 floor);
+   the 25 L3 modules below 70% are recorded in
+   `tests/coverage_floor_backlog.txt`.
 4. `/auth/refresh` intermittent-500 history: resolved — 300 serial runs
    green, zero `gateway_error` lines (C-04); quarantine removed.
    The historic CI flake reproduces only under parallel shard load,

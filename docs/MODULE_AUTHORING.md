@@ -1,16 +1,15 @@
 # Module Authoring Guide
 
-> **Freeze (2026-10-29, domain-nyata program):** do not generate new modules
-> from `cost_center_core.cob` via `scripts/generate_module.py` without a domain
-> design review. New modules must have domain-specific tables (no generic
-> `ref/name/type/budget_amount/spent_amount`) and at least one integration
-> with a core module (customer, account, loan, payment, fee, GL, KYC/AML).
-> Converting domains and migration ranges are listed below; details in
-> `docs/DOMAIN_OVERVIEW.md`.
+> **Linkage-only policy (ADR-0014, 2026-11-20):** the module generator has
+> been removed. New modules are hand-written
+> with domain-specific tables and domain lifecycle actions, register a real
+> business table or core `CALL`, and need **L2+ linkage** plus a DB/integration
+> test. Template clones are forbidden; `scripts/check_clone_budget.mjs` must
+> stay at zero entries.
 >
-> Converting (in order): Collateral (done pilot), Trade Finance LC/BG,
-> Merchant Acquiring, Tax Withholding, Chargeback, Payroll, Fixed Asset,
-> Loyalty. All other business-module clones are frozen.
+> Domains converted from the old clone template (history): Collateral, Trade
+> Finance LC/BG, Merchant Acquiring, Tax Withholding, Chargeback, Payroll,
+> Fixed Asset, Loyalty.
 >
 > Migration ranges (do not reuse, do not alter applied versions):
 > Collateral 0648–0651, Trade Finance 0652–0657, Merchant 0658–0662,
@@ -18,29 +17,30 @@
 > Fixed Asset 0676–0679, Loyalty 0680–0683.
 
 New SQL-backed COBOL modules must be hand-written with domain-specific
-tables and actions, following the 9-action contract below. Do not clone
-`cost_center_core.cob`; new clones fail `scripts/check_clone_budget.mjs`.
-New modules need L2+ linkage (a proven core business link).
+tables and actions. Do not clone `cost_center_core.cob`; clones fail
+`scripts/check_clone_budget.mjs`. New modules need L2+ linkage (a proven core
+business link).
 
 ## Generate a module
 
-The module generator (`scripts/generate_module.py`) has been removed
-(ADR-0014). New modules are authored directly; copy the contract shape,
-not the template body.
+The module generator has been removed (ADR-0014). New modules are authored
+directly with domain-specific tables and lifecycle actions; do not copy a
+template body.
 
-## Standard 9-action contract
+## Domain action shape
 
-Every domain module exposes these actions (prefix + action):
+There is no mandatory 9-action template. Each module exposes the lifecycle its
+domain actually needs (for example `OPEN`/`SETTLE`/`CANCEL`,
+`SCHEDULE`/`COMPLETE`/`ESCALATE`, or `RULE_CREATE`/`CALC`/`POST`/`REVERSE`).
+Generic `CREATE`/`CALC`/`DELETE` are not a contract and were removed from the
+de-cloned modules. Regardless of shape:
 
-1. `<PFX>_CREATE` — insert a new row in a transaction, enqueue outbox if needed.
-2. `<PFX>_LIST` — paginated list (LIMIT/OFFSET via `SQL_PREPARE_EXEC_ROWS`).
-3. `<PFX>_GET` — single row by id/ref.
-4. `<PFX>_CALC` / domain action — core business operation.
-5. `<PFX>_UPDATE` — guarded update with version check.
-6. `<PFX>_DELETE` / `CLOSE` — soft delete or close.
-7. `<PFX>_SUMMARY` — aggregate counts/totals.
-8. `<PFX>_AUDIT` — paged audit trail.
-9. `<PFX>_VALIDATE` — input validation without writes.
+- every write path is transactional and guarded;
+- audit rows go to `<table>_audit` with actor, action, and old/new values
+  where the domain needs them;
+- read paths provide `LIST`/`GET` with `LIMIT`/`OFFSET`;
+- money paths link to `gl_journal`/`ledger` rows instead of only storing a
+  free-text reference.
 
 ## Rules
 
@@ -107,11 +107,11 @@ Every domain module exposes these actions (prefix + action):
   `node scripts/generate_field_order.mjs --write .`, review the snapshot
   diff in `tests/contracts/route_field_order.json`, and explain it in the
   PR — see the cross-layer contract section in [TESTING.md](TESTING.md).
-- Do not generate new template clones: a new module shaped like
-  `cost_center_core.cob` (canonical 9-action contract, ≥0.90 structural
+- Do not generate new template clones: a module shaped like
+  `cost_center_core.cob` (canonical 9-action shape, ≥0.90 structural
   similarity, or exactly `TEMPLATE_LINES` lines — see
   `scripts/lib/clone_template.mjs`) with L0/L1 linkage fails
   `scripts/check_clone_budget.mjs`. New modules need L2+ linkage
   (a proven core business link — see [module linkage](MODULE_LINKAGE.md))
-  or `UTILITY`/`INFRA` status. The existing clones are frozen in
-  `tests/clone_baseline.txt`, which must only shrink.
+  or `UTILITY`/`INFRA` status. `tests/clone_baseline.txt` is now empty and
+  must stay empty.

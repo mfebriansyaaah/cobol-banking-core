@@ -43,6 +43,12 @@ exist (`v1.0.1`, `v1.1.0`); entries below are grouped by date on `main`.
 
 ### Changed
 
+- Linkage-only finalization (PR-1…PR-6): every retained module is L2+ or
+  `UTILITY`; the 8 clone-shaped modules are refactored and the two dead
+  modules retired. `REVIEW`/`FROZEN` dispositions are empty,
+  `tests/linkage_baseline.txt` holds zero entries, and the code-candidate
+  registry is empty. New modules require L2+ linkage plus a DB/integration
+  test; there is no generator and no template contract.
 - Wave D retirement (linkage-only PR-1): `backup_drill_core` and
   `report_builder_core` removed (routes, COBOL, suites, cases, dispatch
   slots 89–90). Tables retained in migration history (owner: platform,

@@ -181,10 +181,11 @@ column-level catalog is in [DATA_DICTIONARY.md](DATA_DICTIONARY.md).
 
 ## Table groups
 
-Tables are grouped by their leading prefix in `DATA_DICTIONARY.md`. Every domain
-module follows the standard 9-action pattern (CREATE, LIST, GET, UPDATE,
-DELETE/CLOSE, SUMMARY, AUDIT, VALIDATE, plus a domain-specific action), and
-most tables have a matching `_audit` table for traceability.
+Tables are grouped by their leading prefix in `DATA_DICTIONARY.md`. Modules
+expose the domain lifecycle actions they actually need (for example
+OPEN/SETTLE/CANCEL or SCHEDULE/COMPLETE/ESCALATE), with LIST/GET reads,
+guarded writes, and audit rows; there is no mandatory generic CRUD template.
+Most tables have a matching `_audit` table for traceability.
 
 ## Notes
 

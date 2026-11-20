@@ -1,9 +1,12 @@
 # Dataset Re-audit — Post-Remediation (P0–P2)
 
-> **Superseded for export counts by Phase 2 (2026-11-18, `81c24de5`):**
-> `train` continues to exclude all 40 non-recommended modules and generated
-> route boilerplate (source 866, train 731, verification 1,553). The scores
-> and evidence below describe the earlier snapshot; see `docs/DATASET_CARD.md`.
+> **Superseded for export counts by Phase 6 (2026-11-20, `5f64fb89`):**
+> the linkage-only migration is complete. `train` excludes only the three
+> non-recommended utility modules (`hashlen_core`, `ref_engine`,
+> `ref_ext_core`) plus generated route boilerplate; 66 modules are
+> recommended, `REVIEW`/`FROZEN` are empty, and no clone-shaped modules
+> remain. The scores and evidence below describe the earlier snapshot; see
+> `docs/DATASET_CARD.md`.
 
 - Code HEAD: `84dd3c38` (`main`, merge PR #703)
 - Date: 2026-11-17
