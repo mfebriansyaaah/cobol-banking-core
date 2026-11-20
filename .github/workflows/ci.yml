@@ -889,7 +889,7 @@ jobs:
           github.event_name == 'pull_request' &&
           github.event.pull_request.head.repo.full_name == github.repository
         continue-on-error: true
-        uses: dorny/test-reporter@df6247429542221bc30d46a036ee47af1102c451  # v2
+        uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2  # v3.0.0
         with:
           name: DB + gateway tests
           path: merged/junit/**/*.xml
