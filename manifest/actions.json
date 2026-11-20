@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-20T09:49:44.756Z",
-  "commit": "3ce78592",
+  "generatedAt": "2026-11-20T10:20:46.077Z",
+  "commit": "28a2146a",
   "generator": "scripts/build_action_registry.mjs (do not hand-edit)",
   "count": 536,
   "actions": [
@@ -473,12 +473,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "wallet",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "ACK_EXCEPTION",
@@ -507,12 +507,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin-stepup",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "wallet",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "ADD_DISPUTE_NOTE",
@@ -541,12 +541,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "wallet",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "ADMIN_RESET_MFA",
@@ -6806,12 +6806,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "wallet",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "GET_USER",
@@ -8678,12 +8678,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "wallet",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "LIST_EXCEPTIONS",
@@ -8712,12 +8712,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin-stepup",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "wallet",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "LIST_MFA_RECOVERY",
@@ -8814,12 +8814,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin-stepup",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "wallet",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "LIST_REQUESTS",
@@ -11913,12 +11913,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "wallet",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "OTP_ISSUE",
@@ -12936,12 +12936,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin-stepup",
-      "linkageLevel": "L1",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "wallet",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "PMC_AUDIT",
@@ -13792,12 +13792,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin-stepup",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "wallet",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "REJECT_DISPUTE",
@@ -13826,12 +13826,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "wallet",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "REJECT_MFA_RECOVERY",
@@ -13928,12 +13928,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin-stepup",
-      "linkageLevel": "L1",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "wallet",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "REQUEST_MFA_RECOVERY",
@@ -14166,12 +14166,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "wallet",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "RESOLVE_EXCEPTION",
@@ -14200,12 +14200,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin-stepup",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "wallet",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "REVERSE_TRANSFER",
@@ -14234,14 +14234,14 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [
         "REVERSE_TRANSFER"
       ],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "wallet",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "REVOKE_ACCESS_TOKEN",
@@ -15772,12 +15772,12 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin-stepup",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "wallet",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "RX_EXPORT",
@@ -16826,12 +16826,12 @@
       "tokenIdentity": "actor",
       "owner": "ledger",
       "authPolicy": "authenticated",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "wallet",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "STMT_ARCHIVE_EXPORT",

@@ -79,7 +79,9 @@
                    WHEN OTHER
                        MOVE "ERROR|INVALID_ACTION" TO WS-RESULT
            END-EVALUATE
-           MOVE WS-RESULT TO LS-OUTPUT-BUFFER
+           IF LS-OUTPUT-BUFFER = SPACES
+               MOVE WS-RESULT TO LS-OUTPUT-BUFFER
+           END-IF
            GOBACK.
 
         COPY "common_trim.cpy".

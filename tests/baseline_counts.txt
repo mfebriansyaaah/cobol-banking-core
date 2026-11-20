@@ -119,3 +119,12 @@ db_auth_mfa_tests=11
 db_auth_ops_tests=10
 db_auth_recovery_tests=12
 db_auth_review_tests=6
+
+db_loan_schedule_lifecycle_tests=14
+db_loan_schedule_posting_tests=8
+db_loan_schedule_report_tests=5
+db_wallet_dispute_tests=12
+db_wallet_hold_tests=8
+db_wallet_recon_tests=9
+db_wallet_reversal_tests=8
+db_wallet_statement_tests=5

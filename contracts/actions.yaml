@@ -3,7 +3,7 @@
 # never hand-edit. Validate with scripts/check_contract.mjs, regenerate with
 # --write after a reviewed route change.
 version: 1
-generatedAt: "2026-11-20T09:50:31.078Z"
+generatedAt: "2026-11-20T10:20:46.179Z"
 generator: scripts/build_contract.mjs (do not hand-edit)
 count: 559
 actions:
@@ -706,7 +706,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: ACK_EXCEPTION
     method: post
     path: /admin/reconcile/acknowledge
@@ -756,7 +756,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: ADD_DISPUTE_NOTE
     method: post
     path: "/disputes/:id/notes"
@@ -806,7 +806,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: ADMIN_RESET_MFA
     method: post
     path: /admin/mfa-reset
@@ -10462,7 +10462,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: GET_USER
     method: get
     path: "/users/:email"
@@ -13312,7 +13312,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: LIST_EXCEPTIONS
     method: get
     path: /admin/reconcile/exceptions
@@ -13362,7 +13362,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: LIST_MFA_RECOVERY
     method: get
     path: /admin/mfa-recovery
@@ -13512,7 +13512,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: LIST_REQUESTS
     method: get
     path: /admin/requests
@@ -18312,7 +18312,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: OTP_ISSUE
     method: post
     path: /auth/phone/otp/issue
@@ -19812,7 +19812,7 @@ actions:
         required: false
         inline: true
         maxBytes: 100
-    tested: false
+    tested: true
   - action: PMC_AUDIT
     method: get
     path: /payments/clearing/audit
@@ -21362,7 +21362,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: REJECT_DISPUTE
     method: post
     path: "/disputes/:id/reject"
@@ -21412,7 +21412,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: REJECT_MFA_RECOVERY
     method: post
     path: /admin/mfa-recovery/reject
@@ -21562,7 +21562,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: REQUEST_MFA_RECOVERY
     method: post
     path: /mfa/recover
@@ -21912,7 +21912,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: RESOLVE_EXCEPTION
     method: post
     path: /admin/reconcile/resolve
@@ -21962,7 +21962,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: REVERSE_TRANSFER
     method: post
     path: "/transactions/:ref/reverse"
@@ -22012,7 +22012,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: REVOKE_ACCESS_TOKEN
     method: post
     path: /auth/revoke
@@ -24312,7 +24312,7 @@ actions:
         required: false
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: RX_EXPORT
     method: get
     path: "/ref/ext/export/:type"
@@ -25862,7 +25862,7 @@ actions:
         required: false
         inline: true
         maxBytes: 100
-    tested: false
+    tested: true
   - action: STMT_ARCHIVE_EXPORT
     method: get
     path: "/statements/archive/:runId/:email/export"

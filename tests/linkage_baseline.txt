@@ -11,14 +11,6 @@ corp_core L0
 eod_jobs_core L1
 fx_rate_core L0
 import_row_core L0
-loan_schedule_lifecycle_core L1
-loan_schedule_posting_core L1
-loan_schedule_report_core L1
 report_core L0
 report_run_core L1
 risk_core L0
-wallet_dispute_core L1
-wallet_hold_core L1
-wallet_recon_core L1
-wallet_reversal_core L1
-wallet_statement_core L1

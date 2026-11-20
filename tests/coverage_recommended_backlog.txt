@@ -31,3 +31,11 @@ auth_recovery_core  covered by auth_recovery_db_tests.sh; add to curated coverag
 auth_review_core  covered by auth_review_db_tests.sh; add to curated coverage set
 auth_session_core  covered by auth_session_db_tests.sh; add to curated coverage set
 phone_otp_core  covered by phone_otp_db_tests.sh; add to curated coverage set
+wallet_dispute_core  covered by wallet_dispute_db_tests.sh; add to curated coverage set
+wallet_hold_core  covered by wallet_hold_db_tests.sh; add to curated coverage set
+wallet_recon_core  covered by wallet_recon_db_tests.sh; add to curated coverage set
+wallet_reversal_core  covered by wallet_reversal_db_tests.sh; add to curated coverage set
+wallet_statement_core  covered by wallet_statement_db_tests.sh; add to curated coverage set
+loan_schedule_lifecycle_core  covered by loan_schedule_lifecycle_db_tests.sh; add to curated coverage set
+loan_schedule_posting_core  covered by loan_schedule_posting_db_tests.sh; add to curated coverage set
+loan_schedule_report_core  covered by loan_schedule_report_db_tests.sh; add to curated coverage set

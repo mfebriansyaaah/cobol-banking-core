@@ -9,8 +9,8 @@
 | Status | Modules |
 | --- | ---: |
 | ACTIVE | 26 |
-| PILOT | 27 |
-| REVIEW | 16 |
+| PILOT | 35 |
+| REVIEW | 8 |
 | FROZEN | 0 |
 | RETIRED | 0 |
 
@@ -62,9 +62,9 @@ removed modules are archived in `manifest/wave_legacy.json`).
 | `loan` | `loan_core` | L3 | ACTIVE | loan.js | loan | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `loan_posting` | `loan_posting_core` | L3 | ACTIVE | — | loan_disburse_request | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `loan_schedule` | `loan_schedule_core` | L3 | ACTIVE | loan_schedule.js | loan_schedule | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
-| `loan_schedule` | `loan_schedule_lifecycle_core` | L1 | REVIEW | loan_schedule.js | loan_schedule | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 8 gateway-dispatched action(s); coverage tests/db/loan_schedule_db_tests.sh (8 dispatched slots). L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
-| `loan_schedule` | `loan_schedule_posting_core` | L1 | REVIEW | loan_schedule.js | loan_schedule | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 8 gateway-dispatched action(s); coverage tests/db/loan_schedule_db_tests.sh (8 dispatched slots). L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
-| `loan_schedule` | `loan_schedule_report_core` | L1 | REVIEW | loan_schedule.js | loan_schedule | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 3 gateway-dispatched action(s); coverage tests/db/loan_schedule_db_tests.sh (3 dispatched slots). L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
+| `loan_schedule` | `loan_schedule_lifecycle_core` | L2 | PILOT | loan_schedule.js | loan_schedule | — | Business-linked loan-schedule lifecycle (L2); loan_schedule + tests/db/loan_schedule_lifecycle_db_tests.sh. |
+| `loan_schedule` | `loan_schedule_posting_core` | L2 | PILOT | loan_schedule.js | loan_schedule | — | Business-linked loan-schedule posting (L2); loan_schedule/loan_installment + tests/db/loan_schedule_posting_db_tests.sh. |
+| `loan_schedule` | `loan_schedule_report_core` | L2 | PILOT | loan_schedule.js | loan_schedule | — | Business-linked loan-schedule reporting (L2); loan_schedule + tests/db/loan_schedule_report_db_tests.sh; fixed raw-result overwrite. |
 | `loyalty` | `loyalty_core` | L2 | PILOT | loyalty.js | loyalty_member | — | Business-linked loyalty; anchors loyalty_member + loyalty_points_ledger + loyalty_redemption; tests loyalty_domain_db_tests.sh. |
 | `merchant` | `merchant_core` | L2 | PILOT | merchant.js | merchant | — | Business link proven; integration completion (PR-010E) still open before ACTIVE. |
 | `merchant_settlement` | `merchant_settlement_core` | L2 | PILOT | merchant_settlement.js | merchant_settlement | — | Business-linked merchant settlement; merchant_transaction anchor + tests/db/merchant_settlement_db_tests.sh + domain suite. |
@@ -88,9 +88,9 @@ removed modules are archived in `manifest/wave_legacy.json`).
 | `treasury_liquidity` | `treasury_liquidity_core` | L3 | ACTIVE | treasury_liquidity.js | treasury_liquidity | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `user` | `user_core` | L3 | ACTIVE | — | audit_trail | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `wallet` | `wallet_core` | L3 | ACTIVE | — | accounts | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
-| `wallet` | `wallet_dispute_core` | L1 | REVIEW | disputes.js | dispute_case | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 7 gateway-dispatched action(s); coverage tests/db/wallet_invariants_db_tests.sh. L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
-| `wallet` | `wallet_hold_core` | L1 | REVIEW | — | payment_hold | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 2 gateway-dispatched action(s); coverage tests/db/wallet_invariants_db_tests.sh + mutation M10. L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
-| `wallet` | `wallet_recon_core` | L1 | REVIEW | — | reconciliation_run | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 6 gateway-dispatched action(s); coverage tests/db/wallet_invariants_db_tests.sh. L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
-| `wallet` | `wallet_reversal_core` | L1 | REVIEW | — | transfer_reversals | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 1 gateway-dispatched action(s); coverage tests/db/wallet_invariants_db_tests.sh + mutation M3. L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
-| `wallet` | `wallet_statement_core` | L1 | REVIEW | — | statement | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 1 gateway-dispatched action(s); coverage tests/db/wallet_invariants_db_tests.sh. L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
+| `wallet` | `wallet_dispute_core` | L3 | PILOT | disputes.js | dispute_case | — | Business-linked wallet disputes (L3); accounts/ledger + tests/db/wallet_dispute_db_tests.sh. |
+| `wallet` | `wallet_hold_core` | L2 | PILOT | — | payment_hold | — | Business-linked wallet holds (L2); accounts + tests/db/wallet_hold_db_tests.sh. |
+| `wallet` | `wallet_recon_core` | L3 | PILOT | — | reconciliation_run | — | Business-linked wallet reconciliation (L3); accounts/ledger + tests/db/wallet_recon_db_tests.sh. |
+| `wallet` | `wallet_reversal_core` | L3 | PILOT | — | transfer_reversals | — | Business-linked transfer reversal (L3); accounts/journal_entries/ledger + tests/db/wallet_reversal_db_tests.sh. |
+| `wallet` | `wallet_statement_core` | L3 | PILOT | — | statement | — | Business-linked wallet statements (L3); accounts/journal_entries/ledger + tests/db/wallet_statement_db_tests.sh. |
 | `wallet_transfer` | `wallet_transfer_core` | L3 | ACTIVE | — | accounts | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |

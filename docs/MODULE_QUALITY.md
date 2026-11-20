@@ -45,9 +45,9 @@
 | `loan_core` | L3 | ACTIVE | — | — | 38.99 | below-floor | yes |
 | `loan_posting_core` | L3 | ACTIVE | — | — | 26.15 | below-floor | yes |
 | `loan_schedule_core` | L3 | ACTIVE | — | — | 52.91 | below-floor | yes |
-| `loan_schedule_lifecycle_core` | L1 | REVIEW | — | — | — | unmeasured | no |
-| `loan_schedule_posting_core` | L1 | REVIEW | — | — | — | unmeasured | no |
-| `loan_schedule_report_core` | L1 | REVIEW | — | — | — | unmeasured | no |
+| `loan_schedule_lifecycle_core` | L2 | PILOT | — | — | — | unmeasured | yes |
+| `loan_schedule_posting_core` | L2 | PILOT | — | — | — | unmeasured | yes |
+| `loan_schedule_report_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `loyalty_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `merchant_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `merchant_settlement_core` | L2 | PILOT | — | — | — | unmeasured | yes |
@@ -71,9 +71,9 @@
 | `treasury_liquidity_core` | L3 | ACTIVE | — | — | 61.41 | below-floor | yes |
 | `user_core` | L3 | ACTIVE | — | — | 71.27 | ok | yes |
 | `wallet_core` | L3 | ACTIVE | — | — | 92.22 | ok | yes |
-| `wallet_dispute_core` | L1 | REVIEW | — | — | — | unmeasured | no |
-| `wallet_hold_core` | L1 | REVIEW | — | — | — | unmeasured | no |
-| `wallet_recon_core` | L1 | REVIEW | — | — | — | unmeasured | no |
-| `wallet_reversal_core` | L1 | REVIEW | — | — | — | unmeasured | no |
-| `wallet_statement_core` | L1 | REVIEW | — | — | — | unmeasured | no |
+| `wallet_dispute_core` | L3 | PILOT | — | — | — | unmeasured | yes |
+| `wallet_hold_core` | L2 | PILOT | — | — | — | unmeasured | yes |
+| `wallet_recon_core` | L3 | PILOT | — | — | — | unmeasured | yes |
+| `wallet_reversal_core` | L3 | PILOT | — | — | — | unmeasured | yes |
+| `wallet_statement_core` | L3 | PILOT | — | — | — | unmeasured | yes |
 | `wallet_transfer_core` | L3 | ACTIVE | — | — | 45.45 | below-floor | yes |
