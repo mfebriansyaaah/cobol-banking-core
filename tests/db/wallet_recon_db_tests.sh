@@ -19,7 +19,7 @@ assert_match "reconcile verdict" "$(run_cobol "RECONCILE|${A}|||||")" "SUCCESS\|
 assert_match "run ok" "$(run_cobol "RUN_RECONCILIATION|${A}|MANUAL||||")" "SUCCESS\|"
 rid="$(db_query "SELECT run_id FROM reconciliation_runs ORDER BY run_id DESC LIMIT 1;")"
 assert_match "run persisted" "$rid" "^[0-9]+$"
-assert_match "run completed" "$(db_query "SELECT status FROM reconciliation_runs WHERE run_id=${rid};")" "^(COMPLETED|MISMATCH)$"
+assert_match "run completed" "$(db_query "SELECT status FROM reconciliation_runs WHERE run_id=${rid};")" "^(CLEAN|MISMATCH)$"
 assert_match "list runs" "$(run_cobol "LIST_RECONCILIATIONS|${A}|50|0|||")" "SUCCESS\|"
 assert_match "list exceptions" "$(run_cobol "LIST_EXCEPTIONS|${A}|||")" "SUCCESS\|"
 fid="$(db_query "SELECT finding_id FROM reconciliation_findings WHERE status='OPEN' ORDER BY finding_id DESC LIMIT 1;")"
