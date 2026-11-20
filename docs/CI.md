@@ -126,6 +126,16 @@ the legacy behavior exactly: the plan is advisory only and no job is gated
 on it. Unknown paths fall back to a full runtime (`mode=full`,
 `unmapped` non-empty); the pipeline never silently skips.
 
+Every heavy job gates on its `eff_*` output (`eff_build`, `eff_test`,
+`eff_db`, `eff_db_suites`, `eff_gateway_coverage`, `eff_cobol_coverage`,
+`eff_schema_drift`, `eff_docker`, `eff_aggregate`, `eff_db_snapshot`), and
+the `lint` steps split on `eff_lint` (`docs` runs `lint_docs.sh` plus the
+shared setup; `full` runs the complete toolchain and gate fleet). While the
+flag is `'false'`, every `eff_*` resolves to the legacy condition, so the
+running job set is unchanged; the split only takes effect when enforcement
+is enabled later. `db-ops` keeps its own `db_ops_relevant` classifier and
+never gates on `eff_*`.
+
 The `plan audit` job (`plan-audit`, timeout 5 min, never a required check)
 downloads the plan and runs `scripts/ci/impact-audit.mjs` against the real
 `needs` results. A failure on a `would_skip` job is recorded as a false

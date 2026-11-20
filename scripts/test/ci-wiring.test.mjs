@@ -45,6 +45,7 @@ const WIRED = [
   ['scripts/ci/classify_changes.mjs', ['classify_changes']],
   ['scripts/ci/impact-plan.mjs', ['impact-plan.mjs']],
   ['scripts/ci/impact-audit.mjs', ['impact-audit.mjs']],
+  ['scripts/ci/lint_docs.sh', ['lint_docs.sh']],
 ];
 
 function collectRunSteps() {
@@ -243,35 +244,35 @@ test('static gates run once in lint; PR test skips the gate fleet', () => {
   assert.equal(ci['test'].env?.SKIP_STATIC_GATES, '1', 'PR test must skip the lint-owned gate fleet');
 });
 
-test('docs-only PRs skip heavy jobs including the test gate (CI-011 option A)', () => {
+test('heavy jobs gate on effective plan outputs (CI-011 option A, PR-02)', () => {
   const ci = collectWorkflowJobs()['ci.yml'];
   assert.ok(ci['changes'], 'ci.yml must define a changes job');
-  for (const id of [
-    'db-shards',
-    'db-selected',
-    'coverage-pr',
-    'coverage',
-    'db-aggregate',
-    'db-ops',
-    'test',
-    'db-snapshot',
-  ]) {
+  const expected = {
+    build: /eff_build == 'true'/,
+    'db-shards': /eff_db == 'full'/,
+    'db-selected': /eff_db == 'selected'/,
+    'coverage-pr': /eff_cobol_coverage == 'true'/,
+    coverage: /eff_gateway_coverage == 'true'/,
+    'db-aggregate': /eff_aggregate == 'true'/,
+    test: /eff_test != 'none'/,
+    'db-snapshot': /eff_db_snapshot == 'true'/,
+  };
+  for (const [id, re] of Object.entries(expected)) {
     const job = ci[id];
     assert.ok(job, `ci.yml must define ${id}`);
-    assert.match(
-      String(job.if || ''),
-      /needs\.changes\.outputs\.docs_only/,
-      `${id} must be gated on the changes job output`,
-    );
+    assert.match(String(job.if || ''), re, `${id} must be gated on its effective plan output`);
     const needs = Array.isArray(job.needs) ? job.needs : [job.needs];
     assert.ok(needs.includes('changes'), `${id} must need the changes job`);
   }
+  // db-ops stays on its own classifier: it never runs on PRs by design.
+  assert.match(String(ci['db-ops'].if || ''), /db_ops_relevant/, 'db-ops must keep its own DB-surface gate');
+  assert.doesNotMatch(String(ci['db-ops'].if || ''), /eff_/, 'db-ops must not gate on eff_*');
   // D3 option A (owner-approved): docs-only PRs skip the test gate too;
   // a skipped required check counts as success (D2), and ci:full forces full.
   assert.match(
     String(ci['test'].if || ''),
-    /needs\.changes\.outputs\.docs_only/,
-    'test job must be gated on the changes job output',
+    /eff_test != 'none'/,
+    'test job must be gated on the effective test output',
   );
 });
 
@@ -296,25 +297,38 @@ test('ci:full label forces a full run (CI-011)', () => {
 test('docker-build runs on push and only for docker-relevant PRs', () => {
   const ci = collectWorkflowJobs()['ci.yml'];
   const cond = String(ci['docker-build'].if || '');
-  assert.match(cond, /docker_relevant/, 'docker-build must gate on docker_relevant');
-  assert.match(cond, /docker_definition/, 'PR image builds must require a packaging-definition change');
-  assert.ok(cond.includes("github.event_name != 'pull_request'"), 'docker-build must always run on push');
+  assert.match(cond, /eff_docker == 'true'/, 'docker-build must gate on the effective docker output');
   const ciYaml = readFileSync(path.join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8');
+  // The legacy classifiers still feed the planner: eff_docker reproduces
+  // docs_only + push/docker_relevant/docker_definition exactly (shadow).
+  assert.match(ciYaml, /DOCKER_RELEVANT: \$\{\{ steps\.classify\.outputs\.docker_relevant \}\}/);
+  assert.match(ciYaml, /DOCKER_DEFINITION: \$\{\{ steps\.classify\.outputs\.docker_definition \}\}/);
   assert.match(ciYaml, /docker_relevant: \$\{\{ steps\.classify\.outputs\.docker_relevant \}\}/);
   assert.match(ciYaml, /docker_definition: \$\{\{ steps\.classify\.outputs\.docker_definition \}\}/);
 });
 
 test('push to main skips the PR-only DB gate (cost workstream)', () => {
   const ci = collectWorkflowJobs()['ci.yml'];
-  for (const id of ['test', 'db-shards', 'db-selected', 'db-aggregate']) {
+  const expected = {
+    test: /eff_test != 'none'/,
+    'db-shards': /eff_db == 'full'/,
+    'db-selected': /eff_db == 'selected'/,
+    'db-aggregate': /eff_aggregate == 'true'/,
+  };
+  for (const [id, re] of Object.entries(expected)) {
     const cond = String(ci[id].if || '');
     assert.ok(
       cond.includes("github.event_name == 'pull_request'"),
       `${id} must run on pull_request only (push skips the DB gate)`,
     );
-    assert.match(cond, /docs_only/, `${id} must keep the docs-only skip`);
+    assert.match(cond, re, `${id} must gate on its effective output (eff_* carries the docs-only skip)`);
   }
   assert.match(String(ci['coverage'].if || ''), /workflow_dispatch/, 'coverage must remain manually dispatchable');
+  assert.match(
+    String(ci['coverage'].if || ''),
+    /eff_gateway_coverage == 'true'/,
+    'coverage must gate on the effective gateway output',
+  );
 });
 
 test('mutation anchors are validated before the weekly run', () => {
@@ -364,7 +378,11 @@ test('coverage is a real PR gateway gate; test skips its gateway phase', () => {
   const ci = collectWorkflowJobs()['ci.yml'];
   const coverageIf = String(ci['coverage'].if || '');
   assert.match(coverageIf, /github\.event_name == 'pull_request'/, 'coverage must run on pull requests');
-  assert.match(coverageIf, /docs_only/, 'coverage must honor the docs-only gate');
+  assert.match(
+    coverageIf,
+    /eff_gateway_coverage == 'true'/,
+    'coverage must honor the effective gateway gate (docs-only skip included)',
+  );
   assert.match(coverageIf, /workflow_dispatch/, 'coverage must remain manually dispatchable');
   assert.equal(ci['test'].env?.SKIP_GATEWAY, '1', 'test must not duplicate the coverage-owned gateway suite');
   assert.match(ci['coverage'].runs.join('\n'), /coverage\.sh --gateway-only/, 'coverage must run the gateway gate');
@@ -373,21 +391,42 @@ test('coverage is a real PR gateway gate; test skips its gateway phase', () => {
     /github\.event_name == 'pull_request'/,
     'coverage-pr must run on pull requests',
   );
+  assert.match(
+    String(ci['coverage-pr'].if || ''),
+    /eff_cobol_coverage == 'true'/,
+    'coverage-pr must gate on the effective COBOL coverage output',
+  );
   const aggNeeds = Array.isArray(ci['db-aggregate'].needs) ? ci['db-aggregate'].needs : [ci['db-aggregate'].needs];
   assert.ok(aggNeeds.includes('coverage'), 'db aggregate must wait for the gateway coverage gate');
+});
+
+test('lint scopes docs vs full steps on eff_lint (PR-02)', () => {
+  const ci = collectWorkflowJobs()['ci.yml'];
+  const lint = ci['lint'];
+  assert.ok(lint, 'ci.yml must define a lint job');
+  const lintNeeds = Array.isArray(lint.needs) ? lint.needs : [lint.needs];
+  assert.ok(lintNeeds.includes('changes'), 'lint must need the changes job for the eff_lint scope');
+  const runs = lint.runs.join('\n');
+  assert.match(runs, /lint_docs\.sh/, 'lint must run the docs scope script');
+  assert.match(runs, /tests\/run_all\.sh gates/, 'lint must still run the full gate fleet');
+  const ciYaml = readFileSync(path.join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8');
+  assert.match(ciYaml, /name: Install docs Python deps/, 'lint must install docs Python deps');
+  assert.match(ciYaml, /name: Install full Python deps/, 'lint must install full Python deps');
+  assert.match(ciYaml, /eff_lint == 'docs'/, 'docs steps must gate on eff_lint docs');
+  assert.match(ciYaml, /eff_lint == 'full'/, 'full steps must gate on eff_lint full');
 });
 
 test('impact selection has a selected DB path and a full fallback', () => {
   const ci = collectWorkflowJobs()['ci.yml'];
   assert.ok(ci['db-selected'], 'ci.yml must define the db-selected job');
-  assert.match(String(ci['db-selected'].if || ''), /select_mode == 'selected'/);
-  assert.match(String(ci['db-selected'].if || ''), /select_db_suites != ''/);
+  assert.match(String(ci['db-selected'].if || ''), /eff_db == 'selected'/);
+  assert.match(String(ci['db-selected'].if || ''), /eff_db_suites != ''/);
   assert.match(ci['db-selected'].runs.join('\n'), /run_all\.sh db-selected/);
-  assert.match(String(ci['db-shards'].if || ''), /select_mode == 'full'/);
+  assert.match(String(ci['db-shards'].if || ''), /eff_db == 'full'/);
   const aggNeeds = Array.isArray(ci['db-aggregate'].needs) ? ci['db-aggregate'].needs : [ci['db-aggregate'].needs];
   assert.ok(aggNeeds.includes('db-selected'), 'db aggregate must wait for the selected path');
   const ciYaml = readFileSync(path.join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8');
-  assert.match(ciYaml, /select_db_suites: \$\{\{ steps\.select\.outputs\.select_db_suites \}\}/);
+  assert.match(ciYaml, /eff_db_suites: \$\{\{ steps\.impact\.outputs\.eff_db_suites \}\}/);
 });
 
 test('db consumers wait for the snapshot producer (CI-008B ordering)', () => {
@@ -445,8 +484,25 @@ test('impact plan is computed in changes and audited advisory-only (PR-01 shadow
   assert.match(audit.runs.join('\n'), /impact-audit\.mjs/, 'plan audit must run the audit script');
   assert.match(ciYaml, /name: impact-audit/, 'plan audit must publish the impact-audit artifact');
 
-  // PR-01 changes no gate: heavy jobs keep their legacy conditions.
-  for (const id of ['build', 'test', 'db-shards', 'coverage', 'coverage-pr', 'db-aggregate', 'db-snapshot']) {
-    assert.doesNotMatch(String(ci[id].if || ''), /eff_/, `${id} must not gate on eff_* yet (PR-01 is shadow-only)`);
+  // PR-02 gates heavy jobs on eff_*: no legacy per-job gating may remain.
+  for (const id of [
+    'build',
+    'test',
+    'db-shards',
+    'db-selected',
+    'coverage',
+    'coverage-pr',
+    'db-aggregate',
+    'db-snapshot',
+    'docker-build',
+    'schema-drift',
+  ]) {
+    const cond = String(ci[id].if || '');
+    assert.doesNotMatch(cond, /docs_only/, `${id} must not gate on docs_only (use eff_*)`);
+    assert.doesNotMatch(cond, /select_mode/, `${id} must not gate on select_mode (use eff_*)`);
+    assert.doesNotMatch(cond, /select_db_suites/, `${id} must not gate on select_db_suites (use eff_*)`);
+    assert.doesNotMatch(cond, /coverage_relevant/, `${id} must not gate on coverage_relevant (use eff_*)`);
+    assert.doesNotMatch(cond, /docker_relevant/, `${id} must not gate on docker_relevant (use eff_*)`);
+    assert.doesNotMatch(cond, /docker_definition/, `${id} must not gate on docker_definition (use eff_*)`);
   }
 });

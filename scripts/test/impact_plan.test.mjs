@@ -265,6 +265,77 @@ test('enforced eff follows the plan', () => {
   }
 });
 
+test('enforced static eff skips runtime but keeps full lint', () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'impact-'));
+  try {
+    const gh = path.join(dir, 'github_output');
+    writeFileSync(gh, '');
+    const r = runPlan(['--files', 'manifest/modules.json', '--github-output', gh], {
+      ...LEGACY_PR,
+      PLAN_ENFORCE: 'true',
+    });
+    assert.equal(r.status, 0);
+    const out = Object.fromEntries(
+      readFileSync(gh, 'utf8')
+        .trim()
+        .split('\n')
+        .map((l) => l.split('=')),
+    );
+    assert.equal(out.eff_lint, 'full');
+    assert.equal(out.eff_build, 'false');
+    assert.equal(out.eff_test, 'none');
+    assert.equal(out.eff_db, 'none');
+    assert.equal(out.eff_gateway_coverage, 'false');
+    assert.equal(out.eff_cobol_coverage, 'false');
+    assert.equal(out.eff_schema_drift, 'false');
+    assert.equal(out.eff_docker, 'false');
+    assert.equal(out.eff_aggregate, 'false');
+    assert.equal(out.eff_db_snapshot, 'false');
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('shadow eff reproduces the legacy docs-only behavior', () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'impact-'));
+  try {
+    const gh = path.join(dir, 'github_output');
+    writeFileSync(gh, '');
+    const r = runPlan(['--files', 'docs/CI.md', '--github-output', gh], {
+      ...LEGACY_PR,
+      DOCS_ONLY: 'true',
+    });
+    assert.equal(r.status, 0);
+    const out = Object.fromEntries(
+      readFileSync(gh, 'utf8')
+        .trim()
+        .split('\n')
+        .map((l) => l.split('=')),
+    );
+    assert.equal(out.eff_lint, 'full');
+    assert.equal(out.eff_build, 'false');
+    assert.equal(out.eff_test, 'none');
+    assert.equal(out.eff_db, 'none');
+    assert.equal(out.eff_aggregate, 'false');
+    assert.equal(out.eff_db_snapshot, 'false');
+    assert.equal(out.eff_gateway_coverage, 'false');
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('ci:full label forces full even when enforced', () => {
+  const r = runPlan(['--files', 'docs/CI.md'], {
+    ...LEGACY_PR,
+    PLAN_ENFORCE: 'true',
+    HAS_CI_FULL_LABEL: 'true',
+  });
+  assert.equal(r.status, 0);
+  const d = docOf(r);
+  assert.equal(d.mode, 'full');
+  assert.match(d.reason, /ci:full/);
+});
+
 function runAudit(planObj, jobs) {
   const dir = mkdtempSync(path.join(tmpdir(), 'audit-'));
   try {
