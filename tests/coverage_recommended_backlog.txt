@@ -10,13 +10,10 @@
 # Format: MODULE  reason (free text after the module is documentation only).
 auth_password_core  utility delegate; no dedicated DB suite/coverage entry
 collateral_core  covered by collateral_domain_db_tests.sh; add to curated coverage set
-import_post_core  covered by import_ops_db_tests.sh; add to curated coverage set
 import_recon_core  covered by recon_ops_db_tests.sh; add to curated coverage set
 merchant_core  covered by merchant_domain_db_tests.sh; add to curated coverage set
-payment_core  covered by payment_limits/payment_posting suites; add to curated coverage set
 payment_instruction_core  covered by payment_instruction flows; add to curated coverage set
 payroll_processing_core  covered by payroll_domain_db_tests.sh; add to curated coverage set
-statement_recon_core  covered by report_statement_db_tests.sh; add to curated coverage set
 compliance_calendar_core  covered by compliance_calendar_db_tests.sh; add to curated coverage set
 notification_template_core  covered by notification_template_db_tests.sh; add to curated coverage set
 report_schedule_core  covered by report_schedule_db_tests.sh; add to curated coverage set

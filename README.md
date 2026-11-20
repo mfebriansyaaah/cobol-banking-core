@@ -423,7 +423,13 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/migration_baseline_db_tests.sh` | 16 |
 | `tests/db/migration_archive_db_tests.sh` | 12 |
 | `tests/db/commit_failure_db_tests.sh` | 6 |
-| **Total** | **3055** |
+| `tests/db/import_post_db_tests.sh` | 14 |
+| `tests/db/import_recon_db_tests.sh` | 19 |
+| `tests/db/payment_db_tests.sh` | 9 |
+| `tests/db/payment_instruction_db_tests.sh` | 14 |
+| `tests/db/statement_db_tests.sh` | 13 |
+| `tests/db/statement_recon_db_tests.sh` | 16 |
+| **Total** | **3140** |
 <!-- END GENERATED TEST TABLE -->
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database

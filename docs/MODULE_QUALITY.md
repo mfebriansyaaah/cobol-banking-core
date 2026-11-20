@@ -38,7 +38,7 @@
 | `hashlen_core` | UTILITY | ACTIVE | — | — | — | unmeasured | no |
 | `identity_core` | L2 | REVIEW | — | — | — | unmeasured | no |
 | `import_core` | L2 | PILOT | — | — | — | unmeasured | yes |
-| `import_post_core` | L3 | ACTIVE | — | — | — | unmeasured | yes |
+| `import_post_core` | L3 | ACTIVE | — | — | 54.36 | below-floor | yes |
 | `import_recon_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `import_row_core` | L0 | REVIEW | — | — | — | unmeasured | no |
 | `letter_of_credit_core` | L2 | PILOT | — | — | — | unmeasured | yes |
@@ -53,7 +53,7 @@
 | `merchant_settlement_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `notification_template_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `payment_clearing_core` | L3 | ACTIVE | — | — | 40.53 | below-floor | yes |
-| `payment_core` | L3 | ACTIVE | — | — | — | unmeasured | yes |
+| `payment_core` | L3 | ACTIVE | — | — | 68.61 | below-floor | yes |
 | `payment_hold_core` | L3 | ACTIVE | — | — | 58.88 | below-floor | yes |
 | `payment_instruction_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `payroll_processing_core` | L2 | PILOT | — | — | — | unmeasured | yes |
@@ -66,7 +66,7 @@
 | `risk_core` | L0 | REVIEW | — | — | — | unmeasured | no |
 | `sla_tracker_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `statement_core` | L3 | ACTIVE | — | — | 58.19 | below-floor | yes |
-| `statement_recon_core` | L3 | ACTIVE | — | — | — | unmeasured | yes |
+| `statement_recon_core` | L3 | ACTIVE | — | — | 60.53 | below-floor | yes |
 | `tax_management_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `treasury_liquidity_core` | L3 | ACTIVE | — | — | 61.41 | below-floor | yes |
 | `user_core` | L3 | ACTIVE | — | — | 71.27 | ok | yes |

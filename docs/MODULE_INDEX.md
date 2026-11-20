@@ -41,8 +41,8 @@ column-level catalogue ([data dictionary](DATA_DICTIONARY.md)).
 | `hashlen_core` | — | — | — | — |
 | `identity_core` | `IDV_`, `SCR_`, `ACCOUNT_` | [identity.js](../middleware/src/routes/identity.js) | — | [identity_db_tests.sh](../tests/db/identity_db_tests.sh) |
 | `import_core` | `IMP_BATCH_CREATE`, `IMP_BATCH_LIST`, `IMP_BATCH_GET`, `IMP_BATCH_VALIDATE`, `IMP_BATCH_POST`, `IMP_BATCH_FAIL`, `IMP_BATCH_EXPORT`, `IMP_BATCH_CLONE`, `IMP_BATCH_DELETE`, `IMP_BATCH_RETRY`, `IMP_BATCH_SUMMARY` | [import.js](../middleware/src/routes/import.js) | [import.cases](../tests/cobol/cases/import.cases) | — |
-| `import_post_core` | `IMPP_` | — | [import_post.cases](../tests/cobol/cases/import_post.cases) | — |
-| `import_recon_core` | `IRC_` | [import_recon.js](../middleware/src/routes/import_recon.js) | [import_recon.cases](../tests/cobol/cases/import_recon.cases) | — |
+| `import_post_core` | `IMPP_` | — | [import_post.cases](../tests/cobol/cases/import_post.cases) | [import_post_db_tests.sh](../tests/db/import_post_db_tests.sh) |
+| `import_recon_core` | `IRC_` | [import_recon.js](../middleware/src/routes/import_recon.js) | [import_recon.cases](../tests/cobol/cases/import_recon.cases) | [import_recon_db_tests.sh](../tests/db/import_recon_db_tests.sh) |
 | `import_row_core` | `IMP_ROW_STAGE`, `IMP_ROW_CORRECT`, `IMP_ERROR_LIST`, `IMP_BATCH_STAGE_BULK`, `IMP_ROW_SKIP`, `IMP_ROW_UNSKIP` | — | — | — |
 | `letter_of_credit_core` | `LOC_` | [letter_of_credit.js](../middleware/src/routes/letter_of_credit.js) | [letter_of_credit.cases](../tests/cobol/cases/letter_of_credit.cases) | [letter_of_credit_db_tests.sh](../tests/db/letter_of_credit_db_tests.sh) |
 | `loan_core` | `LOAN_` | [loan.js](../middleware/src/routes/loan.js) | [loan.cases](../tests/cobol/cases/loan.cases) | [loan_db_tests.sh](../tests/db/loan_db_tests.sh) |
@@ -56,9 +56,9 @@ column-level catalogue ([data dictionary](DATA_DICTIONARY.md)).
 | `merchant_settlement_core` | `MCS_` | [merchant_settlement.js](../middleware/src/routes/merchant_settlement.js) | [merchant_settlement.cases](../tests/cobol/cases/merchant_settlement.cases) | [merchant_settlement_db_tests.sh](../tests/db/merchant_settlement_db_tests.sh) |
 | `notification_template_core` | `NTP_` | [notification_template.js](../middleware/src/routes/notification_template.js) | — | [notification_template_db_tests.sh](../tests/db/notification_template_db_tests.sh) |
 | `payment_clearing_core` | `PMC_` | [payment_clearing.js](../middleware/src/routes/payment_clearing.js) | [payment_clearing.cases](../tests/cobol/cases/payment_clearing.cases) | [payment_clearing_db_tests.sh](../tests/db/payment_clearing_db_tests.sh) |
-| `payment_core` | `PAY_` | [payment.js](../middleware/src/routes/payment.js) | [payment.cases](../tests/cobol/cases/payment.cases) | — |
+| `payment_core` | `PAY_` | [payment.js](../middleware/src/routes/payment.js) | [payment.cases](../tests/cobol/cases/payment.cases) | [payment_db_tests.sh](../tests/db/payment_db_tests.sh) |
 | `payment_hold_core` | `PHL_` | [payment_hold.js](../middleware/src/routes/payment_hold.js) | [payment_hold.cases](../tests/cobol/cases/payment_hold.cases) | [payment_hold_db_tests.sh](../tests/db/payment_hold_db_tests.sh) |
-| `payment_instruction_core` | `PIC_` | — | [payment_instruction.cases](../tests/cobol/cases/payment_instruction.cases) | — |
+| `payment_instruction_core` | `PIC_` | — | [payment_instruction.cases](../tests/cobol/cases/payment_instruction.cases) | [payment_instruction_db_tests.sh](../tests/db/payment_instruction_db_tests.sh) |
 | `payroll_processing_core` | `PRL_` | [payroll_processing.js](../middleware/src/routes/payroll_processing.js) | [payroll_processing.cases](../tests/cobol/cases/payroll_processing.cases) | [payroll_processing_db_tests.sh](../tests/db/payroll_processing_db_tests.sh) |
 | `phone_otp_core` | `OTP_` | — | — | [phone_otp_db_tests.sh](../tests/db/phone_otp_db_tests.sh) |
 | `ref_engine` | `RFE_` | [ref_engine.js](../middleware/src/routes/ref_engine.js) | — | — |
@@ -68,8 +68,8 @@ column-level catalogue ([data dictionary](DATA_DICTIONARY.md)).
 | `report_schedule_core` | `RPS_` | [report_schedule.js](../middleware/src/routes/report_schedule.js) | — | [report_schedule_db_tests.sh](../tests/db/report_schedule_db_tests.sh) |
 | `risk_core` | `RISK_` | [risk.js](../middleware/src/routes/risk.js) | — | [risk_db_tests.sh](../tests/db/risk_db_tests.sh) |
 | `sla_tracker_core` | `SLT_` | [sla_tracker.js](../middleware/src/routes/sla_tracker.js) | — | [sla_tracker_db_tests.sh](../tests/db/sla_tracker_db_tests.sh) |
-| `statement_core` | `STMT_` | [statement.js](../middleware/src/routes/statement.js) | [statement.cases](../tests/cobol/cases/statement.cases) | — |
-| `statement_recon_core` | `SRC_` | [statement_recon.js](../middleware/src/routes/statement_recon.js) | [statement_recon.cases](../tests/cobol/cases/statement_recon.cases) | — |
+| `statement_core` | `STMT_` | [statement.js](../middleware/src/routes/statement.js) | [statement.cases](../tests/cobol/cases/statement.cases) | [statement_db_tests.sh](../tests/db/statement_db_tests.sh) |
+| `statement_recon_core` | `SRC_` | [statement_recon.js](../middleware/src/routes/statement_recon.js) | [statement_recon.cases](../tests/cobol/cases/statement_recon.cases) | [statement_recon_db_tests.sh](../tests/db/statement_recon_db_tests.sh) |
 | `tax_management_core` | `TXM_` | [tax_management.js](../middleware/src/routes/tax_management.js) | [tax_management.cases](../tests/cobol/cases/tax_management.cases) | [tax_management_db_tests.sh](../tests/db/tax_management_db_tests.sh) |
 | `treasury_liquidity_core` | `TRL_` | [treasury_liquidity.js](../middleware/src/routes/treasury_liquidity.js) | [treasury_liquidity.cases](../tests/cobol/cases/treasury_liquidity.cases) | [treasury_liquidity_db_tests.sh](../tests/db/treasury_liquidity_db_tests.sh) |
 | `user_core` | `CONFIRM_EMAIL_CHANGE`, `REACTIVATE_DORMANT`, `DEACTIVATE_ACCOUNT`, `REQ_EMAIL_CHANGE`, `SUSPEND_DORMANT`, `ADMIN_RESET_MFA`, `SET_USER_STATUS`, `UPDATE_PROFILE`, `GET_DASHBOARD`, `MARK_DORMANT`, `UNLOCK_USER`, `LIST_USERS`, `GET_USER` | — | — | — |

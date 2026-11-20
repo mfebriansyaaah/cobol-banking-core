@@ -46,7 +46,7 @@ deliberately for that change (it removed exercised code, not coverage).
 
 ## Scope
 
-- **COBOL curated core:** the 27 money-path/core modules listed in
+- **COBOL curated core:** the 30 money-path/core modules listed in
   `scripts/ci/coverage.sh` (`main_logic`, `wallet_core`, `auth_core`,
   `user_core`, `loan_core`, `deposit_core`, `card_core`, `collection_core`,
   `payment_clearing_core`, `treasury_liquidity_core`, compliance modules,
@@ -92,7 +92,7 @@ whole-codebase coverage.
 ## Recommended-module backlog
 
 `manifest/module_quality.json` marks 44 modules as recommended for training.
-Twenty-four are in the curated measurement above; the remaining 20 are recorded
+Twenty-seven are in the curated measurement above; the remaining 17 are recorded
 explicitly in `tests/coverage_recommended_backlog.txt` with the DB suite or
 utility reason that keeps them out of the curated set. The
 `scripts/check_coverage_recommended.mjs` gate fails when a recommended module
@@ -138,7 +138,7 @@ The script writes:
 
 The total has a 30% floor only — it cannot ratchet and cannot see one module
 collapsing while another rises. `tests/coverage_module_baseline.txt` pins all
-27 curated modules: `scripts/check_coverage_modules.mjs --json coverage/cobol.json`
+30 curated modules: `scripts/check_coverage_modules.mjs --json coverage/cobol.json`
 fails any module that drops more than 1.0pp below its recorded value.
 `coverage.sh` runs this gate automatically after the COBOL measurement.
 
