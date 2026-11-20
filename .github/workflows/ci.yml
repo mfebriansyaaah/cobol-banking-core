@@ -512,6 +512,12 @@ jobs:
       - name: Install gateway dependencies
         run: npm ci --prefix middleware
 
+      # The test gate still runs the repo's static gate set (run_all.sh), and
+      # that includes the ESLint-based JS complexity ratchet. Keep the root
+      # toolchain installed until the gate set is moved wholesale to lint.
+      - name: Install gate dependencies
+        run: npm ci --no-audit --no-fund
+
       - name: Download core binary
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
         with:
