@@ -6,15 +6,15 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-20T02:43:16.243Z
-- Commit: `1cb2cb92`
+- Generated at: 2026-11-20T02:51:15.160Z
+- Commit: `4e68a6ce`
 
 | Level | Modules |
 | --- | ---: |
 | L3 (core transaction) | 23 |
 | L2 (business reference) | 6 |
 | L1 (weak / untested link) | 10 |
-| L0 (isolated) | 29 |
+| L0 (isolated) | 27 |
 | UTILITY | 3 |
 
 Unresolved route files: none.
@@ -29,7 +29,6 @@ Unresolved route files: none.
 | `auth_recovery_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `auth_review_core` | L0 | — | — | 0 | own domain tables only, no core link |
 | `auth_session_core` | L0 | — | — | 0 | own domain tables only, no core link |
-| `backup_drill_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `bank_guarantee_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `card_core` | L3 | — | — | 1 | Core anchor module |
 | `card_posting_core` | L3 | accounts, card_account, gl_journal | gl_core | 0 | money-table touch (accounts, gl_journal) with depth + test |
@@ -74,7 +73,6 @@ Unresolved route files: none.
 | `phone_otp_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `ref_engine` | UTILITY | — | — | 1 | Utility module (never a retire candidate) |
 | `ref_ext_core` | UTILITY | — | — | 1 | Utility module (never a retire candidate) |
-| `report_builder_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `report_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `report_run_core` | L1 | gl_journal, gl_journal_line | — | 0 | linked code with no DB/table/integration test (downgraded) |
 | `report_schedule_core` | L0 | — | — | 1 | own domain tables only, no core link |

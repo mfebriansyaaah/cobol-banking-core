@@ -16,7 +16,6 @@
 | `auth_recovery_core` | L0 | REVIEW | — | — | — | unmeasured | no |
 | `auth_review_core` | L0 | REVIEW | — | — | — | unmeasured | no |
 | `auth_session_core` | L0 | REVIEW | — | — | — | unmeasured | no |
-| `backup_drill_core` | L0 | FROZEN | UNLINKED | — | — | unmeasured | no |
 | `bank_guarantee_core` | L0 | FROZEN | UNLINKED | — | — | unmeasured | no |
 | `card_core` | L3 | ACTIVE | — | — | 65.76 | below-floor | yes |
 | `card_posting_core` | L3 | ACTIVE | — | — | — | unmeasured | yes |
@@ -61,7 +60,6 @@
 | `phone_otp_core` | L0 | REVIEW | — | — | — | unmeasured | no |
 | `ref_engine` | UTILITY | ACTIVE | — | — | 0 | below-floor | no |
 | `ref_ext_core` | UTILITY | ACTIVE | — | — | — | unmeasured | no |
-| `report_builder_core` | L0 | FROZEN | UNLINKED | — | — | unmeasured | no |
 | `report_core` | L0 | REVIEW | — | — | 63.48 | below-floor | no |
 | `report_run_core` | L1 | REVIEW | — | — | — | unmeasured | no |
 | `report_schedule_core` | L0 | FROZEN | DUPLICATE | 0.95 | — | unmeasured | no |

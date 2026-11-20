@@ -11,7 +11,7 @@
 | ACTIVE | 26 |
 | PILOT | 5 |
 | REVIEW | 22 |
-| FROZEN | 18 |
+| FROZEN | 16 |
 | RETIRED | 0 |
 
 > **Retired from the active ledger:** 17 modules removed in
@@ -33,7 +33,6 @@ removed modules are archived in `manifest/wave_legacy.json`).
 | `auth` | `auth_recovery_core` | L0 | REVIEW | auth.js | mfa_recovery | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 9 gateway-dispatched action(s); coverage tests/db/auth_invariants_db_tests.sh. L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
 | `auth` | `auth_review_core` | L0 | REVIEW | admin.js | access_review | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 5 gateway-dispatched action(s); coverage tests/db/auth_invariants_db_tests.sh. L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
 | `auth_session` | `auth_session_core` | L0 | REVIEW | — | refresh_sessions | — | Split audit maint-08: RETAIN (reviewed, not pending). 9 internal-CALL actions (STORE/REVOKE/CONSUME/CHECK_TOKEN/REVOKE_TOKEN/LIST/REVOKE_USER/REVOKE_ALL/GET_VERSION); coverage tests/db/auth_session_db_tests.sh (21 assertions). L0 linkage is structural (session/token tables, no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
-| `backup_drill` | `backup_drill_core` | L0 | FROZEN | backup_drill.js | backup_drill | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `bank_guarantee` | `bank_guarantee_core` | L0 | FROZEN | bank_guarantee.js | bank_guarantee | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
 | `card` | `card_core` | L3 | ACTIVE | card.js | card_account | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `card_posting` | `card_posting_core` | L3 | ACTIVE | — | accounts | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
@@ -78,7 +77,6 @@ removed modules are archived in `manifest/wave_legacy.json`).
 | `phone_otp` | `phone_otp_core` | L0 | REVIEW | phone.js | phone_links | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 4 gateway-dispatched action(s); coverage OTP link/issue/verify flow (PR-082b). L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
 | `ref_engine` | `ref_engine` | UTILITY | ACTIVE | ref_engine.js | audit_trail | — | Utility module; never a retire candidate. |
 | `ref_ext` | `ref_ext_core` | UTILITY | ACTIVE | ref_ext.js | label | — | Utility module; never a retire candidate. |
-| `report_builder` | `report_builder_core` | L0 | FROZEN | report_builder.js | report_builder | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `report` | `report_core` | L0 | REVIEW | report.js | report_template | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 10 gateway-dispatched action(s); coverage tests/db/report_statement_db_tests.sh (templates). L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
 | `report` | `report_run_core` | L1 | REVIEW | report.js | report_run | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 10 gateway-dispatched action(s); coverage tests/db/report_statement_db_tests.sh (runs). L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
 | `report_schedule` | `report_schedule_core` | L0 | FROZEN | report_schedule.js | rpt_schedule_config | — | No proven core link; frozen pending dead-candidate evidence (PR-010F). |

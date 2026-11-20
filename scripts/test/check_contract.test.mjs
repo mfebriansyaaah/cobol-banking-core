@@ -34,7 +34,9 @@ test('builder check mode passes when in sync', () => {
 test('contract covers every route action exactly once per route', async () => {
   const { collectRouteContracts } = await import('../lib/contract.mjs');
   const actions = collectRouteContracts(ROOT);
-  assert.ok(actions.length >= 570, `expected 570+ route entries, got ${actions.length}`);
+  // Wave D (PR-1) retired backup_drill + report_builder (16 actions):
+  // 575 -> 559 entries. Floor allows a small accidental-loss margin.
+  assert.ok(actions.length >= 555, `expected 555+ route entries, got ${actions.length}`);
   for (const a of actions) {
     // Contract v2: DEP_OPEN carries a 7th slot (idempotency key); every
     // other action keeps the 6-slot convention.

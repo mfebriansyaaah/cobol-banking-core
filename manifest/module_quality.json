@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T02:45:51.954Z",
+  "generatedAt": "2026-11-20T02:51:18.531Z",
   "modules": [
     {
       "module": "account_core",
@@ -95,18 +95,6 @@
       "coverageStatus": "unmeasured",
       "routeFile": null,
       "dbSuite": "tests/db/auth_session_db_tests.sh",
-      "recommendedForTraining": false
-    },
-    {
-      "module": "backup_drill_core",
-      "linkageLevel": "L0",
-      "domainStatus": "FROZEN",
-      "candidateStatus": "UNLINKED",
-      "cloneSimilarity": null,
-      "coveragePercent": null,
-      "coverageStatus": "unmeasured",
-      "routeFile": "backup_drill.js",
-      "dbSuite": "tests/db/backup_drill_db_tests.sh",
       "recommendedForTraining": false
     },
     {
@@ -635,18 +623,6 @@
       "coverageStatus": "unmeasured",
       "routeFile": "ref_ext.js",
       "dbSuite": null,
-      "recommendedForTraining": false
-    },
-    {
-      "module": "report_builder_core",
-      "linkageLevel": "L0",
-      "domainStatus": "FROZEN",
-      "candidateStatus": "UNLINKED",
-      "cloneSimilarity": null,
-      "coveragePercent": null,
-      "coverageStatus": "unmeasured",
-      "routeFile": "report_builder.js",
-      "dbSuite": "tests/db/report_builder_db_tests.sh",
       "recommendedForTraining": false
     },
     {

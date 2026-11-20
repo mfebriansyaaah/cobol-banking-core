@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-11-20T02:43:18.928Z",
-  "commit": "1cb2cb92",
+  "generatedAt": "2026-11-20T02:51:10.822Z",
+  "commit": "4e68a6ce",
   "generator": "scripts/build_action_registry.mjs (do not hand-edit)",
-  "count": 551,
+  "count": 535,
   "actions": [
     {
       "action": "ACCOUNT_FREEZE",
@@ -649,278 +649,6 @@
       "tested": true,
       "domain": "auth",
       "status": "ACTIVE"
-    },
-    {
-      "action": "BDR_AUDIT",
-      "module": "backup_drill_core",
-      "prefix": "BDR_",
-      "method": "get",
-      "path": "/it/backup-drills/audit",
-      "fields": [
-        "limit",
-        "offset",
-        "",
-        "",
-        "",
-        "actor"
-      ],
-      "required": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true
-      ],
-      "public": false,
-      "stepUp": false,
-      "tokenIdentity": "actor",
-      "owner": "ops",
-      "authPolicy": "admin",
-      "linkageLevel": "L0",
-      "coreActions": [],
-      "coreCalls": [],
-      "tested": true,
-      "domain": "backup_drill",
-      "status": "FROZEN"
-    },
-    {
-      "action": "BDR_CLOSE",
-      "module": "backup_drill_core",
-      "prefix": "BDR_",
-      "method": "post",
-      "path": "/it/backup-drills/:id/close",
-      "fields": [
-        "id",
-        "reason",
-        "",
-        "",
-        "",
-        "actor"
-      ],
-      "required": [
-        true,
-        false,
-        false,
-        false,
-        false,
-        true
-      ],
-      "public": false,
-      "stepUp": false,
-      "tokenIdentity": "actor",
-      "owner": "ops",
-      "authPolicy": "admin",
-      "linkageLevel": "L0",
-      "coreActions": [],
-      "coreCalls": [],
-      "tested": true,
-      "domain": "backup_drill",
-      "status": "FROZEN"
-    },
-    {
-      "action": "BDR_CREATE",
-      "module": "backup_drill_core",
-      "prefix": "BDR_",
-      "method": "post",
-      "path": "/it/backup-drills",
-      "fields": [
-        "drillRef",
-        "targetTable",
-        "backupType",
-        "",
-        "",
-        "actor"
-      ],
-      "required": [
-        true,
-        true,
-        true,
-        false,
-        false,
-        true
-      ],
-      "public": false,
-      "stepUp": false,
-      "tokenIdentity": "actor",
-      "owner": "ops",
-      "authPolicy": "admin",
-      "linkageLevel": "L0",
-      "coreActions": [],
-      "coreCalls": [],
-      "tested": true,
-      "domain": "backup_drill",
-      "status": "FROZEN"
-    },
-    {
-      "action": "BDR_GET",
-      "module": "backup_drill_core",
-      "prefix": "BDR_",
-      "method": "get",
-      "path": "/it/backup-drills/:id",
-      "fields": [
-        "id",
-        "",
-        "",
-        "",
-        "",
-        "actor"
-      ],
-      "required": [
-        true,
-        false,
-        false,
-        false,
-        false,
-        true
-      ],
-      "public": false,
-      "stepUp": false,
-      "tokenIdentity": "actor",
-      "owner": "ops",
-      "authPolicy": "admin",
-      "linkageLevel": "L0",
-      "coreActions": [],
-      "coreCalls": [],
-      "tested": true,
-      "domain": "backup_drill",
-      "status": "FROZEN"
-    },
-    {
-      "action": "BDR_LIST",
-      "module": "backup_drill_core",
-      "prefix": "BDR_",
-      "method": "get",
-      "path": "/it/backup-drills",
-      "fields": [
-        "status",
-        "type",
-        "limit",
-        "offset",
-        "",
-        "actor"
-      ],
-      "required": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true
-      ],
-      "public": false,
-      "stepUp": false,
-      "tokenIdentity": "actor",
-      "owner": "ops",
-      "authPolicy": "admin",
-      "linkageLevel": "L0",
-      "coreActions": [],
-      "coreCalls": [],
-      "tested": true,
-      "domain": "backup_drill",
-      "status": "FROZEN"
-    },
-    {
-      "action": "BDR_RUN",
-      "module": "backup_drill_core",
-      "prefix": "BDR_",
-      "method": "post",
-      "path": "/it/backup-drills/:id/run",
-      "fields": [
-        "id",
-        "",
-        "",
-        "",
-        "",
-        "actor"
-      ],
-      "required": [
-        true,
-        false,
-        false,
-        false,
-        false,
-        true
-      ],
-      "public": false,
-      "stepUp": false,
-      "tokenIdentity": "actor",
-      "owner": "ops",
-      "authPolicy": "admin",
-      "linkageLevel": "L0",
-      "coreActions": [],
-      "coreCalls": [],
-      "tested": true,
-      "domain": "backup_drill",
-      "status": "FROZEN"
-    },
-    {
-      "action": "BDR_SUMMARY",
-      "module": "backup_drill_core",
-      "prefix": "BDR_",
-      "method": "get",
-      "path": "/it/backup-drills/summary",
-      "fields": [
-        "",
-        "",
-        "",
-        "",
-        "",
-        "actor"
-      ],
-      "required": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true
-      ],
-      "public": false,
-      "stepUp": false,
-      "tokenIdentity": "actor",
-      "owner": "ops",
-      "authPolicy": "admin",
-      "linkageLevel": "L0",
-      "coreActions": [],
-      "coreCalls": [],
-      "tested": true,
-      "domain": "backup_drill",
-      "status": "FROZEN"
-    },
-    {
-      "action": "BDR_VALIDATE",
-      "module": "backup_drill_core",
-      "prefix": "BDR_",
-      "method": "post",
-      "path": "/it/backup-drills/validate",
-      "fields": [
-        "amount",
-        "currency",
-        "",
-        "",
-        "",
-        "actor"
-      ],
-      "required": [
-        true,
-        true,
-        false,
-        false,
-        false,
-        true
-      ],
-      "public": false,
-      "stepUp": false,
-      "tokenIdentity": "actor",
-      "owner": "ops",
-      "authPolicy": "admin",
-      "linkageLevel": "L0",
-      "coreActions": [],
-      "coreCalls": [],
-      "tested": true,
-      "domain": "backup_drill",
-      "status": "FROZEN"
     },
     {
       "action": "BKG_APPROVE",
@@ -14930,278 +14658,6 @@
       "status": "REVIEW"
     },
     {
-      "action": "RPB_AUDIT",
-      "module": "report_builder_core",
-      "prefix": "RPB_",
-      "method": "get",
-      "path": "/data/reports/audit",
-      "fields": [
-        "limit",
-        "offset",
-        "",
-        "",
-        "",
-        "actor"
-      ],
-      "required": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true
-      ],
-      "public": false,
-      "stepUp": false,
-      "tokenIdentity": "actor",
-      "owner": "ops",
-      "authPolicy": "authenticated",
-      "linkageLevel": "L0",
-      "coreActions": [],
-      "coreCalls": [],
-      "tested": true,
-      "domain": "report_builder",
-      "status": "FROZEN"
-    },
-    {
-      "action": "RPB_CLOSE",
-      "module": "report_builder_core",
-      "prefix": "RPB_",
-      "method": "post",
-      "path": "/data/reports/:id/close",
-      "fields": [
-        "id",
-        "reason",
-        "",
-        "",
-        "",
-        "actor"
-      ],
-      "required": [
-        true,
-        false,
-        false,
-        false,
-        false,
-        true
-      ],
-      "public": false,
-      "stepUp": false,
-      "tokenIdentity": "actor",
-      "owner": "ops",
-      "authPolicy": "authenticated",
-      "linkageLevel": "L0",
-      "coreActions": [],
-      "coreCalls": [],
-      "tested": true,
-      "domain": "report_builder",
-      "status": "FROZEN"
-    },
-    {
-      "action": "RPB_CREATE",
-      "module": "report_builder_core",
-      "prefix": "RPB_",
-      "method": "post",
-      "path": "/data/reports",
-      "fields": [
-        "reportRef",
-        "reportName",
-        "reportType",
-        "",
-        "",
-        "actor"
-      ],
-      "required": [
-        true,
-        true,
-        true,
-        false,
-        false,
-        true
-      ],
-      "public": false,
-      "stepUp": false,
-      "tokenIdentity": "actor",
-      "owner": "ops",
-      "authPolicy": "authenticated",
-      "linkageLevel": "L0",
-      "coreActions": [],
-      "coreCalls": [],
-      "tested": true,
-      "domain": "report_builder",
-      "status": "FROZEN"
-    },
-    {
-      "action": "RPB_GET",
-      "module": "report_builder_core",
-      "prefix": "RPB_",
-      "method": "get",
-      "path": "/data/reports/:id",
-      "fields": [
-        "id",
-        "",
-        "",
-        "",
-        "",
-        "actor"
-      ],
-      "required": [
-        true,
-        false,
-        false,
-        false,
-        false,
-        true
-      ],
-      "public": false,
-      "stepUp": false,
-      "tokenIdentity": "actor",
-      "owner": "ops",
-      "authPolicy": "authenticated",
-      "linkageLevel": "L0",
-      "coreActions": [],
-      "coreCalls": [],
-      "tested": true,
-      "domain": "report_builder",
-      "status": "FROZEN"
-    },
-    {
-      "action": "RPB_LIST",
-      "module": "report_builder_core",
-      "prefix": "RPB_",
-      "method": "get",
-      "path": "/data/reports",
-      "fields": [
-        "status",
-        "type",
-        "limit",
-        "offset",
-        "",
-        "actor"
-      ],
-      "required": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true
-      ],
-      "public": false,
-      "stepUp": false,
-      "tokenIdentity": "actor",
-      "owner": "ops",
-      "authPolicy": "authenticated",
-      "linkageLevel": "L0",
-      "coreActions": [],
-      "coreCalls": [],
-      "tested": true,
-      "domain": "report_builder",
-      "status": "FROZEN"
-    },
-    {
-      "action": "RPB_RUN",
-      "module": "report_builder_core",
-      "prefix": "RPB_",
-      "method": "post",
-      "path": "/data/reports/:id/run",
-      "fields": [
-        "id",
-        "",
-        "",
-        "",
-        "",
-        "actor"
-      ],
-      "required": [
-        true,
-        false,
-        false,
-        false,
-        false,
-        true
-      ],
-      "public": false,
-      "stepUp": false,
-      "tokenIdentity": "actor",
-      "owner": "ops",
-      "authPolicy": "authenticated",
-      "linkageLevel": "L0",
-      "coreActions": [],
-      "coreCalls": [],
-      "tested": true,
-      "domain": "report_builder",
-      "status": "FROZEN"
-    },
-    {
-      "action": "RPB_SUMMARY",
-      "module": "report_builder_core",
-      "prefix": "RPB_",
-      "method": "get",
-      "path": "/data/reports/summary",
-      "fields": [
-        "",
-        "",
-        "",
-        "",
-        "",
-        "actor"
-      ],
-      "required": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        true
-      ],
-      "public": false,
-      "stepUp": false,
-      "tokenIdentity": "actor",
-      "owner": "ops",
-      "authPolicy": "authenticated",
-      "linkageLevel": "L0",
-      "coreActions": [],
-      "coreCalls": [],
-      "tested": true,
-      "domain": "report_builder",
-      "status": "FROZEN"
-    },
-    {
-      "action": "RPB_VALIDATE",
-      "module": "report_builder_core",
-      "prefix": "RPB_",
-      "method": "post",
-      "path": "/data/reports/validate",
-      "fields": [
-        "amount",
-        "currency",
-        "",
-        "",
-        "",
-        "actor"
-      ],
-      "required": [
-        true,
-        true,
-        false,
-        false,
-        false,
-        true
-      ],
-      "public": false,
-      "stepUp": false,
-      "tokenIdentity": "actor",
-      "owner": "ops",
-      "authPolicy": "authenticated",
-      "linkageLevel": "L0",
-      "coreActions": [],
-      "coreCalls": [],
-      "tested": true,
-      "domain": "report_builder",
-      "status": "FROZEN"
-    },
-    {
       "action": "RPS_AUDIT",
       "module": "report_schedule_core",
       "prefix": "RPS_",
@@ -19392,741 +18848,727 @@
     },
     {
       "slot": 89,
-      "prefix": "RPB_",
-      "prefixLen": 4,
-      "program": "report_builder_core",
-      "paramMode": 2
-    },
-    {
-      "slot": 90,
-      "prefix": "BDR_",
-      "prefixLen": 4,
-      "program": "backup_drill_core",
-      "paramMode": 2
-    },
-    {
-      "slot": 91,
       "prefix": "PMC_",
       "prefixLen": 4,
       "program": "payment_clearing_core",
       "paramMode": 2
     },
     {
-      "slot": 92,
+      "slot": 90,
       "prefix": "FEE_",
       "prefixLen": 4,
       "program": "fee_core",
       "paramMode": 2
     },
     {
-      "slot": 93,
+      "slot": 91,
       "prefix": "PAY_",
       "prefixLen": 4,
       "program": "payment_core",
       "paramMode": 2
     },
     {
-      "slot": 94,
+      "slot": 92,
       "prefix": "EOD_",
       "prefixLen": 4,
       "program": "eod_core",
       "paramMode": 2
     },
     {
-      "slot": 95,
+      "slot": 93,
       "prefix": "PIC_",
       "prefixLen": 4,
       "program": "payment_instruction_core",
       "paramMode": 2
     },
     {
-      "slot": 96,
+      "slot": 94,
       "prefix": "PING",
       "prefixLen": 4,
       "program": "auth_core",
       "paramMode": 2
     },
     {
-      "slot": 97,
+      "slot": 95,
       "prefix": "DSH_",
       "prefixLen": 4,
       "program": "dashboard_core",
       "paramMode": 2
     },
     {
-      "slot": 98,
+      "slot": 96,
       "prefix": "FAS_",
       "prefixLen": 4,
       "program": "fixed_asset_core",
       "paramMode": 2
     },
     {
-      "slot": 99,
+      "slot": 97,
       "prefix": "CSC_",
       "prefixLen": 4,
       "program": "cost_center_core",
       "paramMode": 2
     },
     {
-      "slot": 100,
+      "slot": 98,
       "prefix": "IRC_",
       "prefixLen": 4,
       "program": "import_recon_core",
       "paramMode": 2
     },
     {
-      "slot": 101,
+      "slot": 99,
       "prefix": "ACC_",
       "prefixLen": 4,
       "program": "account_core",
       "paramMode": 2
     },
     {
-      "slot": 102,
+      "slot": 100,
       "prefix": "VEL_",
       "prefixLen": 4,
       "program": "fee_core",
       "paramMode": 2
     },
     {
-      "slot": 103,
+      "slot": 101,
       "prefix": "GLA_",
       "prefixLen": 4,
       "program": "gl_allocation_core",
       "paramMode": 2
     },
     {
-      "slot": 104,
+      "slot": 102,
       "prefix": "DEP_",
       "prefixLen": 4,
       "program": "deposit_core",
       "paramMode": 3
     },
     {
-      "slot": 105,
+      "slot": 103,
       "prefix": "COL_",
       "prefixLen": 4,
       "program": "collection_core",
       "paramMode": 2
     },
     {
-      "slot": 106,
+      "slot": 104,
       "prefix": "RFE_",
       "prefixLen": 4,
       "program": "ref_engine",
       "paramMode": 2
     },
     {
-      "slot": 107,
+      "slot": 105,
       "prefix": "PHL_",
       "prefixLen": 4,
       "program": "payment_hold_core",
       "paramMode": 2
     },
     {
-      "slot": 108,
+      "slot": 106,
       "prefix": "CLT_",
       "prefixLen": 4,
       "program": "collateral_core",
       "paramMode": 2
     },
     {
-      "slot": 109,
+      "slot": 107,
       "prefix": "RX_",
       "prefixLen": 3,
       "program": "ref_ext_core",
       "paramMode": 2
     },
     {
-      "slot": 110,
+      "slot": 108,
       "prefix": "GL_",
       "prefixLen": 3,
       "program": "gl_core",
       "paramMode": 2
     },
     {
-      "slot": 111,
+      "slot": 109,
       "prefix": "MRT_",
       "prefixLen": 4,
       "program": "merchant_core",
       "paramMode": 2
     },
     {
-      "slot": 112,
+      "slot": 110,
       "prefix": "NTP_",
       "prefixLen": 4,
       "program": "notification_template_core",
       "paramMode": 2
     },
     {
-      "slot": 113,
+      "slot": 111,
       "prefix": "RPS_",
       "prefixLen": 4,
       "program": "report_schedule_core",
       "paramMode": 2
     },
     {
-      "slot": 114,
+      "slot": 112,
       "prefix": "SLT_",
       "prefixLen": 4,
       "program": "sla_tracker_core",
       "paramMode": 2
     },
     {
-      "slot": 115,
+      "slot": 113,
       "prefix": "CCL_",
       "prefixLen": 4,
       "program": "compliance_calendar_core",
       "paramMode": 2
     },
     {
-      "slot": 116,
+      "slot": 114,
       "prefix": "LOC_",
       "prefixLen": 4,
       "program": "letter_of_credit_core",
       "paramMode": 2
     },
     {
-      "slot": 117,
+      "slot": 115,
       "prefix": "BKG_",
       "prefixLen": 4,
       "program": "bank_guarantee_core",
       "paramMode": 2
     },
     {
-      "slot": 118,
+      "slot": 116,
       "prefix": "PRL_",
       "prefixLen": 4,
       "program": "payroll_processing_core",
       "paramMode": 2
     },
     {
-      "slot": 119,
+      "slot": 117,
       "prefix": "MCS_",
       "prefixLen": 4,
       "program": "merchant_settlement_core",
       "paramMode": 2
     },
     {
-      "slot": 120,
+      "slot": 118,
       "prefix": "TXM_",
       "prefixLen": 4,
       "program": "tax_management_core",
       "paramMode": 2
     },
     {
-      "slot": 121,
+      "slot": 119,
       "prefix": "CHB_",
       "prefixLen": 4,
       "program": "chargeback_core",
       "paramMode": 2
     },
     {
-      "slot": 122,
+      "slot": 120,
       "prefix": "LOY_",
       "prefixLen": 4,
       "program": "loyalty_core",
       "paramMode": 2
     },
     {
-      "slot": 123,
+      "slot": 121,
       "prefix": "OTP_",
       "prefixLen": 4,
       "program": "phone_otp_core",
       "paramMode": 2
     },
     {
-      "slot": 124,
+      "slot": 122,
       "prefix": "IDV_",
       "prefixLen": 4,
       "program": "identity_core",
       "paramMode": 2
     },
     {
-      "slot": 125,
+      "slot": 123,
       "prefix": "SCR_",
       "prefixLen": 4,
       "program": "identity_core",
       "paramMode": 2
     },
     {
-      "slot": 126,
+      "slot": 124,
       "prefix": "FX_",
       "prefixLen": 3,
       "program": "fx_rate_core",
       "paramMode": 2
     },
     {
-      "slot": 127,
+      "slot": 125,
       "prefix": "RISK_",
       "prefixLen": 5,
       "program": "risk_core",
       "paramMode": 2
     },
     {
-      "slot": 128,
+      "slot": 126,
       "prefix": "CORP_",
       "prefixLen": 5,
       "program": "corp_core",
       "paramMode": 2
     },
     {
-      "slot": 129,
+      "slot": 127,
       "prefix": "LSC_CREATE",
       "prefixLen": 10,
       "program": "loan_schedule_core",
       "paramMode": 2
     },
     {
-      "slot": 130,
+      "slot": 128,
       "prefix": "LSC_GET",
       "prefixLen": 7,
       "program": "loan_schedule_core",
       "paramMode": 2
     },
     {
-      "slot": 131,
+      "slot": 129,
       "prefix": "LSC_LIST",
       "prefixLen": 8,
       "program": "loan_schedule_core",
       "paramMode": 2
     },
     {
-      "slot": 132,
+      "slot": 130,
       "prefix": "LSC_DETAIL",
       "prefixLen": 10,
       "program": "loan_schedule_core",
       "paramMode": 2
     },
     {
-      "slot": 133,
+      "slot": 131,
       "prefix": "LSC_UPDATE",
       "prefixLen": 10,
       "program": "loan_schedule_core",
       "paramMode": 2
     },
     {
-      "slot": 134,
+      "slot": 132,
       "prefix": "LSC_DELETE",
       "prefixLen": 10,
       "program": "loan_schedule_core",
       "paramMode": 2
     },
     {
-      "slot": 135,
+      "slot": 133,
       "prefix": "LSC_SEARCH",
       "prefixLen": 10,
       "program": "loan_schedule_core",
       "paramMode": 2
     },
     {
-      "slot": 136,
+      "slot": 134,
       "prefix": "LSC_HISTORY",
       "prefixLen": 11,
       "program": "loan_schedule_core",
       "paramMode": 2
     },
     {
-      "slot": 137,
+      "slot": 135,
       "prefix": "LSC_VALIDATE",
       "prefixLen": 12,
       "program": "loan_schedule_core",
       "paramMode": 2
     },
     {
-      "slot": 138,
+      "slot": 136,
       "prefix": "LSC_APPROVE",
       "prefixLen": 11,
       "program": "loan_schedule_lifecycle_core",
       "paramMode": 2
     },
     {
-      "slot": 139,
+      "slot": 137,
       "prefix": "LSC_REJECT",
       "prefixLen": 10,
       "program": "loan_schedule_lifecycle_core",
       "paramMode": 2
     },
     {
-      "slot": 140,
+      "slot": 138,
       "prefix": "LSC_CLOSE",
       "prefixLen": 9,
       "program": "loan_schedule_lifecycle_core",
       "paramMode": 2
     },
     {
-      "slot": 141,
+      "slot": 139,
       "prefix": "LSC_REOPEN",
       "prefixLen": 10,
       "program": "loan_schedule_lifecycle_core",
       "paramMode": 2
     },
     {
-      "slot": 142,
+      "slot": 140,
       "prefix": "LSC_CANCEL",
       "prefixLen": 10,
       "program": "loan_schedule_lifecycle_core",
       "paramMode": 2
     },
     {
-      "slot": 143,
+      "slot": 141,
       "prefix": "LSC_HOLD",
       "prefixLen": 8,
       "program": "loan_schedule_lifecycle_core",
       "paramMode": 2
     },
     {
-      "slot": 144,
+      "slot": 142,
       "prefix": "LSC_RELEASE",
       "prefixLen": 11,
       "program": "loan_schedule_lifecycle_core",
       "paramMode": 2
     },
     {
-      "slot": 145,
+      "slot": 143,
       "prefix": "LSC_STATUS",
       "prefixLen": 10,
       "program": "loan_schedule_lifecycle_core",
       "paramMode": 2
     },
     {
-      "slot": 146,
+      "slot": 144,
       "prefix": "LSC_POST",
       "prefixLen": 8,
       "program": "loan_schedule_posting_core",
       "paramMode": 2
     },
     {
-      "slot": 147,
+      "slot": 145,
       "prefix": "LSC_ACCRUE",
       "prefixLen": 10,
       "program": "loan_schedule_posting_core",
       "paramMode": 2
     },
     {
-      "slot": 148,
+      "slot": 146,
       "prefix": "LSC_SETTLE",
       "prefixLen": 10,
       "program": "loan_schedule_posting_core",
       "paramMode": 2
     },
     {
-      "slot": 149,
+      "slot": 147,
       "prefix": "LSC_CALC",
       "prefixLen": 8,
       "program": "loan_schedule_posting_core",
       "paramMode": 2
     },
     {
-      "slot": 150,
+      "slot": 148,
       "prefix": "LSC_SCHEDULED",
       "prefixLen": 13,
       "program": "loan_schedule_posting_core",
       "paramMode": 2
     },
     {
-      "slot": 151,
+      "slot": 149,
       "prefix": "LSC_FORECAST",
       "prefixLen": 12,
       "program": "loan_schedule_posting_core",
       "paramMode": 2
     },
     {
-      "slot": 152,
+      "slot": 150,
       "prefix": "LSC_OVERRIDE",
       "prefixLen": 12,
       "program": "loan_schedule_posting_core",
       "paramMode": 2
     },
     {
-      "slot": 153,
+      "slot": 151,
       "prefix": "LSC_ADJUST",
       "prefixLen": 10,
       "program": "loan_schedule_posting_core",
       "paramMode": 2
     },
     {
-      "slot": 154,
+      "slot": 152,
       "prefix": "LSC_SUMMARY",
       "prefixLen": 11,
       "program": "loan_schedule_report_core",
       "paramMode": 2
     },
     {
-      "slot": 155,
+      "slot": 153,
       "prefix": "LSC_EXPORT",
       "prefixLen": 10,
       "program": "loan_schedule_report_core",
       "paramMode": 2
     },
     {
-      "slot": 156,
+      "slot": 154,
       "prefix": "LSC_AUDIT",
       "prefixLen": 9,
       "program": "loan_schedule_report_core",
       "paramMode": 2
     },
     {
-      "slot": 157,
+      "slot": 155,
       "prefix": "RPT_TEMPLATE_CREATE",
       "prefixLen": 19,
       "program": "report_core",
       "paramMode": 2
     },
     {
-      "slot": 158,
+      "slot": 156,
       "prefix": "RPT_TEMPLATE_LIST",
       "prefixLen": 17,
       "program": "report_core",
       "paramMode": 2
     },
     {
-      "slot": 159,
+      "slot": 157,
       "prefix": "RPT_TEMPLATE_GET",
       "prefixLen": 16,
       "program": "report_core",
       "paramMode": 2
     },
     {
-      "slot": 160,
+      "slot": 158,
       "prefix": "RPT_COLUMN_CREATE",
       "prefixLen": 17,
       "program": "report_core",
       "paramMode": 2
     },
     {
-      "slot": 161,
+      "slot": 159,
       "prefix": "RPT_COLUMN_LIST",
       "prefixLen": 15,
       "program": "report_core",
       "paramMode": 2
     },
     {
-      "slot": 162,
+      "slot": 160,
       "prefix": "RPT_COLUMN_DELETE",
       "prefixLen": 17,
       "program": "report_core",
       "paramMode": 2
     },
     {
-      "slot": 163,
+      "slot": 161,
       "prefix": "RPT_COLUMN_UPDATE",
       "prefixLen": 17,
       "program": "report_core",
       "paramMode": 2
     },
     {
-      "slot": 164,
+      "slot": 162,
       "prefix": "RPT_TEMPLATE_UPDATE",
       "prefixLen": 19,
       "program": "report_core",
       "paramMode": 2
     },
     {
-      "slot": 165,
+      "slot": 163,
       "prefix": "RPT_TEMPLATE_CLONE",
       "prefixLen": 18,
       "program": "report_core",
       "paramMode": 2
     },
     {
-      "slot": 166,
+      "slot": 164,
       "prefix": "RPT_TEMPLATE_DELETE",
       "prefixLen": 19,
       "program": "report_core",
       "paramMode": 2
     },
     {
-      "slot": 167,
+      "slot": 165,
       "prefix": "RPT_RUN_START",
       "prefixLen": 13,
       "program": "report_run_core",
       "paramMode": 2
     },
     {
-      "slot": 168,
+      "slot": 166,
       "prefix": "RPT_RUN_ROW",
       "prefixLen": 11,
       "program": "report_run_core",
       "paramMode": 2
     },
     {
-      "slot": 169,
+      "slot": 167,
       "prefix": "RPT_RUN_STATUS",
       "prefixLen": 14,
       "program": "report_run_core",
       "paramMode": 2
     },
     {
-      "slot": 170,
+      "slot": 168,
       "prefix": "RPT_RUN_COMPLETE",
       "prefixLen": 16,
       "program": "report_run_core",
       "paramMode": 2
     },
     {
-      "slot": 171,
+      "slot": 169,
       "prefix": "RPT_RUN_FAIL",
       "prefixLen": 12,
       "program": "report_run_core",
       "paramMode": 2
     },
     {
-      "slot": 172,
+      "slot": 170,
       "prefix": "RPT_RUN_LIST",
       "prefixLen": 12,
       "program": "report_run_core",
       "paramMode": 2
     },
     {
-      "slot": 173,
+      "slot": 171,
       "prefix": "RPT_RUN_EXPORT",
       "prefixLen": 14,
       "program": "report_run_core",
       "paramMode": 2
     },
     {
-      "slot": 174,
+      "slot": 172,
       "prefix": "RPT_RUN_DELETE",
       "prefixLen": 14,
       "program": "report_run_core",
       "paramMode": 2
     },
     {
-      "slot": 175,
+      "slot": 173,
       "prefix": "RPT_RUN_RETRY",
       "prefixLen": 13,
       "program": "report_run_core",
       "paramMode": 2
     },
     {
-      "slot": 176,
+      "slot": 174,
       "prefix": "RPT_RUN_GENERATE",
       "prefixLen": 16,
       "program": "report_run_core",
       "paramMode": 2
     },
     {
-      "slot": 177,
+      "slot": 175,
       "prefix": "IMP_BATCH_CREATE",
       "prefixLen": 16,
       "program": "import_core",
       "paramMode": 2
     },
     {
-      "slot": 178,
+      "slot": 176,
       "prefix": "IMP_BATCH_LIST",
       "prefixLen": 14,
       "program": "import_core",
       "paramMode": 2
     },
     {
-      "slot": 179,
+      "slot": 177,
       "prefix": "IMP_BATCH_GET",
       "prefixLen": 13,
       "program": "import_core",
       "paramMode": 2
     },
     {
-      "slot": 180,
+      "slot": 178,
       "prefix": "IMP_BATCH_VALIDATE",
       "prefixLen": 18,
       "program": "import_core",
       "paramMode": 2
     },
     {
-      "slot": 181,
+      "slot": 179,
       "prefix": "IMP_BATCH_POST",
       "prefixLen": 14,
       "program": "import_core",
       "paramMode": 2
     },
     {
-      "slot": 182,
+      "slot": 180,
       "prefix": "IMP_BATCH_FAIL",
       "prefixLen": 14,
       "program": "import_core",
       "paramMode": 2
     },
     {
-      "slot": 183,
+      "slot": 181,
       "prefix": "IMP_BATCH_EXPORT",
       "prefixLen": 16,
       "program": "import_core",
       "paramMode": 2
     },
     {
-      "slot": 184,
+      "slot": 182,
       "prefix": "IMP_BATCH_CLONE",
       "prefixLen": 15,
       "program": "import_core",
       "paramMode": 2
     },
     {
-      "slot": 185,
+      "slot": 183,
       "prefix": "IMP_BATCH_DELETE",
       "prefixLen": 16,
       "program": "import_core",
       "paramMode": 2
     },
     {
-      "slot": 186,
+      "slot": 184,
       "prefix": "IMP_BATCH_RETRY",
       "prefixLen": 15,
       "program": "import_core",
       "paramMode": 2
     },
     {
-      "slot": 187,
+      "slot": 185,
       "prefix": "IMP_BATCH_SUMMARY",
       "prefixLen": 17,
       "program": "import_core",
       "paramMode": 2
     },
     {
-      "slot": 188,
+      "slot": 186,
       "prefix": "IMP_ROW_STAGE",
       "prefixLen": 13,
       "program": "import_row_core",
       "paramMode": 2
     },
     {
-      "slot": 189,
+      "slot": 187,
       "prefix": "IMP_ROW_CORRECT",
       "prefixLen": 15,
       "program": "import_row_core",
       "paramMode": 2
     },
     {
-      "slot": 190,
+      "slot": 188,
       "prefix": "IMP_ERROR_LIST",
       "prefixLen": 14,
       "program": "import_row_core",
       "paramMode": 2
     },
     {
-      "slot": 191,
+      "slot": 189,
       "prefix": "IMP_BATCH_STAGE_BULK",
       "prefixLen": 20,
       "program": "import_row_core",
       "paramMode": 2
     },
     {
-      "slot": 192,
+      "slot": 190,
       "prefix": "IMP_ROW_SKIP",
       "prefixLen": 12,
       "program": "import_row_core",
       "paramMode": 2
     },
     {
-      "slot": 193,
+      "slot": 191,
       "prefix": "IMP_ROW_UNSKIP",
       "prefixLen": 14,
       "program": "import_row_core",
       "paramMode": 2
     },
     {
-      "slot": 194,
+      "slot": 192,
       "prefix": "ACCOUNT_",
       "prefixLen": 8,
       "program": "identity_core",

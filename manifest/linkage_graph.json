@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-20T02:43:16.243Z",
-  "commit": "1cb2cb92",
+  "generatedAt": "2026-11-20T02:51:15.160Z",
+  "commit": "4e68a6ce",
   "linkageSource": "manifest/linkage.json",
   "summary": {
     "L3": 23,
     "L2": 6,
     "L1": 10,
-    "L0": 29,
+    "L0": 27,
     "UTILITY": 3
   },
   "modules": [
@@ -117,23 +117,6 @@
       "linkageLevel": "L0",
       "reason": "own domain tables only, no core link",
       "routeFiles": []
-    },
-    {
-      "module": "backup_drill_core",
-      "source": "backup_drill_core.cob",
-      "businessTables": [],
-      "coreCalls": [],
-      "coreActions": [],
-      "hasTests": true,
-      "testEvidence": [
-        "tests/db/backup_drill_db_tests.sh",
-        "tests/cobol/cases/backup_drill.cases"
-      ],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
-      "routeFiles": [
-        "backup_drill.js"
-      ]
     },
     {
       "module": "bank_guarantee_core",
@@ -868,23 +851,6 @@
       ]
     },
     {
-      "module": "report_builder_core",
-      "source": "report_builder_core.cob",
-      "businessTables": [],
-      "coreCalls": [],
-      "coreActions": [],
-      "hasTests": true,
-      "testEvidence": [
-        "tests/db/report_builder_db_tests.sh",
-        "tests/cobol/cases/report_builder.cases"
-      ],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
-      "routeFiles": [
-        "report_builder.js"
-      ]
-    },
-    {
       "module": "report_core",
       "source": "report_core.cob",
       "businessTables": [],
@@ -1167,7 +1133,6 @@
     "account.js": "account_core",
     "admin.js": "auth_recovery_core",
     "auth.js": "auth_core",
-    "backup_drill.js": "backup_drill_core",
     "bank_guarantee.js": "bank_guarantee_core",
     "card.js": "card_core",
     "chargeback.js": "chargeback_core",
@@ -1206,7 +1171,6 @@
     "ref_engine.js": "ref_engine",
     "ref_ext.js": "ref_ext_core",
     "report.js": "report_core",
-    "report_builder.js": "report_builder_core",
     "report_schedule.js": "report_schedule_core",
     "risk.js": "risk_core",
     "screening.js": "identity_core",

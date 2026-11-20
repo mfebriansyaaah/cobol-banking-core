@@ -87,7 +87,7 @@ Flagship hand-reviewed domains (core anchors). The full inventory is
 
 | Domain | Status | Modules |
 | --- | --- | --- |
-| Platform | Done | `auth_core`, `auth_password_core`, `auth_mfa_core`, `auth_recovery_core`, `auth_review_core`, `auth_session_core`, `auth_ops_core`, `user_core`, `wallet_core`, `wallet_transfer_core`, `wallet_reversal_core`, `wallet_hold_core`, `wallet_dispute_core`, `wallet_recon_core`, `wallet_statement_core`, `ref_engine`, `ref_ext_core`, `gl_core`, `report_core`, `fee_core`, `eod_core`, `eod_jobs_core`, `statement_core`, `dashboard_core`, `notification_template_core`, `sla_tracker_core`, `compliance_calendar_core`, `backup_drill_core`, `cost_center_core`, `corp_core`, `risk_core`, `identity_core`, `phone_otp_core` |
+| Platform | Done | `auth_core`, `auth_password_core`, `auth_mfa_core`, `auth_recovery_core`, `auth_review_core`, `auth_session_core`, `auth_ops_core`, `user_core`, `wallet_core`, `wallet_transfer_core`, `wallet_reversal_core`, `wallet_hold_core`, `wallet_dispute_core`, `wallet_recon_core`, `wallet_statement_core`, `ref_engine`, `ref_ext_core`, `gl_core`, `report_core`, `fee_core`, `eod_core`, `eod_jobs_core`, `statement_core`, `dashboard_core`, `notification_template_core`, `sla_tracker_core`, `compliance_calendar_core`, `cost_center_core`, `corp_core`, `risk_core`, `identity_core`, `phone_otp_core` |
 | D1 Lending | Done | `loan_schedule_core` (28 actions), `loan_core`, `loan_posting_core`, `loan_schedule_lifecycle_core`, `loan_schedule_posting_core`, `loan_schedule_report_core` |
 | D2 Deposit | Done | `deposit_core` (13 actions), `deposit_posting_core` |
 | D3 Cards | Done | `card_core` (16 actions), `card_posting_core` |
@@ -95,8 +95,8 @@ Flagship hand-reviewed domains (core anchors). The full inventory is
 | D5 Payments | Done | `payment_clearing_core` (9 actions), `payment_core`, `payment_hold_core`, `payment_instruction_core` |
 | D6 Treasury / FX | Done | `treasury_liquidity_core` (9 actions), `fx_rate_core` |
 | D8 Finance | Done | `gl_allocation_core` (9 actions), `gl_core`, `fixed_asset_core`, `tax_management_core` |
-| D9 IT Ops | Done | `backup_drill_core` (9 actions), `eod_jobs_core`, `sla_tracker_core` |
-| D10 Data / Reporting | Done | `report_builder_core` (9 actions), `report_core`, `report_run_core`, `report_schedule_core`, `import_core`, `import_row_core`, `import_post_core`, `import_recon_core`, `statement_core`, `statement_recon_core` |
+| D9 IT Ops | Done | `eod_jobs_core`, `sla_tracker_core` |
+| D10 Data / Reporting | Done | `report_core`, `report_run_core`, `report_schedule_core`, `import_core`, `import_row_core`, `import_post_core`, `import_recon_core`, `statement_core`, `statement_recon_core` |
 | Compliance / risk | Done | `identity_core`, `risk_core`, `corp_core`, `auth_review_core`, `compliance_calendar_core`, `phone_otp_core` |
 | Collateral Mgmt | Done (pilot) | `collateral_core` (17 actions: register/appraise/revalue/pledge/allocate/release/repossess/dispose + CRUD/audit); legacy clones retired in `bc389970` |
 | Trade Finance | Done (pilot) | `letter_of_credit_core` (LC lifecycle + GL link), `bank_guarantee_core` (BG lifecycle + claim); legacy generic clones retired in `bc389970` |
@@ -155,12 +155,12 @@ suites, table cases, and the action/suite inventory gates. See
 <!-- BEGIN GENERATED STATS -->
 | Metric | Value |
 | --- | ---: |
-| COBOL modules | **71** |
-| COBOL source files (incl. dispatcher) | **72** |
-| COBOL lines | **49,228** |
-| Gateway route files | **54** |
-| Gateway route definitions | **577** |
-| Dispatch entries | **194** |
+| COBOL modules | **69** |
+| COBOL source files (incl. dispatcher) | **70** |
+| COBOL lines | **48,257** |
+| Gateway route files | **52** |
+| Gateway route definitions | **561** |
+| Dispatch entries | **192** |
 | Recorded migrations | **678** |
 | Tables in schema.sql | **466** |
 <!-- END GENERATED STATS -->

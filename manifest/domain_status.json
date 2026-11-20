@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T02:45:51.808442Z",
+  "generatedAt": "2026-11-20T02:50:25.968Z",
   "entries": [
     {
       "domain": "account",
@@ -126,22 +126,6 @@
       "owner": null,
       "status": "REVIEW",
       "reason": "Split audit maint-08: RETAIN (reviewed, not pending). 9 internal-CALL actions (STORE/REVOKE/CONSUME/CHECK_TOKEN/REVOKE_TOKEN/LIST/REVOKE_USER/REVOKE_ALL/GET_VERSION); coverage tests/db/auth_session_db_tests.sh (21 assertions). L0 linkage is structural (session/token tables, no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking).",
-      "retireAfter": null,
-      "tableDropDate": null
-    },
-    {
-      "domain": "backup_drill",
-      "module": "backup_drill_core",
-      "routeFile": "backup_drill.js",
-      "table": "backup_drill",
-      "linkageLevel": "L0",
-      "linkedCoreDomains": [],
-      "replacement": null,
-      "consumer": null,
-      "trafficLastSeen": null,
-      "owner": null,
-      "status": "FROZEN",
-      "reason": "No proven core link; frozen pending dead-candidate evidence (PR-010F).",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -876,22 +860,6 @@
       "owner": null,
       "status": "ACTIVE",
       "reason": "Utility module; never a retire candidate.",
-      "retireAfter": null,
-      "tableDropDate": null
-    },
-    {
-      "domain": "report_builder",
-      "module": "report_builder_core",
-      "routeFile": "report_builder.js",
-      "table": "report_builder",
-      "linkageLevel": "L0",
-      "linkedCoreDomains": [],
-      "replacement": null,
-      "consumer": null,
-      "trafficLastSeen": null,
-      "owner": null,
-      "status": "FROZEN",
-      "reason": "No proven core link; frozen pending dead-candidate evidence (PR-010F).",
       "retireAfter": null,
       "tableDropDate": null
     },

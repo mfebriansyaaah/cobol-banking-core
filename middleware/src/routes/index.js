@@ -15,8 +15,6 @@ import { PAYMENT_HOLD_ROUTES } from './payment_hold.js';
 import { PAYMENT_CLEARING_ROUTES } from './payment_clearing.js';
 import { TREASURY_LIQUIDITY_ROUTES } from './treasury_liquidity.js';
 import { GL_ALLOCATION_ROUTES } from './gl_allocation.js';
-import { BACKUP_DRILL_ROUTES } from './backup_drill.js';
-import { REPORT_BUILDER_ROUTES } from './report_builder.js';
 import { COST_CENTER_ROUTES } from './cost_center.js';
 import { FIXED_ASSET_ROUTES } from './fixed_asset.js';
 import { MERCHANT_ROUTES } from './merchant.js';
@@ -71,8 +69,6 @@ export const ALL_ROUTES = [
   ...PAYMENT_CLEARING_ROUTES,
   ...TREASURY_LIQUIDITY_ROUTES,
   ...GL_ALLOCATION_ROUTES,
-  ...BACKUP_DRILL_ROUTES,
-  ...REPORT_BUILDER_ROUTES,
   ...COST_CENTER_ROUTES,
   ...FIXED_ASSET_ROUTES,
   ...MERCHANT_ROUTES,
