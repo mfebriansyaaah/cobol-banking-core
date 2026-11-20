@@ -131,7 +131,7 @@ measure_action() {
   fi
 }
 
-for action in "PING" "GLA_LIST|||50|0||admin@test.com" "BDR_LIST|||50|0||admin@test.com"; do
+for action in "PING" "GLA_LIST|||50|0||admin@test.com" "GLA_LIST|||50|0||admin@test.com"; do
   gen_action() { printf '%s' "$action"; }
   measure_action
 done
