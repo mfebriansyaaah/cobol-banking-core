@@ -43,6 +43,8 @@ const WIRED = [
   ['scripts/ci/restore_drill.sh', ['LOCAL-ONLY']],
   ['scripts/ci/build_db_snapshot.sh', ['build_db_snapshot']],
   ['scripts/ci/classify_changes.mjs', ['classify_changes']],
+  ['scripts/ci/impact-plan.mjs', ['impact-plan.mjs']],
+  ['scripts/ci/impact-audit.mjs', ['impact-audit.mjs']],
 ];
 
 function collectRunSteps() {
@@ -395,5 +397,56 @@ test('db consumers wait for the snapshot producer (CI-008B ordering)', () => {
     assert.ok(job, `ci.yml must define ${id}`);
     const needs = Array.isArray(job.needs) ? job.needs : [job.needs];
     assert.ok(needs.includes('db-snapshot'), `${id} must need db-snapshot (no silent fallback race)`);
+  }
+});
+
+test('impact plan is computed in changes and audited advisory-only (PR-01 shadow)', () => {
+  const ci = collectWorkflowJobs()['ci.yml'];
+  const ciYaml = readFileSync(path.join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8');
+  const changes = ci['changes'];
+  assert.ok(changes, 'ci.yml must define a changes job');
+  for (const name of [
+    'plan_mode',
+    'plan_lint',
+    'plan_build',
+    'plan_test',
+    'plan_db',
+    'plan_db_suites',
+    'plan_gateway_coverage',
+    'plan_cobol_coverage',
+    'plan_enforce',
+    'plan_reason',
+    'eff_lint',
+    'eff_build',
+    'eff_test',
+    'eff_db',
+    'eff_db_suites',
+    'eff_gateway_coverage',
+    'eff_cobol_coverage',
+    'eff_aggregate',
+    'eff_aggregate_mode',
+    'eff_db_snapshot',
+  ]) {
+    assert.match(
+      ciYaml,
+      new RegExp(`${name}: \\$\\{\\{ steps\\.impact\\.outputs\\.${name} \\}\\}`),
+      `changes must expose output ${name}`,
+    );
+  }
+  assert.match(changes.runs.join('\n'), /impact-plan\.mjs/, 'changes must run the impact planner');
+  assert.match(changes.runs.join('\n'), /--fallback-full/, 'changes must restore a full plan when the planner fails');
+  assert.match(ciYaml, /name: impact-plan/, 'changes must publish the impact-plan artifact');
+
+  const audit = ci['plan-audit'];
+  assert.ok(audit, 'ci.yml must define a plan-audit job');
+  assert.equal(audit.name, 'plan audit');
+  assert.equal(audit.timeout, 5);
+  assert.match(String(audit.if || ''), /plan_enforce != 'true'/, 'plan audit must stay advisory');
+  assert.match(audit.runs.join('\n'), /impact-audit\.mjs/, 'plan audit must run the audit script');
+  assert.match(ciYaml, /name: impact-audit/, 'plan audit must publish the impact-audit artifact');
+
+  // PR-01 changes no gate: heavy jobs keep their legacy conditions.
+  for (const id of ['build', 'test', 'db-shards', 'coverage', 'coverage-pr', 'db-aggregate', 'db-snapshot']) {
+    assert.doesNotMatch(String(ci[id].if || ''), /eff_/, `${id} must not gate on eff_* yet (PR-01 is shadow-only)`);
   }
 });

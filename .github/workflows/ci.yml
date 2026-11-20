@@ -33,6 +33,10 @@ concurrency:
 # shard runner, and the aggregate step all read this. 82 DB suites today.
 env:
   DB_SHARD_COUNT: 2
+  # Impact targeting shadow flag (PR-01): 'false' keeps every effective
+  # output identical to the legacy behavior; the plan is advisory only.
+  # PR-07 flips this to 'true' after the shadow evidence lands.
+  PLAN_ENFORCE: 'false'
 
 jobs:
   # Changed-file classifier. Runs first and cheaply; every heavy job gates on
@@ -50,6 +54,41 @@ jobs:
       select_mode: ${{ steps.select.outputs.select_mode }}
       select_db_suites: ${{ steps.select.outputs.select_db_suites }}
       select_reason: ${{ steps.select.outputs.select_reason }}
+      plan_mode: ${{ steps.impact.outputs.plan_mode }}
+      plan_lint: ${{ steps.impact.outputs.plan_lint }}
+      plan_build: ${{ steps.impact.outputs.plan_build }}
+      plan_test: ${{ steps.impact.outputs.plan_test }}
+      plan_table_cases: ${{ steps.impact.outputs.plan_table_cases }}
+      plan_node_suite: ${{ steps.impact.outputs.plan_node_suite }}
+      plan_node_files: ${{ steps.impact.outputs.plan_node_files }}
+      plan_integration: ${{ steps.impact.outputs.plan_integration }}
+      plan_integration_flows: ${{ steps.impact.outputs.plan_integration_flows }}
+      plan_db: ${{ steps.impact.outputs.plan_db }}
+      plan_db_suites: ${{ steps.impact.outputs.plan_db_suites }}
+      plan_gateway_coverage: ${{ steps.impact.outputs.plan_gateway_coverage }}
+      plan_cobol_coverage: ${{ steps.impact.outputs.plan_cobol_coverage }}
+      plan_schema_drift: ${{ steps.impact.outputs.plan_schema_drift }}
+      plan_docker: ${{ steps.impact.outputs.plan_docker }}
+      plan_enforce: ${{ steps.impact.outputs.plan_enforce }}
+      plan_reason: ${{ steps.impact.outputs.plan_reason }}
+      plan_unmapped: ${{ steps.impact.outputs.plan_unmapped }}
+      eff_lint: ${{ steps.impact.outputs.eff_lint }}
+      eff_build: ${{ steps.impact.outputs.eff_build }}
+      eff_test: ${{ steps.impact.outputs.eff_test }}
+      eff_table_cases: ${{ steps.impact.outputs.eff_table_cases }}
+      eff_node_suite: ${{ steps.impact.outputs.eff_node_suite }}
+      eff_node_files: ${{ steps.impact.outputs.eff_node_files }}
+      eff_integration: ${{ steps.impact.outputs.eff_integration }}
+      eff_integration_flows: ${{ steps.impact.outputs.eff_integration_flows }}
+      eff_db: ${{ steps.impact.outputs.eff_db }}
+      eff_db_suites: ${{ steps.impact.outputs.eff_db_suites }}
+      eff_gateway_coverage: ${{ steps.impact.outputs.eff_gateway_coverage }}
+      eff_cobol_coverage: ${{ steps.impact.outputs.eff_cobol_coverage }}
+      eff_schema_drift: ${{ steps.impact.outputs.eff_schema_drift }}
+      eff_docker: ${{ steps.impact.outputs.eff_docker }}
+      eff_aggregate: ${{ steps.impact.outputs.eff_aggregate }}
+      eff_aggregate_mode: ${{ steps.impact.outputs.eff_aggregate_mode }}
+      eff_db_snapshot: ${{ steps.impact.outputs.eff_db_snapshot }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
@@ -97,6 +136,50 @@ jobs:
             echo "select_db_suites=$SELECT_DB_SUITES"
             echo "select_reason=$SELECT_REASON"
           } >> "$GITHUB_OUTPUT"
+
+      # Impact plan (shadow, PR-01): advisory only while PLAN_ENFORCE=false.
+      # The fallback step below guarantees every plan_*/eff_* output exists
+      # even when this step fails, so downstream jobs never see empty values.
+      - name: Compute impact plan
+        id: impact
+        continue-on-error: true
+        env:
+          PLAN_ENFORCE: ${{ env.PLAN_ENFORCE }}
+          EVENT_NAME: ${{ github.event_name }}
+          DOCS_ONLY: ${{ steps.classify.outputs.docs_only }}
+          DOCKER_RELEVANT: ${{ steps.classify.outputs.docker_relevant }}
+          DOCKER_DEFINITION: ${{ steps.classify.outputs.docker_definition }}
+          COVERAGE_RELEVANT: ${{ steps.classify.outputs.coverage_relevant }}
+          DB_OPS_RELEVANT: ${{ steps.classify.outputs.db_ops_relevant }}
+          SELECT_MODE: ${{ steps.select.outputs.select_mode }}
+          SELECT_DB_SUITES: ${{ steps.select.outputs.select_db_suites }}
+          HAS_CI_FULL_LABEL: ${{ contains(github.event.pull_request.labels.*.name, 'ci:full') }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/impact-plan
+          node scripts/ci/impact-plan.mjs \
+            --base "${PR_BASE_SHA:-${PUSH_BEFORE_SHA:-origin/main}}" \
+            --out artifacts/impact-plan/impact-plan.json \
+            --github-output "$GITHUB_OUTPUT"
+
+      - name: Restore full plan on planner failure
+        if: steps.impact.outcome == 'failure'
+        run: |
+          set -euo pipefail
+          node scripts/ci/impact-plan.mjs \
+            --fallback-full \
+            --github-output "$GITHUB_OUTPUT"
+
+      - name: Upload impact plan
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: impact-plan
+          overwrite: true
+          path: artifacts/impact-plan/
+          retention-days: 14
+          if-no-files-found: warn
 
   # All static analysis and fast tests live in one job. They are independent
   # of the compiled artifact, so running them here lets `build` stay a pure
@@ -1168,6 +1251,51 @@ jobs:
         uses: ./.github/actions/upload-diagnostics
         with:
           name: diagnostics-coverage-pr
+
+  # Advisory shadow audit (PR-01): compares the impact plan's would-skip
+  # list against actual results. Never required, never fails the pipeline;
+  # it only records false negatives for the PR-07 enable decision.
+  plan-audit:
+    name: plan audit
+    needs: [changes, lint, build, docker-build, db-snapshot, schema-drift, test, db-shards,
+            db-selected, coverage, coverage-pr, db-aggregate, db-ops]
+    if: always() && needs.changes.outputs.plan_enforce != 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: '24'
+
+      - name: Download impact plan
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        with:
+          name: impact-plan
+          path: artifacts/impact-plan
+
+      - name: Run impact audit
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/impact-audit
+          node scripts/ci/impact-audit.mjs \
+            --plan artifacts/impact-plan/impact-plan.json \
+            --jobs-json '${{ toJSON(needs) }}' \
+            --out artifacts/impact-audit/impact-audit.json
+
+      - name: Upload impact audit
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: impact-audit
+          overwrite: true
+          path: artifacts/impact-audit/
+          retention-days: 14
+          if-no-files-found: warn
 
   # Push-to-main notification only; never a required check.
   notify:
