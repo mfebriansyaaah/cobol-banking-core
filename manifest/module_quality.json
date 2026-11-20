@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T10:49:23.587Z",
+  "generatedAt": "2026-11-20T13:02:40.357Z",
   "modules": [
     {
       "module": "account_core",
@@ -339,7 +339,7 @@
     },
     {
       "module": "identity_core",
-      "linkageLevel": "L2",
+      "linkageLevel": "L3",
       "domainStatus": "PILOT",
       "candidateStatus": null,
       "cloneSimilarity": null,
@@ -495,7 +495,7 @@
     },
     {
       "module": "merchant_core",
-      "linkageLevel": "L2",
+      "linkageLevel": "L3",
       "domainStatus": "PILOT",
       "candidateStatus": null,
       "cloneSimilarity": null,
@@ -579,7 +579,7 @@
     },
     {
       "module": "payroll_processing_core",
-      "linkageLevel": "L2",
+      "linkageLevel": "L3",
       "domainStatus": "PILOT",
       "candidateStatus": null,
       "cloneSimilarity": null,

@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-11-20T10:49:11.206Z",
-  "commit": "628e50ee",
+  "generatedAt": "2026-11-20T13:00:56.146Z",
+  "commit": "705867b0",
   "linkageSource": "manifest/linkage.json",
   "summary": {
-    "L3": 30,
-    "L2": 36,
+    "L3": 33,
+    "L2": 33,
     "L1": 0,
     "L0": 0,
     "UTILITY": 3
@@ -64,7 +64,8 @@
       "module": "auth_ops_core",
       "source": "auth_ops_core.cob",
       "businessTables": [
-        "notification_outbox"
+        "notification_outbox",
+        "role_permissions"
       ],
       "coreCalls": [],
       "coreActions": [],
@@ -73,7 +74,7 @@
         "tests/db/auth_ops_db_tests.sh"
       ],
       "linkageLevel": "L2",
-      "reason": "business link (tables notification_outbox) + test",
+      "reason": "business link (tables notification_outbox, role_permissions) + test",
       "routeFiles": []
     },
     {
@@ -92,8 +93,11 @@
       "module": "auth_recovery_core",
       "source": "auth_recovery_core.cob",
       "businessTables": [
+        "dual_control_operations",
+        "maker_requests",
         "mfa_backup_codes",
-        "mfa_recovery_requests"
+        "mfa_recovery_requests",
+        "verification_logs"
       ],
       "coreCalls": [],
       "coreActions": [],
@@ -102,7 +106,7 @@
         "tests/db/auth_recovery_db_tests.sh"
       ],
       "linkageLevel": "L2",
-      "reason": "business link (tables mfa_backup_codes, mfa_recovery_requests) + test",
+      "reason": "business link (tables dual_control_operations, maker_requests, mfa_backup_codes, mfa_recovery_requests, verification_logs) + test",
       "routeFiles": [
         "admin.js"
       ]
@@ -111,7 +115,9 @@
       "module": "auth_review_core",
       "source": "auth_review_core.cob",
       "businessTables": [
-        "access_reviews"
+        "access_reviews",
+        "permissions",
+        "role_permissions"
       ],
       "coreCalls": [],
       "coreActions": [],
@@ -120,14 +126,16 @@
         "tests/db/auth_review_db_tests.sh"
       ],
       "linkageLevel": "L2",
-      "reason": "business link (tables access_reviews) + test",
+      "reason": "business link (tables access_reviews, permissions, role_permissions) + test",
       "routeFiles": []
     },
     {
       "module": "auth_session_core",
       "source": "auth_session_core.cob",
       "businessTables": [
-        "refresh_sessions"
+        "refresh_families",
+        "refresh_sessions",
+        "revoked_access_tokens"
       ],
       "coreCalls": [],
       "coreActions": [],
@@ -136,7 +144,7 @@
         "tests/db/auth_session_db_tests.sh"
       ],
       "linkageLevel": "L2",
-      "reason": "business link (tables refresh_sessions) + test",
+      "reason": "business link (tables refresh_families, refresh_sessions, revoked_access_tokens) + test",
       "routeFiles": []
     },
     {
@@ -144,7 +152,8 @@
       "source": "bank_guarantee_core.cob",
       "businessTables": [
         "bank_guarantee",
-        "bg_claim"
+        "bg_claim",
+        "customer"
       ],
       "coreCalls": [],
       "coreActions": [],
@@ -154,7 +163,7 @@
         "tests/cobol/cases/bank_guarantee.cases"
       ],
       "linkageLevel": "L2",
-      "reason": "business link (tables bank_guarantee, bg_claim) + test",
+      "reason": "business link (tables bank_guarantee, bg_claim, customer) + test",
       "routeFiles": [
         "bank_guarantee.js"
       ]
@@ -197,8 +206,10 @@
       "module": "chargeback_core",
       "source": "chargeback_core.cob",
       "businessTables": [
+        "chargeback",
         "chargeback_case",
-        "chargeback_ledger"
+        "chargeback_ledger",
+        "merchant"
       ],
       "coreCalls": [],
       "coreActions": [],
@@ -209,7 +220,7 @@
         "tests/integration/chargeback_flow.sh"
       ],
       "linkageLevel": "L2",
-      "reason": "business link (tables chargeback_case, chargeback_ledger) + test",
+      "reason": "business link (tables chargeback, chargeback_case, chargeback_ledger, merchant) + test",
       "routeFiles": [
         "chargeback.js"
       ]
@@ -218,6 +229,9 @@
       "module": "collateral_core",
       "source": "collateral_core.cob",
       "businessTables": [
+        "collateral",
+        "collateral_allocation",
+        "collateral_valuation",
         "loan_application"
       ],
       "coreCalls": [],
@@ -229,7 +243,7 @@
         "tests/integration/collateral_loan_flow.sh"
       ],
       "linkageLevel": "L2",
-      "reason": "business link (tables loan_application) + test",
+      "reason": "business link (tables collateral, collateral_allocation, collateral_valuation, loan_application) + test",
       "routeFiles": [
         "collateral.js"
       ]
@@ -308,9 +322,16 @@
       "source": "dashboard_core.cob",
       "businessTables": [
         "accounts",
+        "dispute_cases",
+        "import_batch",
         "ledger",
         "notification_outbox",
-        "report_run"
+        "payment_policy",
+        "payment_profile",
+        "pending_transactions",
+        "reconciliation_runs",
+        "report_run",
+        "report_schedule"
       ],
       "coreCalls": [],
       "coreActions": [],
@@ -363,7 +384,9 @@
       "module": "eod_core",
       "source": "eod_core.cob",
       "businessTables": [
-        "eod_phase"
+        "eod_calendar",
+        "eod_phase",
+        "eod_run"
       ],
       "coreCalls": [],
       "coreActions": [],
@@ -372,7 +395,7 @@
         "tests/cobol/cases/eod.cases"
       ],
       "linkageLevel": "L2",
-      "reason": "business link (tables eod_phase) + test",
+      "reason": "business link (tables eod_calendar, eod_phase, eod_run) + test",
       "routeFiles": [
         "eod.js"
       ]
@@ -382,7 +405,9 @@
       "source": "eod_jobs_core.cob",
       "businessTables": [
         "accounts",
-        "eod_job_run"
+        "eod_job_run",
+        "pending_transactions",
+        "pending_transactions_archive"
       ],
       "coreCalls": [
         "user_core"
@@ -501,7 +526,11 @@
       "module": "identity_core",
       "source": "identity_core.cob",
       "businessTables": [
-        "accounts"
+        "accounts",
+        "identity_verifications",
+        "manual_reviews",
+        "phone_links",
+        "screening_checks"
       ],
       "coreCalls": [],
       "coreActions": [],
@@ -510,8 +539,8 @@
         "tests/db/identity_db_tests.sh",
         "tests/integration/identity_flow.sh"
       ],
-      "linkageLevel": "L2",
-      "reason": "business link (tables accounts) + test",
+      "linkageLevel": "L3",
+      "reason": "money-table touch (accounts) with depth + test",
       "routeFiles": [
         "identity.js",
         "screening.js"
@@ -522,6 +551,7 @@
       "source": "import_core.cob",
       "businessTables": [
         "gl_account",
+        "import_batch",
         "import_row"
       ],
       "coreCalls": [],
@@ -531,7 +561,7 @@
         "tests/cobol/cases/import.cases"
       ],
       "linkageLevel": "L2",
-      "reason": "business link (tables gl_account, import_row) + test",
+      "reason": "business link (tables gl_account, import_batch, import_row) + test",
       "routeFiles": [
         "import.js"
       ]
@@ -542,6 +572,8 @@
       "businessTables": [
         "gl_journal",
         "gl_journal_line",
+        "gl_period",
+        "import_batch",
         "import_row"
       ],
       "coreCalls": [],
@@ -560,6 +592,8 @@
       "source": "import_recon_core.cob",
       "businessTables": [
         "gl_journal_line",
+        "import_batch",
+        "import_recon_run",
         "import_row"
       ],
       "coreCalls": [],
@@ -579,6 +613,7 @@
       "module": "import_row_core",
       "source": "import_row_core.cob",
       "businessTables": [
+        "import_batch",
         "import_row"
       ],
       "coreCalls": [],
@@ -588,13 +623,14 @@
         "tests/db/import_row_db_tests.sh"
       ],
       "linkageLevel": "L2",
-      "reason": "business link (tables import_row) + test",
+      "reason": "business link (tables import_batch, import_row) + test",
       "routeFiles": []
     },
     {
       "module": "letter_of_credit_core",
       "source": "letter_of_credit_core.cob",
       "businessTables": [
+        "customer",
         "lc_drawing",
         "lc_settlement",
         "letter_of_credit"
@@ -607,7 +643,7 @@
         "tests/cobol/cases/letter_of_credit.cases"
       ],
       "linkageLevel": "L2",
-      "reason": "business link (tables lc_drawing, lc_settlement, letter_of_credit) + test",
+      "reason": "business link (tables customer, lc_drawing, lc_settlement, letter_of_credit) + test",
       "routeFiles": [
         "letter_of_credit.js",
         "trade_finance.js"
@@ -716,8 +752,10 @@
       "module": "loyalty_core",
       "source": "loyalty_core.cob",
       "businessTables": [
+        "customer",
         "loyalty_member",
         "loyalty_points_ledger",
+        "loyalty_program",
         "loyalty_redemption"
       ],
       "coreCalls": [],
@@ -728,7 +766,7 @@
         "tests/integration/loyalty_flow.sh"
       ],
       "linkageLevel": "L2",
-      "reason": "business link (tables loyalty_member, loyalty_points_ledger, loyalty_redemption) + test",
+      "reason": "business link (tables customer, loyalty_member, loyalty_points_ledger, loyalty_program, loyalty_redemption) + test",
       "routeFiles": [
         "loyalty.js"
       ]
@@ -737,7 +775,10 @@
       "module": "merchant_core",
       "source": "merchant_core.cob",
       "businessTables": [
-        "accounts"
+        "accounts",
+        "customer",
+        "merchant",
+        "merchant_settlement"
       ],
       "coreCalls": [],
       "coreActions": [],
@@ -747,8 +788,8 @@
         "tests/cobol/cases/merchant.cases",
         "tests/integration/merchant_acquiring_flow.sh"
       ],
-      "linkageLevel": "L2",
-      "reason": "business link (tables accounts) + test",
+      "linkageLevel": "L3",
+      "reason": "money-table touch (accounts) with depth + test",
       "routeFiles": [
         "merchant.js"
       ]
@@ -757,6 +798,8 @@
       "module": "merchant_settlement_core",
       "source": "merchant_settlement_core.cob",
       "businessTables": [
+        "merchant",
+        "merchant_settlement",
         "merchant_transaction"
       ],
       "coreCalls": [],
@@ -767,7 +810,7 @@
         "tests/cobol/cases/merchant_settlement.cases"
       ],
       "linkageLevel": "L2",
-      "reason": "business link (tables merchant_transaction) + test",
+      "reason": "business link (tables merchant, merchant_settlement, merchant_transaction) + test",
       "routeFiles": [
         "merchant_settlement.js"
       ]
@@ -809,7 +852,10 @@
       "source": "payment_core.cob",
       "businessTables": [
         "accounts",
-        "ledger"
+        "daily_limit",
+        "ledger",
+        "payment_policy",
+        "payment_profile"
       ],
       "coreCalls": [
         "fee_core"
@@ -832,7 +878,8 @@
       "businessTables": [
         "accounts",
         "journal_entries",
-        "ledger"
+        "ledger",
+        "payment_hold"
       ],
       "coreCalls": [],
       "coreActions": [],
@@ -850,7 +897,10 @@
     {
       "module": "payment_instruction_core",
       "source": "payment_instruction_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "payment_instruction",
+        "payment_instruction_run"
+      ],
       "coreCalls": [
         "wallet_core"
       ],
@@ -863,7 +913,7 @@
         "tests/cobol/cases/payment_instruction.cases"
       ],
       "linkageLevel": "L2",
-      "reason": "business link (calls wallet_core; actions TRANSFER) + test",
+      "reason": "business link (tables payment_instruction, payment_instruction_run; calls wallet_core; actions TRANSFER) + test",
       "routeFiles": [
         "payment_instructions.js"
       ]
@@ -872,7 +922,12 @@
       "module": "payroll_processing_core",
       "source": "payroll_processing_core.cob",
       "businessTables": [
-        "accounts"
+        "accounts",
+        "customer",
+        "payroll_employee",
+        "payroll_payment",
+        "payroll_processing",
+        "tax_management"
       ],
       "coreCalls": [],
       "coreActions": [],
@@ -881,8 +936,8 @@
         "tests/db/payroll_processing_db_tests.sh",
         "tests/cobol/cases/payroll_processing.cases"
       ],
-      "linkageLevel": "L2",
-      "reason": "business link (tables accounts) + test",
+      "linkageLevel": "L3",
+      "reason": "money-table touch (accounts) with depth + test",
       "routeFiles": [
         "payroll_processing.js"
       ]
@@ -891,7 +946,8 @@
       "module": "phone_otp_core",
       "source": "phone_otp_core.cob",
       "businessTables": [
-        "otp_challenges"
+        "otp_challenges",
+        "phone_links"
       ],
       "coreCalls": [],
       "coreActions": [],
@@ -900,7 +956,7 @@
         "tests/db/phone_otp_db_tests.sh"
       ],
       "linkageLevel": "L2",
-      "reason": "business link (tables otp_challenges) + test",
+      "reason": "business link (tables otp_challenges, phone_links) + test",
       "routeFiles": [
         "phone.js"
       ]
@@ -960,6 +1016,7 @@
         "gl_journal",
         "gl_journal_line",
         "report_run",
+        "report_run_row",
         "report_template"
       ],
       "coreCalls": [],
@@ -1032,7 +1089,10 @@
       "businessTables": [
         "accounts",
         "journal_entries",
-        "ledger"
+        "ledger",
+        "statement_archive",
+        "statement_archive_line",
+        "statement_run"
       ],
       "coreCalls": [],
       "coreActions": [],
@@ -1052,7 +1112,11 @@
       "source": "statement_recon_core.cob",
       "businessTables": [
         "accounts",
-        "ledger"
+        "ledger",
+        "statement_archive",
+        "statement_archive_line",
+        "statement_recon_run",
+        "statement_run"
       ],
       "coreCalls": [],
       "coreActions": [],
@@ -1071,6 +1135,8 @@
       "module": "tax_management_core",
       "source": "tax_management_core.cob",
       "businessTables": [
+        "tax_management",
+        "tax_report_run",
         "tax_withholding_entry"
       ],
       "coreCalls": [],
@@ -1081,7 +1147,7 @@
         "tests/cobol/cases/tax_management.cases"
       ],
       "linkageLevel": "L2",
-      "reason": "business link (tables tax_withholding_entry) + test",
+      "reason": "business link (tables tax_management, tax_report_run, tax_withholding_entry) + test",
       "routeFiles": [
         "tax_management.js"
       ]
@@ -1133,7 +1199,10 @@
       "source": "wallet_dispute_core.cob",
       "businessTables": [
         "accounts",
-        "ledger"
+        "dispute_cases",
+        "dispute_messages",
+        "ledger",
+        "pending_transactions"
       ],
       "coreCalls": [],
       "coreActions": [],
@@ -1168,7 +1237,9 @@
       "source": "wallet_recon_core.cob",
       "businessTables": [
         "accounts",
-        "ledger"
+        "ledger",
+        "reconciliation_runs",
+        "role_permissions"
       ],
       "coreCalls": [],
       "coreActions": [],
@@ -1186,7 +1257,9 @@
       "businessTables": [
         "accounts",
         "journal_entries",
-        "ledger"
+        "ledger",
+        "reversal_fee_policy",
+        "transfer_reversals"
       ],
       "coreCalls": [],
       "coreActions": [
@@ -1223,9 +1296,11 @@
       "source": "wallet_transfer_core.cob",
       "businessTables": [
         "accounts",
+        "exchange_rates",
         "fee_schedule",
         "journal_entries",
-        "ledger"
+        "ledger",
+        "pending_transactions"
       ],
       "coreCalls": [
         "fee_core"

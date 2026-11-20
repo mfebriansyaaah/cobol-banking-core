@@ -53,7 +53,7 @@ removed modules are archived in `manifest/wave_legacy.json`).
 | `gl_allocation` | `gl_allocation_core` | L2 | PILOT | gl_allocation.js | gl_allocation | — | Business-linked GL allocation; anchor gl_allocation; gl_allocation_db_tests.sh (measured 61.86%, L2 so no L3 floor). |
 | `gl` | `gl_core` | L3 | ACTIVE | gl.js | gl_account | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `hashlen` | `hashlen_core` | UTILITY | ACTIVE | — | — | — | Utility module; never a retire candidate. |
-| `identity` | `identity_core` | L2 | PILOT | identity.js | identity_verifications | — | Business-linked identity/KYC (L2); accounts anchor; tests/db/identity_db_tests.sh + tests/integration/identity_flow.sh. |
+| `identity` | `identity_core` | L3 | PILOT | identity.js | identity_verifications | — | Business-linked identity/KYC (L2); accounts anchor; tests/db/identity_db_tests.sh + tests/integration/identity_flow.sh. |
 | `import` | `import_core` | L2 | PILOT | import.js | import_row | — | Business-linked import; anchor gl_account validation; import_ops_db_tests.sh (import_row anchor avoided to prevent promoting import_row_core). |
 | `import_post` | `import_post_core` | L3 | ACTIVE | — | import_batch | — | Business-linked import posting; posts validated batches to gl_journal/gl_journal_line; tests/db/import_post_db_tests.sh. |
 | `import_recon` | `import_recon_core` | L3 | PILOT | import_recon.js | import_recon_item | — | Business-linked import reconciliation; import_recon_run over posted batches; tests/db/import_recon_db_tests.sh. |
@@ -66,14 +66,14 @@ removed modules are archived in `manifest/wave_legacy.json`).
 | `loan_schedule` | `loan_schedule_posting_core` | L2 | PILOT | loan_schedule.js | loan_schedule | — | Business-linked loan-schedule posting (L2); loan_schedule/loan_installment + tests/db/loan_schedule_posting_db_tests.sh. |
 | `loan_schedule` | `loan_schedule_report_core` | L2 | PILOT | loan_schedule.js | loan_schedule | — | Business-linked loan-schedule reporting (L2); loan_schedule + tests/db/loan_schedule_report_db_tests.sh; fixed raw-result overwrite. |
 | `loyalty` | `loyalty_core` | L2 | PILOT | loyalty.js | loyalty_member | — | Business-linked loyalty; anchors loyalty_member + loyalty_points_ledger + loyalty_redemption; tests loyalty_domain_db_tests.sh. |
-| `merchant` | `merchant_core` | L2 | PILOT | merchant.js | merchant | — | Business link proven; integration completion (PR-010E) still open before ACTIVE. |
+| `merchant` | `merchant_core` | L3 | PILOT | merchant.js | merchant | — | Business link proven; integration completion (PR-010E) still open before ACTIVE. |
 | `merchant_settlement` | `merchant_settlement_core` | L2 | PILOT | merchant_settlement.js | merchant_settlement | — | Business-linked merchant settlement; merchant_transaction anchor + tests/db/merchant_settlement_db_tests.sh + domain suite. |
 | `notification_template` | `notification_template_core` | L2 | PILOT | notification_template.js | ntf_template_config | — | Business-linked notification template; ntf_template_config table + tests/db/notification_template_db_tests.sh. |
 | `payment_clearing` | `payment_clearing_core` | L3 | ACTIVE | payment_clearing.js | payment_clearing | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `payment` | `payment_core` | L3 | ACTIVE | payment.js | payment_policy | — | Business-linked payment policy engine; payment_policy/payment_profile + ledger checks; tests/db/payment_db_tests.sh. |
 | `payment_hold` | `payment_hold_core` | L3 | ACTIVE | payment_hold.js | payment_hold | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. Fase 1 (PR #607): CAPTURE posts ledger legs + journal atomically. |
 | `payment_instruction` | `payment_instruction_core` | L2 | PILOT | payment_instructions.js | payment_instruction | — | Business-linked payment instructions; payment_instruction lifecycle; tests/db/payment_instruction_db_tests.sh. |
-| `payroll_processing` | `payroll_processing_core` | L2 | PILOT | payroll_processing.js | payroll_processing | — | Business link proven; integration completion (PR-010E) still open before ACTIVE. |
+| `payroll_processing` | `payroll_processing_core` | L3 | PILOT | payroll_processing.js | payroll_processing | — | Business link proven; integration completion (PR-010E) still open before ACTIVE. |
 | `phone_otp` | `phone_otp_core` | L2 | PILOT | phone.js | phone_links | — | Business-linked OTP (L2); anchor otp_challenges; tests/db/phone_otp_db_tests.sh. |
 | `ref_engine` | `ref_engine` | UTILITY | ACTIVE | ref_engine.js | audit_trail | — | Utility module; never a retire candidate. |
 | `ref_ext` | `ref_ext_core` | UTILITY | ACTIVE | ref_ext.js | label | — | Utility module; never a retire candidate. |

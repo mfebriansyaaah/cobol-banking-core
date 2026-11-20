@@ -6,13 +6,13 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-20T10:49:11.206Z
-- Commit: `628e50ee`
+- Generated at: 2026-11-20T13:00:56.146Z
+- Commit: `705867b0`
 
 | Level | Modules |
 | --- | ---: |
-| L3 (core transaction) | 30 |
-| L2 (business reference) | 36 |
+| L3 (core transaction) | 33 |
+| L2 (business reference) | 33 |
 | L1 (weak / untested link) | 0 |
 | L0 (isolated) | 0 |
 | UTILITY | 3 |
@@ -24,69 +24,69 @@ Unresolved route files: none.
 | `account_core` | L2 | account | — | 1 | business link (tables account) + test |
 | `auth_core` | L3 | — | — | 2 | Core anchor module |
 | `auth_mfa_core` | L2 | mfa_backup_codes | — | 0 | business link (tables mfa_backup_codes) + test |
-| `auth_ops_core` | L2 | notification_outbox | — | 0 | business link (tables notification_outbox) + test |
+| `auth_ops_core` | L2 | notification_outbox, role_permissions | — | 0 | business link (tables notification_outbox, role_permissions) + test |
 | `auth_password_core` | L3 | — | — | 0 | Core anchor module |
-| `auth_recovery_core` | L2 | mfa_backup_codes, mfa_recovery_requests | — | 1 | business link (tables mfa_backup_codes, mfa_recovery_requests) + test |
-| `auth_review_core` | L2 | access_reviews | — | 0 | business link (tables access_reviews) + test |
-| `auth_session_core` | L2 | refresh_sessions | — | 0 | business link (tables refresh_sessions) + test |
-| `bank_guarantee_core` | L2 | bank_guarantee, bg_claim | — | 1 | business link (tables bank_guarantee, bg_claim) + test |
+| `auth_recovery_core` | L2 | dual_control_operations, maker_requests, mfa_backup_codes, mfa_recovery_requests, verification_logs | — | 1 | business link (tables dual_control_operations, maker_requests, mfa_backup_codes, mfa_recovery_requests, verification_logs) + test |
+| `auth_review_core` | L2 | access_reviews, permissions, role_permissions | — | 0 | business link (tables access_reviews, permissions, role_permissions) + test |
+| `auth_session_core` | L2 | refresh_families, refresh_sessions, revoked_access_tokens | — | 0 | business link (tables refresh_families, refresh_sessions, revoked_access_tokens) + test |
+| `bank_guarantee_core` | L2 | bank_guarantee, bg_claim, customer | — | 1 | business link (tables bank_guarantee, bg_claim, customer) + test |
 | `card_core` | L3 | — | — | 1 | Core anchor module |
 | `card_posting_core` | L3 | accounts, card_account, gl_journal | gl_core | 0 | money-table touch (accounts, gl_journal) with depth + test |
-| `chargeback_core` | L2 | chargeback_case, chargeback_ledger | — | 1 | business link (tables chargeback_case, chargeback_ledger) + test |
-| `collateral_core` | L2 | loan_application | — | 1 | business link (tables loan_application) + test |
+| `chargeback_core` | L2 | chargeback, chargeback_case, chargeback_ledger, merchant | — | 1 | business link (tables chargeback, chargeback_case, chargeback_ledger, merchant) + test |
+| `collateral_core` | L2 | collateral, collateral_allocation, collateral_valuation, loan_application | — | 1 | business link (tables collateral, collateral_allocation, collateral_valuation, loan_application) + test |
 | `collection_core` | L3 | — | — | 1 | Core anchor module |
 | `compliance_calendar_core` | L2 | compliance_calendar | — | 1 | business link (tables compliance_calendar) + test |
 | `corp_core` | L2 | corporate_entities | — | 1 | business link (tables corporate_entities) + test |
 | `cost_center_core` | L2 | cost_center | — | 1 | business link (tables cost_center) + test |
-| `dashboard_core` | L3 | accounts, ledger, notification_outbox, report_run | — | 1 | money-table touch (accounts, ledger) with depth + test |
+| `dashboard_core` | L3 | accounts, dispute_cases, import_batch, ledger, notification_outbox, payment_policy, payment_profile, pending_transactions, reconciliation_runs, report_run, report_schedule | — | 1 | money-table touch (accounts, ledger) with depth + test |
 | `deposit_core` | L3 | — | — | 1 | Core anchor module |
 | `deposit_posting_core` | L3 | accounts, deposit_account, deposit_accrual, gl_journal | gl_core | 0 | money-table touch (accounts, gl_journal) with depth + test |
-| `eod_core` | L2 | eod_phase | — | 1 | business link (tables eod_phase) + test |
-| `eod_jobs_core` | L3 | accounts, eod_job_run | user_core | 1 | money-table touch (accounts) with depth + test |
+| `eod_core` | L2 | eod_calendar, eod_phase, eod_run | — | 1 | business link (tables eod_calendar, eod_phase, eod_run) + test |
+| `eod_jobs_core` | L3 | accounts, eod_job_run, pending_transactions, pending_transactions_archive | user_core | 1 | money-table touch (accounts) with depth + test |
 | `fee_core` | L3 | — | — | 1 | Core anchor module |
 | `fixed_asset_core` | L2 | fixed_asset, fixed_asset_depreciation, fixed_asset_disposal | — | 1 | business link (tables fixed_asset, fixed_asset_depreciation, fixed_asset_disposal) + test |
 | `fx_rate_core` | L2 | fx_rate_snapshots | — | 1 | business link (tables fx_rate_snapshots) + test |
 | `gl_allocation_core` | L2 | gl_allocation | — | 1 | business link (tables gl_allocation) + test |
 | `gl_core` | L3 | — | — | 1 | Core anchor module |
 | `hashlen_core` | UTILITY | — | — | 0 | Utility module (never a retire candidate) |
-| `identity_core` | L2 | accounts | — | 2 | business link (tables accounts) + test |
-| `import_core` | L2 | gl_account, import_row | — | 1 | business link (tables gl_account, import_row) + test |
-| `import_post_core` | L3 | gl_journal, gl_journal_line, import_row | — | 0 | money-table touch (gl_journal, gl_journal_line) with depth + test |
-| `import_recon_core` | L3 | gl_journal_line, import_row | — | 1 | money-table touch (gl_journal_line) with depth + test |
-| `import_row_core` | L2 | import_row | — | 0 | business link (tables import_row) + test |
-| `letter_of_credit_core` | L2 | lc_drawing, lc_settlement, letter_of_credit | — | 2 | business link (tables lc_drawing, lc_settlement, letter_of_credit) + test |
+| `identity_core` | L3 | accounts, identity_verifications, manual_reviews, phone_links, screening_checks | — | 2 | money-table touch (accounts) with depth + test |
+| `import_core` | L2 | gl_account, import_batch, import_row | — | 1 | business link (tables gl_account, import_batch, import_row) + test |
+| `import_post_core` | L3 | gl_journal, gl_journal_line, gl_period, import_batch, import_row | — | 0 | money-table touch (gl_journal, gl_journal_line) with depth + test |
+| `import_recon_core` | L3 | gl_journal_line, import_batch, import_recon_run, import_row | — | 1 | money-table touch (gl_journal_line) with depth + test |
+| `import_row_core` | L2 | import_batch, import_row | — | 0 | business link (tables import_batch, import_row) + test |
+| `letter_of_credit_core` | L2 | customer, lc_drawing, lc_settlement, letter_of_credit | — | 2 | business link (tables customer, lc_drawing, lc_settlement, letter_of_credit) + test |
 | `loan_core` | L3 | — | — | 1 | Core anchor module |
 | `loan_posting_core` | L3 | accounts, gl_journal, loan_application, loan_repayment | gl_core | 0 | money-table touch (accounts, gl_journal) with depth + test |
 | `loan_schedule_core` | L3 | — | — | 1 | Core anchor module |
 | `loan_schedule_lifecycle_core` | L2 | loan_schedule | — | 0 | business link (tables loan_schedule) + test |
 | `loan_schedule_posting_core` | L2 | loan_application, loan_installment, loan_schedule | — | 0 | business link (tables loan_application, loan_installment, loan_schedule) + test |
 | `loan_schedule_report_core` | L2 | loan_schedule | — | 0 | business link (tables loan_schedule) + test |
-| `loyalty_core` | L2 | loyalty_member, loyalty_points_ledger, loyalty_redemption | — | 1 | business link (tables loyalty_member, loyalty_points_ledger, loyalty_redemption) + test |
-| `merchant_core` | L2 | accounts | — | 1 | business link (tables accounts) + test |
-| `merchant_settlement_core` | L2 | merchant_transaction | — | 1 | business link (tables merchant_transaction) + test |
+| `loyalty_core` | L2 | customer, loyalty_member, loyalty_points_ledger, loyalty_program, loyalty_redemption | — | 1 | business link (tables customer, loyalty_member, loyalty_points_ledger, loyalty_program, loyalty_redemption) + test |
+| `merchant_core` | L3 | accounts, customer, merchant, merchant_settlement | — | 1 | money-table touch (accounts) with depth + test |
+| `merchant_settlement_core` | L2 | merchant, merchant_settlement, merchant_transaction | — | 1 | business link (tables merchant, merchant_settlement, merchant_transaction) + test |
 | `notification_template_core` | L2 | ntf_template_config | — | 1 | business link (tables ntf_template_config) + test |
 | `payment_clearing_core` | L3 | — | — | 1 | Core anchor module |
-| `payment_core` | L3 | accounts, ledger | fee_core | 1 | money-table touch (accounts, ledger) with depth + test |
-| `payment_hold_core` | L3 | accounts, journal_entries, ledger | — | 1 | money-table touch (accounts, journal_entries, ledger) with depth + test |
-| `payment_instruction_core` | L2 | — | wallet_core | 1 | business link (calls wallet_core; actions TRANSFER) + test |
-| `payroll_processing_core` | L2 | accounts | — | 1 | business link (tables accounts) + test |
-| `phone_otp_core` | L2 | otp_challenges | — | 1 | business link (tables otp_challenges) + test |
+| `payment_core` | L3 | accounts, daily_limit, ledger, payment_policy, payment_profile | fee_core | 1 | money-table touch (accounts, ledger) with depth + test |
+| `payment_hold_core` | L3 | accounts, journal_entries, ledger, payment_hold | — | 1 | money-table touch (accounts, journal_entries, ledger) with depth + test |
+| `payment_instruction_core` | L2 | payment_instruction, payment_instruction_run | wallet_core | 1 | business link (tables payment_instruction, payment_instruction_run; calls wallet_core; actions TRANSFER) + test |
+| `payroll_processing_core` | L3 | accounts, customer, payroll_employee, payroll_payment, payroll_processing, tax_management | — | 1 | money-table touch (accounts) with depth + test |
+| `phone_otp_core` | L2 | otp_challenges, phone_links | — | 1 | business link (tables otp_challenges, phone_links) + test |
 | `ref_engine` | UTILITY | — | — | 1 | Utility module (never a retire candidate) |
 | `ref_ext_core` | UTILITY | — | — | 1 | Utility module (never a retire candidate) |
 | `report_core` | L2 | report_run, report_template | — | 1 | business link (tables report_run, report_template) + test |
-| `report_run_core` | L3 | gl_account, gl_journal, gl_journal_line, report_run, report_template | — | 0 | money-table touch (gl_journal, gl_journal_line) with depth + test |
+| `report_run_core` | L3 | gl_account, gl_journal, gl_journal_line, report_run, report_run_row, report_template | — | 0 | money-table touch (gl_journal, gl_journal_line) with depth + test |
 | `report_schedule_core` | L2 | rpt_schedule_config | — | 1 | business link (tables rpt_schedule_config) + test |
 | `risk_core` | L2 | risk_events | — | 1 | business link (tables risk_events) + test |
 | `sla_tracker_core` | L2 | sla_tracker | — | 1 | business link (tables sla_tracker) + test |
-| `statement_core` | L3 | accounts, journal_entries, ledger | — | 1 | money-table touch (accounts, journal_entries, ledger) with depth + test |
-| `statement_recon_core` | L3 | accounts, ledger | — | 1 | money-table touch (accounts, ledger) with depth + test |
-| `tax_management_core` | L2 | tax_withholding_entry | — | 1 | business link (tables tax_withholding_entry) + test |
+| `statement_core` | L3 | accounts, journal_entries, ledger, statement_archive, statement_archive_line, statement_run | — | 1 | money-table touch (accounts, journal_entries, ledger) with depth + test |
+| `statement_recon_core` | L3 | accounts, ledger, statement_archive, statement_archive_line, statement_recon_run, statement_run | — | 1 | money-table touch (accounts, ledger) with depth + test |
+| `tax_management_core` | L2 | tax_management, tax_report_run, tax_withholding_entry | — | 1 | business link (tables tax_management, tax_report_run, tax_withholding_entry) + test |
 | `treasury_liquidity_core` | L3 | — | — | 1 | Core anchor module |
 | `user_core` | L3 | — | — | 1 | Core anchor module |
 | `wallet_core` | L3 | — | — | 1 | Core anchor module |
-| `wallet_dispute_core` | L3 | accounts, ledger | — | 1 | money-table touch (accounts, ledger) with depth + test |
+| `wallet_dispute_core` | L3 | accounts, dispute_cases, dispute_messages, ledger, pending_transactions | — | 1 | money-table touch (accounts, ledger) with depth + test |
 | `wallet_hold_core` | L2 | accounts | — | 0 | business link (tables accounts) + test |
-| `wallet_recon_core` | L3 | accounts, ledger | — | 0 | money-table touch (accounts, ledger) with depth + test |
-| `wallet_reversal_core` | L3 | accounts, journal_entries, ledger | — | 0 | money-table touch (accounts, journal_entries, ledger) with depth + test |
+| `wallet_recon_core` | L3 | accounts, ledger, reconciliation_runs, role_permissions | — | 0 | money-table touch (accounts, ledger) with depth + test |
+| `wallet_reversal_core` | L3 | accounts, journal_entries, ledger, reversal_fee_policy, transfer_reversals | — | 0 | money-table touch (accounts, journal_entries, ledger) with depth + test |
 | `wallet_statement_core` | L3 | accounts, journal_entries, ledger | — | 0 | money-table touch (accounts, journal_entries, ledger) with depth + test |
-| `wallet_transfer_core` | L3 | accounts, fee_schedule, journal_entries, ledger | fee_core | 0 | money-table touch (accounts, journal_entries, ledger) with depth + test |
+| `wallet_transfer_core` | L3 | accounts, exchange_rates, fee_schedule, journal_entries, ledger, pending_transactions | fee_core | 0 | money-table touch (accounts, journal_entries, ledger) with depth + test |

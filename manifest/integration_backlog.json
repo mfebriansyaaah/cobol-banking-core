@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T10:49:37.199Z",
+  "generatedAt": "2026-11-20T13:02:23.072Z",
   "items": [
     {
       "id": "account_core:audit:core-reference",
@@ -290,9 +290,11 @@
       "module": "auth_mfa_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "Audit rows go to the shared audit_trail/audit_authz_denied sink with user_id, actor_id and entity_id; suite asserts audit_trail rows."
+      ],
       "owner": "backend"
     },
     {
@@ -300,23 +302,23 @@
       "module": "auth_mfa_core",
       "kind": "table",
       "subject": "audit_trail",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
-        "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "audit_trail is cross-cutting audit infrastructure keyed by user_id/actor_id; it is intentionally not a domain business table. Per-module audit semantics are tracked by the audit item."
       ],
-      "owner": "backend"
+      "owner": "platform"
     },
     {
       "id": "auth_ops_core:audit:core-reference",
       "module": "auth_ops_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "Audit rows go to the shared audit_trail/audit_authz_denied sink with user_id, actor_id and entity_id; suite asserts audit_trail rows."
+      ],
       "owner": "backend"
     },
     {
@@ -324,26 +326,25 @@
       "module": "auth_ops_core",
       "kind": "table",
       "subject": "audit_trail",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
-        "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "audit_trail is cross-cutting audit infrastructure keyed by user_id/actor_id; it is intentionally not a domain business table. Per-module audit semantics are tracked by the audit item."
       ],
-      "owner": "backend"
+      "owner": "platform"
     },
     {
       "id": "auth_ops_core:table:role-permissions",
       "module": "auth_ops_core",
       "kind": "table",
       "subject": "role_permissions",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'manager', 'super_admin'), constraint, permission, permission), primary, role",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "role_permissions is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
       "owner": "backend"
     },
@@ -364,129 +365,135 @@
       "module": "auth_recovery_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": "identity"
+      "evidence": [
+        "Audit rows go to the shared audit_trail/audit_authz_denied sink with user_id, actor_id and entity_id; suite asserts audit_trail rows."
+      ],
+      "owner": "backend"
     },
     {
       "id": "auth_recovery_core:table:audit-trail",
       "module": "auth_recovery_core",
       "kind": "table",
       "subject": "audit_trail",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
-        "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "audit_trail is cross-cutting audit infrastructure keyed by user_id/actor_id; it is intentionally not a domain business table. Per-module audit semantics are tracked by the audit item."
       ],
-      "owner": "identity"
+      "owner": "platform"
     },
     {
       "id": "auth_recovery_core:table:dual-control-operations",
       "module": "auth_recovery_core",
       "kind": "table",
       "subject": "dual_control_operations",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: operation",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "dual_control_operations is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "identity"
+      "owner": "backend"
     },
     {
       "id": "auth_recovery_core:table:maker-requests",
       "module": "auth_recovery_core",
       "kind": "table",
       "subject": "maker_requests",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'approved', 'rejected'), checker_email, constraint, created_at, decided_at, detail, key, maker_email, operation, request_id, state, target_email",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "maker_requests is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "identity"
+      "owner": "backend"
     },
     {
       "id": "auth_recovery_core:table:verification-logs",
       "module": "auth_recovery_core",
       "kind": "table",
       "subject": "verification_logs",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'email_change', 'mfa_recovery'), 'password_reset', attempts, code, created_at, email, expires_at, id, if, is_used, purpose",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "verification_logs is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "identity"
+      "owner": "backend"
     },
     {
       "id": "auth_review_core:audit:core-reference",
       "module": "auth_review_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": "identity"
+      "evidence": [
+        "Audit rows go to the shared audit_trail/audit_authz_denied sink with user_id, actor_id and entity_id; suite asserts audit_trail rows."
+      ],
+      "owner": "backend"
     },
     {
       "id": "auth_review_core:table:audit-trail",
       "module": "auth_review_core",
       "kind": "table",
       "subject": "audit_trail",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
-        "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "audit_trail is cross-cutting audit infrastructure keyed by user_id/actor_id; it is intentionally not a domain business table. Per-module audit semantics are tracked by the audit item."
       ],
-      "owner": "identity"
+      "owner": "platform"
     },
     {
       "id": "auth_review_core:table:permissions",
       "module": "auth_review_core",
       "kind": "table",
       "subject": "permissions",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: description, name",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "permissions is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "identity"
+      "owner": "backend"
     },
     {
       "id": "auth_review_core:table:role-permissions",
       "module": "auth_review_core",
       "kind": "table",
       "subject": "role_permissions",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'manager', 'super_admin'), constraint, permission, permission), primary, role",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "role_permissions is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "identity"
+      "owner": "backend"
     },
     {
       "id": "auth_session_core:action:revoke-access-token-logic",
       "module": "auth_session_core",
       "kind": "action",
       "subject": "REVOKE-ACCESS-TOKEN-LOGIC",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes revoked_access_tokens)",
       "evidence": [
         "paragraph REVOKE-ACCESS-TOKEN-LOGIC",
-        "touched tables: revoked_access_tokens"
+        "touched tables: revoked_access_tokens",
+        "REVOKE-ACCESS-TOKEN-LOGIC writes registered business table(s) revoked_access_tokens; the action is core-linked."
       ],
       "owner": "backend"
     },
@@ -495,9 +502,11 @@
       "module": "auth_session_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "Audit rows go to the shared audit_trail/audit_authz_denied sink with user_id, actor_id and entity_id; suite asserts audit_trail rows."
+      ],
       "owner": "backend"
     },
     {
@@ -505,26 +514,25 @@
       "module": "auth_session_core",
       "kind": "table",
       "subject": "audit_trail",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
-        "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "audit_trail is cross-cutting audit infrastructure keyed by user_id/actor_id; it is intentionally not a domain business table. Per-module audit semantics are tracked by the audit item."
       ],
-      "owner": "backend"
+      "owner": "platform"
     },
     {
       "id": "auth_session_core:table:refresh-families",
       "module": "auth_session_core",
       "kind": "table",
       "subject": "refresh_families",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: constraint, created_at, email, family, rotations",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "refresh_families is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
       "owner": "backend"
     },
@@ -533,12 +541,13 @@
       "module": "auth_session_core",
       "kind": "table",
       "subject": "revoked_access_tokens",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: constraint, email, expires_at, jti, key, revoked_at",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "revoked_access_tokens is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
       "owner": "backend"
     },
@@ -547,9 +556,11 @@
       "module": "bank_guarantee_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "INSERT INTO bank_guarantee_audit verified: columns bank_guarantee_id, action, actor_email, detail, old_value, new_value; core reference(s): bank_guarantee_id, actor_email; old/new: old_value, new_value. Suite asserts this audit table."
+      ],
       "owner": "backend"
     },
     {
@@ -557,12 +568,13 @@
       "module": "bank_guarantee_core",
       "kind": "table",
       "subject": "customer",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'closed', 'deleted'), 'onboarded', 4), close_reason, closed_at, created_at, created_by, credit_limit, customer_ref, customer_type, customer_type), deleted_at, full_name, id, index, kyc_status, onboarded_at, status, unique, updated_at, used_credit, version",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "customer is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
       "owner": "backend"
     },
@@ -571,31 +583,36 @@
       "module": "card_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": "cards"
+      "evidence": [
+        "INSERT INTO card_audit verified: columns action, actor_email, card_id, detail; core reference(s): actor_email, card_id; old/new: not stored (state/action audit). Suite asserts this audit table."
+      ],
+      "owner": "backend"
     },
     {
       "id": "card_posting_core:audit:core-reference",
       "module": "card_posting_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": "cards"
+      "evidence": [
+        "Posting split delegates to gl_core; audit is recorded in gl_audit keyed by journal_id (verified by the posting-owner suite)."
+      ],
+      "owner": "backend"
     },
     {
       "id": "chargeback_core:action:action-close",
       "module": "chargeback_core",
       "kind": "action",
       "subject": "ACTION-CLOSE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes chargeback)",
       "evidence": [
         "paragraph ACTION-CLOSE",
-        "touched tables: chargeback"
+        "touched tables: chargeback",
+        "ACTION-CLOSE writes registered business table(s) chargeback; the action is core-linked."
       ],
       "owner": "backend"
     },
@@ -604,11 +621,12 @@
       "module": "chargeback_core",
       "kind": "action",
       "subject": "ACTION-CREATE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes chargeback)",
       "evidence": [
         "paragraph ACTION-CREATE",
-        "touched tables: chargeback"
+        "touched tables: chargeback",
+        "ACTION-CREATE writes registered business table(s) chargeback; the action is core-linked."
       ],
       "owner": "backend"
     },
@@ -617,11 +635,12 @@
       "module": "chargeback_core",
       "kind": "action",
       "subject": "ACTION-SUBMIT",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes chargeback)",
       "evidence": [
         "paragraph ACTION-SUBMIT",
-        "touched tables: chargeback"
+        "touched tables: chargeback",
+        "ACTION-SUBMIT writes registered business table(s) chargeback; the action is core-linked."
       ],
       "owner": "backend"
     },
@@ -630,11 +649,12 @@
       "module": "chargeback_core",
       "kind": "action",
       "subject": "ACTION-UPDATE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes chargeback)",
       "evidence": [
         "paragraph ACTION-UPDATE",
-        "touched tables: chargeback"
+        "touched tables: chargeback",
+        "ACTION-UPDATE writes registered business table(s) chargeback; the action is core-linked."
       ],
       "owner": "backend"
     },
@@ -643,9 +663,11 @@
       "module": "chargeback_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "INSERT INTO chargeback_audit verified: columns chargeback_id, action, actor_email, detail, old_value, new_value; core reference(s): chargeback_id, actor_email; old/new: old_value, new_value. Suite asserts this audit table."
+      ],
       "owner": "backend"
     },
     {
@@ -653,12 +675,13 @@
       "module": "chargeback_core",
       "kind": "table",
       "subject": "chargeback",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'active', 'closed', 'deleted'), 4), activated_at, budget_amount, cb_ref, closed_at, closure_reason, created_at, created_by, deleted_at, id, index, name, spent_amount, status, type, type), unique, updated_at, version",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "chargeback is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
       "owner": "backend"
     },
@@ -667,12 +690,13 @@
       "module": "chargeback_core",
       "kind": "table",
       "subject": "merchant",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'active', 'closed', 'deleted'), 4), activated_at, close_reason, closed_at, created_at, created_by, deleted_at, id, if, index, merchant_name, merchant_ref, merchant_type, merchant_type), settled_volume, status, transaction_volume, unique, updated_at, version",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "merchant is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
       "owner": "backend"
     },
@@ -681,178 +705,194 @@
       "module": "collateral_core",
       "kind": "action",
       "subject": "ACTION-ALLOCATE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes collateral_allocation)",
       "evidence": [
         "paragraph ACTION-ALLOCATE",
-        "touched tables: collateral_allocation, collateral_pledge"
+        "touched tables: collateral_allocation, collateral_pledge",
+        "ACTION-ALLOCATE writes registered business table(s) collateral_allocation; the action is core-linked."
       ],
-      "owner": "collateral"
+      "owner": "backend"
     },
     {
       "id": "collateral_core:action:action-appraise",
       "module": "collateral_core",
       "kind": "action",
       "subject": "ACTION-APPRAISE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes collateral, collateral_valuation)",
       "evidence": [
         "paragraph ACTION-APPRAISE",
-        "touched tables: collateral, collateral_valuation"
+        "touched tables: collateral, collateral_valuation",
+        "ACTION-APPRAISE writes registered business table(s) collateral, collateral_valuation; the action is core-linked."
       ],
-      "owner": "collateral"
+      "owner": "backend"
     },
     {
       "id": "collateral_core:action:action-close",
       "module": "collateral_core",
       "kind": "action",
       "subject": "ACTION-CLOSE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes collateral)",
       "evidence": [
         "paragraph ACTION-CLOSE",
-        "touched tables: collateral"
+        "touched tables: collateral",
+        "ACTION-CLOSE writes registered business table(s) collateral; the action is core-linked."
       ],
-      "owner": "collateral"
+      "owner": "backend"
     },
     {
       "id": "collateral_core:action:action-create",
       "module": "collateral_core",
       "kind": "action",
       "subject": "ACTION-CREATE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes collateral)",
       "evidence": [
         "paragraph ACTION-CREATE",
-        "touched tables: collateral"
+        "touched tables: collateral",
+        "ACTION-CREATE writes registered business table(s) collateral; the action is core-linked."
       ],
-      "owner": "collateral"
+      "owner": "backend"
     },
     {
       "id": "collateral_core:action:action-dispose",
       "module": "collateral_core",
       "kind": "action",
       "subject": "ACTION-DISPOSE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes collateral)",
       "evidence": [
         "paragraph ACTION-DISPOSE",
-        "touched tables: collateral"
+        "touched tables: collateral",
+        "ACTION-DISPOSE writes registered business table(s) collateral; the action is core-linked."
       ],
-      "owner": "collateral"
+      "owner": "backend"
     },
     {
       "id": "collateral_core:action:action-register",
       "module": "collateral_core",
       "kind": "action",
       "subject": "ACTION-REGISTER",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes collateral)",
       "evidence": [
         "paragraph ACTION-REGISTER",
-        "touched tables: collateral"
+        "touched tables: collateral",
+        "ACTION-REGISTER writes registered business table(s) collateral; the action is core-linked."
       ],
-      "owner": "collateral"
+      "owner": "backend"
     },
     {
       "id": "collateral_core:action:action-repossess",
       "module": "collateral_core",
       "kind": "action",
       "subject": "ACTION-REPOSSESS",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes collateral)",
       "evidence": [
         "paragraph ACTION-REPOSSESS",
-        "touched tables: collateral"
+        "touched tables: collateral",
+        "ACTION-REPOSSESS writes registered business table(s) collateral; the action is core-linked."
       ],
-      "owner": "collateral"
+      "owner": "backend"
     },
     {
       "id": "collateral_core:action:action-revalue",
       "module": "collateral_core",
       "kind": "action",
       "subject": "ACTION-REVALUE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes collateral, collateral_valuation)",
       "evidence": [
         "paragraph ACTION-REVALUE",
-        "touched tables: collateral, collateral_valuation"
+        "touched tables: collateral, collateral_valuation",
+        "ACTION-REVALUE writes registered business table(s) collateral, collateral_valuation; the action is core-linked."
       ],
-      "owner": "collateral"
+      "owner": "backend"
     },
     {
       "id": "collateral_core:action:action-submit",
       "module": "collateral_core",
       "kind": "action",
       "subject": "ACTION-SUBMIT",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes collateral)",
       "evidence": [
         "paragraph ACTION-SUBMIT",
-        "touched tables: collateral"
+        "touched tables: collateral",
+        "ACTION-SUBMIT writes registered business table(s) collateral; the action is core-linked."
       ],
-      "owner": "collateral"
+      "owner": "backend"
     },
     {
       "id": "collateral_core:action:action-update",
       "module": "collateral_core",
       "kind": "action",
       "subject": "ACTION-UPDATE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes collateral)",
       "evidence": [
         "paragraph ACTION-UPDATE",
-        "touched tables: collateral"
+        "touched tables: collateral",
+        "ACTION-UPDATE writes registered business table(s) collateral; the action is core-linked."
       ],
-      "owner": "collateral"
+      "owner": "backend"
     },
     {
       "id": "collateral_core:audit:core-reference",
       "module": "collateral_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": "collateral"
+      "evidence": [
+        "INSERT INTO collateral_audit verified: columns collateral_id, action, actor_email, detail, old_value, new_value; core reference(s): collateral_id, actor_email; old/new: old_value, new_value. Suite asserts this audit table."
+      ],
+      "owner": "backend"
     },
     {
       "id": "collateral_core:table:collateral",
       "module": "collateral_core",
       "kind": "table",
       "subject": "collateral",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'active', 'deleted'), 'released', 4), appraised_at, appraised_value, assessed_value, asset_name, asset_type, asset_type), collateral_ref, created_at, created_by, deleted_at, id, if, index, release_reason, released_at, status, unique, updated_at, version",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "collateral is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "collateral"
+      "owner": "backend"
     },
     {
       "id": "collateral_core:table:collateral-valuation",
       "module": "collateral_core",
       "kind": "table",
       "subject": "collateral_valuation",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'haircut'), 'revaluation', 4), check, collateral_id, constraint, created_at, created_at), created_by, currency, if, index, method, note, valid_until, valuation_id, valuation_type, value_amount, valuer",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "collateral_valuation is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "collateral"
+      "owner": "backend"
     },
     {
       "id": "collection_core:audit:core-reference",
       "module": "collection_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": "collection"
+      "evidence": [
+        "INSERT INTO collection_audit verified: columns action, actor_email, case_id, detail; core reference(s): actor_email, case_id; old/new: not stored (state/action audit). Suite asserts this audit table."
+      ],
+      "owner": "backend"
     },
     {
       "id": "compliance_calendar_core:audit:core-reference",
@@ -871,9 +911,11 @@
       "module": "corp_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "Corporate cache refresh has no state-transition audit table; corporate_entities timestamps are the record. Accepted risk, owner backend."
+      ],
       "owner": "backend"
     },
     {
@@ -881,9 +923,11 @@
       "module": "cost_center_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "INSERT INTO cost_center_audit verified: columns cc_id, action, actor_email, detail, old_value, new_value; core reference(s): cc_id, actor_email; old/new: old_value, new_value. Suite asserts this audit table."
+      ],
       "owner": "backend"
     },
     {
@@ -891,52 +935,54 @@
       "module": "dashboard_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": "reporting"
+      "evidence": [
+        "Audit rows go to the shared audit_trail/audit_authz_denied sink with user_id, actor_id and entity_id; suite asserts audit_trail rows."
+      ],
+      "owner": "backend"
     },
     {
       "id": "dashboard_core:table:audit-trail",
       "module": "dashboard_core",
       "kind": "table",
       "subject": "audit_trail",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
-        "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "audit_trail is cross-cutting audit infrastructure keyed by user_id/actor_id; it is intentionally not a domain business table. Per-module audit semantics are tracked by the audit item."
       ],
-      "owner": "reporting"
+      "owner": "platform"
     },
     {
       "id": "dashboard_core:table:dispute-cases",
       "module": "dashboard_core",
       "kind": "table",
       "subject": "dispute_cases",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'acknowledged', 'rejected'), 'resolved', assigned_to, case_id, constraint, created_at, decided_at, detail, due_date, if, key, resolution, state, state), subject, txn_ref, updated_at, user_id",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "dispute_cases is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "reporting"
+      "owner": "backend"
     },
     {
       "id": "dashboard_core:table:import-batch",
       "module": "dashboard_core",
       "kind": "table",
       "subject": "import_batch",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'accounts', 'completed', 'failed'), 'payments'), 'reference', 'validated', 'validating', batch_code, check, created_at, created_at), created_by, error_code, error_detail, id, import_type, index, invalid_rows, posted_rows, source_name, status, total_rows, updated_at, valid_rows, version",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "import_batch is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "reporting"
+      "owner": "backend"
     },
     {
       "id": "dashboard_core:table:notification-outbox",
@@ -955,70 +1001,72 @@
       "module": "dashboard_core",
       "kind": "table",
       "subject": "ops_alert",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "columns: 'acknowledged', 'critical'), 'resolved'), 'warning', acknowledged_at, alert_type, created_at, created_at), created_by, detail, id, index, owner_email, resolved_at, severity, source_key, state, state), title, unique, updated_at",
-        "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "ops_alert is operational alerting infrastructure; no domain business key by design."
       ],
-      "owner": "reporting"
+      "owner": "platform"
     },
     {
       "id": "dashboard_core:table:payment-policy",
       "module": "dashboard_core",
       "kind": "table",
       "subject": "payment_policy",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 10), 2), check, currency_code, daily_count, daily_limit, enabled, hold_percent, hold_threshold, max_per_txn, updated_at, updated_by",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "payment_policy is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "reporting"
+      "owner": "backend"
     },
     {
       "id": "dashboard_core:table:payment-profile",
       "module": "dashboard_core",
       "kind": "table",
       "subject": "payment_profile",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 10), check, currency_code, currency_code), daily_count, daily_limit, enabled, id, unique, updated_at, updated_by, user_email",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "payment_profile is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "reporting"
+      "owner": "backend"
     },
     {
       "id": "dashboard_core:table:pending-transactions",
       "module": "dashboard_core",
       "kind": "table",
       "subject": "pending_transactions",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'committed', 'failed'), 4), amount, constraint, created_at, from_email, id, status, to_email, txn_ref, txn_ref), unique, updated_at",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "pending_transactions is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "reporting"
+      "owner": "backend"
     },
     {
       "id": "dashboard_core:table:reconciliation-runs",
       "module": "dashboard_core",
       "kind": "table",
       "subject": "reconciliation_runs",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'mismatch'), 'scheduled'), actor_email, created_at, key, mismatch_count, run_id, status, trigger_src",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "reconciliation_runs is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "reporting"
+      "owner": "backend"
     },
     {
       "id": "dashboard_core:table:report-run",
@@ -1037,45 +1085,51 @@
       "module": "dashboard_core",
       "kind": "table",
       "subject": "report_schedule",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'fixed', 'json'), 'monthly'), 'weekly', check, created_at, created_by, currency_code, enabled, frequency, id, index, last_run_at, next_run_date, next_run_date), output_format, recipient, schedule_time, template_code, updated_at",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "report_schedule is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "reporting"
+      "owner": "backend"
     },
     {
       "id": "deposit_core:audit:core-reference",
       "module": "deposit_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": "deposit"
+      "evidence": [
+        "INSERT INTO deposit_audit verified: columns action, actor_email, deposit_id, detail; core reference(s): actor_email, deposit_id; old/new: not stored (state/action audit). Suite asserts this audit table."
+      ],
+      "owner": "backend"
     },
     {
       "id": "deposit_posting_core:audit:core-reference",
       "module": "deposit_posting_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": "deposit"
+      "evidence": [
+        "Posting split delegates to gl_core; audit is recorded in gl_audit keyed by journal_id (verified by the posting-owner suite)."
+      ],
+      "owner": "backend"
     },
     {
       "id": "eod_core:action:action-cal-open",
       "module": "eod_core",
       "kind": "action",
       "subject": "ACTION-CAL-OPEN",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes eod_calendar)",
       "evidence": [
         "paragraph ACTION-CAL-OPEN",
-        "touched tables: eod_calendar"
+        "touched tables: eod_calendar",
+        "ACTION-CAL-OPEN writes registered business table(s) eod_calendar; the action is core-linked."
       ],
       "owner": "backend"
     },
@@ -1084,11 +1138,12 @@
       "module": "eod_core",
       "kind": "action",
       "subject": "ACTION-RUN-FAIL",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes eod_run)",
       "evidence": [
         "paragraph ACTION-RUN-FAIL",
-        "touched tables: eod_run"
+        "touched tables: eod_run",
+        "ACTION-RUN-FAIL writes registered business table(s) eod_run; the action is core-linked."
       ],
       "owner": "backend"
     },
@@ -1097,9 +1152,11 @@
       "module": "eod_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "INSERT INTO eod_audit verified: columns action, actor_email, business_date, run_id, detail; core reference(s): actor_email, run_id; old/new: not stored (state/action audit)."
+      ],
       "owner": "backend"
     },
     {
@@ -1107,12 +1164,13 @@
       "module": "eod_core",
       "kind": "table",
       "subject": "eod_calendar",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'closed'), business_date, closed_at, closed_by, cutoff_time, opened_at, opened_by, status, version",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "eod_calendar is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
       "owner": "backend"
     },
@@ -1121,12 +1179,13 @@
       "module": "eod_core",
       "kind": "table",
       "subject": "eod_run",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'completed', 'failed'), 10), business_date, check, completed_phases, control_credit, control_debit, created_by, error_code, error_detail, finished_at, id, index, phase_count, started_at, status, status), version",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "eod_run is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
       "owner": "backend"
     },
@@ -1135,9 +1194,11 @@
       "module": "eod_jobs_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "INSERT INTO eod_audit verified: columns action, actor_email, business_date, run_id, detail; core reference(s): actor_email, run_id; old/new: not stored (state/action audit)."
+      ],
       "owner": "backend"
     },
     {
@@ -1145,26 +1206,25 @@
       "module": "eod_jobs_core",
       "kind": "table",
       "subject": "audit_trail",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
-        "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "audit_trail is cross-cutting audit infrastructure keyed by user_id/actor_id; it is intentionally not a domain business table. Per-module audit semantics are tracked by the audit item."
       ],
-      "owner": "backend"
+      "owner": "platform"
     },
     {
       "id": "eod_jobs_core:table:pending-transactions",
       "module": "eod_jobs_core",
       "kind": "table",
       "subject": "pending_transactions",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'committed', 'failed'), 4), amount, constraint, created_at, from_email, id, status, to_email, txn_ref, txn_ref), unique, updated_at",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "pending_transactions is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
       "owner": "backend"
     },
@@ -1173,12 +1233,13 @@
       "module": "eod_jobs_core",
       "kind": "table",
       "subject": "pending_transactions_archive",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'committed', 'failed'), 4), amount, archived_at, created_at, from_email, id, key, status, to_email, txn_ref, updated_at",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "pending_transactions_archive is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
       "owner": "backend"
     },
@@ -1187,49 +1248,54 @@
       "module": "fee_core",
       "kind": "action",
       "subject": "ACTION-VEL-PROFILE-CREATE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes velocity_profile)",
       "evidence": [
         "paragraph ACTION-VEL-PROFILE-CREATE",
-        "touched tables: velocity_profile"
+        "touched tables: velocity_profile",
+        "ACTION-VEL-PROFILE-CREATE writes registered business table(s) velocity_profile; the action is core-linked."
       ],
-      "owner": "finance"
+      "owner": "backend"
     },
     {
       "id": "fee_core:action:action-vel-record",
       "module": "fee_core",
       "kind": "action",
       "subject": "ACTION-VEL-RECORD",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes used_count, velocity_counter)",
       "evidence": [
         "paragraph ACTION-VEL-RECORD",
-        "touched tables: used_count, velocity_counter, velocity_profile"
+        "touched tables: used_count, velocity_counter, velocity_profile",
+        "ACTION-VEL-RECORD writes registered business table(s) used_count, velocity_counter; the action is core-linked."
       ],
-      "owner": "finance"
+      "owner": "backend"
     },
     {
       "id": "fee_core:action:action-vel-record-all-txn",
       "module": "fee_core",
       "kind": "action",
       "subject": "ACTION-VEL-RECORD-ALL-TXN",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes used_count, velocity_counter)",
       "evidence": [
         "paragraph ACTION-VEL-RECORD-ALL-TXN",
-        "touched tables: used_count, velocity_counter, velocity_profile"
+        "touched tables: used_count, velocity_counter, velocity_profile",
+        "ACTION-VEL-RECORD-ALL-TXN writes registered business table(s) used_count, velocity_counter; the action is core-linked."
       ],
-      "owner": "finance"
+      "owner": "backend"
     },
     {
       "id": "fee_core:audit:core-reference",
       "module": "fee_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": "finance"
+      "evidence": [
+        "INSERT INTO fee_audit verified: columns action, actor_email, rule_code, account_email, detail; core reference(s): actor_email, rule_code, account_email; old/new: not stored (state/action audit). Suite asserts this audit table."
+      ],
+      "owner": "backend"
     },
     {
       "id": "fee_core:table:pic",
@@ -1251,28 +1317,30 @@
       "module": "fee_core",
       "kind": "table",
       "subject": "velocity_counter",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 10), account_email, check, id, profile_code, unique, updated_at, used_amount, used_count, window_start, window_start)",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "velocity_counter is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "finance"
+      "owner": "backend"
     },
     {
       "id": "fee_core:table:velocity-profile",
       "module": "fee_core",
       "kind": "table",
       "subject": "velocity_profile",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 10), check, created_at, created_by, currency_code, enabled, id, max_amount, max_count, name, profile_code, window_seconds",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "velocity_profile is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "finance"
+      "owner": "backend"
     },
     {
       "id": "fixed_asset_core:audit:core-reference",
@@ -1291,9 +1359,11 @@
       "module": "fx_rate_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "FX rate snapshots are an append-only market-data cache; no actor-driven state transition to audit. Accepted risk, owner backend."
+      ],
       "owner": "backend"
     },
     {
@@ -1301,9 +1371,11 @@
       "module": "gl_allocation_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "INSERT INTO gl_allocation_audit verified: columns alloc_id, action, actor_email, detail, old_value, new_value; core reference(s): alloc_id, actor_email; old/new: old_value, new_value. Suite asserts this audit table."
+      ],
       "owner": "backend"
     },
     {
@@ -1323,50 +1395,52 @@
       "module": "gl_core",
       "kind": "action",
       "subject": "ACTION-PERIOD-CLOSE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes gl_period)",
       "evidence": [
         "paragraph ACTION-PERIOD-CLOSE",
-        "touched tables: gl_period"
+        "touched tables: gl_period",
+        "ACTION-PERIOD-CLOSE writes registered business table(s) gl_period; the action is core-linked."
       ],
-      "owner": "finance"
+      "owner": "backend"
     },
     {
       "id": "gl_core:action:action-period-open",
       "module": "gl_core",
       "kind": "action",
       "subject": "ACTION-PERIOD-OPEN",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes gl_period)",
       "evidence": [
         "paragraph ACTION-PERIOD-OPEN",
-        "touched tables: gl_period"
+        "touched tables: gl_period",
+        "ACTION-PERIOD-OPEN writes registered business table(s) gl_period; the action is core-linked."
       ],
-      "owner": "finance"
+      "owner": "backend"
     },
     {
       "id": "gl_core:audit:core-reference",
       "module": "gl_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": "finance"
+      "evidence": [
+        "INSERT INTO gl_audit verified: columns action, journal_id, account_code, actor_email, detail; core reference(s): journal_id, account_code, actor_email; old/new: not stored (state/action audit)."
+      ],
+      "owner": "backend"
     },
     {
       "id": "gl_core:table:audit-trail",
       "module": "gl_core",
       "kind": "table",
       "subject": "audit_trail",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
-        "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "audit_trail is cross-cutting audit infrastructure keyed by user_id/actor_id; it is intentionally not a domain business table. Per-module audit semantics are tracked by the audit item."
       ],
-      "owner": "finance"
+      "owner": "platform"
     },
     {
       "id": "gl_core:table:gl-account",
@@ -1385,107 +1459,113 @@
       "module": "gl_core",
       "kind": "table",
       "subject": "gl_period",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'closed'), check, closed_at, closed_by, opened_at, period_code, status",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "gl_period is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "finance"
+      "owner": "backend"
     },
     {
       "id": "identity_core:action:action-scr-screen",
       "module": "identity_core",
       "kind": "action",
       "subject": "ACTION-SCR-SCREEN",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes manual_reviews, screening_checks)",
       "evidence": [
         "paragraph ACTION-SCR-SCREEN",
-        "touched tables: manual_reviews, screening_checks"
+        "touched tables: manual_reviews, screening_checks",
+        "ACTION-SCR-SCREEN writes registered business table(s) manual_reviews, screening_checks; the action is core-linked."
       ],
-      "owner": "identity"
+      "owner": "backend"
     },
     {
       "id": "identity_core:audit:core-reference",
       "module": "identity_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": "identity"
+      "evidence": [
+        "Audit rows go to the shared audit_trail/audit_authz_denied sink with user_id, actor_id and entity_id; suite asserts audit_trail rows."
+      ],
+      "owner": "backend"
     },
     {
       "id": "identity_core:table:audit-trail",
       "module": "identity_core",
       "kind": "table",
       "subject": "audit_trail",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
-        "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "audit_trail is cross-cutting audit infrastructure keyed by user_id/actor_id; it is intentionally not a domain business table. Per-module audit semantics are tracked by the audit item."
       ],
-      "owner": "identity"
+      "owner": "platform"
     },
     {
       "id": "identity_core:table:identity-verifications",
       "module": "identity_core",
       "kind": "table",
       "subject": "identity_verifications",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'error'), 'invalid', 'ktp_ocr', 'manual'), 'manual_review', 'nik_remote', 'valid', 2), attempts, constraint, created_at, created_at), expires_at, id, index, method, provider, provider_ref, result_code, score, status, updated_at, user_id",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "identity_verifications is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "identity"
+      "owner": "backend"
     },
     {
       "id": "identity_core:table:manual-reviews",
       "module": "identity_core",
       "kind": "table",
       "subject": "manual_reviews",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'approved', 'rejected'), 'screening'), constraint, created_at, created_at), id, index, kind, reason, ref_id, reviewed_at, reviewer_email, status, user_id",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "manual_reviews is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "identity"
+      "owner": "backend"
     },
     {
       "id": "identity_core:table:phone-links",
       "module": "identity_core",
       "kind": "table",
       "subject": "phone_links",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: chat_id, constraint, created_at, id, link_token, linked_at, phone_hash, revoked_at, token_expires_at, unique, user_id, verified_at",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "phone_links is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "identity"
+      "owner": "backend"
     },
     {
       "id": "identity_core:table:screening-checks",
       "module": "identity_core",
       "kind": "table",
       "subject": "screening_checks",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'confirmed_match', 'false_positive', 'manual_review'), 'potential_match', 2), constraint, created_at, created_at), id, index, provider, provider_ref, query_hash, result, reviewed_by, score, user_id",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "screening_checks is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "identity"
+      "owner": "backend"
     },
     {
       "id": "import_core:action:action-batch-clone",
@@ -1504,11 +1584,12 @@
       "module": "import_core",
       "kind": "action",
       "subject": "ACTION-BATCH-CREATE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes import_batch)",
       "evidence": [
         "paragraph ACTION-BATCH-CREATE",
-        "touched tables: import_batch"
+        "touched tables: import_batch",
+        "ACTION-BATCH-CREATE writes registered business table(s) import_batch; the action is core-linked."
       ],
       "owner": "backend"
     },
@@ -1517,11 +1598,12 @@
       "module": "import_core",
       "kind": "action",
       "subject": "ACTION-BATCH-FAIL",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes import_batch)",
       "evidence": [
         "paragraph ACTION-BATCH-FAIL",
-        "touched tables: import_batch"
+        "touched tables: import_batch",
+        "ACTION-BATCH-FAIL writes registered business table(s) import_batch; the action is core-linked."
       ],
       "owner": "backend"
     },
@@ -1566,9 +1648,11 @@
       "module": "import_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "INSERT INTO import_audit verified: columns action, actor_email, batch_code, detail; core reference(s): actor_email, batch_code; old/new: not stored (state/action audit). Suite asserts this audit table."
+      ],
       "owner": "backend"
     },
     {
@@ -1576,12 +1660,13 @@
       "module": "import_core",
       "kind": "table",
       "subject": "import_batch",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'accounts', 'completed', 'failed'), 'payments'), 'reference', 'validated', 'validating', batch_code, check, created_at, created_at), created_by, error_code, error_detail, id, import_type, index, invalid_rows, posted_rows, source_name, status, total_rows, updated_at, valid_rows, version",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "import_batch is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
       "owner": "backend"
     },
@@ -1602,9 +1687,11 @@
       "module": "import_post_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "INSERT INTO import_audit verified: columns action, actor_email, batch_code, detail; core reference(s): actor_email, batch_code; old/new: not stored (state/action audit). Suite asserts this audit table."
+      ],
       "owner": "backend"
     },
     {
@@ -1612,12 +1699,13 @@
       "module": "import_post_core",
       "kind": "table",
       "subject": "gl_period",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'closed'), check, closed_at, closed_by, opened_at, period_code, status",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "gl_period is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
       "owner": "backend"
     },
@@ -1626,12 +1714,13 @@
       "module": "import_post_core",
       "kind": "table",
       "subject": "import_batch",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'accounts', 'completed', 'failed'), 'payments'), 'reference', 'validated', 'validating', batch_code, check, created_at, created_at), created_by, error_code, error_detail, id, import_type, index, invalid_rows, posted_rows, source_name, status, total_rows, updated_at, valid_rows, version",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "import_batch is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
       "owner": "backend"
     },
@@ -1652,77 +1741,84 @@
       "module": "import_recon_core",
       "kind": "action",
       "subject": "ACTION-FINISH",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes import_recon_run)",
       "evidence": [
         "paragraph ACTION-FINISH",
-        "touched tables: import_recon_item, import_recon_run"
+        "touched tables: import_recon_item, import_recon_run",
+        "ACTION-FINISH writes registered business table(s) import_recon_run; the action is core-linked."
       ],
-      "owner": "reporting"
+      "owner": "backend"
     },
     {
       "id": "import_recon_core:action:action-retry",
       "module": "import_recon_core",
       "kind": "action",
       "subject": "ACTION-RETRY",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes import_recon_run)",
       "evidence": [
         "paragraph ACTION-RETRY",
-        "touched tables: import_recon_item, import_recon_run"
+        "touched tables: import_recon_item, import_recon_run",
+        "ACTION-RETRY writes registered business table(s) import_recon_run; the action is core-linked."
       ],
-      "owner": "reporting"
+      "owner": "backend"
     },
     {
       "id": "import_recon_core:action:action-start",
       "module": "import_recon_core",
       "kind": "action",
       "subject": "ACTION-START",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes import_recon_run)",
       "evidence": [
         "paragraph ACTION-START",
-        "touched tables: import_batch, import_posting, import_recon_run"
+        "touched tables: import_batch, import_posting, import_recon_run",
+        "ACTION-START writes registered business table(s) import_recon_run; the action is core-linked."
       ],
-      "owner": "reporting"
+      "owner": "backend"
     },
     {
       "id": "import_recon_core:audit:core-reference",
       "module": "import_recon_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": "reporting"
+      "evidence": [
+        "INSERT INTO import_audit verified: columns action, actor_email, batch_code, detail; core reference(s): actor_email, batch_code; old/new: not stored (state/action audit). Suite asserts this audit table."
+      ],
+      "owner": "backend"
     },
     {
       "id": "import_recon_core:table:import-batch",
       "module": "import_recon_core",
       "kind": "table",
       "subject": "import_batch",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'accounts', 'completed', 'failed'), 'payments'), 'reference', 'validated', 'validating', batch_code, check, created_at, created_at), created_by, error_code, error_detail, id, import_type, index, invalid_rows, posted_rows, source_name, status, total_rows, updated_at, valid_rows, version",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "import_batch is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "reporting"
+      "owner": "backend"
     },
     {
       "id": "import_recon_core:table:import-recon-run",
       "module": "import_recon_core",
       "kind": "table",
       "subject": "import_recon_run",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'completed', 'failed'), batch_id, check, constraint, created_by, error_detail, finished_at, id, index, matched_count, mismatch_count, row_count, started_at, started_at), status, unmatched_count",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "import_recon_run is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "reporting"
+      "owner": "backend"
     },
     {
       "id": "import_recon_core:table:import-row",
@@ -1741,9 +1837,11 @@
       "module": "import_row_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "INSERT INTO import_audit verified: columns action, actor_email, batch_code, detail; core reference(s): actor_email, batch_code; old/new: not stored (state/action audit). Suite asserts this audit table."
+      ],
       "owner": "backend"
     },
     {
@@ -1751,12 +1849,13 @@
       "module": "import_row_core",
       "kind": "table",
       "subject": "import_batch",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'accounts', 'completed', 'failed'), 'payments'), 'reference', 'validated', 'validating', batch_code, check, created_at, created_at), created_by, error_code, error_detail, id, import_type, index, invalid_rows, posted_rows, source_name, status, total_rows, updated_at, valid_rows, version",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "import_batch is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
       "owner": "backend"
     },
@@ -1765,9 +1864,11 @@
       "module": "letter_of_credit_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "INSERT INTO letter_of_credit_audit verified: columns letter_of_credit_id, action, actor_email, detail, old_value, new_value; core reference(s): letter_of_credit_id, actor_email; old/new: old_value, new_value. Suite asserts this audit table."
+      ],
       "owner": "backend"
     },
     {
@@ -1775,12 +1876,13 @@
       "module": "letter_of_credit_core",
       "kind": "table",
       "subject": "customer",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'closed', 'deleted'), 'onboarded', 4), close_reason, closed_at, created_at, created_by, credit_limit, customer_ref, customer_type, customer_type), deleted_at, full_name, id, index, kyc_status, onboarded_at, status, unique, updated_at, used_credit, version",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "customer is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
       "owner": "backend"
     },
@@ -1789,85 +1891,94 @@
       "module": "loan_core",
       "kind": "action",
       "subject": "ACTION-CLOSE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes loan)",
       "evidence": [
         "paragraph ACTION-CLOSE",
-        "touched tables: loan"
+        "touched tables: loan",
+        "ACTION-CLOSE writes registered business table(s) loan; the action is core-linked."
       ],
-      "owner": "lending"
+      "owner": "backend"
     },
     {
       "id": "loan_core:action:action-create",
       "module": "loan_core",
       "kind": "action",
       "subject": "ACTION-CREATE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes loan)",
       "evidence": [
         "paragraph ACTION-CREATE",
-        "touched tables: loan"
+        "touched tables: loan",
+        "ACTION-CREATE writes registered business table(s) loan; the action is core-linked."
       ],
-      "owner": "lending"
+      "owner": "backend"
     },
     {
       "id": "loan_core:action:action-submit",
       "module": "loan_core",
       "kind": "action",
       "subject": "ACTION-SUBMIT",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes loan)",
       "evidence": [
         "paragraph ACTION-SUBMIT",
-        "touched tables: loan"
+        "touched tables: loan",
+        "ACTION-SUBMIT writes registered business table(s) loan; the action is core-linked."
       ],
-      "owner": "lending"
+      "owner": "backend"
     },
     {
       "id": "loan_core:action:action-update",
       "module": "loan_core",
       "kind": "action",
       "subject": "ACTION-UPDATE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes loan)",
       "evidence": [
         "paragraph ACTION-UPDATE",
-        "touched tables: loan"
+        "touched tables: loan",
+        "ACTION-UPDATE writes registered business table(s) loan; the action is core-linked."
       ],
-      "owner": "lending"
+      "owner": "backend"
     },
     {
       "id": "loan_core:audit:core-reference",
       "module": "loan_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": "lending"
+      "evidence": [
+        "INSERT INTO loan_audit verified: columns loan_id, action, actor_email, detail, old_value, new_value; core reference(s): loan_id, actor_email; old/new: old_value, new_value. Suite asserts this audit table."
+      ],
+      "owner": "backend"
     },
     {
       "id": "loan_core:table:loan",
       "module": "loan_core",
       "kind": "table",
       "subject": "loan",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'active', 'closed', 'deleted'), 4), close_reason, closed_at, created_at, created_by, customer_name, deleted_at, disbursed_amount, disbursed_at, id, index, loan_amount, loan_ref, loan_type, loan_type), status, unique, updated_at, version",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "loan is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "lending"
+      "owner": "backend"
     },
     {
       "id": "loan_posting_core:audit:core-reference",
       "module": "loan_posting_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "Posting split delegates to gl_core; audit is recorded in gl_audit keyed by journal_id (verified by the posting-owner suite)."
+      ],
       "owner": "backend"
     },
     {
@@ -1875,19 +1986,23 @@
       "module": "loan_schedule_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": "lending"
+      "evidence": [
+        "INSERT INTO loan_schedule_audit verified: columns schedule_id, action, actor_email, detail; core reference(s): schedule_id, actor_email; old/new: not stored (state/action audit). Suite asserts this audit table."
+      ],
+      "owner": "backend"
     },
     {
       "id": "loan_schedule_lifecycle_core:audit:core-reference",
       "module": "loan_schedule_lifecycle_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "INSERT INTO loan_schedule_audit verified: columns schedule_id, action, actor_email, detail; core reference(s): schedule_id, actor_email; old/new: not stored (state/action audit). Suite asserts this audit table."
+      ],
       "owner": "backend"
     },
     {
@@ -1895,9 +2010,11 @@
       "module": "loan_schedule_posting_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "INSERT INTO loan_schedule_audit verified: columns schedule_id, action, actor_email, detail; core reference(s): schedule_id, actor_email; old/new: not stored (state/action audit). Suite asserts this audit table."
+      ],
       "owner": "backend"
     },
     {
@@ -1905,9 +2022,11 @@
       "module": "loan_schedule_report_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "INSERT INTO loan_schedule_audit verified: columns schedule_id, action, actor_email, detail; core reference(s): schedule_id, actor_email; old/new: not stored (state/action audit). Suite asserts this audit table."
+      ],
       "owner": "backend"
     },
     {
@@ -1915,11 +2034,12 @@
       "module": "loyalty_core",
       "kind": "action",
       "subject": "ACTION-ACTIVATE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes loyalty_program)",
       "evidence": [
         "paragraph ACTION-ACTIVATE",
-        "touched tables: loyalty_program"
+        "touched tables: loyalty_program",
+        "ACTION-ACTIVATE writes registered business table(s) loyalty_program; the action is core-linked."
       ],
       "owner": "backend"
     },
@@ -1928,11 +2048,12 @@
       "module": "loyalty_core",
       "kind": "action",
       "subject": "ACTION-CREATE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes loyalty_program)",
       "evidence": [
         "paragraph ACTION-CREATE",
-        "touched tables: loyalty_program"
+        "touched tables: loyalty_program",
+        "ACTION-CREATE writes registered business table(s) loyalty_program; the action is core-linked."
       ],
       "owner": "backend"
     },
@@ -1941,9 +2062,11 @@
       "module": "loyalty_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "INSERT INTO loyalty_audit verified: columns member_id, action, actor_email, detail, old_value, new_value; core reference(s): member_id, actor_email; old/new: old_value, new_value. Suite asserts this audit table."
+      ],
       "owner": "backend"
     },
     {
@@ -1951,12 +2074,13 @@
       "module": "loyalty_core",
       "kind": "table",
       "subject": "customer",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'closed', 'deleted'), 'onboarded', 4), close_reason, closed_at, created_at, created_by, credit_limit, customer_ref, customer_type, customer_type), deleted_at, full_name, id, index, kyc_status, onboarded_at, status, unique, updated_at, used_credit, version",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "customer is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
       "owner": "backend"
     },
@@ -1965,12 +2089,13 @@
       "module": "loyalty_core",
       "kind": "table",
       "subject": "loyalty_program",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'active', 'closed', 'deleted'), 4), activated_at, budget_amount, closed_at, closure_reason, created_at, created_by, deleted_at, id, if, index, loyalty_ref, name, spent_amount, status, type, type), unique, updated_at, version",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "loyalty_program is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
       "owner": "backend"
     },
@@ -1979,221 +2104,239 @@
       "module": "merchant_core",
       "kind": "action",
       "subject": "ACTION-APPROVE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes merchant, merchant_fee_profile)",
       "evidence": [
         "paragraph ACTION-APPROVE",
-        "touched tables: customer, merchant, merchant_fee_profile"
+        "touched tables: customer, merchant, merchant_fee_profile",
+        "ACTION-APPROVE writes registered business table(s) merchant, merchant_fee_profile; the action is core-linked."
       ],
-      "owner": "merchant"
+      "owner": "backend"
     },
     {
       "id": "merchant_core:action:action-close",
       "module": "merchant_core",
       "kind": "action",
       "subject": "ACTION-CLOSE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes merchant)",
       "evidence": [
         "paragraph ACTION-CLOSE",
-        "touched tables: merchant"
+        "touched tables: merchant",
+        "ACTION-CLOSE writes registered business table(s) merchant; the action is core-linked."
       ],
-      "owner": "merchant"
+      "owner": "backend"
     },
     {
       "id": "merchant_core:action:action-close-mch",
       "module": "merchant_core",
       "kind": "action",
       "subject": "ACTION-CLOSE-MCH",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes merchant)",
       "evidence": [
         "paragraph ACTION-CLOSE-MCH",
-        "touched tables: merchant, merchant_settlement"
+        "touched tables: merchant, merchant_settlement",
+        "ACTION-CLOSE-MCH writes registered business table(s) merchant; the action is core-linked."
       ],
-      "owner": "merchant"
+      "owner": "backend"
     },
     {
       "id": "merchant_core:action:action-create",
       "module": "merchant_core",
       "kind": "action",
       "subject": "ACTION-CREATE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes merchant)",
       "evidence": [
         "paragraph ACTION-CREATE",
-        "touched tables: merchant"
+        "touched tables: merchant",
+        "ACTION-CREATE writes registered business table(s) merchant; the action is core-linked."
       ],
-      "owner": "merchant"
+      "owner": "backend"
     },
     {
       "id": "merchant_core:action:action-set-fee",
       "module": "merchant_core",
       "kind": "action",
       "subject": "ACTION-SET-FEE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes merchant, merchant_fee_profile)",
       "evidence": [
         "paragraph ACTION-SET-FEE",
-        "touched tables: merchant, merchant_fee_profile"
+        "touched tables: merchant, merchant_fee_profile",
+        "ACTION-SET-FEE writes registered business table(s) merchant, merchant_fee_profile; the action is core-linked."
       ],
-      "owner": "merchant"
+      "owner": "backend"
     },
     {
       "id": "merchant_core:action:action-submit",
       "module": "merchant_core",
       "kind": "action",
       "subject": "ACTION-SUBMIT",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes merchant)",
       "evidence": [
         "paragraph ACTION-SUBMIT",
-        "touched tables: merchant"
+        "touched tables: merchant",
+        "ACTION-SUBMIT writes registered business table(s) merchant; the action is core-linked."
       ],
-      "owner": "merchant"
+      "owner": "backend"
     },
     {
       "id": "merchant_core:action:action-submit-kyc",
       "module": "merchant_core",
       "kind": "action",
       "subject": "ACTION-SUBMIT-KYC",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes merchant)",
       "evidence": [
         "paragraph ACTION-SUBMIT-KYC",
-        "touched tables: merchant"
+        "touched tables: merchant",
+        "ACTION-SUBMIT-KYC writes registered business table(s) merchant; the action is core-linked."
       ],
-      "owner": "merchant"
+      "owner": "backend"
     },
     {
       "id": "merchant_core:action:action-suspend",
       "module": "merchant_core",
       "kind": "action",
       "subject": "ACTION-SUSPEND",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes merchant)",
       "evidence": [
         "paragraph ACTION-SUSPEND",
-        "touched tables: merchant"
+        "touched tables: merchant",
+        "ACTION-SUSPEND writes registered business table(s) merchant; the action is core-linked."
       ],
-      "owner": "merchant"
+      "owner": "backend"
     },
     {
       "id": "merchant_core:action:action-update",
       "module": "merchant_core",
       "kind": "action",
       "subject": "ACTION-UPDATE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes merchant)",
       "evidence": [
         "paragraph ACTION-UPDATE",
-        "touched tables: merchant"
+        "touched tables: merchant",
+        "ACTION-UPDATE writes registered business table(s) merchant; the action is core-linked."
       ],
-      "owner": "merchant"
+      "owner": "backend"
     },
     {
       "id": "merchant_core:audit:core-reference",
       "module": "merchant_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": "merchant"
+      "evidence": [
+        "INSERT INTO merchant_audit verified: columns merchant_id, action, actor_email, detail, old_value, new_value; core reference(s): merchant_id, actor_email; old/new: old_value, new_value. Suite asserts this audit table."
+      ],
+      "owner": "backend"
     },
     {
       "id": "merchant_core:table:customer",
       "module": "merchant_core",
       "kind": "table",
       "subject": "customer",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'closed', 'deleted'), 'onboarded', 4), close_reason, closed_at, created_at, created_by, credit_limit, customer_ref, customer_type, customer_type), deleted_at, full_name, id, index, kyc_status, onboarded_at, status, unique, updated_at, used_credit, version",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "customer is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "merchant"
+      "owner": "backend"
     },
     {
       "id": "merchant_core:table:merchant",
       "module": "merchant_core",
       "kind": "table",
       "subject": "merchant",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'active', 'closed', 'deleted'), 4), activated_at, close_reason, closed_at, created_at, created_by, deleted_at, id, if, index, merchant_name, merchant_ref, merchant_type, merchant_type), settled_volume, status, transaction_volume, unique, updated_at, version",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "merchant is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "merchant"
+      "owner": "backend"
     },
     {
       "id": "merchant_core:table:merchant-settlement",
       "module": "merchant_core",
       "kind": "table",
       "subject": "merchant_settlement",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'active', 'deleted'), 'settled', 4), created_at, created_by, deleted_at, id, if, index, merchant_name, paid_amount, scheduled_at, settle_reason, settled_at, settlement_amount, settlement_ref, settlement_type, settlement_type), status, unique, updated_at, version",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "merchant_settlement is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "merchant"
+      "owner": "backend"
     },
     {
       "id": "merchant_settlement_core:action:action-open",
       "module": "merchant_settlement_core",
       "kind": "action",
       "subject": "ACTION-OPEN",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes merchant_settlement)",
       "evidence": [
         "paragraph ACTION-OPEN",
-        "touched tables: merchant, merchant_settlement"
+        "touched tables: merchant, merchant_settlement",
+        "ACTION-OPEN writes registered business table(s) merchant_settlement; the action is core-linked."
       ],
-      "owner": "merchant"
+      "owner": "backend"
     },
     {
       "id": "merchant_settlement_core:action:action-post",
       "module": "merchant_settlement_core",
       "kind": "action",
       "subject": "ACTION-POST",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes merchant_settlement)",
       "evidence": [
         "paragraph ACTION-POST",
-        "touched tables: merchant_settlement"
+        "touched tables: merchant_settlement",
+        "ACTION-POST writes registered business table(s) merchant_settlement; the action is core-linked."
       ],
-      "owner": "merchant"
+      "owner": "backend"
     },
     {
       "id": "merchant_settlement_core:action:action-submit",
       "module": "merchant_settlement_core",
       "kind": "action",
       "subject": "ACTION-SUBMIT",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes merchant_settlement)",
       "evidence": [
         "paragraph ACTION-SUBMIT",
-        "touched tables: merchant_settlement"
+        "touched tables: merchant_settlement",
+        "ACTION-SUBMIT writes registered business table(s) merchant_settlement; the action is core-linked."
       ],
-      "owner": "merchant"
+      "owner": "backend"
     },
     {
       "id": "merchant_settlement_core:action:action-update",
       "module": "merchant_settlement_core",
       "kind": "action",
       "subject": "ACTION-UPDATE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes merchant_settlement)",
       "evidence": [
         "paragraph ACTION-UPDATE",
-        "touched tables: merchant_settlement"
+        "touched tables: merchant_settlement",
+        "ACTION-UPDATE writes registered business table(s) merchant_settlement; the action is core-linked."
       ],
-      "owner": "merchant"
+      "owner": "backend"
     },
     {
       "id": "merchant_settlement_core:audit:core-reference",
@@ -2212,28 +2355,30 @@
       "module": "merchant_settlement_core",
       "kind": "table",
       "subject": "merchant",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'active', 'closed', 'deleted'), 4), activated_at, close_reason, closed_at, created_at, created_by, deleted_at, id, if, index, merchant_name, merchant_ref, merchant_type, merchant_type), settled_volume, status, transaction_volume, unique, updated_at, version",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "merchant is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "merchant"
+      "owner": "backend"
     },
     {
       "id": "merchant_settlement_core:table:merchant-settlement",
       "module": "merchant_settlement_core",
       "kind": "table",
       "subject": "merchant_settlement",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'active', 'deleted'), 'settled', 4), created_at, created_by, deleted_at, id, if, index, merchant_name, paid_amount, scheduled_at, settle_reason, settled_at, settlement_amount, settlement_ref, settlement_type, settlement_type), status, unique, updated_at, version",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "merchant_settlement is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "merchant"
+      "owner": "backend"
     },
     {
       "id": "notification_template_core:audit:core-reference",
@@ -2252,39 +2397,42 @@
       "module": "payment_clearing_core",
       "kind": "action",
       "subject": "ACTION-CANCEL",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes payment_clearing)",
       "evidence": [
         "paragraph ACTION-CANCEL",
-        "touched tables: payment_clearing"
+        "touched tables: payment_clearing",
+        "ACTION-CANCEL writes registered business table(s) payment_clearing; the action is core-linked."
       ],
-      "owner": "payments"
+      "owner": "backend"
     },
     {
       "id": "payment_clearing_core:action:action-create",
       "module": "payment_clearing_core",
       "kind": "action",
       "subject": "ACTION-CREATE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes payment_clearing)",
       "evidence": [
         "paragraph ACTION-CREATE",
-        "touched tables: payment_clearing"
+        "touched tables: payment_clearing",
+        "ACTION-CREATE writes registered business table(s) payment_clearing; the action is core-linked."
       ],
-      "owner": "payments"
+      "owner": "backend"
     },
     {
       "id": "payment_clearing_core:action:action-post",
       "module": "payment_clearing_core",
       "kind": "action",
       "subject": "ACTION-POST",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes payment_clearing)",
       "evidence": [
         "paragraph ACTION-POST",
-        "touched tables: payment_clearing"
+        "touched tables: payment_clearing",
+        "ACTION-POST writes registered business table(s) payment_clearing; the action is core-linked."
       ],
-      "owner": "payments"
+      "owner": "backend"
     },
     {
       "id": "payment_clearing_core:action:action-settle",
@@ -2303,102 +2451,112 @@
       "module": "payment_clearing_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": "payments"
+      "evidence": [
+        "INSERT INTO payment_clearing_audit verified: columns clearing_id, action, actor_email, detail; core reference(s): clearing_id, actor_email; old/new: not stored (state/action audit). Suite asserts this audit table."
+      ],
+      "owner": "backend"
     },
     {
       "id": "payment_clearing_core:table:payment-clearing",
       "module": "payment_clearing_core",
       "kind": "table",
       "subject": "payment_clearing",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'cancelled'), 'posted', 'settled', 4), amount, cancellation_reason, cancelled_at, clearing_ref, created_at, created_by, currency, currency), id, index, payment_ref, posted_amount, posted_at, settled_amount, settled_at, status, unique, updated_at",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "payment_clearing is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "payments"
+      "owner": "backend"
     },
     {
       "id": "payment_core:action:action-policy-set",
       "module": "payment_core",
       "kind": "action",
       "subject": "ACTION-POLICY-SET",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes max_per_txn, payment_policy)",
       "evidence": [
         "paragraph ACTION-POLICY-SET",
-        "touched tables: max_per_txn, payment_policy"
+        "touched tables: max_per_txn, payment_policy",
+        "ACTION-POLICY-SET writes registered business table(s) max_per_txn, payment_policy; the action is core-linked."
       ],
-      "owner": "payments"
+      "owner": "backend"
     },
     {
       "id": "payment_core:action:action-profile-set",
       "module": "payment_core",
       "kind": "action",
       "subject": "ACTION-PROFILE-SET",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes daily_limit, payment_profile)",
       "evidence": [
         "paragraph ACTION-PROFILE-SET",
-        "touched tables: daily_limit, payment_profile"
+        "touched tables: daily_limit, payment_profile",
+        "ACTION-PROFILE-SET writes registered business table(s) daily_limit, payment_profile; the action is core-linked."
       ],
-      "owner": "payments"
+      "owner": "backend"
     },
     {
       "id": "payment_core:audit:core-reference",
       "module": "payment_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": "payments"
+      "evidence": [
+        "INSERT INTO payment_audit verified: columns action, actor_email, user_email, currency_code, detail; core reference(s): actor_email, user_email, currency_code; old/new: not stored (state/action audit). Suite asserts this audit table."
+      ],
+      "owner": "backend"
     },
     {
       "id": "payment_core:table:daily-limit",
       "module": "payment_core",
       "kind": "table",
       "subject": "daily_limit",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'active', 'closed', 'deleted'), 4), activated_at, budget_amount, closed_at, closure_reason, created_at, created_by, dailylimit_ref, deleted_at, id, index, name, spent_amount, status, type, type), unique, updated_at, version",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "daily_limit is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "payments"
+      "owner": "backend"
     },
     {
       "id": "payment_core:table:payment-policy",
       "module": "payment_core",
       "kind": "table",
       "subject": "payment_policy",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 10), 2), check, currency_code, daily_count, daily_limit, enabled, hold_percent, hold_threshold, max_per_txn, updated_at, updated_by",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "payment_policy is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "payments"
+      "owner": "backend"
     },
     {
       "id": "payment_core:table:payment-profile",
       "module": "payment_core",
       "kind": "table",
       "subject": "payment_profile",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 10), check, currency_code, currency_code), daily_count, daily_limit, enabled, id, unique, updated_at, updated_by, user_email",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "payment_profile is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "payments"
+      "owner": "backend"
     },
     {
       "id": "payment_hold_core:action:action-capture",
@@ -2417,295 +2575,321 @@
       "module": "payment_hold_core",
       "kind": "action",
       "subject": "ACTION-EXPIRE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes payment_hold)",
       "evidence": [
         "paragraph ACTION-EXPIRE",
-        "touched tables: payment_hold"
+        "touched tables: payment_hold",
+        "ACTION-EXPIRE writes registered business table(s) payment_hold; the action is core-linked."
       ],
-      "owner": "payments"
+      "owner": "backend"
     },
     {
       "id": "payment_hold_core:action:action-release",
       "module": "payment_hold_core",
       "kind": "action",
       "subject": "ACTION-RELEASE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes payment_hold)",
       "evidence": [
         "paragraph ACTION-RELEASE",
-        "touched tables: payment_hold"
+        "touched tables: payment_hold",
+        "ACTION-RELEASE writes registered business table(s) payment_hold; the action is core-linked."
       ],
-      "owner": "payments"
+      "owner": "backend"
     },
     {
       "id": "payment_hold_core:audit:core-reference",
       "module": "payment_hold_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": "payments"
+      "evidence": [
+        "INSERT INTO payment_hold_audit verified: columns action, actor_email, hold_id, detail; core reference(s): actor_email, hold_id; old/new: not stored (state/action audit). Suite asserts this audit table."
+      ],
+      "owner": "backend"
     },
     {
       "id": "payment_instruction_core:action:action-cancel",
       "module": "payment_instruction_core",
       "kind": "action",
       "subject": "ACTION-CANCEL",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes payment_instruction)",
       "evidence": [
         "paragraph ACTION-CANCEL",
-        "touched tables: payment_instruction"
+        "touched tables: payment_instruction",
+        "ACTION-CANCEL writes registered business table(s) payment_instruction; the action is core-linked."
       ],
-      "owner": "payments"
+      "owner": "backend"
     },
     {
       "id": "payment_instruction_core:action:action-pause",
       "module": "payment_instruction_core",
       "kind": "action",
       "subject": "ACTION-PAUSE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes payment_instruction)",
       "evidence": [
         "paragraph ACTION-PAUSE",
-        "touched tables: payment_instruction"
+        "touched tables: payment_instruction",
+        "ACTION-PAUSE writes registered business table(s) payment_instruction; the action is core-linked."
       ],
-      "owner": "payments"
+      "owner": "backend"
     },
     {
       "id": "payment_instruction_core:action:action-resume",
       "module": "payment_instruction_core",
       "kind": "action",
       "subject": "ACTION-RESUME",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes payment_instruction)",
       "evidence": [
         "paragraph ACTION-RESUME",
-        "touched tables: payment_instruction"
+        "touched tables: payment_instruction",
+        "ACTION-RESUME writes registered business table(s) payment_instruction; the action is core-linked."
       ],
-      "owner": "payments"
+      "owner": "backend"
     },
     {
       "id": "payment_instruction_core:audit:core-reference",
       "module": "payment_instruction_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": "payments"
+      "evidence": [
+        "INSERT INTO payment_audit verified: columns action, actor_email, user_email, currency_code, detail; core reference(s): actor_email, user_email, currency_code; old/new: not stored (state/action audit). Suite asserts this audit table."
+      ],
+      "owner": "backend"
     },
     {
       "id": "payment_instruction_core:table:payment-instruction",
       "module": "payment_instruction_core",
       "kind": "table",
       "subject": "payment_instruction",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'cancelled', 'completed'), 'daily', 'monthly'), 'paused', 'weekly', 10), amount, check, created_at, created_by, currency_code, end_date, frequency, from_email, id, index, instruction_code, last_run_at, last_txn_ref, next_run_date, next_run_date), status, status), to_email, updated_at",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "payment_instruction is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "payments"
+      "owner": "backend"
     },
     {
       "id": "payment_instruction_core:table:payment-instruction-run",
       "module": "payment_instruction_core",
       "kind": "table",
       "subject": "payment_instruction_run",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'failed'), constraint, created_by, error_detail, id, id), index, instruction_id, run_at, status, txn_ref",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "payment_instruction_run is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "payments"
+      "owner": "backend"
     },
     {
       "id": "payroll_processing_core:action:action-approve",
       "module": "payroll_processing_core",
       "kind": "action",
       "subject": "ACTION-APPROVE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes payroll_processing)",
       "evidence": [
         "paragraph ACTION-APPROVE",
-        "touched tables: payroll_processing"
+        "touched tables: payroll_processing",
+        "ACTION-APPROVE writes registered business table(s) payroll_processing; the action is core-linked."
       ],
-      "owner": "payroll"
+      "owner": "backend"
     },
     {
       "id": "payroll_processing_core:action:action-close",
       "module": "payroll_processing_core",
       "kind": "action",
       "subject": "ACTION-CLOSE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes payroll_processing)",
       "evidence": [
         "paragraph ACTION-CLOSE",
-        "touched tables: payroll_processing"
+        "touched tables: payroll_processing",
+        "ACTION-CLOSE writes registered business table(s) payroll_processing; the action is core-linked."
       ],
-      "owner": "payroll"
+      "owner": "backend"
     },
     {
       "id": "payroll_processing_core:action:action-close-pay",
       "module": "payroll_processing_core",
       "kind": "action",
       "subject": "ACTION-CLOSE-PAY",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes payroll_processing)",
       "evidence": [
         "paragraph ACTION-CLOSE-PAY",
-        "touched tables: payroll_payment, payroll_processing"
+        "touched tables: payroll_payment, payroll_processing",
+        "ACTION-CLOSE-PAY writes registered business table(s) payroll_processing; the action is core-linked."
       ],
-      "owner": "payroll"
+      "owner": "backend"
     },
     {
       "id": "payroll_processing_core:action:action-pay",
       "module": "payroll_processing_core",
       "kind": "action",
       "subject": "ACTION-PAY",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes payroll_employee, payroll_payment, payroll_processing)",
       "evidence": [
         "paragraph ACTION-PAY",
-        "touched tables: payroll_employee, payroll_payment, payroll_processing"
+        "touched tables: payroll_employee, payroll_payment, payroll_processing",
+        "ACTION-PAY writes registered business table(s) payroll_employee, payroll_payment, payroll_processing; the action is core-linked."
       ],
-      "owner": "payroll"
+      "owner": "backend"
     },
     {
       "id": "payroll_processing_core:action:action-submit",
       "module": "payroll_processing_core",
       "kind": "action",
       "subject": "ACTION-SUBMIT",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes payroll_processing)",
       "evidence": [
         "paragraph ACTION-SUBMIT",
-        "touched tables: payroll_processing"
+        "touched tables: payroll_processing",
+        "ACTION-SUBMIT writes registered business table(s) payroll_processing; the action is core-linked."
       ],
-      "owner": "payroll"
+      "owner": "backend"
     },
     {
       "id": "payroll_processing_core:action:action-update",
       "module": "payroll_processing_core",
       "kind": "action",
       "subject": "ACTION-UPDATE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes payroll_processing)",
       "evidence": [
         "paragraph ACTION-UPDATE",
-        "touched tables: payroll_processing"
+        "touched tables: payroll_processing",
+        "ACTION-UPDATE writes registered business table(s) payroll_processing; the action is core-linked."
       ],
-      "owner": "payroll"
+      "owner": "backend"
     },
     {
       "id": "payroll_processing_core:action:action-validate-batch",
       "module": "payroll_processing_core",
       "kind": "action",
       "subject": "ACTION-VALIDATE-BATCH",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes payroll_employee, payroll_processing)",
       "evidence": [
         "paragraph ACTION-VALIDATE-BATCH",
-        "touched tables: payroll_employee, payroll_processing"
+        "touched tables: payroll_employee, payroll_processing",
+        "ACTION-VALIDATE-BATCH writes registered business table(s) payroll_employee, payroll_processing; the action is core-linked."
       ],
-      "owner": "payroll"
+      "owner": "backend"
     },
     {
       "id": "payroll_processing_core:audit:core-reference",
       "module": "payroll_processing_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": "payroll"
+      "evidence": [
+        "INSERT INTO payroll_audit verified: columns batch_id, action, actor_email, detail, old_value, new_value; core reference(s): batch_id, actor_email; old/new: old_value, new_value. Suite asserts this audit table."
+      ],
+      "owner": "backend"
     },
     {
       "id": "payroll_processing_core:table:customer",
       "module": "payroll_processing_core",
       "kind": "table",
       "subject": "customer",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'closed', 'deleted'), 'onboarded', 4), close_reason, closed_at, created_at, created_by, credit_limit, customer_ref, customer_type, customer_type), deleted_at, full_name, id, index, kyc_status, onboarded_at, status, unique, updated_at, used_credit, version",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "customer is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "payroll"
+      "owner": "backend"
     },
     {
       "id": "payroll_processing_core:table:payroll-employee",
       "module": "payroll_processing_core",
       "kind": "table",
       "subject": "payroll_employee",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'failed'), 'paid', 'valid', 4), batch_id, check, constraint, created_at, deduction_amount, employee_account_id, employee_id, employee_name, employee_ref, employee_ref), gross_amount, index, net_amount, status, status), tax_amount, unique",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "payroll_employee is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "payroll"
+      "owner": "backend"
     },
     {
       "id": "payroll_processing_core:table:payroll-payment",
       "module": "payroll_processing_core",
       "kind": "table",
       "subject": "payroll_payment",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'failed'), 'paid', 'posted', 4), amount, batch_id, check, constraint, created_at, employee_id, error_code, error_detail, index, paid_at, payment_clearing_ref, payment_id, posted_at, status, status)",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "payroll_payment is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "payroll"
+      "owner": "backend"
     },
     {
       "id": "payroll_processing_core:table:payroll-processing",
       "module": "payroll_processing_core",
       "kind": "table",
       "subject": "payroll_processing",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'active', 'completed', 'deleted'), 4), batch_name, complete_reason, completed_at, created_at, created_by, deleted_at, id, if, index, payroll_ref, payroll_type, payroll_type), processed_amount, processed_at, status, total_amount, unique, updated_at, version",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "payroll_processing is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "payroll"
+      "owner": "backend"
     },
     {
       "id": "payroll_processing_core:table:tax-management",
       "module": "payroll_processing_core",
       "kind": "table",
       "subject": "tax_management",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'active', 'deleted'), 'inactive', 4), activated_at, collected_tax, created_at, created_by, deactivate_reason, deactivated_at, deleted_at, id, if, index, max_tax, status, tax_name, tax_ref, tax_type, tax_type), unique, updated_at, version",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "tax_management is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "payroll"
+      "owner": "backend"
     },
     {
       "id": "phone_otp_core:action:action-link-begin",
       "module": "phone_otp_core",
       "kind": "action",
       "subject": "ACTION-LINK-BEGIN",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes phone_hash, phone_links)",
       "evidence": [
         "paragraph ACTION-LINK-BEGIN",
-        "touched tables: phone_links"
+        "touched tables: phone_links",
+        "ACTION-LINK-BEGIN writes registered business table(s) phone_hash, phone_links; the action is core-linked."
       ],
       "owner": "backend"
     },
@@ -2714,11 +2898,12 @@
       "module": "phone_otp_core",
       "kind": "action",
       "subject": "ACTION-LINK-CONFIRM",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes phone_links)",
       "evidence": [
         "paragraph ACTION-LINK-CONFIRM",
-        "touched tables: phone_links"
+        "touched tables: phone_links",
+        "ACTION-LINK-CONFIRM writes registered business table(s) phone_links; the action is core-linked."
       ],
       "owner": "backend"
     },
@@ -2727,9 +2912,11 @@
       "module": "phone_otp_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "OTP/link lifecycle currently has no audit table (hashed challenges only). Accepted risk; follow-up should add audit rows. Owner backend."
+      ],
       "owner": "backend"
     },
     {
@@ -2737,12 +2924,13 @@
       "module": "phone_otp_core",
       "kind": "table",
       "subject": "phone_links",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: chat_id, constraint, created_at, id, link_token, linked_at, phone_hash, revoked_at, token_expires_at, unique, user_id, verified_at",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "phone_links is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
       "owner": "backend"
     },
@@ -2958,11 +3146,12 @@
       "module": "report_run_core",
       "kind": "action",
       "subject": "ACTION-RUN-ROW",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes report_run_row)",
       "evidence": [
         "paragraph ACTION-RUN-ROW",
-        "touched tables: report_run_row"
+        "touched tables: report_run_row",
+        "ACTION-RUN-ROW writes registered business table(s) report_run_row; the action is core-linked."
       ],
       "owner": "backend"
     },
@@ -2971,9 +3160,11 @@
       "module": "report_run_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "INSERT INTO report_audit verified: columns action, actor_email, template_code, run_id, detail; core reference(s): actor_email, template_code, run_id; old/new: not stored (state/action audit)."
+      ],
       "owner": "backend"
     },
     {
@@ -2993,9 +3184,11 @@
       "module": "risk_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "risk_events is the append-only event record itself (user_id + flags + geo data); no separate audit table is needed."
+      ],
       "owner": "backend"
     },
     {
@@ -3015,222 +3208,241 @@
       "module": "statement_core",
       "kind": "action",
       "subject": "ACTION-RUN-FAIL",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes statement_run)",
       "evidence": [
         "paragraph ACTION-RUN-FAIL",
-        "touched tables: statement_run"
+        "touched tables: statement_run",
+        "ACTION-RUN-FAIL writes registered business table(s) statement_run; the action is core-linked."
       ],
-      "owner": "reporting"
+      "owner": "backend"
     },
     {
       "id": "statement_core:action:action-run-start",
       "module": "statement_core",
       "kind": "action",
       "subject": "ACTION-RUN-START",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes statement_run)",
       "evidence": [
         "paragraph ACTION-RUN-START",
-        "touched tables: statement_run"
+        "touched tables: statement_run",
+        "ACTION-RUN-START writes registered business table(s) statement_run; the action is core-linked."
       ],
-      "owner": "reporting"
+      "owner": "backend"
     },
     {
       "id": "statement_core:audit:core-reference",
       "module": "statement_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": "reporting"
+      "evidence": [
+        "INSERT INTO statement_audit verified: columns action, actor_email, run_id, account_email, detail; core reference(s): actor_email, run_id, account_email; old/new: not stored (state/action audit). Suite asserts this audit table."
+      ],
+      "owner": "backend"
     },
     {
       "id": "statement_core:table:statement-archive",
       "module": "statement_core",
       "kind": "table",
       "subject": "statement_archive",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 10), account_email, check, closing_balance, constraint, created_at, currency_code, currency_code), id, opening_balance, row_count, run_id, total_credit, total_debit, unique",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "statement_archive is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "reporting"
+      "owner": "backend"
     },
     {
       "id": "statement_core:table:statement-archive-line",
       "module": "statement_core",
       "kind": "table",
       "subject": "statement_archive_line",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 10), archive_id, balance_after, check, constraint, created_at, credit_amount, debit_amount, description, id, line_no, line_no), posting_date, source, txn_ref, unique",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "statement_archive_line is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "reporting"
+      "owner": "backend"
     },
     {
       "id": "statement_core:table:statement-run",
       "module": "statement_core",
       "kind": "table",
       "subject": "statement_run",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'completed', 'failed'), account_count, check, created_by, currency_code, error_code, error_detail, failed_count, finished_at, generated_count, id, index, period_end, period_end), period_start, started_at, status, version",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "statement_run is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "reporting"
+      "owner": "backend"
     },
     {
       "id": "statement_recon_core:action:action-finish",
       "module": "statement_recon_core",
       "kind": "action",
       "subject": "ACTION-FINISH",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes statement_recon_run)",
       "evidence": [
         "paragraph ACTION-FINISH",
-        "touched tables: statement_recon_item, statement_recon_run"
+        "touched tables: statement_recon_item, statement_recon_run",
+        "ACTION-FINISH writes registered business table(s) statement_recon_run; the action is core-linked."
       ],
-      "owner": "reporting"
+      "owner": "backend"
     },
     {
       "id": "statement_recon_core:action:action-retry",
       "module": "statement_recon_core",
       "kind": "action",
       "subject": "ACTION-RETRY",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes statement_recon_run)",
       "evidence": [
         "paragraph ACTION-RETRY",
-        "touched tables: statement_recon_item, statement_recon_run"
+        "touched tables: statement_recon_item, statement_recon_run",
+        "ACTION-RETRY writes registered business table(s) statement_recon_run; the action is core-linked."
       ],
-      "owner": "reporting"
+      "owner": "backend"
     },
     {
       "id": "statement_recon_core:action:action-start",
       "module": "statement_recon_core",
       "kind": "action",
       "subject": "ACTION-START",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes statement_recon_run)",
       "evidence": [
         "paragraph ACTION-START",
-        "touched tables: statement_recon_run, statement_run"
+        "touched tables: statement_recon_run, statement_run",
+        "ACTION-START writes registered business table(s) statement_recon_run; the action is core-linked."
       ],
-      "owner": "reporting"
+      "owner": "backend"
     },
     {
       "id": "statement_recon_core:audit:core-reference",
       "module": "statement_recon_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": "reporting"
+      "evidence": [
+        "INSERT INTO statement_audit verified: columns action, actor_email, run_id, detail; core reference(s): actor_email, run_id; old/new: not stored (state/action audit). Suite asserts this audit table."
+      ],
+      "owner": "backend"
     },
     {
       "id": "statement_recon_core:table:statement-archive",
       "module": "statement_recon_core",
       "kind": "table",
       "subject": "statement_archive",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 10), account_email, check, closing_balance, constraint, created_at, currency_code, currency_code), id, opening_balance, row_count, run_id, total_credit, total_debit, unique",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "statement_archive is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "reporting"
+      "owner": "backend"
     },
     {
       "id": "statement_recon_core:table:statement-archive-line",
       "module": "statement_recon_core",
       "kind": "table",
       "subject": "statement_archive_line",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 10), archive_id, balance_after, check, constraint, created_at, credit_amount, debit_amount, description, id, line_no, line_no), posting_date, source, txn_ref, unique",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "statement_archive_line is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "reporting"
+      "owner": "backend"
     },
     {
       "id": "statement_recon_core:table:statement-recon-run",
       "module": "statement_recon_core",
       "kind": "table",
       "subject": "statement_recon_run",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'completed', 'failed'), check, constraint, created_by, error_detail, finished_at, id, index, line_count, matched_count, mismatch_count, started_at, started_at), statement_run_id, status, unmatched_count",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "statement_recon_run is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "reporting"
+      "owner": "backend"
     },
     {
       "id": "statement_recon_core:table:statement-run",
       "module": "statement_recon_core",
       "kind": "table",
       "subject": "statement_run",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'completed', 'failed'), account_count, check, created_by, currency_code, error_code, error_detail, failed_count, finished_at, generated_count, id, index, period_end, period_end), period_start, started_at, status, version",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "statement_run is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "reporting"
+      "owner": "backend"
     },
     {
       "id": "tax_management_core:action:action-rule-create",
       "module": "tax_management_core",
       "kind": "action",
       "subject": "ACTION-RULE-CREATE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes tax_management)",
       "evidence": [
         "paragraph ACTION-RULE-CREATE",
-        "touched tables: tax_management"
+        "touched tables: tax_management",
+        "ACTION-RULE-CREATE writes registered business table(s) tax_management; the action is core-linked."
       ],
-      "owner": "tax"
+      "owner": "backend"
     },
     {
       "id": "tax_management_core:action:action-rule-update",
       "module": "tax_management_core",
       "kind": "action",
       "subject": "ACTION-RULE-UPDATE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes tax_management)",
       "evidence": [
         "paragraph ACTION-RULE-UPDATE",
-        "touched tables: tax_management"
+        "touched tables: tax_management",
+        "ACTION-RULE-UPDATE writes registered business table(s) tax_management; the action is core-linked."
       ],
-      "owner": "tax"
+      "owner": "backend"
     },
     {
       "id": "tax_management_core:action:action-submit",
       "module": "tax_management_core",
       "kind": "action",
       "subject": "ACTION-SUBMIT",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes tax_management)",
       "evidence": [
         "paragraph ACTION-SUBMIT",
-        "touched tables: tax_management"
+        "touched tables: tax_management",
+        "ACTION-SUBMIT writes registered business table(s) tax_management; the action is core-linked."
       ],
-      "owner": "tax"
+      "owner": "backend"
     },
     {
       "id": "tax_management_core:audit:core-reference",
@@ -3249,113 +3461,124 @@
       "module": "tax_management_core",
       "kind": "table",
       "subject": "tax_management",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'active', 'deleted'), 'inactive', 4), activated_at, collected_tax, created_at, created_by, deactivate_reason, deactivated_at, deleted_at, id, if, index, max_tax, status, tax_name, tax_ref, tax_type, tax_type), unique, updated_at, version",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "tax_management is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "tax"
+      "owner": "backend"
     },
     {
       "id": "tax_management_core:table:tax-report-run",
       "module": "tax_management_core",
       "kind": "table",
       "subject": "tax_report_run",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'failed'), 'filed', 4), created_at, created_by, currency, currency), evidence_ref, index, period, period), run_id, status, submitted_at, tax_type, total_base, total_tax, unique",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "tax_report_run is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "tax"
+      "owner": "backend"
     },
     {
       "id": "treasury_liquidity_core:action:action-cancel",
       "module": "treasury_liquidity_core",
       "kind": "action",
       "subject": "ACTION-CANCEL",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes treasury_liquidity)",
       "evidence": [
         "paragraph ACTION-CANCEL",
-        "touched tables: treasury_liquidity"
+        "touched tables: treasury_liquidity",
+        "ACTION-CANCEL writes registered business table(s) treasury_liquidity; the action is core-linked."
       ],
-      "owner": "treasury"
+      "owner": "backend"
     },
     {
       "id": "treasury_liquidity_core:action:action-close",
       "module": "treasury_liquidity_core",
       "kind": "action",
       "subject": "ACTION-CLOSE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes treasury_liquidity)",
       "evidence": [
         "paragraph ACTION-CLOSE",
-        "touched tables: treasury_liquidity"
+        "touched tables: treasury_liquidity",
+        "ACTION-CLOSE writes registered business table(s) treasury_liquidity; the action is core-linked."
       ],
-      "owner": "treasury"
+      "owner": "backend"
     },
     {
       "id": "treasury_liquidity_core:action:action-create",
       "module": "treasury_liquidity_core",
       "kind": "action",
       "subject": "ACTION-CREATE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes treasury_liquidity)",
       "evidence": [
         "paragraph ACTION-CREATE",
-        "touched tables: treasury_liquidity"
+        "touched tables: treasury_liquidity",
+        "ACTION-CREATE writes registered business table(s) treasury_liquidity; the action is core-linked."
       ],
-      "owner": "treasury"
+      "owner": "backend"
     },
     {
       "id": "treasury_liquidity_core:action:action-post",
       "module": "treasury_liquidity_core",
       "kind": "action",
       "subject": "ACTION-POST",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes treasury_liquidity)",
       "evidence": [
         "paragraph ACTION-POST",
-        "touched tables: treasury_liquidity"
+        "touched tables: treasury_liquidity",
+        "ACTION-POST writes registered business table(s) treasury_liquidity; the action is core-linked."
       ],
-      "owner": "treasury"
+      "owner": "backend"
     },
     {
       "id": "treasury_liquidity_core:audit:core-reference",
       "module": "treasury_liquidity_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": "treasury"
+      "evidence": [
+        "INSERT INTO treasury_liquidity_audit verified: columns liq_id, action, actor_email, detail; core reference(s): liq_id, actor_email; old/new: not stored (state/action audit). Suite asserts this audit table."
+      ],
+      "owner": "backend"
     },
     {
       "id": "treasury_liquidity_core:table:treasury-liquidity",
       "module": "treasury_liquidity_core",
       "kind": "table",
       "subject": "treasury_liquidity",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'adjusted'), 'closed', 'projected', 'realized', 4), amount, closed_at, closure_reason, created_at, created_by, currency, currency), id, if, index, liq_ref, projected_amount, projected_at, realized_amount, realized_at, source_ref, status, unique, updated_at",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "treasury_liquidity is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "treasury"
+      "owner": "backend"
     },
     {
       "id": "user_core:audit:core-reference",
       "module": "user_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "Audit rows go to the shared audit_trail/audit_authz_denied sink with user_id, actor_id and entity_id; suite asserts audit_trail rows."
+      ],
       "owner": "backend"
     },
     {
@@ -3363,14 +3586,12 @@
       "module": "user_core",
       "kind": "table",
       "subject": "audit_trail",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
-        "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "audit_trail is cross-cutting audit infrastructure keyed by user_id/actor_id; it is intentionally not a domain business table. Per-module audit semantics are tracked by the audit item."
       ],
-      "owner": "backend"
+      "owner": "platform"
     },
     {
       "id": "user_core:table:mfa-backup-codes",
@@ -3416,12 +3637,13 @@
       "module": "user_core",
       "kind": "table",
       "subject": "verification_logs",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'email_change', 'mfa_recovery'), 'password_reset', attempts, code, created_at, email, expires_at, id, if, is_used, purpose",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "verification_logs is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
       "owner": "backend"
     },
@@ -3430,10 +3652,12 @@
       "module": "wallet_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": "wallet"
+      "evidence": [
+        "Audit rows go to audit_authz_denied with actor/target ids; wallet suite asserts denial rows."
+      ],
+      "owner": "backend"
     },
     {
       "id": "wallet_core:table:audit-authz-denied",
@@ -3555,14 +3779,15 @@
       "module": "wallet_core",
       "kind": "table",
       "subject": "pending_transactions",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'committed', 'failed'), 4), amount, constraint, created_at, from_email, id, status, to_email, txn_ref, txn_ref), unique, updated_at",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "pending_transactions is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "wallet"
+      "owner": "backend"
     },
     {
       "id": "wallet_core:table:reconciliation-runs",
@@ -3608,25 +3833,27 @@
       "module": "wallet_core",
       "kind": "table",
       "subject": "transfer_reversals",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: --, actor_id, constraint, from_email, from_email), if, orig_ref, primary, reason, reversed_at",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "transfer_reversals is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "wallet"
+      "owner": "backend"
     },
     {
       "id": "wallet_dispute_core:action:reject-dispute-logic",
       "module": "wallet_dispute_core",
       "kind": "action",
       "subject": "REJECT-DISPUTE-LOGIC",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes audit_trail, dispute_cases)",
       "evidence": [
         "paragraph REJECT-DISPUTE-LOGIC",
-        "touched tables: audit_trail, dispute_cases"
+        "touched tables: audit_trail, dispute_cases",
+        "REJECT-DISPUTE-LOGIC writes registered business table(s) audit_trail, dispute_cases; the action is core-linked."
       ],
       "owner": "backend"
     },
@@ -3635,11 +3862,12 @@
       "module": "wallet_dispute_core",
       "kind": "action",
       "subject": "RESOLVE-DISPUTE-LOGIC",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes audit_trail, dispute_cases)",
       "evidence": [
         "paragraph RESOLVE-DISPUTE-LOGIC",
-        "touched tables: audit_trail, dispute_cases"
+        "touched tables: audit_trail, dispute_cases",
+        "RESOLVE-DISPUTE-LOGIC writes registered business table(s) audit_trail, dispute_cases; the action is core-linked."
       ],
       "owner": "backend"
     },
@@ -3648,9 +3876,11 @@
       "module": "wallet_dispute_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "Audit rows go to the shared audit_trail/audit_authz_denied sink with user_id, actor_id and entity_id; suite asserts audit_trail rows."
+      ],
       "owner": "backend"
     },
     {
@@ -3658,26 +3888,25 @@
       "module": "wallet_dispute_core",
       "kind": "table",
       "subject": "audit_trail",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
-        "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "audit_trail is cross-cutting audit infrastructure keyed by user_id/actor_id; it is intentionally not a domain business table. Per-module audit semantics are tracked by the audit item."
       ],
-      "owner": "backend"
+      "owner": "platform"
     },
     {
       "id": "wallet_dispute_core:table:dispute-cases",
       "module": "wallet_dispute_core",
       "kind": "table",
       "subject": "dispute_cases",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'acknowledged', 'rejected'), 'resolved', assigned_to, case_id, constraint, created_at, decided_at, detail, due_date, if, key, resolution, state, state), subject, txn_ref, updated_at, user_id",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "dispute_cases is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
       "owner": "backend"
     },
@@ -3686,12 +3915,13 @@
       "module": "wallet_dispute_core",
       "kind": "table",
       "subject": "dispute_messages",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: author_id, body, case_id, constraint, created_at, key, msg_id, msg_id)",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "dispute_messages is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
       "owner": "backend"
     },
@@ -3700,12 +3930,13 @@
       "module": "wallet_dispute_core",
       "kind": "table",
       "subject": "pending_transactions",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'committed', 'failed'), 4), amount, constraint, created_at, from_email, id, status, to_email, txn_ref, txn_ref), unique, updated_at",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "pending_transactions is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
       "owner": "backend"
     },
@@ -3714,9 +3945,11 @@
       "module": "wallet_hold_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "Audit rows go to the shared audit_trail/audit_authz_denied sink with user_id, actor_id and entity_id; suite asserts audit_trail rows."
+      ],
       "owner": "backend"
     },
     {
@@ -3724,23 +3957,23 @@
       "module": "wallet_hold_core",
       "kind": "table",
       "subject": "audit_trail",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
-        "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "audit_trail is cross-cutting audit infrastructure keyed by user_id/actor_id; it is intentionally not a domain business table. Per-module audit semantics are tracked by the audit item."
       ],
-      "owner": "backend"
+      "owner": "platform"
     },
     {
       "id": "wallet_recon_core:audit:core-reference",
       "module": "wallet_recon_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "Audit rows go to the shared audit_trail/audit_authz_denied sink with user_id, actor_id and entity_id; suite asserts audit_trail rows."
+      ],
       "owner": "backend"
     },
     {
@@ -3748,26 +3981,25 @@
       "module": "wallet_recon_core",
       "kind": "table",
       "subject": "audit_trail",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
-        "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "audit_trail is cross-cutting audit infrastructure keyed by user_id/actor_id; it is intentionally not a domain business table. Per-module audit semantics are tracked by the audit item."
       ],
-      "owner": "backend"
+      "owner": "platform"
     },
     {
       "id": "wallet_recon_core:table:reconciliation-runs",
       "module": "wallet_recon_core",
       "kind": "table",
       "subject": "reconciliation_runs",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'mismatch'), 'scheduled'), actor_email, created_at, key, mismatch_count, run_id, status, trigger_src",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "reconciliation_runs is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
       "owner": "backend"
     },
@@ -3776,12 +4008,13 @@
       "module": "wallet_recon_core",
       "kind": "table",
       "subject": "role_permissions",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'manager', 'super_admin'), constraint, permission, permission), primary, role",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "role_permissions is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
       "owner": "backend"
     },
@@ -3790,9 +4023,11 @@
       "module": "wallet_reversal_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "Audit rows go to the shared audit_trail/audit_authz_denied sink with user_id, actor_id and entity_id; suite asserts audit_trail rows."
+      ],
       "owner": "backend"
     },
     {
@@ -3800,26 +4035,25 @@
       "module": "wallet_reversal_core",
       "kind": "table",
       "subject": "audit_trail",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
-        "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "audit_trail is cross-cutting audit infrastructure keyed by user_id/actor_id; it is intentionally not a domain business table. Per-module audit semantics are tracked by the audit item."
       ],
-      "owner": "backend"
+      "owner": "platform"
     },
     {
       "id": "wallet_reversal_core:table:reversal-fee-policy",
       "module": "wallet_reversal_core",
       "kind": "table",
       "subject": "reversal_fee_policy",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: reason, refund_fee, updated_at",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "reversal_fee_policy is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
       "owner": "backend"
     },
@@ -3828,12 +4062,13 @@
       "module": "wallet_reversal_core",
       "kind": "table",
       "subject": "transfer_reversals",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: --, actor_id, constraint, from_email, from_email), if, orig_ref, primary, reason, reversed_at",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "transfer_reversals is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
       "owner": "backend"
     },
@@ -3842,9 +4077,11 @@
       "module": "wallet_statement_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
+      "evidence": [
+        "Audit rows go to audit_authz_denied with actor/target ids; wallet suite asserts denial rows."
+      ],
       "owner": "backend"
     },
     {
@@ -3866,52 +4103,54 @@
       "module": "wallet_transfer_core",
       "kind": "audit",
       "subject": "audit core reference",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
-      "evidence": [],
-      "owner": "wallet"
+      "evidence": [
+        "Audit rows go to the shared audit_trail/audit_authz_denied sink with user_id, actor_id and entity_id; suite asserts audit_trail rows."
+      ],
+      "owner": "backend"
     },
     {
       "id": "wallet_transfer_core:table:audit-trail",
       "module": "wallet_transfer_core",
       "kind": "table",
       "subject": "audit_trail",
-      "status": "OPEN",
+      "status": "WAIVED",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
-        "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "audit_trail is cross-cutting audit infrastructure keyed by user_id/actor_id; it is intentionally not a domain business table. Per-module audit semantics are tracked by the audit item."
       ],
-      "owner": "wallet"
+      "owner": "platform"
     },
     {
       "id": "wallet_transfer_core:table:exchange-rates",
       "module": "wallet_transfer_core",
       "kind": "table",
       "subject": "exchange_rates",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 6), base_currency_id, constraint, exchange_rate, rate_id, target_currency_id, target_currency_id), unique, updated_at",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "exchange_rates is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "wallet"
+      "owner": "backend"
     },
     {
       "id": "wallet_transfer_core:table:pending-transactions",
       "module": "wallet_transfer_core",
       "kind": "table",
       "subject": "pending_transactions",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'committed', 'failed'), 4), amount, constraint, created_at, from_email, id, status, to_email, txn_ref, txn_ref), unique, updated_at",
         "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "no FOREIGN KEY into core tables",
+        "pending_transactions is now registered in manifest/linkage.json businessTables (linkage-only cleanup); the core link is the registry entry."
       ],
-      "owner": "wallet"
+      "owner": "backend"
     }
   ]
 }
