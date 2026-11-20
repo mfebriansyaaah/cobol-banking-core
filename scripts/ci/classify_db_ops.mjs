@@ -28,13 +28,11 @@ export function isDbOpsRelevant(files) {
 }
 
 function readStdin() {
-  let s = '';
   try {
-    s = readFileSync(0, 'utf8');
+    return readFileSync(0, 'utf8');
   } catch {
     return '';
   }
-  return s;
 }
 
 const args = process.argv.slice(2);
