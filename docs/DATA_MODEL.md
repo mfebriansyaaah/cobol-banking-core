@@ -8,7 +8,7 @@ Every table added after the legacy baseline (`manifest/table_ownership.json`,
 - `owner`: the accountable area (identity, risk, market, corporate, infra…),
   not a person;
 - `status`: ACTIVE / DEPRECATED;
-- `tier1Links`: domain links (may be empty, never omitted);
+- `coreLinks`: domain links (may be empty, never omitted);
 - `audited`: where the audit trail lives (sibling table or in-row story).
 
 The gate (`scripts/check_schema_ownership.mjs`, wired in `run_all.sh`)

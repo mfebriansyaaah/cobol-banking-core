@@ -26,9 +26,9 @@ never counts. Every document below must stay linked here — enforced by
 | --- | --- |
 | [DATA_MODEL](DATA_MODEL.md) | Data model and table ownership |
 | [data_dictionary](DATA_DICTIONARY.md) | Column catalogue, generated from `database/schema.sql` |
-| [module_classification](MODULE_CLASSIFICATION.md) | Module tier classification (Tier 1/2/3) |
+| [MODULE_LINKAGE](MODULE_LINKAGE.md) | Module linkage classification (L0-L3, UTILITY) |
 | [module_authoring](MODULE_AUTHORING.md) | Guide for authoring new COBOL modules |
-| [TIER1_LINKAGE](TIER1_LINKAGE.md) | Tier-1 linkage levels and evidence |
+| [LINKAGE](LINKAGE.md) | Core linkage levels and evidence |
 | [CODE_CANDIDATES](CODE_CANDIDATES.md) | Refactor candidates tracked against the manifest |
 | [MODULE_INDEX](MODULE_INDEX.md) | Generated module inventory |
 | [MODULE_QUALITY](MODULE_QUALITY.md) | Generated per-module quality rollup |

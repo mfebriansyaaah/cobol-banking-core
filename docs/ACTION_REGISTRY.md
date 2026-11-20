@@ -13,7 +13,7 @@ node scripts/check_action_registry.mjs .         # gate (wired in run_all.sh)
 
 Entry shape: `action`, `module`, `prefix`, `method`, `path`, `fields` (slot
 names, `""` = BLANK), `required`, `public`, `stepUp`, `tokenIdentity`,
-`linkageLevel`, `t1Actions`, `t1Calls`, `tested`, `domain`, `status`,
+`linkageLevel`, `coreActions`, `coreCalls`, `tested`, `domain`, `status`,
 plus `duplicatePaths` when one action serves several paths (first wins at
 runtime, same as Express).
 

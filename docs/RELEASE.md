@@ -9,7 +9,7 @@ check the box in the release PR.
 - [ ] Migration plan: new migrations listed, inverses verified
       (`migration_rollback_drill.sh` green for each).
 - [ ] `tests/run_all.sh full` green on the release commit (all 20 gates).
-- [ ] Coverage floors hold (gateway 80/70, Tier-1 70, no stale backlog).
+- [ ] Coverage floors hold (gateway 80/70, L3 70, no stale backlog).
 
 ## Deploy
 

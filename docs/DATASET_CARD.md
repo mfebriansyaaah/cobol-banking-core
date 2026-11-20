@@ -114,7 +114,7 @@ data, or present model output as a certified system. Production use
 requires the owner's prior written permission, a certified system, and
 regulated infrastructure — none of which this dataset provides.
 
-Per-module quality/tier/coverage metadata is in
+Per-module quality/linkage/coverage metadata is in
 `manifest/module_quality.json` and `docs/MODULE_QUALITY.md`.
 
 `verification` profile keeps generated files (needed to run gates).

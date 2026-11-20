@@ -17,14 +17,14 @@
 | Area           | Score | Evidence / gap                                                                                                            |
 | -------------- | ----- | ------------------------------------------------------------------------------------------------------------------------- |
 | Correctness    | 2     | All actions shell-covered; 16/16 curated mutants killed (weekly CI). Corpus-curated, not Stryker-% — see gap list.        |
-| Coverage       | 1     | Gateway 97.8/84.4; COBOL total ~59.6, Tier-1 floor holds with 9 backlog entries (see `tests/coverage_floor_backlog.txt`). |
+| Coverage       | 1     | Gateway 97.8/84.4; COBOL total ~59.6, L3     floor holds with 9 backlog entries (see `tests/coverage_floor_backlog.txt`). |
 | Data safety    | 1     | Truncation loud, drills green; **no prod KMS** (env-only), retention policy un-drilled at scale.                          |
 | Security       | 1     | Auth+owners+STRIDE+SAST/secret green, CodeQL triaged; **no pen-test**.                                                    |
 | Reliability    | 1     | SLO + load budgets; **write-path unprofiled**, canary never exercised.                                                    |
 | Observability  | 2     | Logs/metrics/alerts/runbooks + correlation-id tracing (ADR-0005); OTel rejected with topology rationale.                  |
 | Change control | 1     | CI + review + rollback docs; **two-reviewer rule unevidenced** (solo maintainer).                                         |
 | Integrations   | 2     | Adapters + fallback + DPIA + quota + review queue, all evidenced.                                                         |
-| Tier-1 linkage | 1     | 39 L0/L1 all evidenced; FROZEN set awaits the retirement program.                                                         |
+| Core linkage   | 1     | 39 L0/L1 all evidenced; FROZEN set awaits the retirement program.                                                         |
 
 ## Evidence runs (this branch)
 
@@ -53,7 +53,7 @@
 5. Pen-test (Security 1→2) — PARTIAL: in-repo adversarial pass done
    (alg-confusion, pipe smuggling, mass assignment, log secrecy locked);
    rubric stays 1 until an external test clears the residuals.
-6. Retirement program → 063/064 → re-audit linkage (Tier-1 1→2, unblocks squash) — PARTIAL: re-audit done
+6. Retirement program → 063/064 → re-audit linkage (L1→L2, unblocks squash) — PARTIAL: re-audit done
    (21 REVIEW adjudicated RETAIN with per-module evidence; 0 dead found — every L0/L1 owns live
    dispatched actions + suites; statuses kept REVIEW because FROZEN means death-row candidate tracking,
    which live code must not enter); 063/064 DEFERRED with cause (plan requires staging + DBA review, both

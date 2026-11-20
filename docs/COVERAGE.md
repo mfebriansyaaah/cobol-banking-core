@@ -67,8 +67,8 @@ whole-codebase coverage.
 
 - Absolute floor: **30%** for COBOL, **80%** for gateway lines, **70%** for
   gateway branches.
-- Stage-1 per-module floor (PR-044): every measured Tier-1 module
-  (`manifest/tier1.json`) must sit at or above **70%** line coverage.
+- L3 per-module floor (linkage-only): every measured L3 module
+  (`manifest/linkage.json`) must sit at or above **70%** line coverage.
   Modules below the floor are recorded in `tests/coverage_floor_backlog.txt`
   with reason instead of dragging silently; the gate fails unlisted
   sub-floor modules. A backlogged module that reaches the floor is a
