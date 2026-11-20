@@ -135,7 +135,7 @@ fileCount) and `SHA256SUMS`, then runs a gitleaks scan (must be clean).
   `docs/runbooks/dataset-sanitization.md`).
 - Gateway unit (pre-Phase-1 snapshot): 147/147 pass.
 - Script gate unit tests: 470/470 pass.
-- Gateway JUnit count: 347 assertions (baseline re-pinned after quarantine removal).
+- Gateway JUnit count: 348 assertions (baseline re-pinned after quarantine removal).
 - ESLint: 0 errors, 9 complexity warnings (ratchet `--max-warnings 9`).
 - COBOL syntax: 0 warnings (was 43 copybook warnings, fixed C-03).
 - DB suites: `auth_shell` 51/51 (x2), `card` 52/52 (x2),

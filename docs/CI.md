@@ -51,9 +51,9 @@ the gate and waste minutes.
 
 | Event | Workflow | Jobs |
 | --- | --- | --- |
-| `pull_request` | `ci.yml` | changes, lint (always); build, docker-build, db-snapshot, schema-drift, test, db-shards (2), db-aggregate, coverage-pr (all gated on the change set; docs-only PRs run only changes + lint; `docker-build` runs only when the image can change; `coverage-pr` only when curated COBOL input changed) |
+| `pull_request` | `ci.yml` | changes, lint, coverage (always for non-docs PRs); build, docker-build, db-snapshot, schema-drift, test, db-shards (2), db-aggregate, coverage-pr (all gated on the change set; docs-only PRs run only changes + lint; `docker-build` runs only when the image assembly can change; `coverage-pr` only when curated COBOL input changed) |
 | `push: [main]` | `ci.yml` (+ `db-ops` on push/dispatch) | changes, lint, build, docker-build, db-snapshot, db-ops. Docs-only pushes are filtered at the workflow trigger. `schema-drift` is PR + nightly only (the PR gate already proved it; no post-merge re-run). The PR-only DB gate (`test`, `db-shards`, `db-aggregate`) and `coverage` do not run on push; branch protection guarantees they ran on the PR. `coverage` runs on manual dispatch. |
-| nightly `0 2 * * *` | `nightly.yml` | full-twice (`full twice + drills`) + gateway coverage + benchmark + load test + flake compare |
+| nightly `0 2 * * *` | `nightly.yml` | full-twice (`full twice + drills`) + benchmark + load test + flake compare |
 | nightly `30 2 * * *` | `coverage.yml` | coverage (full COBOL + gateway measurement) |
 | weekly `0 3 * * 1` | `mutation.yml` | mutants (`money-path mutants`) |
 | `pull_request`, `push: [main]`, schedule, manual | `codeql.yml` | analyze (`Analyze (javascript/cpp)`) JS + C analysis, SARIF uploaded to code scanning |
@@ -75,12 +75,11 @@ the old unconditional build was the most expensive part of a docs PR. On
 `push`, docs-only commits are filtered by `paths-ignore`; `db-ops` is likewise
 skipped for docs-only changes (nightly covers the drills).
 
-CI-009 evidence (2026-11-06, D2 = allowed): the S5 spike PR #552 merged with
-the required `coverage` check skipped, and branch protection reported all
-required checks satisfied — a skipped check counts as success in this
-repository. Consequence: `coverage` runs on pushes only; every PR gets its
-gateway coverage gate from `coverage-pr` instead, with no required-check
-gap. Revisit only if GitHub changes skipped-check semantics.
+CI-009 update: `coverage` is now a real required PR gate, not a skipped
+manual-only context. It runs the gateway suite once with coverage and JUnit
+output; `test` sets `SKIP_GATEWAY=1` so the same suite is not executed twice.
+`coverage-pr` remains the independent curated-COBOL coverage gate. Skipped
+required checks still count as success for docs-only PRs.
 
 CI-003 evidence (2026-11-05, Option A): code scanning works end-to-end with
 no UI step — the PR-triggered CodeQL run
@@ -172,21 +171,21 @@ Rules:
 | Workflow / job | Timeout | Notes |
 | --- | --- | --- |
 | `ci.yml` changes | 5 min | docs/docker/coverage classifier (`scripts/ci/classify_changes.sh`); every heavy job gates on it |
-| `ci.yml` lint | 15 min | shellcheck, eslint, prettier, markdownlint, actionlint, yamllint, promtool, semgrep, gitleaks, repository invariants, gate probes, PR-size report, gate unit tests, npm audit, CI docs check |
+| `ci.yml` lint | 15 min | shellcheck, eslint, prettier, markdownlint, actionlint, yamllint, promtool, semgrep, gitleaks, the full 38-gate static fleet, docs stats, gate probes, PR-size report, gate unit tests, npm audit, CI docs check |
 | `ci.yml` build | 10 min | pure producer: cached COBOL build + warning ratchet + `cobol-binary` artifact; no lint/static gates |
-| `ci.yml` docker-build | 15 min | production image build + native linkage check (no push); parallel with `build` |
+| `ci.yml` docker-build | 15 min | production image build + native linkage check (no push); PR runs only when Dockerfile/.dockerignore/build inputs/lockfile changed, so source-only changes do not recompile inside Docker |
 | `ci.yml` db-snapshot | 10 min | schema + migrate + ledger check + gzip DB snapshot + normalized `schema-fresh` artifact (pure producer; does not wait for `build`) |
 | `ci.yml` schema-drift | 10 min | compares the producer's normalized `schema-fresh` artifact with committed `schema_full.sql`; no second DB provisioning, and a drift failure blocks merge without blocking DB consumers |
-| `ci.yml` test | 25 min | PR-only non-DB gate: integration, gateway, error harness, table/amount tests (static gates already ran in `lint`) |
+| `ci.yml` test | 25 min | PR-only non-DB gate: integration, gateway, error harness, table/amount tests; `SKIP_STATIC_GATES=1` because `lint` owns the gate fleet |
 | `ci.yml` db-shards (×2) | 25 min each | PR-only, one LPT shard per runner; runtime deps only (no npm install) |
-| `ci.yml` db-aggregate | 10 min | PR-only merge + inventory + count gate + summary |
-| `ci.yml` coverage | 20 min | manual dispatch only (gateway-only smoke gate); kept as a required context but skipped on PRs |
+| `ci.yml` db-aggregate | 10 min | PR-only merge of test, shard, and coverage reports + inventory + count gate + summary |
+| `ci.yml` coverage | 20 min | PR gateway coverage gate + manual dispatch: runs the gateway suite once with coverage/JUnit; `test` skips its gateway phase |
 | `ci.yml` coverage-pr | 35 min | curated COBOL, impact-selected: skipped unless the change set touches curated inputs (`coverage_relevant`; trigger groups in `docs/COVERAGE.md`); compiles its own instrumented binary, no `build` dependency |
 | `ci.yml` db-ops | 20 min | rollback, backup/restore (push `main` + dispatch only; not a PR required check) |
 | `codeql.yml` analyze | 20 min | JS + C, SARIF uploaded to code scanning; path-filtered on PR/push, weekly schedule unfiltered |
 | `coverage.yml` coverage | 45 min | full COBOL + gateway; shares the COBOL object cache |
 | `coverage.yml` notify | 5 min | open/close `ci-failure` issue |
-| `nightly.yml` full-twice | 180 min | full twice + drills + coverage + benchmark + load + flake compare |
+| `nightly.yml` full-twice | 180 min | full twice + drills + benchmark + load + flake compare; full coverage belongs to `coverage.yml` |
 | `nightly.yml` notify | 5 min | open/close `ci-failure` issue |
 | `mutation.yml` mutants | 120 min | money-path mutants + anchor guard (weekly); warm COBOL objects |
 | `mutation.yml` notify | 5 min | open/close `ci-failure` issue |
