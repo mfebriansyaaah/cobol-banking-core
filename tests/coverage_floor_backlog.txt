@@ -27,3 +27,6 @@ wallet_dispute_core  not yet in curated coverage set — Phase 5
 wallet_recon_core  not yet in curated coverage set — Phase 5
 wallet_reversal_core  not yet in curated coverage set — Phase 5
 wallet_statement_core  not yet in curated coverage set — Phase 5
+eod_jobs_core  not yet in curated coverage set — Phase 5
+import_recon_core  incidental L3 from import_row anchor; not yet in curated coverage set — Phase 5
+report_run_core  not yet in curated coverage set — Phase 5

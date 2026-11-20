@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T10:20:40.561Z",
+  "generatedAt": "2026-11-20T10:49:23.587Z",
   "modules": [
     {
       "module": "account_core",
@@ -183,15 +183,15 @@
     },
     {
       "module": "corp_core",
-      "linkageLevel": "L0",
-      "domainStatus": "REVIEW",
+      "linkageLevel": "L2",
+      "domainStatus": "PILOT",
       "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": "corporate.js",
-      "dbSuite": null,
-      "recommendedForTraining": false
+      "dbSuite": "tests/db/corp_db_tests.sh",
+      "recommendedForTraining": true
     },
     {
       "module": "cost_center_core",
@@ -255,15 +255,15 @@
     },
     {
       "module": "eod_jobs_core",
-      "linkageLevel": "L1",
-      "domainStatus": "REVIEW",
+      "linkageLevel": "L3",
+      "domainStatus": "PILOT",
       "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": "eod_jobs.js",
-      "dbSuite": null,
-      "recommendedForTraining": false
+      "dbSuite": "tests/db/eod_jobs_db_tests.sh",
+      "recommendedForTraining": true
     },
     {
       "module": "fee_core",
@@ -291,15 +291,15 @@
     },
     {
       "module": "fx_rate_core",
-      "linkageLevel": "L0",
-      "domainStatus": "REVIEW",
+      "linkageLevel": "L2",
+      "domainStatus": "PILOT",
       "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": "fx_rates.js",
       "dbSuite": null,
-      "recommendedForTraining": false
+      "recommendedForTraining": true
     },
     {
       "module": "gl_allocation_core",
@@ -340,14 +340,14 @@
     {
       "module": "identity_core",
       "linkageLevel": "L2",
-      "domainStatus": "REVIEW",
+      "domainStatus": "PILOT",
       "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": "identity.js",
       "dbSuite": "tests/db/identity_db_tests.sh",
-      "recommendedForTraining": false
+      "recommendedForTraining": true
     },
     {
       "module": "import_core",
@@ -375,7 +375,7 @@
     },
     {
       "module": "import_recon_core",
-      "linkageLevel": "L2",
+      "linkageLevel": "L3",
       "domainStatus": "PILOT",
       "candidateStatus": null,
       "cloneSimilarity": null,
@@ -387,15 +387,15 @@
     },
     {
       "module": "import_row_core",
-      "linkageLevel": "L0",
-      "domainStatus": "REVIEW",
+      "linkageLevel": "L2",
+      "domainStatus": "PILOT",
       "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": "import.js",
-      "dbSuite": null,
-      "recommendedForTraining": false
+      "dbSuite": "tests/db/import_row_db_tests.sh",
+      "recommendedForTraining": true
     },
     {
       "module": "letter_of_credit_core",
@@ -627,27 +627,27 @@
     },
     {
       "module": "report_core",
-      "linkageLevel": "L0",
-      "domainStatus": "REVIEW",
+      "linkageLevel": "L2",
+      "domainStatus": "PILOT",
       "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": 63.48,
       "coverageStatus": "below-floor",
       "routeFile": "report.js",
       "dbSuite": null,
-      "recommendedForTraining": false
+      "recommendedForTraining": true
     },
     {
       "module": "report_run_core",
-      "linkageLevel": "L1",
-      "domainStatus": "REVIEW",
+      "linkageLevel": "L3",
+      "domainStatus": "PILOT",
       "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": "report.js",
-      "dbSuite": null,
-      "recommendedForTraining": false
+      "dbSuite": "tests/db/report_run_db_tests.sh",
+      "recommendedForTraining": true
     },
     {
       "module": "report_schedule_core",
@@ -663,15 +663,15 @@
     },
     {
       "module": "risk_core",
-      "linkageLevel": "L0",
-      "domainStatus": "REVIEW",
+      "linkageLevel": "L2",
+      "domainStatus": "PILOT",
       "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": "risk.js",
       "dbSuite": "tests/db/risk_db_tests.sh",
-      "recommendedForTraining": false
+      "recommendedForTraining": true
     },
     {
       "module": "sla_tracker_core",

@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-20T10:20:28.595Z",
-  "commit": "28a2146a",
+  "generatedAt": "2026-11-20T10:49:11.206Z",
+  "commit": "628e50ee",
   "linkageSource": "manifest/linkage.json",
   "summary": {
-    "L3": 27,
-    "L2": 32,
-    "L1": 2,
-    "L0": 5,
+    "L3": 30,
+    "L2": 36,
+    "L1": 0,
+    "L0": 0,
     "UTILITY": 3
   },
   "modules": [
@@ -269,13 +269,17 @@
     {
       "module": "corp_core",
       "source": "corp_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "corporate_entities"
+      ],
       "coreCalls": [],
       "coreActions": [],
-      "hasTests": false,
-      "testEvidence": [],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
+      "hasTests": true,
+      "testEvidence": [
+        "tests/db/corp_db_tests.sh"
+      ],
+      "linkageLevel": "L2",
+      "reason": "business link (tables corporate_entities) + test",
       "routeFiles": [
         "corporate.js"
       ]
@@ -305,7 +309,8 @@
       "businessTables": [
         "accounts",
         "ledger",
-        "notification_outbox"
+        "notification_outbox",
+        "report_run"
       ],
       "coreCalls": [],
       "coreActions": [],
@@ -376,16 +381,19 @@
       "module": "eod_jobs_core",
       "source": "eod_jobs_core.cob",
       "businessTables": [
-        "accounts"
+        "accounts",
+        "eod_job_run"
       ],
       "coreCalls": [
         "user_core"
       ],
       "coreActions": [],
-      "hasTests": false,
-      "testEvidence": [],
-      "linkageLevel": "L1",
-      "reason": "linked code with no DB/table/integration test (downgraded)",
+      "hasTests": true,
+      "testEvidence": [
+        "tests/db/eod_jobs_db_tests.sh"
+      ],
+      "linkageLevel": "L3",
+      "reason": "money-table touch (accounts) with depth + test",
       "routeFiles": [
         "eod_jobs.js"
       ]
@@ -429,15 +437,17 @@
     {
       "module": "fx_rate_core",
       "source": "fx_rate_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "fx_rate_snapshots"
+      ],
       "coreCalls": [],
       "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/integration/fx_rate_flow.sh"
       ],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
+      "linkageLevel": "L2",
+      "reason": "business link (tables fx_rate_snapshots) + test",
       "routeFiles": [
         "fx_rates.js"
       ]
@@ -511,7 +521,8 @@
       "module": "import_core",
       "source": "import_core.cob",
       "businessTables": [
-        "gl_account"
+        "gl_account",
+        "import_row"
       ],
       "coreCalls": [],
       "coreActions": [],
@@ -520,7 +531,7 @@
         "tests/cobol/cases/import.cases"
       ],
       "linkageLevel": "L2",
-      "reason": "business link (tables gl_account) + test",
+      "reason": "business link (tables gl_account, import_row) + test",
       "routeFiles": [
         "import.js"
       ]
@@ -530,7 +541,8 @@
       "source": "import_post_core.cob",
       "businessTables": [
         "gl_journal",
-        "gl_journal_line"
+        "gl_journal_line",
+        "import_row"
       ],
       "coreCalls": [],
       "coreActions": [],
@@ -547,7 +559,8 @@
       "module": "import_recon_core",
       "source": "import_recon_core.cob",
       "businessTables": [
-        "gl_journal_line"
+        "gl_journal_line",
+        "import_row"
       ],
       "coreCalls": [],
       "coreActions": [],
@@ -556,8 +569,8 @@
         "tests/db/import_recon_db_tests.sh",
         "tests/cobol/cases/import_recon.cases"
       ],
-      "linkageLevel": "L2",
-      "reason": "business link (tables gl_journal_line) + test",
+      "linkageLevel": "L3",
+      "reason": "money-table touch (gl_journal_line) with depth + test",
       "routeFiles": [
         "import_recon.js"
       ]
@@ -565,13 +578,17 @@
     {
       "module": "import_row_core",
       "source": "import_row_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "import_row"
+      ],
       "coreCalls": [],
       "coreActions": [],
-      "hasTests": false,
-      "testEvidence": [],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
+      "hasTests": true,
+      "testEvidence": [
+        "tests/db/import_row_db_tests.sh"
+      ],
+      "linkageLevel": "L2",
+      "reason": "business link (tables import_row) + test",
       "routeFiles": []
     },
     {
@@ -919,15 +936,18 @@
     {
       "module": "report_core",
       "source": "report_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "report_run",
+        "report_template"
+      ],
       "coreCalls": [],
       "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/cobol/cases/report.cases"
       ],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
+      "linkageLevel": "L2",
+      "reason": "business link (tables report_run, report_template) + test",
       "routeFiles": [
         "report.js"
       ]
@@ -938,14 +958,18 @@
       "businessTables": [
         "gl_account",
         "gl_journal",
-        "gl_journal_line"
+        "gl_journal_line",
+        "report_run",
+        "report_template"
       ],
       "coreCalls": [],
       "coreActions": [],
-      "hasTests": false,
-      "testEvidence": [],
-      "linkageLevel": "L1",
-      "reason": "linked code with no DB/table/integration test (downgraded)",
+      "hasTests": true,
+      "testEvidence": [
+        "tests/db/report_run_db_tests.sh"
+      ],
+      "linkageLevel": "L3",
+      "reason": "money-table touch (gl_journal, gl_journal_line) with depth + test",
       "routeFiles": []
     },
     {
@@ -969,15 +993,17 @@
     {
       "module": "risk_core",
       "source": "risk_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "risk_events"
+      ],
       "coreCalls": [],
       "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/risk_db_tests.sh"
       ],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
+      "linkageLevel": "L2",
+      "reason": "business link (tables risk_events) + test",
       "routeFiles": [
         "risk.js"
       ]

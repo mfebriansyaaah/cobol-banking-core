@@ -441,7 +441,11 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/wallet_recon_db_tests.sh` | 9 |
 | `tests/db/wallet_reversal_db_tests.sh` | 8 |
 | `tests/db/wallet_statement_db_tests.sh` | 5 |
-| **Total** | **3248** |
+| `tests/db/corp_db_tests.sh` | 7 |
+| `tests/db/eod_jobs_db_tests.sh` | 8 |
+| `tests/db/import_row_db_tests.sh` | 10 |
+| `tests/db/report_run_db_tests.sh` | 11 |
+| **Total** | **3284** |
 <!-- END GENERATED TEST TABLE -->
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database

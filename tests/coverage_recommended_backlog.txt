@@ -39,3 +39,10 @@ wallet_statement_core  covered by wallet_statement_db_tests.sh; add to curated c
 loan_schedule_lifecycle_core  covered by loan_schedule_lifecycle_db_tests.sh; add to curated coverage set
 loan_schedule_posting_core  covered by loan_schedule_posting_db_tests.sh; add to curated coverage set
 loan_schedule_report_core  covered by loan_schedule_report_db_tests.sh; add to curated coverage set
+corp_core  covered by corp_db_tests.sh; add to curated coverage set
+eod_jobs_core  covered by eod_jobs_db_tests.sh; add to curated coverage set
+fx_rate_core  covered by fx_rate_flow.sh; add to curated coverage set
+identity_core  covered by identity_db_tests.sh; add to curated coverage set
+import_row_core  covered by import_row_db_tests.sh; add to curated coverage set
+report_run_core  covered by report_run_db_tests.sh; add to curated coverage set
+risk_core  covered by risk_db_tests.sh; add to curated coverage set

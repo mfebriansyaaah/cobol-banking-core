@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-20T10:20:46.077Z",
-  "commit": "28a2146a",
+  "generatedAt": "2026-11-20T10:49:43.237Z",
+  "commit": "628e50ee",
   "generator": "scripts/build_action_registry.mjs (do not hand-edit)",
   "count": 536,
   "actions": [
@@ -36,7 +36,7 @@
       "coreCalls": [],
       "tested": true,
       "domain": "identity",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "ACCOUNT_UNFREEZE",
@@ -70,7 +70,7 @@
       "coreCalls": [],
       "tested": true,
       "domain": "identity",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "ACC_ACTIVATE",
@@ -4170,12 +4170,12 @@
       "tokenIdentity": "actor",
       "owner": "corporate",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "corporate",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "CORP_STATUS",
@@ -4204,12 +4204,12 @@
       "tokenIdentity": "actor",
       "owner": "corporate",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "corporate",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "CSC_ALLO",
@@ -5464,14 +5464,14 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [
         "user_core"
       ],
-      "tested": false,
+      "tested": true,
       "domain": "eod_jobs",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "EODJOB_DORM_SUSPEND",
@@ -5500,14 +5500,14 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [
         "user_core"
       ],
-      "tested": false,
+      "tested": true,
       "domain": "eod_jobs",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "EODJOB_HOLD_EXPIRY",
@@ -5536,14 +5536,14 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [
         "user_core"
       ],
-      "tested": false,
+      "tested": true,
       "domain": "eod_jobs",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "EODJOB_LIST",
@@ -5572,14 +5572,14 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [
         "user_core"
       ],
-      "tested": false,
+      "tested": true,
       "domain": "eod_jobs",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "EODJOB_RECON",
@@ -5608,14 +5608,14 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [
         "user_core"
       ],
-      "tested": false,
+      "tested": true,
       "domain": "eod_jobs",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "EODJOB_STATEMENT",
@@ -5644,14 +5644,14 @@
       "tokenIdentity": "actor",
       "owner": "ops",
       "authPolicy": "admin",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [
         "user_core"
       ],
-      "tested": false,
+      "tested": true,
       "domain": "eod_jobs",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "EOD_CAL_LIST",
@@ -6670,12 +6670,12 @@
       "tokenIdentity": "actor",
       "owner": "market",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "fx",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "FX_RATE_STORE",
@@ -6704,12 +6704,12 @@
       "tokenIdentity": "actor",
       "owner": "market",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "fx",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "GET_ACCESS_REVIEW",
@@ -7423,7 +7423,7 @@
       "coreCalls": [],
       "tested": true,
       "domain": "identity",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "IDV_KTP_OCR_RESULT",
@@ -7457,7 +7457,7 @@
       "coreCalls": [],
       "tested": true,
       "domain": "identity",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "IDV_NIK_VALIDATE",
@@ -7491,7 +7491,7 @@
       "coreCalls": [],
       "tested": true,
       "domain": "identity",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "IDV_REVIEW_DECIDE",
@@ -7525,7 +7525,7 @@
       "coreCalls": [],
       "tested": true,
       "domain": "identity",
-      "status": "REVIEW",
+      "status": "PILOT",
       "duplicatePaths": true
     },
     {
@@ -7560,7 +7560,7 @@
       "coreCalls": [],
       "tested": true,
       "domain": "identity",
-      "status": "REVIEW",
+      "status": "PILOT",
       "duplicatePaths": true
     },
     {
@@ -7595,7 +7595,7 @@
       "coreCalls": [],
       "tested": true,
       "domain": "identity",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "IMPP_GET",
@@ -8032,12 +8032,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "import",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "IMP_BATCH_SUMMARY",
@@ -8134,12 +8134,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "import",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "IMP_ROW_CORRECT",
@@ -8168,12 +8168,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "import",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "IMP_ROW_SKIP",
@@ -8202,12 +8202,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "import",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "IMP_ROW_STAGE",
@@ -8236,12 +8236,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "import",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "IMP_ROW_UNSKIP",
@@ -8270,12 +8270,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "import",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "IRC_EXPORT",
@@ -8304,7 +8304,7 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L2",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
@@ -8338,7 +8338,7 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L2",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
@@ -8372,7 +8372,7 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L2",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
@@ -8406,7 +8406,7 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L2",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
@@ -8440,7 +8440,7 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L2",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
@@ -8474,7 +8474,7 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L2",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
@@ -8508,7 +8508,7 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L2",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
@@ -8542,7 +8542,7 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L2",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
@@ -8576,7 +8576,7 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L2",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
@@ -14684,12 +14684,12 @@
       "tokenIdentity": "actor",
       "owner": "risk",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "risk",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "RISK_STATUS",
@@ -14718,12 +14718,12 @@
       "tokenIdentity": "actor",
       "owner": "risk",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "risk",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "RPS_AUDIT",
@@ -15092,12 +15092,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "report",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "RPT_COLUMN_DELETE",
@@ -15126,12 +15126,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "report",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "RPT_COLUMN_LIST",
@@ -15160,12 +15160,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "report",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "RPT_COLUMN_UPDATE",
@@ -15194,12 +15194,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "report",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "RPT_RUN_COMPLETE",
@@ -15228,12 +15228,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "report",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "RPT_RUN_DELETE",
@@ -15262,12 +15262,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "report",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "RPT_RUN_EXPORT",
@@ -15296,12 +15296,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "report",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "RPT_RUN_FAIL",
@@ -15330,12 +15330,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "report",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "RPT_RUN_GENERATE",
@@ -15364,12 +15364,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "report",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "RPT_RUN_LIST",
@@ -15398,12 +15398,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "report",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "RPT_RUN_RETRY",
@@ -15432,12 +15432,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "report",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "RPT_RUN_ROW",
@@ -15466,12 +15466,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "report",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "RPT_RUN_START",
@@ -15500,12 +15500,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "report",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "RPT_RUN_STATUS",
@@ -15534,12 +15534,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L1",
+      "linkageLevel": "L3",
       "coreActions": [],
       "coreCalls": [],
-      "tested": false,
+      "tested": true,
       "domain": "report",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "RPT_TEMPLATE_CLONE",
@@ -15568,12 +15568,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "report",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "RPT_TEMPLATE_CREATE",
@@ -15602,12 +15602,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "report",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "RPT_TEMPLATE_DELETE",
@@ -15636,12 +15636,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "report",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "RPT_TEMPLATE_GET",
@@ -15670,12 +15670,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "report",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "RPT_TEMPLATE_LIST",
@@ -15704,12 +15704,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "report",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "RPT_TEMPLATE_UPDATE",
@@ -15738,12 +15738,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "report",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "RUN_RECONCILIATION",
@@ -16083,7 +16083,7 @@
       "coreCalls": [],
       "tested": true,
       "domain": "identity",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "SCR_STATUS",
@@ -16117,7 +16117,7 @@
       "coreCalls": [],
       "tested": true,
       "domain": "identity",
-      "status": "REVIEW"
+      "status": "PILOT"
     },
     {
       "action": "SET_USER_STATUS",

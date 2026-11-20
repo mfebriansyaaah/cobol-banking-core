@@ -11,9 +11,9 @@
 | Module status | Modules |
 | --- | ---: |
 | CONNECTED (no open items) | 0 |
-| PARTIAL (open items) | 59 |
+| PARTIAL (open items) | 66 |
 
-Open/in-progress items: 229 of 298 recorded.
+Open/in-progress items: 232 of 309 recorded.
 
 | Module | Status | Items |
 | --- | --- | ---: |
@@ -32,19 +32,23 @@ Open/in-progress items: 229 of 298 recorded.
 | `collateral_core` | PARTIAL | 13 |
 | `collection_core` | PARTIAL | 1 |
 | `compliance_calendar_core` | PARTIAL | 1 |
+| `corp_core` | PARTIAL | 1 |
 | `cost_center_core` | PARTIAL | 1 |
 | `dashboard_core` | PARTIAL | 12 |
 | `deposit_core` | PARTIAL | 1 |
 | `deposit_posting_core` | PARTIAL | 1 |
 | `eod_core` | PARTIAL | 5 |
+| `eod_jobs_core` | PARTIAL | 4 |
 | `fee_core` | PARTIAL | 7 |
 | `fixed_asset_core` | PARTIAL | 1 |
+| `fx_rate_core` | PARTIAL | 1 |
 | `gl_allocation_core` | PARTIAL | 1 |
 | `gl_core` | PARTIAL | 7 |
 | `identity_core` | PARTIAL | 7 |
 | `import_core` | PARTIAL | 9 |
 | `import_post_core` | PARTIAL | 4 |
 | `import_recon_core` | PARTIAL | 7 |
+| `import_row_core` | PARTIAL | 2 |
 | `letter_of_credit_core` | PARTIAL | 2 |
 | `loan_core` | PARTIAL | 6 |
 | `loan_posting_core` | PARTIAL | 1 |
@@ -62,7 +66,10 @@ Open/in-progress items: 229 of 298 recorded.
 | `payment_instruction_core` | PARTIAL | 6 |
 | `payroll_processing_core` | PARTIAL | 13 |
 | `phone_otp_core` | PARTIAL | 4 |
+| `report_core` | PARTIAL | 16 |
+| `report_run_core` | PARTIAL | 2 |
 | `report_schedule_core` | PARTIAL | 1 |
+| `risk_core` | PARTIAL | 1 |
 | `sla_tracker_core` | PARTIAL | 1 |
 | `statement_core` | PARTIAL | 6 |
 | `statement_recon_core` | PARTIAL | 8 |
@@ -148,6 +155,7 @@ Open/in-progress items: 229 of 298 recorded.
 | `collateral_core:table:collateral-valuation` | `collateral_core` | table | OPEN | collateral | Domain table has no core business key or FK into a core table |
 | `collection_core:audit:core-reference` | `collection_core` | audit | OPEN | collection | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `compliance_calendar_core:audit:core-reference` | `compliance_calendar_core` | audit | DONE | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `corp_core:audit:core-reference` | `corp_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `cost_center_core:audit:core-reference` | `cost_center_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `dashboard_core:audit:core-reference` | `dashboard_core` | audit | OPEN | reporting | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `dashboard_core:table:audit-trail` | `dashboard_core` | table | OPEN | reporting | Domain table has no core business key or FK into a core table |
@@ -159,7 +167,7 @@ Open/in-progress items: 229 of 298 recorded.
 | `dashboard_core:table:payment-profile` | `dashboard_core` | table | OPEN | reporting | Domain table has no core business key or FK into a core table |
 | `dashboard_core:table:pending-transactions` | `dashboard_core` | table | OPEN | reporting | Domain table has no core business key or FK into a core table |
 | `dashboard_core:table:reconciliation-runs` | `dashboard_core` | table | OPEN | reporting | Domain table has no core business key or FK into a core table |
-| `dashboard_core:table:report-run` | `dashboard_core` | table | OPEN | reporting | Domain table has no core business key or FK into a core table |
+| `dashboard_core:table:report-run` | `dashboard_core` | table | DONE | backend | Domain table has no core business key or FK into a core table |
 | `dashboard_core:table:report-schedule` | `dashboard_core` | table | OPEN | reporting | Domain table has no core business key or FK into a core table |
 | `deposit_core:audit:core-reference` | `deposit_core` | audit | OPEN | deposit | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `deposit_posting_core:audit:core-reference` | `deposit_posting_core` | audit | OPEN | deposit | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
@@ -168,6 +176,10 @@ Open/in-progress items: 229 of 298 recorded.
 | `eod_core:audit:core-reference` | `eod_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `eod_core:table:eod-calendar` | `eod_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
 | `eod_core:table:eod-run` | `eod_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
+| `eod_jobs_core:audit:core-reference` | `eod_jobs_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `eod_jobs_core:table:audit-trail` | `eod_jobs_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
+| `eod_jobs_core:table:pending-transactions` | `eod_jobs_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
+| `eod_jobs_core:table:pending-transactions-archive` | `eod_jobs_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
 | `fee_core:action:action-vel-profile-create` | `fee_core` | action | OPEN | finance | Write paragraph with no core link (writes velocity_profile) |
 | `fee_core:action:action-vel-record` | `fee_core` | action | OPEN | finance | Write paragraph with no core link (writes used_count, velocity_counter) |
 | `fee_core:action:action-vel-record-all-txn` | `fee_core` | action | OPEN | finance | Write paragraph with no core link (writes used_count, velocity_counter) |
@@ -176,6 +188,7 @@ Open/in-progress items: 229 of 298 recorded.
 | `fee_core:table:velocity-counter` | `fee_core` | table | OPEN | finance | Domain table has no core business key or FK into a core table |
 | `fee_core:table:velocity-profile` | `fee_core` | table | OPEN | finance | Domain table has no core business key or FK into a core table |
 | `fixed_asset_core:audit:core-reference` | `fixed_asset_core` | audit | DONE | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `fx_rate_core:audit:core-reference` | `fx_rate_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `gl_allocation_core:audit:core-reference` | `gl_allocation_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `gl_core:action:action-account-create` | `gl_core` | action | DONE | finance | Write paragraph with no core link (writes gl_account) |
 | `gl_core:action:action-period-close` | `gl_core` | action | OPEN | finance | Write paragraph with no core link (writes gl_period) |
@@ -191,26 +204,28 @@ Open/in-progress items: 229 of 298 recorded.
 | `identity_core:table:manual-reviews` | `identity_core` | table | OPEN | identity | Domain table has no core business key or FK into a core table |
 | `identity_core:table:phone-links` | `identity_core` | table | OPEN | identity | Domain table has no core business key or FK into a core table |
 | `identity_core:table:screening-checks` | `identity_core` | table | OPEN | identity | Domain table has no core business key or FK into a core table |
-| `import_core:action:action-batch-clone` | `import_core` | action | OPEN | backend | Write paragraph with no core link (writes import_batch, import_row) |
+| `import_core:action:action-batch-clone` | `import_core` | action | DONE | backend | Write paragraph with no core link (writes import_batch, import_row) |
 | `import_core:action:action-batch-create` | `import_core` | action | OPEN | backend | Write paragraph with no core link (writes import_batch) |
 | `import_core:action:action-batch-fail` | `import_core` | action | OPEN | backend | Write paragraph with no core link (writes import_batch) |
-| `import_core:action:action-batch-post` | `import_core` | action | OPEN | backend | Write paragraph with no core link (writes import_batch, import_row) |
-| `import_core:action:action-batch-retry` | `import_core` | action | OPEN | backend | Write paragraph with no core link (writes import_batch, import_row) |
-| `import_core:action:action-batch-validate` | `import_core` | action | OPEN | backend | Write paragraph with no core link (writes import_batch, import_row) |
+| `import_core:action:action-batch-post` | `import_core` | action | DONE | backend | Write paragraph with no core link (writes import_batch, import_row) |
+| `import_core:action:action-batch-retry` | `import_core` | action | DONE | backend | Write paragraph with no core link (writes import_batch, import_row) |
+| `import_core:action:action-batch-validate` | `import_core` | action | DONE | backend | Write paragraph with no core link (writes import_batch, import_row) |
 | `import_core:audit:core-reference` | `import_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `import_core:table:import-batch` | `import_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
-| `import_core:table:import-row` | `import_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
+| `import_core:table:import-row` | `import_core` | table | DONE | backend | Domain table has no core business key or FK into a core table |
 | `import_post_core:audit:core-reference` | `import_post_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `import_post_core:table:gl-period` | `import_post_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
 | `import_post_core:table:import-batch` | `import_post_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
-| `import_post_core:table:import-row` | `import_post_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
+| `import_post_core:table:import-row` | `import_post_core` | table | DONE | backend | Domain table has no core business key or FK into a core table |
 | `import_recon_core:action:action-finish` | `import_recon_core` | action | OPEN | reporting | Write paragraph with no core link (writes import_recon_run) |
 | `import_recon_core:action:action-retry` | `import_recon_core` | action | OPEN | reporting | Write paragraph with no core link (writes import_recon_run) |
 | `import_recon_core:action:action-start` | `import_recon_core` | action | OPEN | reporting | Write paragraph with no core link (writes import_recon_run) |
 | `import_recon_core:audit:core-reference` | `import_recon_core` | audit | OPEN | reporting | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `import_recon_core:table:import-batch` | `import_recon_core` | table | OPEN | reporting | Domain table has no core business key or FK into a core table |
 | `import_recon_core:table:import-recon-run` | `import_recon_core` | table | OPEN | reporting | Domain table has no core business key or FK into a core table |
-| `import_recon_core:table:import-row` | `import_recon_core` | table | OPEN | reporting | Domain table has no core business key or FK into a core table |
+| `import_recon_core:table:import-row` | `import_recon_core` | table | DONE | backend | Domain table has no core business key or FK into a core table |
+| `import_row_core:audit:core-reference` | `import_row_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `import_row_core:table:import-batch` | `import_row_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
 | `letter_of_credit_core:audit:core-reference` | `letter_of_credit_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `letter_of_credit_core:table:customer` | `letter_of_credit_core` | table | OPEN | backend | Domain table has no core business key or FK into a core table |
 | `loan_core:action:action-close` | `loan_core` | action | OPEN | lending | Write paragraph with no core link (writes loan) |
@@ -305,7 +320,10 @@ Open/in-progress items: 229 of 298 recorded.
 | `report_core:table:report-run-row` | `report_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a core table |
 | `report_core:table:report-template` | `report_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a core table |
 | `report_core:table:report-template-column` | `report_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a core table |
+| `report_run_core:action:action-run-row` | `report_run_core` | action | OPEN | backend | Write paragraph with no core link (writes report_run_row) |
+| `report_run_core:audit:core-reference` | `report_run_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `report_schedule_core:audit:core-reference` | `report_schedule_core` | audit | DONE | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `risk_core:audit:core-reference` | `risk_core` | audit | OPEN | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `sla_tracker_core:audit:core-reference` | `sla_tracker_core` | audit | DONE | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `statement_core:action:action-run-fail` | `statement_core` | action | OPEN | reporting | Write paragraph with no core link (writes statement_run) |
 | `statement_core:action:action-run-start` | `statement_core` | action | OPEN | reporting | Write paragraph with no core link (writes statement_run) |
