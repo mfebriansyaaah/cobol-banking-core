@@ -18,7 +18,6 @@ corp_core L0
 cost_center_core L0
 eod_core L0
 eod_jobs_core L1
-fixed_asset_core L0
 fx_rate_core L0
 gl_allocation_core L0
 import_core L0
@@ -33,7 +32,6 @@ phone_otp_core L0
 report_core L0
 report_run_core L1
 risk_core L0
-sla_tracker_core L0
 tax_management_core L0
 wallet_dispute_core L1
 wallet_hold_core L1

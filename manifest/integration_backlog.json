@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T05:26:58.747244Z",
+  "generatedAt": "2026-11-20T06:38:01.458592Z",
   "items": [
     {
       "id": "account_core:audit:core-reference",
@@ -782,6 +782,18 @@
         "no FOREIGN KEY into core tables"
       ],
       "owner": "finance"
+    },
+    {
+      "id": "fixed_asset_core:audit:core-reference",
+      "module": "fixed_asset_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "DONE",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [
+        "audit rows carry asset_id + old/new: DISPOSE row stores id=182, old_value=ACTIVE, new_value=DISPOSED (tests/db/fixed_asset_db_tests.sh: disposed persisted)"
+      ],
+      "owner": "backend"
     },
     {
       "id": "gl_core:action:action-account-create",
@@ -2052,6 +2064,18 @@
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [
         "audit rows carry rpt_schedule_config_id + old/new: ENABLE row stores id=30, old_value=OPEN, new_value=ACTIVE (tests/db/report_schedule_db_tests.sh: run/disable audited via version bump + DISABLE action count)"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "sla_tracker_core:audit:core-reference",
+      "module": "sla_tracker_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "DONE",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [
+        "audit rows carry sla_tracker_id + old/new: CLOSE row stores id=31, old_value=OPEN, new_value=CLOSED (tests/db/sla_tracker_db_tests.sh: close audited)"
       ],
       "owner": "backend"
     },

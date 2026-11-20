@@ -1,4 +1,4 @@
-cobol_table_tests=233
+cobol_table_tests=234
 db_schema_tests=76
 db_loan_schedule_tests=42
 db_deposit_tests=67
@@ -32,8 +32,8 @@ db_bank_guarantee_domain_tests=25
 db_letter_of_credit_tests=21
 db_letter_of_credit_domain_tests=25
 db_trade_finance_schema_tests=10
-db_sla_tracker_tests=21
-db_report_schedule_tests=40
+db_sla_tracker_tests=38
+db_report_schedule_tests=41
 db_notification_template_tests=36
 db_loan_tests=40
 db_lending_posting_tests=173

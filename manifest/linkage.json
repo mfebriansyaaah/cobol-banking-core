@@ -33,6 +33,9 @@
     "fee_schedule",
     "fee_tier",
     "fee_waiver",
+    "fixed_asset",
+    "fixed_asset_depreciation",
+    "fixed_asset_disposal",
     "gl_journal",
     "gl_journal_line",
     "journal_entries",
@@ -42,7 +45,8 @@
     "loan_repayment",
     "loan_schedule",
     "ntf_template_config",
-    "rpt_schedule_config"
+    "rpt_schedule_config",
+    "sla_tracker"
   ],
   "moneyTables": [
     "accounts",

@@ -34,9 +34,9 @@ assert_match "FAS_LIST ok" "$(run_cobol "FAS_LIST||IT|50|0||admin@test.com")" "F
 assert_match "FAS_CALC ok" "$(run_cobol "FAS_CALC|${id}|||||admin@test.com")" "SUCCESS\|FAS_CALC\|1"
 assert_match "depreciation persisted" "$(db_query "SELECT accumulated_depreciation FROM fixed_asset WHERE id=${id};")" "^1.0000$"
 
-# Close.
-assert_match "FAS_DELETE ok" "$(run_cobol "FAS_DELETE|${id}|Disposed||||admin@test.com")" "SUCCESS\|FAS_DELETE"
-assert_match "delete non-admin refused" "$(run_cobol "FAS_DELETE|${id}|Closed||||sender@test.com")" "ERROR\|FORBIDDEN"
+# Dispose (replaces DELETE; requires ACTIVE + GL link).
+assert_match "FAS_DISPOSE ok" "$(run_cobol "FAS_DISPOSE|${id}|100|Sold|1||admin@test.com")" "SUCCESS\|FAS_DISPOSE"
+assert_match "dispose non-admin refused" "$(run_cobol "FAS_DISPOSE|${id}|100|Sold|1||sender@test.com")" "ERROR\|FORBIDDEN"
 assert_match "disposed persisted" "$(db_query "SELECT status FROM fixed_asset WHERE id=${id};")" "^DISPOSED$"
 
 # Summary and audit.

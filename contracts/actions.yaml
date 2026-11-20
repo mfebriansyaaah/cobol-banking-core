@@ -3,7 +3,7 @@
 # never hand-edit. Validate with scripts/check_contract.mjs, regenerate with
 # --write after a reviewed route change.
 version: 1
-generatedAt: "2026-11-20T05:26:04.648Z"
+generatedAt: "2026-11-20T06:40:41.509Z"
 generator: scripts/build_contract.mjs (do not hand-edit)
 count: 565
 actions:
@@ -11,7 +11,7 @@ actions:
     method: post
     path: /screening/accounts/freeze
     routeFile: screening.js
-    seq: 473
+    seq: 472
     module: identity_core
     prefix: ACCOUNT_
     auth:
@@ -61,7 +61,7 @@ actions:
     method: post
     path: /screening/accounts/unfreeze
     routeFile: screening.js
-    seq: 474
+    seq: 473
     module: identity_core
     prefix: ACCOUNT_
     auth:
@@ -6311,7 +6311,7 @@ actions:
     method: post
     path: /auth/refresh
     routeFile: infra.js
-    seq: 289
+    seq: 288
     module: auth_core
     prefix: CONSUME_SESSION
     auth:
@@ -9017,7 +9017,7 @@ actions:
     method: get
     path: /fixed-assets/audit
     routeFile: fixed_asset.js
-    seq: 228
+    seq: 227
     module: fixed_asset_core
     prefix: FAS_
     auth:
@@ -9117,7 +9117,7 @@ actions:
     method: post
     path: /fixed-assets
     routeFile: fixed_asset.js
-    seq: 226
+    seq: 225
     module: fixed_asset_core
     prefix: FAS_
     auth:
@@ -9213,61 +9213,11 @@ actions:
         inline: false
         maxBytes: 100
     tested: true
-  - action: FAS_DELETE
-    method: post
-    path: "/finance/fixed-assets/:id/dispose"
-    routeFile: fixed_asset.js
-    seq: 225
-    module: fixed_asset_core
-    prefix: FAS_
-    auth:
-      public: false
-      tokenIdentity: actor
-      stepUp: false
-      stepUpPolicy: null
-    fields:
-      - slot: 1
-        name: id
-        pattern: INT
-        required: true
-        inline: false
-        maxBytes: 100
-      - slot: 2
-        name: reason
-        pattern: NAME
-        required: false
-        inline: true
-        maxBytes: 100
-      - slot: 3
-        name: ""
-        pattern: null
-        required: false
-        inline: false
-        maxBytes: 100
-      - slot: 4
-        name: ""
-        pattern: null
-        required: false
-        inline: false
-        maxBytes: 100
-      - slot: 5
-        name: ""
-        pattern: null
-        required: false
-        inline: false
-        maxBytes: 100
-      - slot: 6
-        name: actor
-        pattern: EMAIL
-        required: true
-        inline: false
-        maxBytes: 100
-    tested: true
   - action: FAS_DEPRECIATE
     method: post
     path: "/fixed-assets/:id/depreciate"
     routeFile: fixed_asset.js
-    seq: 231
+    seq: 230
     module: fixed_asset_core
     prefix: FAS_
     auth:
@@ -9317,7 +9267,7 @@ actions:
     method: post
     path: "/fixed-assets/:id/dispose"
     routeFile: fixed_asset.js
-    seq: 233
+    seq: 232
     module: fixed_asset_core
     prefix: FAS_
     auth:
@@ -9417,7 +9367,7 @@ actions:
     method: get
     path: "/fixed-assets/:id"
     routeFile: fixed_asset.js
-    seq: 230
+    seq: 229
     module: fixed_asset_core
     prefix: FAS_
     auth:
@@ -9517,7 +9467,7 @@ actions:
     method: get
     path: /fixed-assets
     routeFile: fixed_asset.js
-    seq: 229
+    seq: 228
     module: fixed_asset_core
     prefix: FAS_
     auth:
@@ -9567,7 +9517,7 @@ actions:
     method: post
     path: "/fixed-assets/:id/revalue"
     routeFile: fixed_asset.js
-    seq: 232
+    seq: 231
     module: fixed_asset_core
     prefix: FAS_
     auth:
@@ -9667,7 +9617,7 @@ actions:
     method: get
     path: /fixed-assets/summary
     routeFile: fixed_asset.js
-    seq: 227
+    seq: 226
     module: fixed_asset_core
     prefix: FAS_
     auth:
@@ -10267,7 +10217,7 @@ actions:
     method: get
     path: /fx/rates
     routeFile: fx_rates.js
-    seq: 235
+    seq: 234
     module: fx_rate_core
     prefix: FX_
     auth:
@@ -10317,7 +10267,7 @@ actions:
     method: post
     path: /fx/rates
     routeFile: fx_rates.js
-    seq: 234
+    seq: 233
     module: fx_rate_core
     prefix: FX_
     auth:
@@ -10567,7 +10517,7 @@ actions:
     method: post
     path: "/finance/gl-allocation/:id/allocate"
     routeFile: gl_allocation.js
-    seq: 250
+    seq: 249
     module: gl_allocation_core
     prefix: GLA_
     auth:
@@ -10617,7 +10567,7 @@ actions:
     method: get
     path: /finance/gl-allocation/audit
     routeFile: gl_allocation.js
-    seq: 246
+    seq: 245
     module: gl_allocation_core
     prefix: GLA_
     auth:
@@ -10667,7 +10617,7 @@ actions:
     method: post
     path: "/finance/gl-allocation/:id/close"
     routeFile: gl_allocation.js
-    seq: 251
+    seq: 250
     module: gl_allocation_core
     prefix: GLA_
     auth:
@@ -10717,7 +10667,7 @@ actions:
     method: post
     path: /finance/gl-allocation
     routeFile: gl_allocation.js
-    seq: 248
+    seq: 247
     module: gl_allocation_core
     prefix: GLA_
     auth:
@@ -10767,7 +10717,7 @@ actions:
     method: get
     path: "/finance/gl-allocation/:id"
     routeFile: gl_allocation.js
-    seq: 249
+    seq: 248
     module: gl_allocation_core
     prefix: GLA_
     auth:
@@ -10817,7 +10767,7 @@ actions:
     method: get
     path: /finance/gl-allocation
     routeFile: gl_allocation.js
-    seq: 247
+    seq: 246
     module: gl_allocation_core
     prefix: GLA_
     auth:
@@ -10867,7 +10817,7 @@ actions:
     method: get
     path: /finance/gl-allocation/summary
     routeFile: gl_allocation.js
-    seq: 245
+    seq: 244
     module: gl_allocation_core
     prefix: GLA_
     auth:
@@ -10917,7 +10867,7 @@ actions:
     method: post
     path: /finance/gl-allocation/validate
     routeFile: gl_allocation.js
-    seq: 244
+    seq: 243
     module: gl_allocation_core
     prefix: GLA_
     auth:
@@ -10967,7 +10917,7 @@ actions:
     method: post
     path: /gl/accounts
     routeFile: gl.js
-    seq: 241
+    seq: 240
     module: gl_core
     prefix: GL_
     auth:
@@ -11017,7 +10967,7 @@ actions:
     method: get
     path: /gl/accounts
     routeFile: gl.js
-    seq: 240
+    seq: 239
     module: gl_core
     prefix: GL_
     auth:
@@ -11067,7 +11017,7 @@ actions:
     method: post
     path: /gl/journals
     routeFile: gl.js
-    seq: 242
+    seq: 241
     module: gl_core
     prefix: GL_
     auth:
@@ -11117,7 +11067,7 @@ actions:
     method: post
     path: /gl/journals/multiline
     routeFile: gl.js
-    seq: 239
+    seq: 238
     module: gl_core
     prefix: GL_
     auth:
@@ -11167,7 +11117,7 @@ actions:
     method: post
     path: "/gl/periods/:period/close"
     routeFile: gl.js
-    seq: 238
+    seq: 237
     module: gl_core
     prefix: GL_
     auth:
@@ -11217,7 +11167,7 @@ actions:
     method: get
     path: /gl/periods
     routeFile: gl.js
-    seq: 236
+    seq: 235
     module: gl_core
     prefix: GL_
     auth:
@@ -11267,7 +11217,7 @@ actions:
     method: post
     path: /gl/periods
     routeFile: gl.js
-    seq: 237
+    seq: 236
     module: gl_core
     prefix: GL_
     auth:
@@ -11317,7 +11267,7 @@ actions:
     method: get
     path: /gl/trial-balance
     routeFile: gl.js
-    seq: 243
+    seq: 242
     module: gl_core
     prefix: GL_
     auth:
@@ -11367,7 +11317,7 @@ actions:
     method: post
     path: /identity/kyc/apply
     routeFile: identity.js
-    seq: 255
+    seq: 254
     module: identity_core
     prefix: IDV_
     auth:
@@ -11417,7 +11367,7 @@ actions:
     method: post
     path: /identity/ktp/ocr
     routeFile: identity.js
-    seq: 253
+    seq: 252
     module: identity_core
     prefix: IDV_
     auth:
@@ -11467,7 +11417,7 @@ actions:
     method: post
     path: /identity/nik/validate
     routeFile: identity.js
-    seq: 252
+    seq: 251
     module: identity_core
     prefix: IDV_
     auth:
@@ -11517,7 +11467,7 @@ actions:
     method: post
     path: /identity/reviews/decide
     routeFile: identity.js
-    seq: 257
+    seq: 256
     module: identity_core
     prefix: IDV_
     auth:
@@ -11567,7 +11517,7 @@ actions:
     method: post
     path: /screening/reviews/decide
     routeFile: screening.js
-    seq: 476
+    seq: 475
     module: identity_core
     prefix: IDV_
     auth:
@@ -11617,7 +11567,7 @@ actions:
     method: get
     path: /identity/reviews
     routeFile: identity.js
-    seq: 256
+    seq: 255
     module: identity_core
     prefix: IDV_
     auth:
@@ -11667,7 +11617,7 @@ actions:
     method: get
     path: /screening/reviews
     routeFile: screening.js
-    seq: 475
+    seq: 474
     module: identity_core
     prefix: IDV_
     auth:
@@ -11717,7 +11667,7 @@ actions:
     method: get
     path: /identity/kyc/status
     routeFile: identity.js
-    seq: 254
+    seq: 253
     module: identity_core
     prefix: IDV_
     auth:
@@ -11767,7 +11717,7 @@ actions:
     method: get
     path: "/imports/postings/:id"
     routeFile: import.js
-    seq: 268
+    seq: 267
     module: import_post_core
     prefix: IMPP_
     auth:
@@ -11817,7 +11767,7 @@ actions:
     method: post
     path: "/imports/batches/:code/ledger-post"
     routeFile: import.js
-    seq: 266
+    seq: 265
     module: import_post_core
     prefix: IMPP_
     auth:
@@ -11867,7 +11817,7 @@ actions:
     method: get
     path: /imports/postings
     routeFile: import.js
-    seq: 267
+    seq: 266
     module: import_post_core
     prefix: IMPP_
     auth:
@@ -11917,7 +11867,7 @@ actions:
     method: post
     path: "/imports/batches/:code/clone"
     routeFile: import.js
-    seq: 272
+    seq: 271
     module: import_core
     prefix: IMP_BATCH_CLONE
     auth:
@@ -11967,7 +11917,7 @@ actions:
     method: post
     path: /imports/batches
     routeFile: import.js
-    seq: 258
+    seq: 257
     module: import_core
     prefix: IMP_BATCH_CREATE
     auth:
@@ -12017,7 +11967,7 @@ actions:
     method: delete
     path: "/imports/batches/:code"
     routeFile: import.js
-    seq: 274
+    seq: 273
     module: import_core
     prefix: IMP_BATCH_DELETE
     auth:
@@ -12067,7 +12017,7 @@ actions:
     method: get
     path: "/imports/batches/:code/export"
     routeFile: import.js
-    seq: 270
+    seq: 269
     module: import_core
     prefix: IMP_BATCH_EXPORT
     auth:
@@ -12117,7 +12067,7 @@ actions:
     method: post
     path: "/imports/batches/:code/fail"
     routeFile: import.js
-    seq: 269
+    seq: 268
     module: import_core
     prefix: IMP_BATCH_FAIL
     auth:
@@ -12167,7 +12117,7 @@ actions:
     method: get
     path: "/imports/batches/:code"
     routeFile: import.js
-    seq: 260
+    seq: 259
     module: import_core
     prefix: IMP_BATCH_GET
     auth:
@@ -12217,7 +12167,7 @@ actions:
     method: get
     path: /imports/batches
     routeFile: import.js
-    seq: 259
+    seq: 258
     module: import_core
     prefix: IMP_BATCH_LIST
     auth:
@@ -12267,7 +12217,7 @@ actions:
     method: post
     path: "/imports/batches/:code/post"
     routeFile: import.js
-    seq: 265
+    seq: 264
     module: import_core
     prefix: IMP_BATCH_POST
     auth:
@@ -12317,7 +12267,7 @@ actions:
     method: post
     path: "/imports/batches/:code/retry"
     routeFile: import.js
-    seq: 275
+    seq: 274
     module: import_core
     prefix: IMP_BATCH_RETRY
     auth:
@@ -12367,7 +12317,7 @@ actions:
     method: post
     path: "/imports/batches/:code/bulk"
     routeFile: import.js
-    seq: 271
+    seq: 270
     module: import_row_core
     prefix: IMP_BATCH_STAGE_BULK
     auth:
@@ -12417,7 +12367,7 @@ actions:
     method: get
     path: "/imports/batches/:code/summary"
     routeFile: import.js
-    seq: 277
+    seq: 276
     module: import_core
     prefix: IMP_BATCH_SUMMARY
     auth:
@@ -12467,7 +12417,7 @@ actions:
     method: post
     path: "/imports/batches/:code/validate"
     routeFile: import.js
-    seq: 262
+    seq: 261
     module: import_core
     prefix: IMP_BATCH_VALIDATE
     auth:
@@ -12517,7 +12467,7 @@ actions:
     method: get
     path: "/imports/batches/:code/errors"
     routeFile: import.js
-    seq: 264
+    seq: 263
     module: import_row_core
     prefix: IMP_ERROR_LIST
     auth:
@@ -12567,7 +12517,7 @@ actions:
     method: post
     path: "/imports/batches/:code/rows/:rowNo"
     routeFile: import.js
-    seq: 263
+    seq: 262
     module: import_row_core
     prefix: IMP_ROW_CORRECT
     auth:
@@ -12617,7 +12567,7 @@ actions:
     method: post
     path: "/imports/batches/:code/rows/:rowNo/skip"
     routeFile: import.js
-    seq: 273
+    seq: 272
     module: import_row_core
     prefix: IMP_ROW_SKIP
     auth:
@@ -12667,7 +12617,7 @@ actions:
     method: post
     path: "/imports/batches/:code/rows"
     routeFile: import.js
-    seq: 261
+    seq: 260
     module: import_row_core
     prefix: IMP_ROW_STAGE
     auth:
@@ -12717,7 +12667,7 @@ actions:
     method: post
     path: "/imports/batches/:code/rows/:rowNo/unskip"
     routeFile: import.js
-    seq: 276
+    seq: 275
     module: import_row_core
     prefix: IMP_ROW_UNSKIP
     auth:
@@ -12767,7 +12717,7 @@ actions:
     method: get
     path: "/imports/recon/:id/export"
     routeFile: import_recon.js
-    seq: 285
+    seq: 284
     module: import_recon_core
     prefix: IRC_
     auth:
@@ -12817,7 +12767,7 @@ actions:
     method: post
     path: "/imports/recon/:id/finish"
     routeFile: import_recon.js
-    seq: 282
+    seq: 281
     module: import_recon_core
     prefix: IRC_
     auth:
@@ -12867,7 +12817,7 @@ actions:
     method: get
     path: "/imports/recon/:id"
     routeFile: import_recon.js
-    seq: 280
+    seq: 279
     module: import_recon_core
     prefix: IRC_
     auth:
@@ -12917,7 +12867,7 @@ actions:
     method: get
     path: "/imports/recon/:id/items"
     routeFile: import_recon.js
-    seq: 284
+    seq: 283
     module: import_recon_core
     prefix: IRC_
     auth:
@@ -12967,7 +12917,7 @@ actions:
     method: get
     path: /imports/recon
     routeFile: import_recon.js
-    seq: 279
+    seq: 278
     module: import_recon_core
     prefix: IRC_
     auth:
@@ -13017,7 +12967,7 @@ actions:
     method: post
     path: "/imports/recon/:id/match"
     routeFile: import_recon.js
-    seq: 281
+    seq: 280
     module: import_recon_core
     prefix: IRC_
     auth:
@@ -13067,7 +13017,7 @@ actions:
     method: post
     path: "/imports/recon/:id/retry"
     routeFile: import_recon.js
-    seq: 283
+    seq: 282
     module: import_recon_core
     prefix: IRC_
     auth:
@@ -13117,7 +13067,7 @@ actions:
     method: post
     path: /imports/recon
     routeFile: import_recon.js
-    seq: 278
+    seq: 277
     module: import_recon_core
     prefix: IRC_
     auth:
@@ -13167,7 +13117,7 @@ actions:
     method: get
     path: "/imports/:code/recon-summary"
     routeFile: import_recon.js
-    seq: 286
+    seq: 285
     module: import_recon_core
     prefix: IRC_
     auth:
@@ -13717,7 +13667,7 @@ actions:
     method: post
     path: /loans
     routeFile: loan.js
-    seq: 301
+    seq: 300
     module: loan_core
     prefix: LOAN_
     auth:
@@ -13767,7 +13717,7 @@ actions:
     method: post
     path: "/loans/:id/approve"
     routeFile: loan.js
-    seq: 304
+    seq: 303
     module: loan_core
     prefix: LOAN_
     auth:
@@ -13817,7 +13767,7 @@ actions:
     method: post
     path: "/loans/:id/disburse"
     routeFile: loan.js
-    seq: 306
+    seq: 305
     module: loan_core
     prefix: LOAN_
     auth:
@@ -13867,7 +13817,7 @@ actions:
     method: get
     path: "/loans/:id"
     routeFile: loan.js
-    seq: 307
+    seq: 306
     module: loan_core
     prefix: LOAN_
     auth:
@@ -13917,7 +13867,7 @@ actions:
     method: get
     path: /loans
     routeFile: loan.js
-    seq: 302
+    seq: 301
     module: loan_core
     prefix: LOAN_
     auth:
@@ -13967,7 +13917,7 @@ actions:
     method: post
     path: "/loans/:id/reject"
     routeFile: loan.js
-    seq: 305
+    seq: 304
     module: loan_core
     prefix: LOAN_
     auth:
@@ -14017,7 +13967,7 @@ actions:
     method: post
     path: "/loans/:id/repay"
     routeFile: loan.js
-    seq: 308
+    seq: 307
     module: loan_core
     prefix: LOAN_
     auth:
@@ -14067,7 +14017,7 @@ actions:
     method: get
     path: /loans/summary
     routeFile: loan.js
-    seq: 303
+    seq: 302
     module: loan_core
     prefix: LOAN_
     auth:
@@ -14217,7 +14167,7 @@ actions:
     method: get
     path: /letters-of-credit/audit
     routeFile: letter_of_credit.js
-    seq: 294
+    seq: 293
     module: letter_of_credit_core
     prefix: LOC_
     auth:
@@ -14317,7 +14267,7 @@ actions:
     method: post
     path: "/letters-of-credit/:id/calc"
     routeFile: letter_of_credit.js
-    seq: 298
+    seq: 297
     module: letter_of_credit_core
     prefix: LOC_
     auth:
@@ -14417,7 +14367,7 @@ actions:
     method: post
     path: /letters-of-credit
     routeFile: letter_of_credit.js
-    seq: 296
+    seq: 295
     module: letter_of_credit_core
     prefix: LOC_
     auth:
@@ -14517,7 +14467,7 @@ actions:
     method: post
     path: "/letters-of-credit/:id/delete"
     routeFile: letter_of_credit.js
-    seq: 300
+    seq: 299
     module: letter_of_credit_core
     prefix: LOC_
     auth:
@@ -14667,7 +14617,7 @@ actions:
     method: get
     path: "/letters-of-credit/:id"
     routeFile: letter_of_credit.js
-    seq: 297
+    seq: 296
     module: letter_of_credit_core
     prefix: LOC_
     auth:
@@ -14817,7 +14767,7 @@ actions:
     method: get
     path: /letters-of-credit
     routeFile: letter_of_credit.js
-    seq: 295
+    seq: 294
     module: letter_of_credit_core
     prefix: LOC_
     auth:
@@ -15017,7 +14967,7 @@ actions:
     method: get
     path: /letters-of-credit/summary
     routeFile: letter_of_credit.js
-    seq: 293
+    seq: 292
     module: letter_of_credit_core
     prefix: LOC_
     auth:
@@ -15117,7 +15067,7 @@ actions:
     method: post
     path: "/letters-of-credit/:id/update"
     routeFile: letter_of_credit.js
-    seq: 299
+    seq: 298
     module: letter_of_credit_core
     prefix: LOC_
     auth:
@@ -15167,7 +15117,7 @@ actions:
     method: post
     path: /letters-of-credit/validate
     routeFile: letter_of_credit.js
-    seq: 292
+    seq: 291
     module: letter_of_credit_core
     prefix: LOC_
     auth:
@@ -15217,7 +15167,7 @@ actions:
     method: post
     path: "/loyalty/programs/:id/activate"
     routeFile: loyalty.js
-    seq: 317
+    seq: 316
     module: loyalty_core
     prefix: LOY_
     auth:
@@ -15267,7 +15217,7 @@ actions:
     method: post
     path: /loyalty/adjust
     routeFile: loyalty.js
-    seq: 324
+    seq: 323
     module: loyalty_core
     prefix: LOY_
     auth:
@@ -15317,7 +15267,7 @@ actions:
     method: get
     path: /loyalty/audit
     routeFile: loyalty.js
-    seq: 327
+    seq: 326
     module: loyalty_core
     prefix: LOY_
     auth:
@@ -15367,7 +15317,7 @@ actions:
     method: post
     path: /loyalty/programs
     routeFile: loyalty.js
-    seq: 316
+    seq: 315
     module: loyalty_core
     prefix: LOY_
     auth:
@@ -15417,7 +15367,7 @@ actions:
     method: post
     path: /loyalty/earn
     routeFile: loyalty.js
-    seq: 321
+    seq: 320
     module: loyalty_core
     prefix: LOY_
     auth:
@@ -15467,7 +15417,7 @@ actions:
     method: post
     path: /loyalty/members
     routeFile: loyalty.js
-    seq: 319
+    seq: 318
     module: loyalty_core
     prefix: LOY_
     auth:
@@ -15517,7 +15467,7 @@ actions:
     method: post
     path: /loyalty/expire
     routeFile: loyalty.js
-    seq: 323
+    seq: 322
     module: loyalty_core
     prefix: LOY_
     auth:
@@ -15567,7 +15517,7 @@ actions:
     method: get
     path: "/loyalty/members/:id"
     routeFile: loyalty.js
-    seq: 320
+    seq: 319
     module: loyalty_core
     prefix: LOY_
     auth:
@@ -15617,7 +15567,7 @@ actions:
     method: get
     path: /loyalty/programs
     routeFile: loyalty.js
-    seq: 318
+    seq: 317
     module: loyalty_core
     prefix: LOY_
     auth:
@@ -15667,7 +15617,7 @@ actions:
     method: post
     path: /loyalty/redeem
     routeFile: loyalty.js
-    seq: 322
+    seq: 321
     module: loyalty_core
     prefix: LOY_
     auth:
@@ -15717,7 +15667,7 @@ actions:
     method: get
     path: /loyalty/summary
     routeFile: loyalty.js
-    seq: 326
+    seq: 325
     module: loyalty_core
     prefix: LOY_
     auth:
@@ -15767,7 +15717,7 @@ actions:
     method: post
     path: /loyalty/validate
     routeFile: loyalty.js
-    seq: 325
+    seq: 324
     module: loyalty_core
     prefix: LOY_
     auth:
@@ -15817,7 +15767,7 @@ actions:
     method: post
     path: "/loans/:id/schedule"
     routeFile: loan_schedule.js
-    seq: 309
+    seq: 308
     module: loan_schedule_core
     prefix: LSC_CREATE
     auth:
@@ -15867,7 +15817,7 @@ actions:
     method: delete
     path: "/loans/schedules/:id"
     routeFile: loan_schedule.js
-    seq: 314
+    seq: 313
     module: loan_schedule_core
     prefix: LSC_DELETE
     auth:
@@ -15917,7 +15867,7 @@ actions:
     method: get
     path: "/loans/schedules/:id"
     routeFile: loan_schedule.js
-    seq: 311
+    seq: 310
     module: loan_schedule_core
     prefix: LSC_DETAIL
     auth:
@@ -15967,7 +15917,7 @@ actions:
     method: get
     path: "/loans/schedules/:id/history"
     routeFile: loan_schedule.js
-    seq: 315
+    seq: 314
     module: loan_schedule_core
     prefix: LSC_HISTORY
     auth:
@@ -16017,7 +15967,7 @@ actions:
     method: get
     path: "/loans/:id/schedules"
     routeFile: loan_schedule.js
-    seq: 312
+    seq: 311
     module: loan_schedule_core
     prefix: LSC_LIST
     auth:
@@ -16067,7 +16017,7 @@ actions:
     method: get
     path: /loans/schedules/search
     routeFile: loan_schedule.js
-    seq: 310
+    seq: 309
     module: loan_schedule_core
     prefix: LSC_SEARCH
     auth:
@@ -16117,7 +16067,7 @@ actions:
     method: put
     path: "/loans/schedules/:id"
     routeFile: loan_schedule.js
-    seq: 313
+    seq: 312
     module: loan_schedule_core
     prefix: LSC_UPDATE
     auth:
@@ -16217,7 +16167,7 @@ actions:
     method: get
     path: /merchant-settlements/audit
     routeFile: merchant_settlement.js
-    seq: 345
+    seq: 344
     module: merchant_settlement_core
     prefix: MCS_
     auth:
@@ -16267,7 +16217,7 @@ actions:
     method: post
     path: "/merchant-settlements/:id/calc"
     routeFile: merchant_settlement.js
-    seq: 354
+    seq: 353
     module: merchant_settlement_core
     prefix: MCS_
     auth:
@@ -16317,7 +16267,7 @@ actions:
     method: post
     path: "/merchant-settlements/:id/cancel"
     routeFile: merchant_settlement.js
-    seq: 352
+    seq: 351
     module: merchant_settlement_core
     prefix: MCS_
     auth:
@@ -16367,7 +16317,7 @@ actions:
     method: post
     path: /merchant-settlements
     routeFile: merchant_settlement.js
-    seq: 347
+    seq: 346
     module: merchant_settlement_core
     prefix: MCS_
     auth:
@@ -16417,7 +16367,7 @@ actions:
     method: post
     path: "/merchant-settlements/:id/delete"
     routeFile: merchant_settlement.js
-    seq: 356
+    seq: 355
     module: merchant_settlement_core
     prefix: MCS_
     auth:
@@ -16467,7 +16417,7 @@ actions:
     method: get
     path: "/merchant-settlements/:id"
     routeFile: merchant_settlement.js
-    seq: 353
+    seq: 352
     module: merchant_settlement_core
     prefix: MCS_
     auth:
@@ -16517,7 +16467,7 @@ actions:
     method: get
     path: /merchant-settlements
     routeFile: merchant_settlement.js
-    seq: 346
+    seq: 345
     module: merchant_settlement_core
     prefix: MCS_
     auth:
@@ -16567,7 +16517,7 @@ actions:
     method: post
     path: /merchant-settlements/open
     routeFile: merchant_settlement.js
-    seq: 349
+    seq: 348
     module: merchant_settlement_core
     prefix: MCS_
     auth:
@@ -16617,7 +16567,7 @@ actions:
     method: post
     path: "/merchant-settlements/:id/post"
     routeFile: merchant_settlement.js
-    seq: 350
+    seq: 349
     module: merchant_settlement_core
     prefix: MCS_
     auth:
@@ -16667,7 +16617,7 @@ actions:
     method: post
     path: "/merchant-settlements/:id/settle"
     routeFile: merchant_settlement.js
-    seq: 351
+    seq: 350
     module: merchant_settlement_core
     prefix: MCS_
     auth:
@@ -16717,7 +16667,7 @@ actions:
     method: get
     path: /merchant-settlements/summary
     routeFile: merchant_settlement.js
-    seq: 344
+    seq: 343
     module: merchant_settlement_core
     prefix: MCS_
     auth:
@@ -16767,7 +16717,7 @@ actions:
     method: post
     path: /merchant-settlements/txn
     routeFile: merchant_settlement.js
-    seq: 348
+    seq: 347
     module: merchant_settlement_core
     prefix: MCS_
     auth:
@@ -16817,7 +16767,7 @@ actions:
     method: post
     path: "/merchant-settlements/:id/update"
     routeFile: merchant_settlement.js
-    seq: 355
+    seq: 354
     module: merchant_settlement_core
     prefix: MCS_
     auth:
@@ -16867,7 +16817,7 @@ actions:
     method: post
     path: /merchant-settlements/validate
     routeFile: merchant_settlement.js
-    seq: 343
+    seq: 342
     module: merchant_settlement_core
     prefix: MCS_
     auth:
@@ -17117,7 +17067,7 @@ actions:
     method: post
     path: "/merchants/:id/activate"
     routeFile: merchant.js
-    seq: 335
+    seq: 334
     module: merchant_core
     prefix: MRT_
     auth:
@@ -17167,7 +17117,7 @@ actions:
     method: post
     path: "/merchants/:id/approve"
     routeFile: merchant.js
-    seq: 334
+    seq: 333
     module: merchant_core
     prefix: MRT_
     auth:
@@ -17217,7 +17167,7 @@ actions:
     method: get
     path: /merchants/audit
     routeFile: merchant.js
-    seq: 330
+    seq: 329
     module: merchant_core
     prefix: MRT_
     auth:
@@ -17267,7 +17217,7 @@ actions:
     method: post
     path: "/merchants/:id/calc"
     routeFile: merchant.js
-    seq: 340
+    seq: 339
     module: merchant_core
     prefix: MRT_
     auth:
@@ -17317,7 +17267,7 @@ actions:
     method: post
     path: "/merchants/:id/close"
     routeFile: merchant.js
-    seq: 337
+    seq: 336
     module: merchant_core
     prefix: MRT_
     auth:
@@ -17367,7 +17317,7 @@ actions:
     method: post
     path: /merchants
     routeFile: merchant.js
-    seq: 332
+    seq: 331
     module: merchant_core
     prefix: MRT_
     auth:
@@ -17417,7 +17367,7 @@ actions:
     method: post
     path: "/merchants/:id/delete"
     routeFile: merchant.js
-    seq: 342
+    seq: 341
     module: merchant_core
     prefix: MRT_
     auth:
@@ -17467,7 +17417,7 @@ actions:
     method: get
     path: "/merchants/:id"
     routeFile: merchant.js
-    seq: 339
+    seq: 338
     module: merchant_core
     prefix: MRT_
     auth:
@@ -17517,7 +17467,7 @@ actions:
     method: get
     path: /merchants
     routeFile: merchant.js
-    seq: 331
+    seq: 330
     module: merchant_core
     prefix: MRT_
     auth:
@@ -17567,7 +17517,7 @@ actions:
     method: post
     path: "/merchants/:id/fee"
     routeFile: merchant.js
-    seq: 338
+    seq: 337
     module: merchant_core
     prefix: MRT_
     auth:
@@ -17617,7 +17567,7 @@ actions:
     method: post
     path: "/merchants/:id/submit-kyc"
     routeFile: merchant.js
-    seq: 333
+    seq: 332
     module: merchant_core
     prefix: MRT_
     auth:
@@ -17667,7 +17617,7 @@ actions:
     method: get
     path: /merchants/summary
     routeFile: merchant.js
-    seq: 329
+    seq: 328
     module: merchant_core
     prefix: MRT_
     auth:
@@ -17717,7 +17667,7 @@ actions:
     method: post
     path: "/merchants/:id/suspend"
     routeFile: merchant.js
-    seq: 336
+    seq: 335
     module: merchant_core
     prefix: MRT_
     auth:
@@ -17767,7 +17717,7 @@ actions:
     method: post
     path: "/merchants/:id/update"
     routeFile: merchant.js
-    seq: 341
+    seq: 340
     module: merchant_core
     prefix: MRT_
     auth:
@@ -17817,7 +17767,7 @@ actions:
     method: post
     path: /merchants/validate
     routeFile: merchant.js
-    seq: 328
+    seq: 327
     module: merchant_core
     prefix: MRT_
     auth:
@@ -17867,7 +17817,7 @@ actions:
     method: get
     path: /notification-templates/audit
     routeFile: notification_template.js
-    seq: 359
+    seq: 358
     module: notification_template_core
     prefix: NTP_
     auth:
@@ -17917,7 +17867,7 @@ actions:
     method: post
     path: /notification-templates
     routeFile: notification_template.js
-    seq: 361
+    seq: 360
     module: notification_template_core
     prefix: NTP_
     auth:
@@ -17967,7 +17917,7 @@ actions:
     method: post
     path: "/notification-templates/:id/deactivate"
     routeFile: notification_template.js
-    seq: 365
+    seq: 364
     module: notification_template_core
     prefix: NTP_
     auth:
@@ -18017,7 +17967,7 @@ actions:
     method: get
     path: "/notification-templates/:id"
     routeFile: notification_template.js
-    seq: 362
+    seq: 361
     module: notification_template_core
     prefix: NTP_
     auth:
@@ -18067,7 +18017,7 @@ actions:
     method: get
     path: /notification-templates
     routeFile: notification_template.js
-    seq: 360
+    seq: 359
     module: notification_template_core
     prefix: NTP_
     auth:
@@ -18117,7 +18067,7 @@ actions:
     method: post
     path: "/notification-templates/:id/preview"
     routeFile: notification_template.js
-    seq: 363
+    seq: 362
     module: notification_template_core
     prefix: NTP_
     auth:
@@ -18167,7 +18117,7 @@ actions:
     method: get
     path: /notification-templates/summary
     routeFile: notification_template.js
-    seq: 358
+    seq: 357
     module: notification_template_core
     prefix: NTP_
     auth:
@@ -18217,7 +18167,7 @@ actions:
     method: post
     path: "/notification-templates/:id/update"
     routeFile: notification_template.js
-    seq: 366
+    seq: 365
     module: notification_template_core
     prefix: NTP_
     auth:
@@ -18267,7 +18217,7 @@ actions:
     method: post
     path: /notification-templates/validate
     routeFile: notification_template.js
-    seq: 357
+    seq: 356
     module: notification_template_core
     prefix: NTP_
     auth:
@@ -18317,7 +18267,7 @@ actions:
     method: post
     path: "/notification-templates/:id/version"
     routeFile: notification_template.js
-    seq: 364
+    seq: 363
     module: notification_template_core
     prefix: NTP_
     auth:
@@ -18467,7 +18417,7 @@ actions:
     method: post
     path: /auth/phone/otp/issue
     routeFile: phone.js
-    seq: 421
+    seq: 420
     module: phone_otp_core
     prefix: OTP_
     auth:
@@ -18517,7 +18467,7 @@ actions:
     method: post
     path: /auth/phone/link/begin
     routeFile: phone.js
-    seq: 419
+    seq: 418
     module: phone_otp_core
     prefix: OTP_
     auth:
@@ -18567,7 +18517,7 @@ actions:
     method: post
     path: /auth/phone/link/confirm
     routeFile: phone.js
-    seq: 420
+    seq: 419
     module: phone_otp_core
     prefix: OTP_
     auth:
@@ -18617,7 +18567,7 @@ actions:
     method: post
     path: /auth/phone/otp/verify
     routeFile: phone.js
-    seq: 422
+    seq: 421
     module: phone_otp_core
     prefix: OTP_
     auth:
@@ -18667,7 +18617,7 @@ actions:
     method: post
     path: /payments/check
     routeFile: payment.js
-    seq: 373
+    seq: 372
     module: payment_core
     prefix: PAY_
     auth:
@@ -18717,7 +18667,7 @@ actions:
     method: get
     path: "/payments/usage/:email/:currency"
     routeFile: payment.js
-    seq: 372
+    seq: 371
     module: payment_core
     prefix: PAY_
     auth:
@@ -18767,7 +18717,7 @@ actions:
     method: get
     path: "/payments/policies/:currency"
     routeFile: payment.js
-    seq: 369
+    seq: 368
     module: payment_core
     prefix: PAY_
     auth:
@@ -18817,7 +18767,7 @@ actions:
     method: get
     path: /payments/policies
     routeFile: payment.js
-    seq: 368
+    seq: 367
     module: payment_core
     prefix: PAY_
     auth:
@@ -18867,7 +18817,7 @@ actions:
     method: post
     path: /payments/policies
     routeFile: payment.js
-    seq: 367
+    seq: 366
     module: payment_core
     prefix: PAY_
     auth:
@@ -18917,7 +18867,7 @@ actions:
     method: get
     path: "/payments/profiles/:email"
     routeFile: payment.js
-    seq: 371
+    seq: 370
     module: payment_core
     prefix: PAY_
     auth:
@@ -18967,7 +18917,7 @@ actions:
     method: post
     path: /payments/profiles
     routeFile: payment.js
-    seq: 370
+    seq: 369
     module: payment_core
     prefix: PAY_
     auth:
@@ -19017,7 +18967,7 @@ actions:
     method: post
     path: "/holds/:id/capture"
     routeFile: payment_hold.js
-    seq: 387
+    seq: 386
     module: payment_hold_core
     prefix: PHL_
     auth:
@@ -19067,7 +19017,7 @@ actions:
     method: post
     path: /holds/expire
     routeFile: payment_hold.js
-    seq: 385
+    seq: 384
     module: payment_hold_core
     prefix: PHL_
     auth:
@@ -19117,7 +19067,7 @@ actions:
     method: get
     path: "/holds/:id"
     routeFile: payment_hold.js
-    seq: 389
+    seq: 388
     module: payment_hold_core
     prefix: PHL_
     auth:
@@ -19167,7 +19117,7 @@ actions:
     method: get
     path: /holds
     routeFile: payment_hold.js
-    seq: 384
+    seq: 383
     module: payment_hold_core
     prefix: PHL_
     auth:
@@ -19217,7 +19167,7 @@ actions:
     method: post
     path: "/holds/:id/release"
     routeFile: payment_hold.js
-    seq: 388
+    seq: 387
     module: payment_hold_core
     prefix: PHL_
     auth:
@@ -19267,7 +19217,7 @@ actions:
     method: post
     path: /holds
     routeFile: payment_hold.js
-    seq: 383
+    seq: 382
     module: payment_hold_core
     prefix: PHL_
     auth:
@@ -19317,7 +19267,7 @@ actions:
     method: get
     path: /holds/stats
     routeFile: payment_hold.js
-    seq: 386
+    seq: 385
     module: payment_hold_core
     prefix: PHL_
     auth:
@@ -19367,7 +19317,7 @@ actions:
     method: post
     path: "/payments/instructions/:code/cancel"
     routeFile: payment_instructions.js
-    seq: 396
+    seq: 395
     module: payment_instruction_core
     prefix: PIC_
     auth:
@@ -19417,7 +19367,7 @@ actions:
     method: post
     path: /payments/instructions
     routeFile: payment_instructions.js
-    seq: 390
+    seq: 389
     module: payment_instruction_core
     prefix: PIC_
     auth:
@@ -19467,7 +19417,7 @@ actions:
     method: get
     path: /payments/instructions/due
     routeFile: payment_instructions.js
-    seq: 392
+    seq: 391
     module: payment_instruction_core
     prefix: PIC_
     auth:
@@ -19517,7 +19467,7 @@ actions:
     method: post
     path: "/payments/instructions/:code/execute"
     routeFile: payment_instructions.js
-    seq: 397
+    seq: 396
     module: payment_instruction_core
     prefix: PIC_
     auth:
@@ -19567,7 +19517,7 @@ actions:
     method: get
     path: "/payments/instructions/:code"
     routeFile: payment_instructions.js
-    seq: 393
+    seq: 392
     module: payment_instruction_core
     prefix: PIC_
     auth:
@@ -19617,7 +19567,7 @@ actions:
     method: get
     path: "/payments/instructions/:code/history"
     routeFile: payment_instructions.js
-    seq: 398
+    seq: 397
     module: payment_instruction_core
     prefix: PIC_
     auth:
@@ -19667,7 +19617,7 @@ actions:
     method: get
     path: /payments/instructions
     routeFile: payment_instructions.js
-    seq: 391
+    seq: 390
     module: payment_instruction_core
     prefix: PIC_
     auth:
@@ -19717,7 +19667,7 @@ actions:
     method: post
     path: "/payments/instructions/:code/pause"
     routeFile: payment_instructions.js
-    seq: 394
+    seq: 393
     module: payment_instruction_core
     prefix: PIC_
     auth:
@@ -19767,7 +19717,7 @@ actions:
     method: post
     path: "/payments/instructions/:code/resume"
     routeFile: payment_instructions.js
-    seq: 395
+    seq: 394
     module: payment_instruction_core
     prefix: PIC_
     auth:
@@ -19817,7 +19767,7 @@ actions:
     method: get
     path: /health
     routeFile: infra.js
-    seq: 287
+    seq: 286
     module: auth_core
     prefix: PING
     auth:
@@ -19867,7 +19817,7 @@ actions:
     method: get
     path: /ready
     routeFile: infra.js
-    seq: 288
+    seq: 287
     module: auth_core
     prefix: PING
     auth:
@@ -19967,7 +19917,7 @@ actions:
     method: get
     path: /payments/clearing/audit
     routeFile: payment_clearing.js
-    seq: 376
+    seq: 375
     module: payment_clearing_core
     prefix: PMC_
     auth:
@@ -20017,7 +19967,7 @@ actions:
     method: post
     path: "/payments/clearing/:id/cancel"
     routeFile: payment_clearing.js
-    seq: 382
+    seq: 381
     module: payment_clearing_core
     prefix: PMC_
     auth:
@@ -20067,7 +20017,7 @@ actions:
     method: post
     path: /payments/clearing
     routeFile: payment_clearing.js
-    seq: 378
+    seq: 377
     module: payment_clearing_core
     prefix: PMC_
     auth:
@@ -20117,7 +20067,7 @@ actions:
     method: get
     path: "/payments/clearing/:id"
     routeFile: payment_clearing.js
-    seq: 379
+    seq: 378
     module: payment_clearing_core
     prefix: PMC_
     auth:
@@ -20167,7 +20117,7 @@ actions:
     method: get
     path: /payments/clearing
     routeFile: payment_clearing.js
-    seq: 377
+    seq: 376
     module: payment_clearing_core
     prefix: PMC_
     auth:
@@ -20217,7 +20167,7 @@ actions:
     method: post
     path: "/payments/clearing/:id/post"
     routeFile: payment_clearing.js
-    seq: 380
+    seq: 379
     module: payment_clearing_core
     prefix: PMC_
     auth:
@@ -20267,7 +20217,7 @@ actions:
     method: post
     path: "/payments/clearing/:id/settle"
     routeFile: payment_clearing.js
-    seq: 381
+    seq: 380
     module: payment_clearing_core
     prefix: PMC_
     auth:
@@ -20317,7 +20267,7 @@ actions:
     method: get
     path: /payments/clearing/summary
     routeFile: payment_clearing.js
-    seq: 375
+    seq: 374
     module: payment_clearing_core
     prefix: PMC_
     auth:
@@ -20367,7 +20317,7 @@ actions:
     method: post
     path: /payments/clearing/validate
     routeFile: payment_clearing.js
-    seq: 374
+    seq: 373
     module: payment_clearing_core
     prefix: PMC_
     auth:
@@ -20417,7 +20367,7 @@ actions:
     method: post
     path: "/payrolls/:id/items"
     routeFile: payroll_processing.js
-    seq: 409
+    seq: 408
     module: payroll_processing_core
     prefix: PRL_
     auth:
@@ -20467,7 +20417,7 @@ actions:
     method: post
     path: "/payrolls/:id/approve"
     routeFile: payroll_processing.js
-    seq: 411
+    seq: 410
     module: payroll_processing_core
     prefix: PRL_
     auth:
@@ -20517,7 +20467,7 @@ actions:
     method: get
     path: /payroll-processing/audit
     routeFile: payroll_processing.js
-    seq: 401
+    seq: 400
     module: payroll_processing_core
     prefix: PRL_
     auth:
@@ -20567,7 +20517,7 @@ actions:
     method: get
     path: /payrolls/audit
     routeFile: payroll_processing.js
-    seq: 416
+    seq: 415
     module: payroll_processing_core
     prefix: PRL_
     auth:
@@ -20617,7 +20567,7 @@ actions:
     method: post
     path: "/payroll-processing/:id/calc"
     routeFile: payroll_processing.js
-    seq: 405
+    seq: 404
     module: payroll_processing_core
     prefix: PRL_
     auth:
@@ -20667,7 +20617,7 @@ actions:
     method: post
     path: "/payrolls/:id/close"
     routeFile: payroll_processing.js
-    seq: 414
+    seq: 413
     module: payroll_processing_core
     prefix: PRL_
     auth:
@@ -20717,7 +20667,7 @@ actions:
     method: post
     path: /payroll-processing
     routeFile: payroll_processing.js
-    seq: 403
+    seq: 402
     module: payroll_processing_core
     prefix: PRL_
     auth:
@@ -20767,7 +20717,7 @@ actions:
     method: post
     path: /payrolls
     routeFile: payroll_processing.js
-    seq: 408
+    seq: 407
     module: payroll_processing_core
     prefix: PRL_
     auth:
@@ -20817,7 +20767,7 @@ actions:
     method: post
     path: "/payroll-processing/:id/delete"
     routeFile: payroll_processing.js
-    seq: 407
+    seq: 406
     module: payroll_processing_core
     prefix: PRL_
     auth:
@@ -20867,7 +20817,7 @@ actions:
     method: get
     path: "/payroll-processing/:id"
     routeFile: payroll_processing.js
-    seq: 404
+    seq: 403
     module: payroll_processing_core
     prefix: PRL_
     auth:
@@ -20917,7 +20867,7 @@ actions:
     method: get
     path: "/payrolls/:id"
     routeFile: payroll_processing.js
-    seq: 418
+    seq: 417
     module: payroll_processing_core
     prefix: PRL_
     auth:
@@ -20967,7 +20917,7 @@ actions:
     method: get
     path: /payroll-processing
     routeFile: payroll_processing.js
-    seq: 402
+    seq: 401
     module: payroll_processing_core
     prefix: PRL_
     auth:
@@ -21017,7 +20967,7 @@ actions:
     method: get
     path: /payrolls
     routeFile: payroll_processing.js
-    seq: 417
+    seq: 416
     module: payroll_processing_core
     prefix: PRL_
     auth:
@@ -21067,7 +21017,7 @@ actions:
     method: post
     path: "/payrolls/:id/pay"
     routeFile: payroll_processing.js
-    seq: 413
+    seq: 412
     module: payroll_processing_core
     prefix: PRL_
     auth:
@@ -21117,7 +21067,7 @@ actions:
     method: post
     path: "/payrolls/:id/process"
     routeFile: payroll_processing.js
-    seq: 412
+    seq: 411
     module: payroll_processing_core
     prefix: PRL_
     auth:
@@ -21167,7 +21117,7 @@ actions:
     method: get
     path: /payroll-processing/summary
     routeFile: payroll_processing.js
-    seq: 400
+    seq: 399
     module: payroll_processing_core
     prefix: PRL_
     auth:
@@ -21217,7 +21167,7 @@ actions:
     method: get
     path: /payrolls/summary
     routeFile: payroll_processing.js
-    seq: 415
+    seq: 414
     module: payroll_processing_core
     prefix: PRL_
     auth:
@@ -21267,7 +21217,7 @@ actions:
     method: post
     path: "/payroll-processing/:id/update"
     routeFile: payroll_processing.js
-    seq: 406
+    seq: 405
     module: payroll_processing_core
     prefix: PRL_
     auth:
@@ -21317,7 +21267,7 @@ actions:
     method: post
     path: /payroll-processing/validate
     routeFile: payroll_processing.js
-    seq: 399
+    seq: 398
     module: payroll_processing_core
     prefix: PRL_
     auth:
@@ -21367,7 +21317,7 @@ actions:
     method: post
     path: "/payrolls/:id/validate"
     routeFile: payroll_processing.js
-    seq: 410
+    seq: 409
     module: payroll_processing_core
     prefix: PRL_
     auth:
@@ -22167,7 +22117,7 @@ actions:
     method: post
     path: /auth/revoke
     routeFile: infra.js
-    seq: 291
+    seq: 290
     module: auth_core
     prefix: REVOKE_ACCESS_TOKEN
     auth:
@@ -22317,7 +22267,7 @@ actions:
     method: post
     path: /auth/logout
     routeFile: infra.js
-    seq: 290
+    seq: 289
     module: auth_core
     prefix: REVOKE_SESSION
     auth:
@@ -22417,7 +22367,7 @@ actions:
     method: post
     path: /reference-engine/types
     routeFile: ref_engine.js
-    seq: 424
+    seq: 423
     module: ref_engine
     prefix: RFE_
     auth:
@@ -22467,7 +22417,7 @@ actions:
     method: get
     path: /reference-engine/types
     routeFile: ref_engine.js
-    seq: 423
+    seq: 422
     module: ref_engine
     prefix: RFE_
     auth:
@@ -22517,7 +22467,7 @@ actions:
     method: post
     path: "/reference-engine/values/:type/:code/approve"
     routeFile: ref_engine.js
-    seq: 429
+    seq: 428
     module: ref_engine
     prefix: RFE_
     auth:
@@ -22567,7 +22517,7 @@ actions:
     method: post
     path: /reference-engine/values
     routeFile: ref_engine.js
-    seq: 426
+    seq: 425
     module: ref_engine
     prefix: RFE_
     auth:
@@ -22617,7 +22567,7 @@ actions:
     method: get
     path: "/reference-engine/values/:type/:code"
     routeFile: ref_engine.js
-    seq: 427
+    seq: 426
     module: ref_engine
     prefix: RFE_
     auth:
@@ -22667,7 +22617,7 @@ actions:
     method: get
     path: "/reference-engine/values/:type/:code/history"
     routeFile: ref_engine.js
-    seq: 428
+    seq: 427
     module: ref_engine
     prefix: RFE_
     auth:
@@ -22717,7 +22667,7 @@ actions:
     method: get
     path: /reference-engine/values
     routeFile: ref_engine.js
-    seq: 425
+    seq: 424
     module: ref_engine
     prefix: RFE_
     auth:
@@ -22767,7 +22717,7 @@ actions:
     method: post
     path: "/reference-engine/values/:type/:code/retire"
     routeFile: ref_engine.js
-    seq: 430
+    seq: 429
     module: ref_engine
     prefix: RFE_
     auth:
@@ -22817,7 +22767,7 @@ actions:
     method: post
     path: /risk/note
     routeFile: risk.js
-    seq: 469
+    seq: 468
     module: risk_core
     prefix: RISK_
     auth:
@@ -22867,7 +22817,7 @@ actions:
     method: get
     path: /risk/status
     routeFile: risk.js
-    seq: 470
+    seq: 469
     module: risk_core
     prefix: RISK_
     auth:
@@ -22917,7 +22867,7 @@ actions:
     method: get
     path: /report-schedules/audit
     routeFile: report_schedule.js
-    seq: 461
+    seq: 460
     module: report_schedule_core
     prefix: RPS_
     auth:
@@ -22967,7 +22917,7 @@ actions:
     method: post
     path: /report-schedules
     routeFile: report_schedule.js
-    seq: 463
+    seq: 462
     module: report_schedule_core
     prefix: RPS_
     auth:
@@ -23017,7 +22967,7 @@ actions:
     method: post
     path: "/report-schedules/:id/disable"
     routeFile: report_schedule.js
-    seq: 466
+    seq: 465
     module: report_schedule_core
     prefix: RPS_
     auth:
@@ -23067,7 +23017,7 @@ actions:
     method: post
     path: "/report-schedules/:id/enable"
     routeFile: report_schedule.js
-    seq: 465
+    seq: 464
     module: report_schedule_core
     prefix: RPS_
     auth:
@@ -23117,7 +23067,7 @@ actions:
     method: get
     path: "/report-schedules/:id"
     routeFile: report_schedule.js
-    seq: 464
+    seq: 463
     module: report_schedule_core
     prefix: RPS_
     auth:
@@ -23167,7 +23117,7 @@ actions:
     method: get
     path: /report-schedules
     routeFile: report_schedule.js
-    seq: 462
+    seq: 461
     module: report_schedule_core
     prefix: RPS_
     auth:
@@ -23217,7 +23167,7 @@ actions:
     method: post
     path: "/report-schedules/:id/run-now"
     routeFile: report_schedule.js
-    seq: 467
+    seq: 466
     module: report_schedule_core
     prefix: RPS_
     auth:
@@ -23267,7 +23217,7 @@ actions:
     method: get
     path: /report-schedules/summary
     routeFile: report_schedule.js
-    seq: 460
+    seq: 459
     module: report_schedule_core
     prefix: RPS_
     auth:
@@ -23317,7 +23267,7 @@ actions:
     method: post
     path: "/report-schedules/:id/update"
     routeFile: report_schedule.js
-    seq: 468
+    seq: 467
     module: report_schedule_core
     prefix: RPS_
     auth:
@@ -23367,7 +23317,7 @@ actions:
     method: post
     path: /report-schedules/validate
     routeFile: report_schedule.js
-    seq: 459
+    seq: 458
     module: report_schedule_core
     prefix: RPS_
     auth:
@@ -23417,7 +23367,7 @@ actions:
     method: post
     path: "/reports/templates/:code/columns"
     routeFile: report.js
-    seq: 442
+    seq: 441
     module: report_core
     prefix: RPT_COLUMN_CREATE
     auth:
@@ -23467,7 +23417,7 @@ actions:
     method: delete
     path: "/reports/templates/:code/columns/:ordinal"
     routeFile: report.js
-    seq: 457
+    seq: 456
     module: report_core
     prefix: RPT_COLUMN_DELETE
     auth:
@@ -23517,7 +23467,7 @@ actions:
     method: get
     path: "/reports/templates/:code/columns"
     routeFile: report.js
-    seq: 443
+    seq: 442
     module: report_core
     prefix: RPT_COLUMN_LIST
     auth:
@@ -23567,7 +23517,7 @@ actions:
     method: patch
     path: "/reports/templates/:code/columns/:ordinal"
     routeFile: report.js
-    seq: 458
+    seq: 457
     module: report_core
     prefix: RPT_COLUMN_UPDATE
     auth:
@@ -23617,7 +23567,7 @@ actions:
     method: post
     path: "/reports/runs/:id/complete"
     routeFile: report.js
-    seq: 447
+    seq: 446
     module: report_run_core
     prefix: RPT_RUN_COMPLETE
     auth:
@@ -23667,7 +23617,7 @@ actions:
     method: delete
     path: "/reports/runs/:id"
     routeFile: report.js
-    seq: 456
+    seq: 455
     module: report_run_core
     prefix: RPT_RUN_DELETE
     auth:
@@ -23717,7 +23667,7 @@ actions:
     method: get
     path: "/reports/runs/:id/export"
     routeFile: report.js
-    seq: 450
+    seq: 449
     module: report_run_core
     prefix: RPT_RUN_EXPORT
     auth:
@@ -23767,7 +23717,7 @@ actions:
     method: post
     path: "/reports/runs/:id/fail"
     routeFile: report.js
-    seq: 448
+    seq: 447
     module: report_run_core
     prefix: RPT_RUN_FAIL
     auth:
@@ -23817,7 +23767,7 @@ actions:
     method: post
     path: "/reports/runs/:id/generate"
     routeFile: report.js
-    seq: 455
+    seq: 454
     module: report_run_core
     prefix: RPT_RUN_GENERATE
     auth:
@@ -23867,7 +23817,7 @@ actions:
     method: get
     path: /reports/runs
     routeFile: report.js
-    seq: 449
+    seq: 448
     module: report_run_core
     prefix: RPT_RUN_LIST
     auth:
@@ -23917,7 +23867,7 @@ actions:
     method: post
     path: "/reports/runs/:id/retry"
     routeFile: report.js
-    seq: 454
+    seq: 453
     module: report_run_core
     prefix: RPT_RUN_RETRY
     auth:
@@ -23967,7 +23917,7 @@ actions:
     method: post
     path: "/reports/runs/:id/rows"
     routeFile: report.js
-    seq: 445
+    seq: 444
     module: report_run_core
     prefix: RPT_RUN_ROW
     auth:
@@ -24017,7 +23967,7 @@ actions:
     method: post
     path: /reports/runs
     routeFile: report.js
-    seq: 444
+    seq: 443
     module: report_run_core
     prefix: RPT_RUN_START
     auth:
@@ -24067,7 +24017,7 @@ actions:
     method: get
     path: "/reports/runs/:id"
     routeFile: report.js
-    seq: 446
+    seq: 445
     module: report_run_core
     prefix: RPT_RUN_STATUS
     auth:
@@ -24117,7 +24067,7 @@ actions:
     method: post
     path: "/reports/templates/:code/clone"
     routeFile: report.js
-    seq: 452
+    seq: 451
     module: report_core
     prefix: RPT_TEMPLATE_CLONE
     auth:
@@ -24167,7 +24117,7 @@ actions:
     method: post
     path: /reports/templates
     routeFile: report.js
-    seq: 439
+    seq: 438
     module: report_core
     prefix: RPT_TEMPLATE_CREATE
     auth:
@@ -24217,7 +24167,7 @@ actions:
     method: delete
     path: "/reports/templates/:code"
     routeFile: report.js
-    seq: 453
+    seq: 452
     module: report_core
     prefix: RPT_TEMPLATE_DELETE
     auth:
@@ -24267,7 +24217,7 @@ actions:
     method: get
     path: "/reports/templates/:code"
     routeFile: report.js
-    seq: 441
+    seq: 440
     module: report_core
     prefix: RPT_TEMPLATE_GET
     auth:
@@ -24317,7 +24267,7 @@ actions:
     method: get
     path: /reports/templates
     routeFile: report.js
-    seq: 440
+    seq: 439
     module: report_core
     prefix: RPT_TEMPLATE_LIST
     auth:
@@ -24367,7 +24317,7 @@ actions:
     method: patch
     path: "/reports/templates/:code"
     routeFile: report.js
-    seq: 451
+    seq: 450
     module: report_core
     prefix: RPT_TEMPLATE_UPDATE
     auth:
@@ -24467,7 +24417,7 @@ actions:
     method: get
     path: "/ref/ext/export/:type"
     routeFile: ref_ext.js
-    seq: 438
+    seq: 437
     module: ref_ext_core
     prefix: RX_
     auth:
@@ -24517,7 +24467,7 @@ actions:
     method: post
     path: /ref/ext/hierarchy
     routeFile: ref_ext.js
-    seq: 433
+    seq: 432
     module: ref_ext_core
     prefix: RX_
     auth:
@@ -24567,7 +24517,7 @@ actions:
     method: get
     path: "/ref/ext/hierarchy/:type"
     routeFile: ref_ext.js
-    seq: 434
+    seq: 433
     module: ref_ext_core
     prefix: RX_
     auth:
@@ -24617,7 +24567,7 @@ actions:
     method: delete
     path: "/ref/ext/hierarchy/:type/:parent/:child"
     routeFile: ref_ext.js
-    seq: 435
+    seq: 434
     module: ref_ext_core
     prefix: RX_
     auth:
@@ -24667,7 +24617,7 @@ actions:
     method: get
     path: "/ref/ext/translations/:type/:code"
     routeFile: ref_ext.js
-    seq: 432
+    seq: 431
     module: ref_ext_core
     prefix: RX_
     auth:
@@ -24717,7 +24667,7 @@ actions:
     method: post
     path: /ref/ext/translations
     routeFile: ref_ext.js
-    seq: 431
+    seq: 430
     module: ref_ext_core
     prefix: RX_
     auth:
@@ -24767,7 +24717,7 @@ actions:
     method: post
     path: "/ref/ext/values/:type/:code/clone"
     routeFile: ref_ext.js
-    seq: 437
+    seq: 436
     module: ref_ext_core
     prefix: RX_
     auth:
@@ -24817,7 +24767,7 @@ actions:
     method: get
     path: "/ref/ext/values/:type/:code/asof"
     routeFile: ref_ext.js
-    seq: 436
+    seq: 435
     module: ref_ext_core
     prefix: RX_
     auth:
@@ -24867,7 +24817,7 @@ actions:
     method: post
     path: /screening/check
     routeFile: screening.js
-    seq: 471
+    seq: 470
     module: identity_core
     prefix: SCR_
     auth:
@@ -24917,7 +24867,7 @@ actions:
     method: get
     path: /screening/status
     routeFile: screening.js
-    seq: 472
+    seq: 471
     module: identity_core
     prefix: SCR_
     auth:
@@ -25017,7 +24967,7 @@ actions:
     method: get
     path: /sla-trackers/audit
     routeFile: sla_tracker.js
-    seq: 479
+    seq: 478
     module: sla_tracker_core
     prefix: SLT_
     auth:
@@ -25063,11 +25013,11 @@ actions:
         inline: false
         maxBytes: 100
     tested: true
-  - action: SLT_CALC
+  - action: SLT_BREACH
     method: post
-    path: "/sla-trackers/:id/calc"
+    path: "/sla-trackers/:id/breach"
     routeFile: sla_tracker.js
-    seq: 483
+    seq: 482
     module: sla_tracker_core
     prefix: SLT_
     auth:
@@ -25113,11 +25063,61 @@ actions:
         inline: false
         maxBytes: 100
     tested: true
+  - action: SLT_CLOSE
+    method: post
+    path: "/sla-trackers/:id/close"
+    routeFile: sla_tracker.js
+    seq: 484
+    module: sla_tracker_core
+    prefix: SLT_
+    auth:
+      public: false
+      tokenIdentity: actor
+      stepUp: false
+      stepUpPolicy: null
+    fields:
+      - slot: 1
+        name: id
+        pattern: INT
+        required: true
+        inline: false
+        maxBytes: 100
+      - slot: 2
+        name: reason
+        pattern: NAME
+        required: false
+        inline: true
+        maxBytes: 100
+      - slot: 3
+        name: ""
+        pattern: null
+        required: false
+        inline: false
+        maxBytes: 100
+      - slot: 4
+        name: ""
+        pattern: null
+        required: false
+        inline: false
+        maxBytes: 100
+      - slot: 5
+        name: ""
+        pattern: null
+        required: false
+        inline: false
+        maxBytes: 100
+      - slot: 6
+        name: actor
+        pattern: EMAIL
+        required: true
+        inline: false
+        maxBytes: 100
+    tested: true
   - action: SLT_CREATE
     method: post
     path: /sla-trackers
     routeFile: sla_tracker.js
-    seq: 481
+    seq: 480
     module: sla_tracker_core
     prefix: SLT_
     auth:
@@ -25145,10 +25145,10 @@ actions:
         inline: true
         maxBytes: 100
       - slot: 4
-        name: ""
-        pattern: null
+        name: target
+        pattern: INT
         required: false
-        inline: false
+        inline: true
         maxBytes: 100
       - slot: 5
         name: ""
@@ -25163,11 +25163,11 @@ actions:
         inline: false
         maxBytes: 100
     tested: true
-  - action: SLT_DELETE
+  - action: SLT_ESCALATE
     method: post
-    path: "/sla-trackers/:id/delete"
+    path: "/sla-trackers/:id/escalate"
     routeFile: sla_tracker.js
-    seq: 485
+    seq: 483
     module: sla_tracker_core
     prefix: SLT_
     auth:
@@ -25217,7 +25217,7 @@ actions:
     method: get
     path: "/sla-trackers/:id"
     routeFile: sla_tracker.js
-    seq: 482
+    seq: 481
     module: sla_tracker_core
     prefix: SLT_
     auth:
@@ -25267,7 +25267,7 @@ actions:
     method: get
     path: /sla-trackers
     routeFile: sla_tracker.js
-    seq: 480
+    seq: 479
     module: sla_tracker_core
     prefix: SLT_
     auth:
@@ -25317,7 +25317,7 @@ actions:
     method: get
     path: /sla-trackers/summary
     routeFile: sla_tracker.js
-    seq: 478
+    seq: 477
     module: sla_tracker_core
     prefix: SLT_
     auth:
@@ -25367,7 +25367,7 @@ actions:
     method: post
     path: "/sla-trackers/:id/update"
     routeFile: sla_tracker.js
-    seq: 484
+    seq: 485
     module: sla_tracker_core
     prefix: SLT_
     auth:
@@ -25395,16 +25395,16 @@ actions:
         inline: true
         maxBytes: 100
       - slot: 4
-        name: ""
-        pattern: null
+        name: target
+        pattern: INT
         required: false
-        inline: false
+        inline: true
         maxBytes: 100
       - slot: 5
-        name: ""
-        pattern: null
+        name: actual
+        pattern: INT
         required: false
-        inline: false
+        inline: true
         maxBytes: 100
       - slot: 6
         name: actor
@@ -25417,7 +25417,7 @@ actions:
     method: post
     path: /sla-trackers/validate
     routeFile: sla_tracker.js
-    seq: 477
+    seq: 476
     module: sla_tracker_core
     prefix: SLT_
     auth:

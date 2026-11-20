@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-20T05:35:31.630Z",
-  "commit": "b90be2d4",
+  "generatedAt": "2026-11-20T06:40:41.408Z",
+  "commit": "23461f67",
   "generator": "scripts/build_action_registry.mjs (do not hand-edit)",
   "count": 541,
   "actions": [
@@ -5952,12 +5952,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "fixed_asset",
-      "status": "FROZEN",
+      "status": "PILOT",
       "duplicatePaths": true
     },
     {
@@ -5987,12 +5987,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "fixed_asset",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "FAS_CAPITALIZE",
@@ -6021,12 +6021,12 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "fixed_asset",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "FAS_CREATE",
@@ -6055,46 +6055,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "fixed_asset",
-      "status": "FROZEN"
-    },
-    {
-      "action": "FAS_DELETE",
-      "module": "fixed_asset_core",
-      "prefix": "FAS_",
-      "method": "post",
-      "path": "/finance/fixed-assets/:id/dispose",
-      "fields": [
-        "id",
-        "reason",
-        "",
-        "",
-        "",
-        "actor"
-      ],
-      "required": [
-        true,
-        false,
-        false,
-        false,
-        false,
-        true
-      ],
-      "public": false,
-      "stepUp": false,
-      "tokenIdentity": "actor",
-      "owner": "money",
-      "authPolicy": "authenticated",
-      "linkageLevel": "L0",
-      "coreActions": [],
-      "coreCalls": [],
-      "tested": true,
-      "domain": "fixed_asset",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "FAS_DEPRECIATE",
@@ -6123,12 +6089,12 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "fixed_asset",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "FAS_DISPOSE",
@@ -6157,12 +6123,12 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "fixed_asset",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "FAS_GET",
@@ -6191,12 +6157,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "fixed_asset",
-      "status": "FROZEN",
+      "status": "PILOT",
       "duplicatePaths": true
     },
     {
@@ -6226,12 +6192,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "fixed_asset",
-      "status": "FROZEN",
+      "status": "PILOT",
       "duplicatePaths": true
     },
     {
@@ -6261,12 +6227,12 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "fixed_asset",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "FAS_SUMMARY",
@@ -6295,12 +6261,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "fixed_asset",
-      "status": "FROZEN",
+      "status": "PILOT",
       "duplicatePaths": true
     },
     {
@@ -6330,12 +6296,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "fixed_asset",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "FAS_VALIDATE",
@@ -6364,12 +6330,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "fixed_asset",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "FEE_CALCULATE",
@@ -16282,19 +16248,19 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "sla_tracker",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
-      "action": "SLT_CALC",
+      "action": "SLT_BREACH",
       "module": "sla_tracker_core",
       "prefix": "SLT_",
       "method": "post",
-      "path": "/sla-trackers/:id/calc",
+      "path": "/sla-trackers/:id/breach",
       "fields": [
         "id",
         "",
@@ -16316,53 +16282,19 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "sla_tracker",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
-      "action": "SLT_CREATE",
+      "action": "SLT_CLOSE",
       "module": "sla_tracker_core",
       "prefix": "SLT_",
       "method": "post",
-      "path": "/sla-trackers",
-      "fields": [
-        "slaRef",
-        "slaName",
-        "slaType",
-        "",
-        "",
-        "actor"
-      ],
-      "required": [
-        true,
-        true,
-        true,
-        false,
-        false,
-        true
-      ],
-      "public": false,
-      "stepUp": false,
-      "tokenIdentity": "actor",
-      "owner": "governance",
-      "authPolicy": "authenticated",
-      "linkageLevel": "L0",
-      "coreActions": [],
-      "coreCalls": [],
-      "tested": true,
-      "domain": "sla_tracker",
-      "status": "FROZEN"
-    },
-    {
-      "action": "SLT_DELETE",
-      "module": "sla_tracker_core",
-      "prefix": "SLT_",
-      "method": "post",
-      "path": "/sla-trackers/:id/delete",
+      "path": "/sla-trackers/:id/close",
       "fields": [
         "id",
         "reason",
@@ -16384,12 +16316,80 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "sla_tracker",
-      "status": "FROZEN"
+      "status": "PILOT"
+    },
+    {
+      "action": "SLT_CREATE",
+      "module": "sla_tracker_core",
+      "prefix": "SLT_",
+      "method": "post",
+      "path": "/sla-trackers",
+      "fields": [
+        "slaRef",
+        "slaName",
+        "slaType",
+        "target",
+        "",
+        "actor"
+      ],
+      "required": [
+        true,
+        true,
+        true,
+        false,
+        false,
+        true
+      ],
+      "public": false,
+      "stepUp": false,
+      "tokenIdentity": "actor",
+      "owner": "governance",
+      "authPolicy": "authenticated",
+      "linkageLevel": "L2",
+      "coreActions": [],
+      "coreCalls": [],
+      "tested": true,
+      "domain": "sla_tracker",
+      "status": "PILOT"
+    },
+    {
+      "action": "SLT_ESCALATE",
+      "module": "sla_tracker_core",
+      "prefix": "SLT_",
+      "method": "post",
+      "path": "/sla-trackers/:id/escalate",
+      "fields": [
+        "id",
+        "reason",
+        "",
+        "",
+        "",
+        "actor"
+      ],
+      "required": [
+        true,
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "public": false,
+      "stepUp": false,
+      "tokenIdentity": "actor",
+      "owner": "governance",
+      "authPolicy": "authenticated",
+      "linkageLevel": "L2",
+      "coreActions": [],
+      "coreCalls": [],
+      "tested": true,
+      "domain": "sla_tracker",
+      "status": "PILOT"
     },
     {
       "action": "SLT_GET",
@@ -16418,12 +16418,12 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "sla_tracker",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "SLT_LIST",
@@ -16452,12 +16452,12 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "sla_tracker",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "SLT_SUMMARY",
@@ -16486,12 +16486,12 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "sla_tracker",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "SLT_UPDATE",
@@ -16503,8 +16503,8 @@
         "id",
         "slaName",
         "slaType",
-        "",
-        "",
+        "target",
+        "actual",
         "actor"
       ],
       "required": [
@@ -16520,12 +16520,12 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "sla_tracker",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "SLT_VALIDATE",
@@ -16554,12 +16554,12 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "sla_tracker",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "SRC_EXPORT",

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T05:26:35.683Z",
+  "generatedAt": "2026-11-20T07:43:33.398Z",
   "modules": [
     {
       "module": "account_core",
@@ -279,15 +279,15 @@
     },
     {
       "module": "fixed_asset_core",
-      "linkageLevel": "L0",
-      "domainStatus": "FROZEN",
-      "candidateStatus": "DUPLICATE",
-      "cloneSimilarity": 0.67,
-      "coveragePercent": 74.11,
+      "linkageLevel": "L2",
+      "domainStatus": "PILOT",
+      "candidateStatus": null,
+      "cloneSimilarity": null,
+      "coveragePercent": 72.91,
       "coverageStatus": "ok",
       "routeFile": "fixed_asset.js",
       "dbSuite": "tests/db/fixed_asset_db_tests.sh",
-      "recommendedForTraining": false
+      "recommendedForTraining": true
     },
     {
       "module": "fx_rate_core",
@@ -675,15 +675,15 @@
     },
     {
       "module": "sla_tracker_core",
-      "linkageLevel": "L0",
-      "domainStatus": "FROZEN",
-      "candidateStatus": "DUPLICATE",
-      "cloneSimilarity": 0.95,
+      "linkageLevel": "L2",
+      "domainStatus": "PILOT",
+      "candidateStatus": null,
+      "cloneSimilarity": null,
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": "sla_tracker.js",
       "dbSuite": "tests/db/sla_tracker_db_tests.sh",
-      "recommendedForTraining": false
+      "recommendedForTraining": true
     },
     {
       "module": "statement_core",

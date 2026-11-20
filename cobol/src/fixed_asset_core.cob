@@ -116,9 +116,6 @@
                 WHEN LS-CMD-ACTION(1:8) = "FAS_CALC"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-SUBMIT
-                WHEN LS-CMD-ACTION(1:10) = "FAS_DELETE"
-                    PERFORM TRIM-ALL
-                    PERFORM ACTION-CLOSE
                 WHEN LS-CMD-ACTION(1:14) = "FAS_CAPITALIZE"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-CAPITALIZE
@@ -434,47 +431,6 @@
                 PERFORM AUDIT
             END-IF.
             MOVE "SUCCESS|FAS_UPDATE" TO WS-SUCCESS-MSG
-            PERFORM TXN-FINISH
-            EXIT PARAGRAPH.
-
-        ACTION-CLOSE.
-            MOVE "FIXED_ASSET_CORE" TO WS-DENIED-TARGET
-            PERFORM ADMIN-GUARD
-            IF WS-ALLOWED NOT = 1
-                EXIT PARAGRAPH
-            END-IF.
-            IF LS-PARAM1 = SPACES
-                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
-                EXIT PARAGRAPH
-            END-IF.
-            PERFORM LOAD-CLEARING
-            IF WS-ERR NOT = SPACES
-                MOVE WS-ERR TO LS-OUTPUT-BUFFER
-                EXIT PARAGRAPH
-            END-IF.
-            IF WS-TMP-STATUS(1:9) = "ALLOCATED" OR WS-TMP-STATUS(1:6) = "CLOSED"
-                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
-                EXIT PARAGRAPH
-            END-IF.
-            SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
-            MOVE "UPDATE fixed_asset SET status = 'DISPOSED', disposed_at = NOW(), disposal_reason = NULLIF(?, ''), deleted_at = NOW(), version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
-            MOVE WS-P2-TRIMMED TO WS-BIND-1
-            MOVE WS-P1-TRIMMED TO WS-BIND-2
-            MOVE FUNCTION TRIM(WS-TMP-VERSION) TO WS-BIND-3
-            PERFORM SQL-EXEC-3
-            IF WS-RESULT(1:5) = "ERROR"
-                SET STEP-FAIL TO TRUE
-            END-IF.
-            IF STEP-OK
-                MOVE "DELETE" TO WS-AUDIT-ACTION
-                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-FAS
-                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
-                MOVE "ACTIVE" TO WS-AUDIT-OLD
-                MOVE "DISPOSED" TO WS-AUDIT-NEW
-                PERFORM AUDIT
-            END-IF.
-            MOVE "SUCCESS|FAS_DELETE" TO WS-SUCCESS-MSG
             PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 

@@ -263,7 +263,6 @@ files:
     - { method: get, path: "/finance/fixed-assets/:id", action: FAS_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
     - { method: post, path: "/finance/fixed-assets/:id/depreciate", action: FAS_CALC, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
     - { method: post, path: "/finance/fixed-assets/:id/update", action: FAS_UPDATE, tokenIdentity: 'actor', fields: [ID, assetName:NAME?, assetType:NAME?, BLANK, BLANK, ACTOR] }
-    - { method: post, path: "/finance/fixed-assets/:id/dispose", action: FAS_DELETE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
     - { method: post, path: "/fixed-assets", action: FAS_CAPITALIZE, tokenIdentity: 'actor', fields: [assetRef:KEY, assetName:NAME, assetType:NAME, costSpec:RPT_PARAMS, assetSpec:RPT_PARAMS, ACTOR] }
     - { method: get, path: "/fixed-assets/summary", action: FAS_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
     - { method: get, path: "/fixed-assets/audit", action: FAS_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
@@ -575,11 +574,12 @@ files:
     - { method: get, path: "/sla-trackers/summary", action: SLT_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
     - { method: get, path: "/sla-trackers/audit", action: SLT_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
     - { method: get, path: "/sla-trackers", action: SLT_LIST, tokenIdentity: 'actor', fields: [status:LIST_STATUS?, slaType:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
-    - { method: post, path: "/sla-trackers", action: SLT_CREATE, tokenIdentity: 'actor', fields: [slaRef:KEY, slaName:NAME, slaType:NAME, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/sla-trackers", action: SLT_CREATE, tokenIdentity: 'actor', fields: [slaRef:KEY, slaName:NAME, slaType:NAME, target:INT?, BLANK, ACTOR] }
     - { method: get, path: "/sla-trackers/:id", action: SLT_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
-    - { method: post, path: "/sla-trackers/:id/calc", action: SLT_CALC, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
-    - { method: post, path: "/sla-trackers/:id/update", action: SLT_UPDATE, tokenIdentity: 'actor', fields: [ID, slaName:NAME?, slaType:NAME?, BLANK, BLANK, ACTOR] }
-    - { method: post, path: "/sla-trackers/:id/delete", action: SLT_DELETE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/sla-trackers/:id/breach", action: SLT_BREACH, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/sla-trackers/:id/escalate", action: SLT_ESCALATE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/sla-trackers/:id/close", action: SLT_CLOSE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/sla-trackers/:id/update", action: SLT_UPDATE, tokenIdentity: 'actor', fields: [ID, slaName:NAME?, slaType:NAME?, target:INT?, actual:INT?, ACTOR] }
 - file: statement.js
   export: STATEMENT_ROUTES
     - { method: post, path: "/statements/runs", action: STMT_RUN_START, tokenIdentity: 'actor', fields: [from:DATE, to:DATE, currency:CURRENCY, BLANK, BLANK, ACTOR] }

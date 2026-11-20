@@ -7398,39 +7398,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  "/finance/fixed-assets/:id/dispose":
-    post:
-      operationId: FAS_DELETE
-      summary: FAS_DELETE — Delete/close entity
-      tags:
-        - fixed_asset
-      parameters:
-        - $ref: "#/components/parameters/id"
-        - $ref: "#/components/parameters/actor"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                reason:
-                  type: string
-      responses:
-        "200":
-          description: Success
-        "400":
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
   /fixed-assets:
     post:
       operationId: FAS_CAPITALIZE
@@ -15615,6 +15582,8 @@ paths:
                   type: string
                 slaType:
                   type: string
+                target:
+                  type: string
               required:
                 - slaRef
                 - slaName
@@ -15658,10 +15627,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  "/sla-trackers/:id/calc":
+  "/sla-trackers/:id/breach":
     post:
-      operationId: SLT_CALC
-      summary: SLT_CALC — Execute action
+      operationId: SLT_BREACH
+      summary: SLT_BREACH — List entities
       tags:
         - sla_tracker
       parameters:
@@ -15674,6 +15643,72 @@ paths:
             schema:
               type: object
               properties: {}
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  "/sla-trackers/:id/escalate":
+    post:
+      operationId: SLT_ESCALATE
+      summary: SLT_ESCALATE — List entities
+      tags:
+        - sla_tracker
+      parameters:
+        - $ref: "#/components/parameters/id"
+        - $ref: "#/components/parameters/actor"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  "/sla-trackers/:id/close":
+    post:
+      operationId: SLT_CLOSE
+      summary: SLT_CLOSE — Delete/close entity
+      tags:
+        - sla_tracker
+      parameters:
+        - $ref: "#/components/parameters/id"
+        - $ref: "#/components/parameters/actor"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
       responses:
         "200":
           description: Success
@@ -15709,38 +15744,9 @@ paths:
                   type: string
                 slaType:
                   type: string
-      responses:
-        "200":
-          description: Success
-        "400":
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-  "/sla-trackers/:id/delete":
-    post:
-      operationId: SLT_DELETE
-      summary: SLT_DELETE — Delete/close entity
-      tags:
-        - sla_tracker
-      parameters:
-        - $ref: "#/components/parameters/id"
-        - $ref: "#/components/parameters/actor"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                reason:
+                target:
+                  type: string
+                actual:
                   type: string
       responses:
         "200":
