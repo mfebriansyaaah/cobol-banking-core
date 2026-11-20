@@ -157,16 +157,22 @@ DB suites run two ways from the same code (`tests/run_all.sh`):
 fleet; local `full` always runs it). This is CI-only plumbing, not a general
 flag.
 
-Planner weights (`scripts/shard_suites.mjs`, LPT scheduling) come from
-`--timings artifacts/latest/run-all.json` (measured durations, median fallback)
-or, without it, from baseline assertion counts. Assignment is deterministic
-for identical inputs; `scripts/test/shard_suites.test.mjs` pins that.
+Planner weights (`scripts/shard_suites.mjs`, LPT scheduling) come from the
+committed `tests/shard_timings.json` (measured durations, refreshed from a
+green merged report) or, without it, from baseline assertion counts.
+Regenerate it deliberately from a representative PR run:
 
-Right-sizing rationale (CI-010): with 84 suites, four shards cost one
-runner each while a shard's suite work is only ~2 min against ~80–100 s of
-setup (container + migration). Two shards keep the wall-clock (the `test`
-job's ~7 min remains the critical path) while saving ~5–7 job-min per run.
-Revisit if the fleet grows beyond 80 suites or a shard exceeds 4 min.
+```sh
+gh run download <run-id> -n test-reports-merged -D /tmp/merged
+node scripts/ci/shard_timings.mjs /tmp/merged/run-all.json
+```
+
+Assignment is deterministic for identical inputs; `scripts/test/shard_suites.test.mjs`
+pins that.
+
+Right-sizing rationale (CI-010): with 82 suites, two shards are balanced from
+measured durations (~2.5 min of suite work each) against the fixed container +
+migration setup. Revisit shard count if the fleet or setup cost changes.
 
 `coverage-pr` restores `cobol/build` from cache (key pins GnuCOBOL 3.2 plus
 every build input) so `./build.sh` inside coverage is a warm relink; the
@@ -176,15 +182,15 @@ never cross compiler versions; its binary travels via artifact).
 Nightly (`nightly.yml`, own concurrency group so pushes never cancel it)
 runs the full gate twice and fails on any per-suite drift between the two
 reports (`scripts/ci/compare_runs.mjs` ignores durations), then runs the
-drills, gateway coverage, the performance benchmark, and the gateway load
-test. A red nightly means order-dependence or a flake,
-not a broken PR.
+drills, schema drift, the performance benchmark, and the gateway load test.
+Full gateway coverage is owned by `coverage.yml`. A red nightly means
+order-dependence or a flake, not a broken PR.
 
-Push to `main` (and manual `workflow_dispatch`) additionally runs the
-`db-ops` job — migration rollback drill, backup/restore drill, and schema
-drift check — exactly once per push and once nightly. PRs skip it; the PR
-`test` job keeps the static gates, table, smoke, integration, error harness,
-gateway, and residue checks.
+DB-surface pushes to `main` (and manual `workflow_dispatch`) additionally run
+the `db-ops` job — migration rollback and backup/restore drills. Ordinary code
+pushes rely on nightly. PRs skip `db-ops`; `lint` owns the static gate fleet,
+`coverage` runs the gateway suite + residue check, and `test` keeps the table,
+smoke, integration, and error harness.
 
 On any failure, `scripts/ci/collect_diagnostics.sh` gathers tool versions,
 git state, DB/table counts, the ledger check, and log tails into one

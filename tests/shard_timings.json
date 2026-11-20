@@ -1,0 +1,334 @@
+{
+  "generatedAt": "2026-11-20T09:23:41.015Z",
+  "source": "run-all.json",
+  "suites": [
+    {
+      "suite": "account_db_tests.sh",
+      "duration_ms": 540
+    },
+    {
+      "suite": "admin_shell_db_tests.sh",
+      "duration_ms": 3486
+    },
+    {
+      "suite": "auth_conservation_db_tests.sh",
+      "duration_ms": 15686
+    },
+    {
+      "suite": "auth_invariants_db_tests.sh",
+      "duration_ms": 16097
+    },
+    {
+      "suite": "auth_race_db_tests.sh",
+      "duration_ms": 27473
+    },
+    {
+      "suite": "auth_session_db_tests.sh",
+      "duration_ms": 1754
+    },
+    {
+      "suite": "auth_shell_db_tests.sh",
+      "duration_ms": 24548
+    },
+    {
+      "suite": "bank_guarantee_db_tests.sh",
+      "duration_ms": 345
+    },
+    {
+      "suite": "bank_guarantee_domain_db_tests.sh",
+      "duration_ms": 825
+    },
+    {
+      "suite": "card_db_tests.sh",
+      "duration_ms": 3440
+    },
+    {
+      "suite": "card_posting_db_tests.sh",
+      "duration_ms": 5962
+    },
+    {
+      "suite": "chargeback_db_tests.sh",
+      "duration_ms": 342
+    },
+    {
+      "suite": "chargeback_domain_db_tests.sh",
+      "duration_ms": 1330
+    },
+    {
+      "suite": "chargeback_schema_db_tests.sh",
+      "duration_ms": 841
+    },
+    {
+      "suite": "collateral_db_tests.sh",
+      "duration_ms": 479
+    },
+    {
+      "suite": "collateral_domain_db_tests.sh",
+      "duration_ms": 652
+    },
+    {
+      "suite": "collection_db_tests.sh",
+      "duration_ms": 1267
+    },
+    {
+      "suite": "commit_failure_db_tests.sh",
+      "duration_ms": 816
+    },
+    {
+      "suite": "compliance_calendar_db_tests.sh",
+      "duration_ms": 542
+    },
+    {
+      "suite": "corporate_db_tests.sh",
+      "duration_ms": 175
+    },
+    {
+      "suite": "cost_center_db_tests.sh",
+      "duration_ms": 534
+    },
+    {
+      "suite": "dashboard_db_tests.sh",
+      "duration_ms": 172
+    },
+    {
+      "suite": "deposit_db_tests.sh",
+      "duration_ms": 5142
+    },
+    {
+      "suite": "deposit_posting_db_tests.sh",
+      "duration_ms": 3088
+    },
+    {
+      "suite": "eod_ops_db_tests.sh",
+      "duration_ms": 469
+    },
+    {
+      "suite": "fee_read_db_tests.sh",
+      "duration_ms": 572
+    },
+    {
+      "suite": "fixed_asset_db_tests.sh",
+      "duration_ms": 388
+    },
+    {
+      "suite": "fixed_asset_domain_db_tests.sh",
+      "duration_ms": 1090
+    },
+    {
+      "suite": "fixed_asset_schema_db_tests.sh",
+      "duration_ms": 687
+    },
+    {
+      "suite": "gl_allocation_db_tests.sh",
+      "duration_ms": 236
+    },
+    {
+      "suite": "grants_db_tests.sh",
+      "duration_ms": 200
+    },
+    {
+      "suite": "identity_db_tests.sh",
+      "duration_ms": 1542
+    },
+    {
+      "suite": "import_ops_db_tests.sh",
+      "duration_ms": 295
+    },
+    {
+      "suite": "kyc_enforcement_db_tests.sh",
+      "duration_ms": 3258
+    },
+    {
+      "suite": "lending_posting_db_tests.sh",
+      "duration_ms": 12019
+    },
+    {
+      "suite": "letter_of_credit_db_tests.sh",
+      "duration_ms": 497
+    },
+    {
+      "suite": "letter_of_credit_domain_db_tests.sh",
+      "duration_ms": 831
+    },
+    {
+      "suite": "loan_db_tests.sh",
+      "duration_ms": 3076
+    },
+    {
+      "suite": "loan_posting_db_tests.sh",
+      "duration_ms": 3111
+    },
+    {
+      "suite": "loan_schedule_db_tests.sh",
+      "duration_ms": 1112
+    },
+    {
+      "suite": "loyalty_domain_db_tests.sh",
+      "duration_ms": 802
+    },
+    {
+      "suite": "loyalty_schema_db_tests.sh",
+      "duration_ms": 878
+    },
+    {
+      "suite": "merchant_db_tests.sh",
+      "duration_ms": 387
+    },
+    {
+      "suite": "merchant_domain_db_tests.sh",
+      "duration_ms": 709
+    },
+    {
+      "suite": "merchant_schema_db_tests.sh",
+      "duration_ms": 603
+    },
+    {
+      "suite": "merchant_settlement_db_tests.sh",
+      "duration_ms": 618
+    },
+    {
+      "suite": "merchant_settlement_domain_db_tests.sh",
+      "duration_ms": 1383
+    },
+    {
+      "suite": "migration_archive_db_tests.sh",
+      "duration_ms": 22155
+    },
+    {
+      "suite": "migration_baseline_db_tests.sh",
+      "duration_ms": 66582
+    },
+    {
+      "suite": "migration_checksum_db_tests.sh",
+      "duration_ms": 21607
+    },
+    {
+      "suite": "notification_template_db_tests.sh",
+      "duration_ms": 462
+    },
+    {
+      "suite": "ops_shell_db_tests.sh",
+      "duration_ms": 2023
+    },
+    {
+      "suite": "payment_clearing_db_tests.sh",
+      "duration_ms": 656
+    },
+    {
+      "suite": "payment_conservation_db_tests.sh",
+      "duration_ms": 4430
+    },
+    {
+      "suite": "payment_gl_invariants_db_tests.sh",
+      "duration_ms": 697
+    },
+    {
+      "suite": "payment_hold_db_tests.sh",
+      "duration_ms": 1056
+    },
+    {
+      "suite": "payment_limits_db_tests.sh",
+      "duration_ms": 2920
+    },
+    {
+      "suite": "payment_pic_loyalty_db_tests.sh",
+      "duration_ms": 588
+    },
+    {
+      "suite": "payment_posting_db_tests.sh",
+      "duration_ms": 2951
+    },
+    {
+      "suite": "payment_race_db_tests.sh",
+      "duration_ms": 3895
+    },
+    {
+      "suite": "payroll_domain_db_tests.sh",
+      "duration_ms": 945
+    },
+    {
+      "suite": "payroll_processing_db_tests.sh",
+      "duration_ms": 434
+    },
+    {
+      "suite": "payroll_schema_db_tests.sh",
+      "duration_ms": 695
+    },
+    {
+      "suite": "phone_otp_db_tests.sh",
+      "duration_ms": 1049
+    },
+    {
+      "suite": "recon_ops_db_tests.sh",
+      "duration_ms": 836
+    },
+    {
+      "suite": "ref_pair_db_tests.sh",
+      "duration_ms": 759
+    },
+    {
+      "suite": "report_schedule_db_tests.sh",
+      "duration_ms": 522
+    },
+    {
+      "suite": "report_statement_db_tests.sh",
+      "duration_ms": 483
+    },
+    {
+      "suite": "risk_db_tests.sh",
+      "duration_ms": 909
+    },
+    {
+      "suite": "screening_db_tests.sh",
+      "duration_ms": 2663
+    },
+    {
+      "suite": "sla_tracker_db_tests.sh",
+      "duration_ms": 463
+    },
+    {
+      "suite": "tax_domain_db_tests.sh",
+      "duration_ms": 588
+    },
+    {
+      "suite": "tax_management_db_tests.sh",
+      "duration_ms": 485
+    },
+    {
+      "suite": "tax_schema_db_tests.sh",
+      "duration_ms": 456
+    },
+    {
+      "suite": "trade_finance_schema_db_tests.sh",
+      "duration_ms": 844
+    },
+    {
+      "suite": "treasury_liquidity_db_tests.sh",
+      "duration_ms": 658
+    },
+    {
+      "suite": "truncation_db_tests.sh",
+      "duration_ms": 2508
+    },
+    {
+      "suite": "velocity_db_tests.sh",
+      "duration_ms": 283
+    },
+    {
+      "suite": "wallet_concurrency_db_tests.sh",
+      "duration_ms": 3607
+    },
+    {
+      "suite": "wallet_conservation_db_tests.sh",
+      "duration_ms": 3340
+    },
+    {
+      "suite": "wallet_invariants_db_tests.sh",
+      "duration_ms": 2549
+    },
+    {
+      "suite": "wallet_transfer_db_tests.sh",
+      "duration_ms": 2851
+    }
+  ]
+}

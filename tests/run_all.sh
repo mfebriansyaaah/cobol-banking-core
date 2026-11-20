@@ -290,6 +290,18 @@ make_worker_db() {
     export DB_NAME="$w"
 }
 
+# Prefer committed measured durations over assertion-count weights. The file
+# is refreshed from a green merged report; missing/corrupt timings make the
+# planner fall back to baseline weights on its own.
+shard_plan() {
+    local shards="$1" root="$2"
+    if [ -f "$root/tests/shard_timings.json" ]; then
+        node scripts/shard_suites.mjs "$shards" "$root" --timings "$root/tests/shard_timings.json"
+    else
+        node scripts/shard_suites.mjs "$shards" "$root"
+    fi
+}
+
 run_db_sharded() {
     local shards="$1"
     local template="$DB_NAME"
@@ -315,7 +327,7 @@ run_db_sharded() {
     rm -f "$schema_dump"
     # Weighted assignment (LPT): heavy suites spread across shards.
     local assign
-    assign="$(node scripts/shard_suites.mjs "$shards" "$ROOT")" || { echo "FAIL: shard planner failed"; return 1; }
+    assign="$(shard_plan "$shards" "$ROOT")" || { echo "FAIL: shard planner failed"; return 1; }
     [ -n "$assign" ] || { echo "FAIL: shard planner produced no assignment"; return 1; }
     local logdir="/tmp/cobol-shards-$$"
     mkdir -p "$logdir" || return 1
@@ -398,7 +410,7 @@ run_db_shard_one() {
         shard_suites="tests/db/schema_tests.sh"
     fi
     local assign
-    assign="$(node scripts/shard_suites.mjs "$total" "$ROOT")"
+    assign="$(shard_plan "$total" "$ROOT")" || { echo "FAIL: shard planner failed"; return 1; }
     while IFS= read -r line; do
         case "$line" in
             "$index "*) shard_suites="$shard_suites ${line#* }" ;;

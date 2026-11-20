@@ -45,6 +45,7 @@ jobs:
       docs_only: ${{ steps.classify.outputs.docs_only }}
       docker_relevant: ${{ steps.classify.outputs.docker_relevant }}
       docker_definition: ${{ steps.classify.outputs.docker_definition }}
+      db_ops_relevant: ${{ steps.classify.outputs.db_ops_relevant }}
       coverage_relevant: ${{ steps.classify.outputs.coverage_relevant }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -324,7 +325,10 @@ jobs:
   db-snapshot:
     name: db-snapshot
     needs: changes
-    if: github.event_name != 'pull_request' || needs.changes.outputs.docs_only != 'true'
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && needs.changes.outputs.db_ops_relevant == 'true') ||
+      (github.event_name == 'pull_request' && needs.changes.outputs.docs_only != 'true')
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     services:
@@ -841,12 +845,17 @@ jobs:
         with:
           name: diagnostics-coverage
 
-  # Post-merge operational drills. They do not need a compiled binary, but the
-  # contract keeps `build` as a dependency; it is cheap now.
+  # Post-merge operational drills. They only run when the push can change the
+  # DB schema/migration/backup surface; ordinary code pushes are covered by
+  # the nightly drills. Dispatch always runs them.
   db-ops:
     name: db-ops
     needs: [build, db-snapshot, changes]
-    if: github.event_name != 'pull_request' && needs.changes.outputs.docs_only != 'true'
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' &&
+       needs.changes.outputs.docs_only != 'true' &&
+       needs.changes.outputs.db_ops_relevant == 'true')
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     services:
