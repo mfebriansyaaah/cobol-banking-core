@@ -184,8 +184,12 @@ jobs:
   # All static analysis and fast tests live in one job. They are independent
   # of the compiled artifact, so running them here lets `build` stay a pure
   # compile/produce job and avoids installing the lint toolchain twice.
+  # `needs: [changes]` feeds the eff_lint scope (docs vs full) to the steps;
+  # with PLAN_ENFORCE=false eff_lint is always full, so the step set is
+  # identical to the legacy job.
   lint:
     name: lint
+    needs: [changes]
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -203,6 +207,8 @@ jobs:
 
       # Python 3.12 for the pip-installed lint tools: the runner default
       # (3.14) cannot import semgrep's opentelemetry/protobuf chain.
+      # check_ci_docs.mjs also parses workflows via python3+yaml (provided
+      # by the yamllint dependency below), so docs mode needs Python too.
       - name: Set up Python
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0  # v7.1.0
         with:
@@ -220,12 +226,24 @@ jobs:
           mkdir -p "$HOME/.local/bin"
           bash scripts/ci/install-tools.sh --dest "$HOME/.local/bin" --cache-dir "$HOME/.cache/lint-tools"
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-          pip install --break-system-packages "setuptools==78.1.1" "yamllint==1.38.0" "semgrep==1.136.0"
+
+      - name: Install docs Python deps
+        if: needs.changes.outputs.eff_lint == 'docs'
+        run: pip install --break-system-packages "setuptools==78.1.1" "yamllint==1.38.0"
+
+      - name: Install full Python deps
+        if: needs.changes.outputs.eff_lint == 'full'
+        run: pip install --break-system-packages "setuptools==78.1.1" "yamllint==1.38.0" "semgrep==1.136.0"
 
       - name: Install JS lint tools
         run: npm ci
 
+      - name: Docs lint
+        if: needs.changes.outputs.eff_lint == 'docs'
+        run: bash scripts/ci/lint_docs.sh
+
       - name: Install C lint tool
+        if: needs.changes.outputs.eff_lint == 'full'
         # No unconditional `apt-get update`: on hosted runners the package
         # lists are already current, and a slow mirror here used to add
         # 3-8 minutes to the whole pipeline. Update only as a fallback, with
@@ -238,61 +256,77 @@ jobs:
           }
 
       - name: Shell lint
+        if: needs.changes.outputs.eff_lint == 'full'
         run: bash scripts/ci/lint.sh
 
       - name: Strict C and cppcheck
+        if: needs.changes.outputs.eff_lint == 'full'
         run: bash scripts/ci/c_strict.sh
 
       - name: ESLint
+        if: needs.changes.outputs.eff_lint == 'full'
         run: npm run lint
 
       - name: Prettier check
+        if: needs.changes.outputs.eff_lint == 'full'
         run: npm run format:check
 
       - name: Markdown lint
+        if: needs.changes.outputs.eff_lint == 'full'
         run: npm run lint:md
 
       - name: Workflow lint
+        if: needs.changes.outputs.eff_lint == 'full'
         run: actionlint
 
       - name: CI contract
+        if: needs.changes.outputs.eff_lint == 'full'
         run: node scripts/check_ci_contract.mjs .
 
       - name: CI docs check
+        if: needs.changes.outputs.eff_lint == 'full'
         run: node scripts/ci/check_ci_docs.mjs .
 
       - name: YAML lint
+        if: needs.changes.outputs.eff_lint == 'full'
         run: bash scripts/ci/yaml_lint.sh
 
       - name: Validate alert rules
+        if: needs.changes.outputs.eff_lint == 'full'
         run: promtool check rules monitoring/prometheus-alerts.yml
 
       # Semgrep stays: it is the only rule-based SAST over JS/scripts.
       # The old custom `sast.sh`/`sast_extra.sh` steps duplicated this,
       # gitleaks, and the static gate scripts, so they are no longer in CI.
       - name: Semgrep scan
+        if: needs.changes.outputs.eff_lint == 'full'
         run: >
           semgrep --config .semgrep/rules.yml --exclude node_modules
           --exclude package-lock.json --error middleware scripts
 
       - name: Secret scan
+        if: needs.changes.outputs.eff_lint == 'full'
         run: gitleaks detect --source . --no-git --redact --config .gitleaks.toml
 
       # The complete static gate fleet lives here: JS syntax + the 38
       # parallel tree gates. `test` sets SKIP_STATIC_GATES=1 so none of them
       # run twice. check_docs (README/stat table) is not part of run_gates.
       - name: Static gate fleet
+        if: needs.changes.outputs.eff_lint == 'full'
         run: tests/run_all.sh gates
 
       - name: Docs stats
+        if: needs.changes.outputs.eff_lint == 'full'
         run: node scripts/check_docs.mjs .
 
       # Gate-detection probes mutate a throwaway copy and require the gates
       # to notice; ~38s, no DB and no real build.
       - name: Gate detection probes
+        if: needs.changes.outputs.eff_lint == 'full'
         run: tests/probes/run_probes.sh
 
       - name: PR-size report (non-gating)
+        if: needs.changes.outputs.eff_lint == 'full'
         run: |
           set -euo pipefail
           BASE="${{ github.event.pull_request.base.sha }}"
@@ -300,6 +334,7 @@ jobs:
           node scripts/pr_size.mjs --base "$BASE" --head HEAD | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Gate unit tests
+        if: needs.changes.outputs.eff_lint == 'full'
         # Capture the log and re-exit with the test status: piping through
         # `tail` would otherwise mask a red gate with tail's exit code.
         run: >
@@ -310,16 +345,19 @@ jobs:
           tail -5 test-results/gate/unit.log; exit $rc
 
       - name: Offline safety harness (no DB, no build)
+        if: needs.changes.outputs.eff_lint == 'full'
         run: bash tests/scripts/run.sh
 
       - name: Coverage mapper unit tests
+        if: needs.changes.outputs.eff_lint == 'full'
         run: python3 scripts/coverage/test_map_cobol.py
 
       - name: Mutation anchor guard
+        if: needs.changes.outputs.eff_lint == 'full'
         run: bash tests/probes/money_path_mutants.sh --check-anchors
 
       - name: Upload gate test report
-        if: always()
+        if: always() && needs.changes.outputs.eff_lint == 'full'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: gate-tests-junit
@@ -329,9 +367,11 @@ jobs:
           if-no-files-found: warn
 
       - name: Dependency audit (root)
+        if: needs.changes.outputs.eff_lint == 'full'
         run: npm audit --omit=dev
 
       - name: Dependency audit (gateway)
+        if: needs.changes.outputs.eff_lint == 'full'
         run: npm --prefix middleware audit --omit=dev
 
       - name: Upload failure diagnostics
@@ -346,7 +386,7 @@ jobs:
   build:
     name: build
     needs: changes
-    if: needs.changes.outputs.docs_only != 'true'
+    if: needs.changes.outputs.eff_build == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -418,11 +458,7 @@ jobs:
   docker-build:
     name: docker-build
     needs: changes
-    if: >
-      needs.changes.outputs.docs_only != 'true' &&
-      (github.event_name != 'pull_request' ||
-       (needs.changes.outputs.docker_relevant == 'true' &&
-        needs.changes.outputs.docker_definition == 'true'))
+    if: needs.changes.outputs.eff_docker == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -445,10 +481,7 @@ jobs:
   db-snapshot:
     name: db-snapshot
     needs: changes
-    if: >
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'push' && needs.changes.outputs.db_ops_relevant == 'true') ||
-      (github.event_name == 'pull_request' && needs.changes.outputs.docs_only != 'true')
+    if: needs.changes.outputs.eff_db_snapshot == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     services:
@@ -539,7 +572,7 @@ jobs:
     name: schema-drift
     needs: [db-snapshot, changes]
     if: >
-      (github.event_name == 'pull_request' && needs.changes.outputs.docs_only != 'true') ||
+      (github.event_name == 'pull_request' && needs.changes.outputs.eff_schema_drift == 'true') ||
       github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -572,7 +605,7 @@ jobs:
   test:
     name: test
     needs: [build, db-snapshot, changes]
-    if: github.event_name == 'pull_request' && needs.changes.outputs.docs_only != 'true'
+    if: github.event_name == 'pull_request' && needs.changes.outputs.eff_test != 'none'
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     services:
@@ -682,8 +715,7 @@ jobs:
     needs: [build, db-snapshot, changes]
     if: >
       github.event_name == 'pull_request' &&
-      needs.changes.outputs.docs_only != 'true' &&
-      needs.changes.outputs.select_mode == 'full'
+      needs.changes.outputs.eff_db == 'full'
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     strategy:
@@ -779,9 +811,8 @@ jobs:
     needs: [build, db-snapshot, changes]
     if: >
       github.event_name == 'pull_request' &&
-      needs.changes.outputs.docs_only != 'true' &&
-      needs.changes.outputs.select_mode == 'selected' &&
-      needs.changes.outputs.select_db_suites != ''
+      needs.changes.outputs.eff_db == 'selected' &&
+      needs.changes.outputs.eff_db_suites != ''
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     services:
@@ -874,7 +905,7 @@ jobs:
   db-aggregate:
     name: db aggregate
     needs: [test, db-shards, db-selected, schema-drift, coverage, changes]
-    if: always() && github.event_name == 'pull_request' && needs.changes.outputs.docs_only != 'true'
+    if: always() && github.event_name == 'pull_request' && needs.changes.outputs.eff_aggregate == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
@@ -883,8 +914,8 @@ jobs:
       pull-requests: read
     env:
       QUARANTINE: '1'
-      SELECT_MODE: ${{ needs.changes.outputs.select_mode }}
-      SELECTED_DB_SUITES: ${{ needs.changes.outputs.select_db_suites }}
+      SELECT_MODE: ${{ needs.changes.outputs.eff_aggregate_mode }}
+      SELECTED_DB_SUITES: ${{ needs.changes.outputs.eff_db_suites }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
@@ -986,7 +1017,7 @@ jobs:
     name: coverage
     if: >
       github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'pull_request' && needs.changes.outputs.docs_only != 'true')
+      (github.event_name == 'pull_request' && needs.changes.outputs.eff_gateway_coverage == 'true')
     needs: [build, db-snapshot, changes]
     runs-on: ubuntu-24.04
     timeout-minutes: 20
@@ -1151,8 +1182,7 @@ jobs:
     name: coverage-pr
     if: >
       github.event_name == 'pull_request' &&
-      needs.changes.outputs.docs_only != 'true' &&
-      needs.changes.outputs.coverage_relevant == 'true'
+      needs.changes.outputs.eff_cobol_coverage == 'true'
     needs: [db-snapshot, changes]
     runs-on: ubuntu-24.04
     timeout-minutes: 35
