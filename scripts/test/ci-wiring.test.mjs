@@ -32,7 +32,7 @@ const WIRED = [
   ['scripts/ci/coverage.sh', ['coverage.sh']],
   ['scripts/check_test_counts.mjs', ['check_test_counts']],
   ['scripts/check_docs.mjs', ['check_docs']],
-  ['scripts/check_pr_size_policy.mjs', ['check_pr_size_policy']],
+  ['scripts/check_pr_size_policy.mjs', ['check_pr_size_policy', 'tests/run_all.sh gates']],
   ['scripts/pr_size.mjs', ['pr_size.mjs']],
   ['scripts/check_schema_drift.sh', ['check_schema_drift']],
   ['scripts/check_warnings.sh', ['check_warnings']],
@@ -227,18 +227,24 @@ test('performance benchmark runs in nightly, not in the PR gate', () => {
   assert.ok(nightlyJob, 'nightly.yml must define the full-twice job');
   const nightlyRuns = nightlyJob.runs.join('\n');
   assert.match(nightlyRuns, /tests\/perf\/bench\.sh/, 'nightly must run the performance benchmark');
+  assert.doesNotMatch(nightlyRuns, /coverage\.sh/, 'nightly must not duplicate scheduled coverage');
   const ciTestRuns = all['ci.yml']['test'].runs.join('\n');
   assert.doesNotMatch(ciTestRuns, /bench\.sh/, 'PR test job must not run the benchmark');
   const idx = (needle) => nightlyJob.runs.findIndex((s) => s.includes(needle));
-  assert.ok(idx('coverage.sh') >= 0 && idx('bench.sh') >= 0 && idx('load_gateway.sh') >= 0);
-  assert.ok(idx('coverage.sh') < idx('bench.sh'), 'benchmark must run after gateway coverage');
+  assert.ok(idx('bench.sh') >= 0 && idx('load_gateway.sh') >= 0);
   assert.ok(idx('bench.sh') < idx('load_gateway.sh'), 'benchmark must run before the load test');
+});
+
+test('static gates run once in lint; PR test skips the gate fleet', () => {
+  const ci = collectWorkflowJobs()['ci.yml'];
+  assert.match(ci['lint'].runs.join('\n'), /tests\/run_all\.sh gates/, 'lint must run the full gate fleet');
+  assert.equal(ci['test'].env?.SKIP_STATIC_GATES, '1', 'PR test must skip the lint-owned gate fleet');
 });
 
 test('docs-only PRs skip heavy jobs including the test gate (CI-011 option A)', () => {
   const ci = collectWorkflowJobs()['ci.yml'];
   assert.ok(ci['changes'], 'ci.yml must define a changes job');
-  for (const id of ['db-shards', 'coverage-pr', 'db-aggregate', 'db-ops', 'test', 'db-snapshot']) {
+  for (const id of ['db-shards', 'coverage-pr', 'coverage', 'db-aggregate', 'db-ops', 'test', 'db-snapshot']) {
     const job = ci[id];
     assert.ok(job, `ci.yml must define ${id}`);
     assert.match(
@@ -280,9 +286,11 @@ test('docker-build runs on push and only for docker-relevant PRs', () => {
   const ci = collectWorkflowJobs()['ci.yml'];
   const cond = String(ci['docker-build'].if || '');
   assert.match(cond, /docker_relevant/, 'docker-build must gate on docker_relevant');
+  assert.match(cond, /docker_definition/, 'PR image builds must require a packaging-definition change');
   assert.ok(cond.includes("github.event_name != 'pull_request'"), 'docker-build must always run on push');
   const ciYaml = readFileSync(path.join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8');
   assert.match(ciYaml, /docker_relevant: \$\{\{ steps\.classify\.outputs\.docker_relevant \}\}/);
+  assert.match(ciYaml, /docker_definition: \$\{\{ steps\.classify\.outputs\.docker_definition \}\}/);
 });
 
 test('push to main skips the PR-only DB gate (cost workstream)', () => {
@@ -295,7 +303,7 @@ test('push to main skips the PR-only DB gate (cost workstream)', () => {
     );
     assert.match(cond, /docs_only/, `${id} must keep the docs-only skip`);
   }
-  assert.match(String(ci['coverage'].if || ''), /workflow_dispatch/, 'coverage must run on manual dispatch only');
+  assert.match(String(ci['coverage'].if || ''), /workflow_dispatch/, 'coverage must remain manually dispatchable');
 });
 
 test('mutation anchors are validated before the weekly run', () => {
@@ -341,18 +349,21 @@ print(json.dumps(out))
   }
 });
 
-test('gateway coverage job is skipped on PRs; coverage-pr owns PR coverage (CI-009)', () => {
+test('coverage is a real PR gateway gate; test skips its gateway phase', () => {
   const ci = collectWorkflowJobs()['ci.yml'];
   const coverageIf = String(ci['coverage'].if || '');
-  assert.ok(
-    !coverageIf.includes("github.event_name == 'pull_request'"),
-    'coverage job must be skipped on pull requests',
-  );
+  assert.match(coverageIf, /github\.event_name == 'pull_request'/, 'coverage must run on pull requests');
+  assert.match(coverageIf, /docs_only/, 'coverage must honor the docs-only gate');
+  assert.match(coverageIf, /workflow_dispatch/, 'coverage must remain manually dispatchable');
+  assert.equal(ci['test'].env?.SKIP_GATEWAY, '1', 'test must not duplicate the coverage-owned gateway suite');
+  assert.match(ci['coverage'].runs.join('\n'), /coverage\.sh --gateway-only/, 'coverage must run the gateway gate');
   assert.match(
     String(ci['coverage-pr'].if || ''),
     /github\.event_name == 'pull_request'/,
     'coverage-pr must run on pull requests',
   );
+  const aggNeeds = Array.isArray(ci['db-aggregate'].needs) ? ci['db-aggregate'].needs : [ci['db-aggregate'].needs];
+  assert.ok(aggNeeds.includes('coverage'), 'db aggregate must wait for the gateway coverage gate');
 });
 
 test('db consumers wait for the snapshot producer (CI-008B ordering)', () => {

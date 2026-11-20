@@ -27,6 +27,7 @@ emit_full() {
   {
     echo "docs_only=false"
     echo "docker_relevant=true"
+    echo "docker_definition=true"
     echo "coverage_relevant=true"
   } >>"$GITHUB_OUTPUT"
 }
@@ -66,7 +67,8 @@ RESULT="$(printf '%s\n' "$CHANGED" \
   || RESULT="docs_only=false"
 DOCKER="$(printf '%s\n' "$CHANGED" \
   | node scripts/ci/classify_docker.mjs --stdin 2>/dev/null)" \
-  || DOCKER="docker_relevant=true"
+  || DOCKER="docker_relevant=true
+docker_definition=true"
 COVERAGE_RC=0
 printf '%s\n' "$CHANGED" \
   | node scripts/ci/coverage_trigger.mjs --stdin >/dev/null 2>&1 \

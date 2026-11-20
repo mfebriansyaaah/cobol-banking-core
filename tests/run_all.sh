@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Unified test runner.
-# Usage: tests/run_all.sh [options] [fast|db|db-shard|full|probes|affected|integration]   (default: full)
+# Usage: tests/run_all.sh [options] [fast|db|db-shard|full|probes|affected|integration|gates]   (default: full)
 #   --json            print the report path at the end (artifacts/run-all.json)
 #   --no-report       skip machine-readable reporting (logs only)
 #   --mode <mode>     same as the positional mode argument
@@ -27,7 +27,7 @@ REPEAT_COUNT="${REPEAT_COUNT:-1}"
 KEEP_LOGS=0
 usage() {
     sed -n '2,15p' "$0"
-    echo "Modes: fast db db-shard full probes affected integration"
+    echo "Modes: fast db db-shard full probes affected integration gates"
 }
 need_arg() {
     # $1 = flag as typed, $2 = candidate value (may be empty).
@@ -532,7 +532,11 @@ run_fast() {
     . "$ROOT/tests/lib/report.sh"
     # shellcheck disable=SC2119
     report_init
-    run_gates
+    if [ "${SKIP_STATIC_GATES:-0}" = "1" ]; then
+        echo "=== STATIC GATES SKIPPED (lint owns them) ==="
+    else
+        run_gates
+    fi
     run_build
     echo "=== COBOL TABLE TESTS ==="
     node scripts/check_case_actions.mjs "$ROOT"
@@ -886,10 +890,17 @@ case "$MODE" in
         fi
         run_integration
         run_error_harness
-        run_gateway
+        if [ "${SKIP_GATEWAY:-0}" = "1" ]; then
+            echo "=== GATEWAY SKIPPED (coverage job owns the gateway suite) ==="
+        else
+            run_gateway
+        fi
         ;;
     integration)
         run_integration
+        ;;
+    gates)
+        run_gates
         ;;
     affected)
         # Base ref via SELECT_BASE env or `run_all.sh affected` auto-detect;
@@ -897,7 +908,7 @@ case "$MODE" in
         run_affected
         ;;
     *)
-        echo "unknown mode: $MODE (fast|db|db-shard|full|probes|affected|integration)" >&2
+        echo "unknown mode: $MODE (fast|db|db-shard|full|probes|affected|integration|gates)" >&2
         exit 2
         ;;
 esac

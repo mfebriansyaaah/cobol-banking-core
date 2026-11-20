@@ -189,11 +189,22 @@ gateway_summary() {
 
 run_gateway_coverage() {
     local report="$COVERAGE_DIR/gateway.txt"
+    local junit="${COVERAGE_JUNIT:-}"
+    local -a reporter_args=(--test-reporter=spec --test-reporter-destination=stdout)
+    if [ -n "$junit" ]; then
+        case "$junit" in
+            /*) ;;
+            *) junit="$ROOT/$junit" ;;
+        esac
+        mkdir -p "$(dirname "$junit")"
+        reporter_args+=(--test-reporter=junit --test-reporter-destination="$junit")
+    fi
     echo "== gateway coverage ==" >&2
     set +e
     ( cd middleware && node --import ./preload.mjs --test \
         --experimental-test-coverage \
-        --test-coverage-include='src/**' >"$report" 2>&1 )
+        --test-coverage-include='src/**' \
+        "${reporter_args[@]}" >"$report" 2>&1 )
     local rc=$?
     set -e
     if [ "$rc" -ne 0 ]; then
