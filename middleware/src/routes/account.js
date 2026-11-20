@@ -77,10 +77,31 @@ export const ACCOUNT_ROUTES = [
   },
   {
     method: 'post',
-    path: '/accounts/:id/calc',
-    action: 'ACC_CALC',
+    path: '/accounts/:id/activate',
+    action: 'ACC_ACTIVATE',
     tokenIdentity: 'actor',
     fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR],
+  },
+  {
+    method: 'post',
+    path: '/accounts/:id/freeze',
+    action: 'ACC_FREEZE',
+    tokenIdentity: 'actor',
+    fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR],
+  },
+  {
+    method: 'post',
+    path: '/accounts/:id/unfreeze',
+    action: 'ACC_UNFREEZE',
+    tokenIdentity: 'actor',
+    fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR],
+  },
+  {
+    method: 'post',
+    path: '/accounts/:id/close',
+    action: 'ACC_CLOSE',
+    tokenIdentity: 'actor',
+    fields: [ID, { name: 'reason', pattern: PATTERNS.NAME, required: false }, BLANK, BLANK, BLANK, ACTOR],
   },
   {
     method: 'post',
@@ -95,12 +116,5 @@ export const ACCOUNT_ROUTES = [
       BLANK,
       ACTOR,
     ],
-  },
-  {
-    method: 'post',
-    path: '/accounts/:id/delete',
-    action: 'ACC_DELETE',
-    tokenIdentity: 'actor',
-    fields: [ID, { name: 'reason', pattern: PATTERNS.NAME, required: false }, BLANK, BLANK, BLANK, ACTOR],
   },
 ];

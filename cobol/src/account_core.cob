@@ -62,7 +62,6 @@
         01  WS-NUM-ALLOCATED          PIC 9(15)V9(4) VALUE 0.
         01  WS-NUM-VERSION            PIC 9(9) VALUE 0.
         01  WS-NUM-TOTAL            PIC 9(15)V9(4) VALUE 0.
-        01  WS-AMT-EDIT             PIC Z(14)9.9999 VALUE ZERO.
         01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
@@ -104,10 +103,16 @@
                 WHEN LS-CMD-ACTION(1:10) = "ACC_UPDATE"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-UPDATE
-                WHEN LS-CMD-ACTION(1:8) = "ACC_CALC"
+                WHEN LS-CMD-ACTION(1:12) = "ACC_ACTIVATE"
                     PERFORM TRIM-ALL
-                    PERFORM ACTION-SUBMIT
-                WHEN LS-CMD-ACTION(1:10) = "ACC_DELETE"
+                    PERFORM ACTION-ACTIVATE
+                WHEN LS-CMD-ACTION(1:10) = "ACC_FREEZE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-FREEZE
+                WHEN LS-CMD-ACTION(1:12) = "ACC_UNFREEZE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-UNFREEZE
+                WHEN LS-CMD-ACTION(1:9) = "ACC_CLOSE"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-CLOSE
                 WHEN LS-CMD-ACTION(1:11) = "ACC_SUMMARY"
@@ -196,6 +201,10 @@
             END-IF.
             IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P3-TRIMMED NOT = "SAVINGS" AND WS-P3-TRIMMED NOT = "CURRENT" AND WS-P3-TRIMMED NOT = "DEPOSIT" AND WS-P3-TRIMMED NOT = "LOAN"
+                MOVE "ERROR|INVALID_TYPE" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             MOVE "SELECT 1 FROM account WHERE account_ref = ? LIMIT 1" TO WS-PREP-SQL
@@ -325,7 +334,7 @@
             STRING "SUCCESS|ACC_GET|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING.
             EXIT PARAGRAPH.
 
-        ACTION-SUBMIT.
+        ACTION-ACTIVATE.
             MOVE "ACCOUNT_CORE" TO WS-DENIED-TARGET
             PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
@@ -335,29 +344,21 @@
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            IF WS-P2-TRIMMED IS NUMERIC AND WS-P2-TRIMMED > 0
-                MOVE FUNCTION NUMVAL(WS-P2-TRIMMED) TO WS-NUM-AMOUNT
-            ELSE
-                MOVE 1 TO WS-NUM-AMOUNT
-            END-IF
-            IF WS-NUM-AMOUNT <= 0
-                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
-                EXIT PARAGRAPH
-            END-IF
             PERFORM LOAD-CLEARING
             IF WS-ERR NOT = SPACES
                 MOVE WS-ERR TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
+            IF WS-TMP-STATUS NOT = "OPEN"
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN" END-CALL
-            MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
-            MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
-            MOVE "UPDATE account SET hold_amount = hold_amount + ?, status = 'ACTIVE', activated_at = COALESCE(activated_at, NOW()), version = version + 1 WHERE id = ? AND version = ? AND status = 'OPEN'" TO WS-PREP-SQL
-            MOVE WS-TMP-AMT TO WS-BIND-1
-            MOVE WS-P1-TRIMMED TO WS-BIND-2
-            MOVE FUNCTION TRIM(WS-TMP-VERSION) TO WS-BIND-3
-            PERFORM SQL-EXEC-3
+            MOVE "UPDATE account SET status = 'ACTIVE', activated_at = COALESCE(activated_at, NOW()), version = version + 1 WHERE id = ? AND version = ? AND status = 'OPEN'" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE FUNCTION TRIM(WS-TMP-VERSION) TO WS-BIND-2
+            PERFORM SQL-EXEC-2
             IF WS-RESULT(1:5) = "ERROR"
                 SET STEP-FAIL TO TRUE
             END-IF.
@@ -365,14 +366,103 @@
                 SET STEP-FAIL TO TRUE
             END-IF
             IF STEP-OK
-                MOVE "CALC" TO WS-AUDIT-ACTION
+                MOVE "ACTIVATE" TO WS-AUDIT-ACTION
                 MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-ACC
-                MOVE "allocated" TO WS-AUDIT-DETAIL
-                MOVE SPACES TO WS-AUDIT-OLD
-                MOVE WS-TMP-AMT TO WS-AUDIT-NEW
+                MOVE "OPEN" TO WS-AUDIT-OLD
+                MOVE "ACTIVE" TO WS-AUDIT-NEW
+                MOVE SPACES TO WS-AUDIT-DETAIL
                 PERFORM AUDIT
             END-IF.
-            MOVE "SUCCESS|ACC_CALC|1" TO WS-SUCCESS-MSG
+            MOVE SPACES TO WS-SUCCESS-MSG
+            STRING "SUCCESS|ACC_ACTIVATE|" DELIMITED BY SIZE FUNCTION TRIM(WS-P1-TRIMMED) DELIMITED BY SIZE INTO WS-SUCCESS-MSG ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
+            PERFORM TXN-FINISH
+            EXIT PARAGRAPH.
+
+        ACTION-FREEZE.
+            MOVE "ACCOUNT_CORE" TO WS-DENIED-TARGET
+            PERFORM ADMIN-GUARD
+            IF WS-ALLOWED NOT = 1
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-CLEARING
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TMP-STATUS NOT = "ACTIVE"
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE account SET status = 'FROZEN', version = version + 1 WHERE id = ? AND version = ? AND status = 'ACTIVE'" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE FUNCTION TRIM(WS-TMP-VERSION) TO WS-BIND-2
+            PERFORM SQL-EXEC-2
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF WS-RESULT = "SUCCESS|AFFECTED_0" OR WS-RESULT = "ERROR|NO_DATA"
+                SET STEP-FAIL TO TRUE
+            END-IF
+            IF STEP-OK
+                MOVE "FREEZE" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-ACC
+                MOVE "ACTIVE" TO WS-AUDIT-OLD
+                MOVE "FROZEN" TO WS-AUDIT-NEW
+                MOVE SPACES TO WS-AUDIT-DETAIL
+                PERFORM AUDIT
+            END-IF.
+            MOVE SPACES TO WS-SUCCESS-MSG
+            STRING "SUCCESS|ACC_FREEZE|" DELIMITED BY SIZE FUNCTION TRIM(WS-P1-TRIMMED) DELIMITED BY SIZE INTO WS-SUCCESS-MSG ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
+            PERFORM TXN-FINISH
+            EXIT PARAGRAPH.
+
+        ACTION-UNFREEZE.
+            MOVE "ACCOUNT_CORE" TO WS-DENIED-TARGET
+            PERFORM ADMIN-GUARD
+            IF WS-ALLOWED NOT = 1
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-CLEARING
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TMP-STATUS NOT = "FROZEN"
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE account SET status = 'ACTIVE', version = version + 1 WHERE id = ? AND version = ? AND status = 'FROZEN'" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE FUNCTION TRIM(WS-TMP-VERSION) TO WS-BIND-2
+            PERFORM SQL-EXEC-2
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF WS-RESULT = "SUCCESS|AFFECTED_0" OR WS-RESULT = "ERROR|NO_DATA"
+                SET STEP-FAIL TO TRUE
+            END-IF
+            IF STEP-OK
+                MOVE "UNFREEZE" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-ACC
+                MOVE "FROZEN" TO WS-AUDIT-OLD
+                MOVE "ACTIVE" TO WS-AUDIT-NEW
+                MOVE SPACES TO WS-AUDIT-DETAIL
+                PERFORM AUDIT
+            END-IF.
+            MOVE SPACES TO WS-SUCCESS-MSG
+            STRING "SUCCESS|ACC_UNFREEZE|" DELIMITED BY SIZE FUNCTION TRIM(WS-P1-TRIMMED) DELIMITED BY SIZE INTO WS-SUCCESS-MSG ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
             PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
@@ -384,6 +474,10 @@
             END-IF.
             IF LS-PARAM1 = SPACES
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-P3-TRIMMED NOT = SPACES AND WS-P3-TRIMMED NOT = "SAVINGS" AND WS-P3-TRIMMED NOT = "CURRENT" AND WS-P3-TRIMMED NOT = "DEPOSIT" AND WS-P3-TRIMMED NOT = "LOAN"
+                MOVE "ERROR|INVALID_TYPE" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             PERFORM LOAD-CLEARING
@@ -420,7 +514,7 @@
             IF WS-ALLOWED NOT = 1
                 EXIT PARAGRAPH
             END-IF.
-            IF LS-PARAM1 = SPACES
+            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
@@ -429,7 +523,13 @@
                 MOVE WS-ERR TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            IF WS-TMP-STATUS(1:9) = "ALLOCATED" OR WS-TMP-STATUS(1:6) = "CLOSED"
+            IF WS-TMP-STATUS = "CLOSED"
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE FUNCTION NUMVAL(WS-TMP-STR) TO WS-NUM-ACTIVE
+            MOVE FUNCTION NUMVAL(WS-TMP-ALLOCATED) TO WS-NUM-ALLOCATED
+            IF WS-NUM-ACTIVE NOT = 0 OR WS-NUM-ALLOCATED NOT = 0
                 MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
@@ -444,14 +544,15 @@
                 SET STEP-FAIL TO TRUE
             END-IF.
             IF STEP-OK
-                MOVE "DELETE" TO WS-AUDIT-ACTION
+                MOVE "CLOSE" TO WS-AUDIT-ACTION
                 MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-ACC
                 MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
-                MOVE "ACTIVE" TO WS-AUDIT-OLD
+                MOVE WS-TMP-STATUS TO WS-AUDIT-OLD
                 MOVE "CLOSED" TO WS-AUDIT-NEW
                 PERFORM AUDIT
             END-IF.
-            MOVE "SUCCESS|ACC_DELETE" TO WS-SUCCESS-MSG
+            MOVE SPACES TO WS-SUCCESS-MSG
+            STRING "SUCCESS|ACC_CLOSE|" DELIMITED BY SIZE FUNCTION TRIM(WS-P1-TRIMMED) DELIMITED BY SIZE INTO WS-SUCCESS-MSG ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
             PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 

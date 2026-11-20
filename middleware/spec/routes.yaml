@@ -10,9 +10,11 @@ files:
     - { method: get, path: "/accounts", action: ACC_LIST, tokenIdentity: 'actor', fields: [status:LIST_STATUS?, type:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
     - { method: post, path: "/accounts", action: ACC_CREATE, tokenIdentity: 'actor', fields: [accountRef:KEY, holderName:NAME, accountType:NAME, BLANK, BLANK, ACTOR] }
     - { method: get, path: "/accounts/:id", action: ACC_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
-    - { method: post, path: "/accounts/:id/calc", action: ACC_CALC, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/accounts/:id/activate", action: ACC_ACTIVATE, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/accounts/:id/freeze", action: ACC_FREEZE, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/accounts/:id/unfreeze", action: ACC_UNFREEZE, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/accounts/:id/close", action: ACC_CLOSE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
     - { method: post, path: "/accounts/:id/update", action: ACC_UPDATE, tokenIdentity: 'actor', fields: [ID, holderName:NAME?, accountType:NAME?, BLANK, BLANK, ACTOR] }
-    - { method: post, path: "/accounts/:id/delete", action: ACC_DELETE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
 - file: admin.js
   export: ADMIN_ROUTES
     - { method: post, path: "/admin/dormancy/mark", action: MARK_DORMANT, tokenIdentity: 'actor', stepUp: true, fields: [actor:EMAIL, BLANK, BLANK, BLANK, BLANK, BLANK] }
