@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T10:49:23.393109Z",
+  "generatedAt": "2026-11-20T13:02:40.281Z",
   "entries": [
     {
       "domain": "account",
@@ -468,7 +468,7 @@
       "module": "identity_core",
       "routeFile": "identity.js",
       "table": "identity_verifications",
-      "linkageLevel": "L2",
+      "linkageLevel": "L3",
       "linkedCoreDomains": [],
       "replacement": null,
       "consumer": null,
@@ -684,7 +684,7 @@
       "module": "merchant_core",
       "routeFile": "merchant.js",
       "table": "merchant",
-      "linkageLevel": "L2",
+      "linkageLevel": "L3",
       "linkedCoreDomains": [
         "wallet/ledger"
       ],
@@ -802,7 +802,7 @@
       "module": "payroll_processing_core",
       "routeFile": "payroll_processing.js",
       "table": "payroll_processing",
-      "linkageLevel": "L2",
+      "linkageLevel": "L3",
       "linkedCoreDomains": [
         "wallet/ledger"
       ],

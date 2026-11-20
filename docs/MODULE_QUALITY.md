@@ -36,7 +36,7 @@
 | `gl_allocation_core` | L2 | PILOT | — | — | 61.86 | below-floor | yes |
 | `gl_core` | L3 | ACTIVE | — | — | 70.23 | ok | yes |
 | `hashlen_core` | UTILITY | ACTIVE | — | — | — | unmeasured | no |
-| `identity_core` | L2 | PILOT | — | — | — | unmeasured | yes |
+| `identity_core` | L3 | PILOT | — | — | — | unmeasured | yes |
 | `import_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `import_post_core` | L3 | ACTIVE | — | — | 54.36 | below-floor | yes |
 | `import_recon_core` | L3 | PILOT | — | — | — | unmeasured | yes |
@@ -49,14 +49,14 @@
 | `loan_schedule_posting_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `loan_schedule_report_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `loyalty_core` | L2 | PILOT | — | — | — | unmeasured | yes |
-| `merchant_core` | L2 | PILOT | — | — | — | unmeasured | yes |
+| `merchant_core` | L3 | PILOT | — | — | — | unmeasured | yes |
 | `merchant_settlement_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `notification_template_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `payment_clearing_core` | L3 | ACTIVE | — | — | 40.53 | below-floor | yes |
 | `payment_core` | L3 | ACTIVE | — | — | 68.61 | below-floor | yes |
 | `payment_hold_core` | L3 | ACTIVE | — | — | 58.88 | below-floor | yes |
 | `payment_instruction_core` | L2 | PILOT | — | — | — | unmeasured | yes |
-| `payroll_processing_core` | L2 | PILOT | — | — | — | unmeasured | yes |
+| `payroll_processing_core` | L3 | PILOT | — | — | — | unmeasured | yes |
 | `phone_otp_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `ref_engine` | UTILITY | ACTIVE | — | — | 0 | below-floor | no |
 | `ref_ext_core` | UTILITY | ACTIVE | — | — | — | unmeasured | no |
