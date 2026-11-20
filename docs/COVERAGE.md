@@ -91,8 +91,8 @@ whole-codebase coverage.
 
 ## Recommended-module backlog
 
-`manifest/module_quality.json` marks 58 modules as recommended for training.
-Twenty-seven are in the curated measurement above; the remaining 31 are recorded
+`manifest/module_quality.json` marks 66 modules as recommended for training.
+Twenty-eight are in the curated measurement above; the remaining 38 are recorded
 explicitly in `tests/coverage_recommended_backlog.txt` with the DB suite or
 utility reason that keeps them out of the curated set. The
 `scripts/check_coverage_recommended.mjs` gate fails when a recommended module

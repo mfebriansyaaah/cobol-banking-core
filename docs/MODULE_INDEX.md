@@ -26,13 +26,13 @@ column-level catalogue ([data dictionary](DATA_DICTIONARY.md)).
 | `collateral_core` | `CLT_` | [collateral.js](../middleware/src/routes/collateral.js) | [collateral.cases](../tests/cobol/cases/collateral.cases) | [collateral_db_tests.sh](../tests/db/collateral_db_tests.sh) |
 | `collection_core` | `COL_` | [collection.js](../middleware/src/routes/collection.js) | [collection.cases](../tests/cobol/cases/collection.cases) | [collection_db_tests.sh](../tests/db/collection_db_tests.sh) |
 | `compliance_calendar_core` | `CCL_` | [compliance_calendar.js](../middleware/src/routes/compliance_calendar.js) | — | [compliance_calendar_db_tests.sh](../tests/db/compliance_calendar_db_tests.sh) |
-| `corp_core` | `CORP_` | — | — | — |
+| `corp_core` | `CORP_` | — | — | [corp_db_tests.sh](../tests/db/corp_db_tests.sh) |
 | `cost_center_core` | `CSC_` | [cost_center.js](../middleware/src/routes/cost_center.js) | [cost_center.cases](../tests/cobol/cases/cost_center.cases) | [cost_center_db_tests.sh](../tests/db/cost_center_db_tests.sh) |
 | `dashboard_core` | `DSH_` | [dashboard.js](../middleware/src/routes/dashboard.js) | — | [dashboard_db_tests.sh](../tests/db/dashboard_db_tests.sh) |
 | `deposit_core` | `DEP_` | [deposit.js](../middleware/src/routes/deposit.js) | [deposit.cases](../tests/cobol/cases/deposit.cases) | [deposit_db_tests.sh](../tests/db/deposit_db_tests.sh) |
 | `deposit_posting_core` | — | — | — | [deposit_posting_db_tests.sh](../tests/db/deposit_posting_db_tests.sh) |
 | `eod_core` | `EOD_` | [eod.js](../middleware/src/routes/eod.js) | [eod.cases](../tests/cobol/cases/eod.cases) | — |
-| `eod_jobs_core` | `EODJOB_` | [eod_jobs.js](../middleware/src/routes/eod_jobs.js) | — | — |
+| `eod_jobs_core` | `EODJOB_` | [eod_jobs.js](../middleware/src/routes/eod_jobs.js) | — | [eod_jobs_db_tests.sh](../tests/db/eod_jobs_db_tests.sh) |
 | `fee_core` | `FEE_`, `VEL_` | [fee.js](../middleware/src/routes/fee.js) | [fee.cases](../tests/cobol/cases/fee.cases) | — |
 | `fixed_asset_core` | `FAS_` | [fixed_asset.js](../middleware/src/routes/fixed_asset.js) | [fixed_asset.cases](../tests/cobol/cases/fixed_asset.cases) | [fixed_asset_db_tests.sh](../tests/db/fixed_asset_db_tests.sh) |
 | `fx_rate_core` | `FX_` | — | — | — |
@@ -43,7 +43,7 @@ column-level catalogue ([data dictionary](DATA_DICTIONARY.md)).
 | `import_core` | `IMP_BATCH_CREATE`, `IMP_BATCH_LIST`, `IMP_BATCH_GET`, `IMP_BATCH_VALIDATE`, `IMP_BATCH_POST`, `IMP_BATCH_FAIL`, `IMP_BATCH_EXPORT`, `IMP_BATCH_CLONE`, `IMP_BATCH_DELETE`, `IMP_BATCH_RETRY`, `IMP_BATCH_SUMMARY` | [import.js](../middleware/src/routes/import.js) | [import.cases](../tests/cobol/cases/import.cases) | — |
 | `import_post_core` | `IMPP_` | — | [import_post.cases](../tests/cobol/cases/import_post.cases) | [import_post_db_tests.sh](../tests/db/import_post_db_tests.sh) |
 | `import_recon_core` | `IRC_` | [import_recon.js](../middleware/src/routes/import_recon.js) | [import_recon.cases](../tests/cobol/cases/import_recon.cases) | [import_recon_db_tests.sh](../tests/db/import_recon_db_tests.sh) |
-| `import_row_core` | `IMP_ROW_STAGE`, `IMP_ROW_CORRECT`, `IMP_ERROR_LIST`, `IMP_BATCH_STAGE_BULK`, `IMP_ROW_SKIP`, `IMP_ROW_UNSKIP` | — | — | — |
+| `import_row_core` | `IMP_ROW_STAGE`, `IMP_ROW_CORRECT`, `IMP_ERROR_LIST`, `IMP_BATCH_STAGE_BULK`, `IMP_ROW_SKIP`, `IMP_ROW_UNSKIP` | — | — | [import_row_db_tests.sh](../tests/db/import_row_db_tests.sh) |
 | `letter_of_credit_core` | `LOC_` | [letter_of_credit.js](../middleware/src/routes/letter_of_credit.js) | [letter_of_credit.cases](../tests/cobol/cases/letter_of_credit.cases) | [letter_of_credit_db_tests.sh](../tests/db/letter_of_credit_db_tests.sh) |
 | `loan_core` | `LOAN_` | [loan.js](../middleware/src/routes/loan.js) | [loan.cases](../tests/cobol/cases/loan.cases) | [loan_db_tests.sh](../tests/db/loan_db_tests.sh) |
 | `loan_posting_core` | — | — | — | [loan_posting_db_tests.sh](../tests/db/loan_posting_db_tests.sh) |
@@ -64,7 +64,7 @@ column-level catalogue ([data dictionary](DATA_DICTIONARY.md)).
 | `ref_engine` | `RFE_` | [ref_engine.js](../middleware/src/routes/ref_engine.js) | — | — |
 | `ref_ext_core` | `RX_` | [ref_ext.js](../middleware/src/routes/ref_ext.js) | — | — |
 | `report_core` | `RPT_TEMPLATE_CREATE`, `RPT_TEMPLATE_LIST`, `RPT_TEMPLATE_GET`, `RPT_COLUMN_CREATE`, `RPT_COLUMN_LIST`, `RPT_COLUMN_DELETE`, `RPT_COLUMN_UPDATE`, `RPT_TEMPLATE_UPDATE`, `RPT_TEMPLATE_CLONE`, `RPT_TEMPLATE_DELETE` | [report.js](../middleware/src/routes/report.js) | [report.cases](../tests/cobol/cases/report.cases) | — |
-| `report_run_core` | `RPT_RUN_START`, `RPT_RUN_ROW`, `RPT_RUN_STATUS`, `RPT_RUN_COMPLETE`, `RPT_RUN_FAIL`, `RPT_RUN_LIST`, `RPT_RUN_EXPORT`, `RPT_RUN_DELETE`, `RPT_RUN_RETRY`, `RPT_RUN_GENERATE` | — | — | — |
+| `report_run_core` | `RPT_RUN_START`, `RPT_RUN_ROW`, `RPT_RUN_STATUS`, `RPT_RUN_COMPLETE`, `RPT_RUN_FAIL`, `RPT_RUN_LIST`, `RPT_RUN_EXPORT`, `RPT_RUN_DELETE`, `RPT_RUN_RETRY`, `RPT_RUN_GENERATE` | — | — | [report_run_db_tests.sh](../tests/db/report_run_db_tests.sh) |
 | `report_schedule_core` | `RPS_` | [report_schedule.js](../middleware/src/routes/report_schedule.js) | — | [report_schedule_db_tests.sh](../tests/db/report_schedule_db_tests.sh) |
 | `risk_core` | `RISK_` | [risk.js](../middleware/src/routes/risk.js) | — | [risk_db_tests.sh](../tests/db/risk_db_tests.sh) |
 | `sla_tracker_core` | `SLT_` | [sla_tracker.js](../middleware/src/routes/sla_tracker.js) | — | [sla_tracker_db_tests.sh](../tests/db/sla_tracker_db_tests.sh) |

@@ -6,15 +6,15 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-20T10:20:28.595Z
-- Commit: `28a2146a`
+- Generated at: 2026-11-20T10:49:11.206Z
+- Commit: `628e50ee`
 
 | Level | Modules |
 | --- | ---: |
-| L3 (core transaction) | 27 |
-| L2 (business reference) | 32 |
-| L1 (weak / untested link) | 2 |
-| L0 (isolated) | 5 |
+| L3 (core transaction) | 30 |
+| L2 (business reference) | 36 |
+| L1 (weak / untested link) | 0 |
+| L0 (isolated) | 0 |
 | UTILITY | 3 |
 
 Unresolved route files: none.
@@ -36,24 +36,24 @@ Unresolved route files: none.
 | `collateral_core` | L2 | loan_application | — | 1 | business link (tables loan_application) + test |
 | `collection_core` | L3 | — | — | 1 | Core anchor module |
 | `compliance_calendar_core` | L2 | compliance_calendar | — | 1 | business link (tables compliance_calendar) + test |
-| `corp_core` | L0 | — | — | 1 | own domain tables only, no core link |
+| `corp_core` | L2 | corporate_entities | — | 1 | business link (tables corporate_entities) + test |
 | `cost_center_core` | L2 | cost_center | — | 1 | business link (tables cost_center) + test |
-| `dashboard_core` | L3 | accounts, ledger, notification_outbox | — | 1 | money-table touch (accounts, ledger) with depth + test |
+| `dashboard_core` | L3 | accounts, ledger, notification_outbox, report_run | — | 1 | money-table touch (accounts, ledger) with depth + test |
 | `deposit_core` | L3 | — | — | 1 | Core anchor module |
 | `deposit_posting_core` | L3 | accounts, deposit_account, deposit_accrual, gl_journal | gl_core | 0 | money-table touch (accounts, gl_journal) with depth + test |
 | `eod_core` | L2 | eod_phase | — | 1 | business link (tables eod_phase) + test |
-| `eod_jobs_core` | L1 | accounts | user_core | 1 | linked code with no DB/table/integration test (downgraded) |
+| `eod_jobs_core` | L3 | accounts, eod_job_run | user_core | 1 | money-table touch (accounts) with depth + test |
 | `fee_core` | L3 | — | — | 1 | Core anchor module |
 | `fixed_asset_core` | L2 | fixed_asset, fixed_asset_depreciation, fixed_asset_disposal | — | 1 | business link (tables fixed_asset, fixed_asset_depreciation, fixed_asset_disposal) + test |
-| `fx_rate_core` | L0 | — | — | 1 | own domain tables only, no core link |
+| `fx_rate_core` | L2 | fx_rate_snapshots | — | 1 | business link (tables fx_rate_snapshots) + test |
 | `gl_allocation_core` | L2 | gl_allocation | — | 1 | business link (tables gl_allocation) + test |
 | `gl_core` | L3 | — | — | 1 | Core anchor module |
 | `hashlen_core` | UTILITY | — | — | 0 | Utility module (never a retire candidate) |
 | `identity_core` | L2 | accounts | — | 2 | business link (tables accounts) + test |
-| `import_core` | L2 | gl_account | — | 1 | business link (tables gl_account) + test |
-| `import_post_core` | L3 | gl_journal, gl_journal_line | — | 0 | money-table touch (gl_journal, gl_journal_line) with depth + test |
-| `import_recon_core` | L2 | gl_journal_line | — | 1 | business link (tables gl_journal_line) + test |
-| `import_row_core` | L0 | — | — | 0 | own domain tables only, no core link |
+| `import_core` | L2 | gl_account, import_row | — | 1 | business link (tables gl_account, import_row) + test |
+| `import_post_core` | L3 | gl_journal, gl_journal_line, import_row | — | 0 | money-table touch (gl_journal, gl_journal_line) with depth + test |
+| `import_recon_core` | L3 | gl_journal_line, import_row | — | 1 | money-table touch (gl_journal_line) with depth + test |
+| `import_row_core` | L2 | import_row | — | 0 | business link (tables import_row) + test |
 | `letter_of_credit_core` | L2 | lc_drawing, lc_settlement, letter_of_credit | — | 2 | business link (tables lc_drawing, lc_settlement, letter_of_credit) + test |
 | `loan_core` | L3 | — | — | 1 | Core anchor module |
 | `loan_posting_core` | L3 | accounts, gl_journal, loan_application, loan_repayment | gl_core | 0 | money-table touch (accounts, gl_journal) with depth + test |
@@ -73,10 +73,10 @@ Unresolved route files: none.
 | `phone_otp_core` | L2 | otp_challenges | — | 1 | business link (tables otp_challenges) + test |
 | `ref_engine` | UTILITY | — | — | 1 | Utility module (never a retire candidate) |
 | `ref_ext_core` | UTILITY | — | — | 1 | Utility module (never a retire candidate) |
-| `report_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `report_run_core` | L1 | gl_account, gl_journal, gl_journal_line | — | 0 | linked code with no DB/table/integration test (downgraded) |
+| `report_core` | L2 | report_run, report_template | — | 1 | business link (tables report_run, report_template) + test |
+| `report_run_core` | L3 | gl_account, gl_journal, gl_journal_line, report_run, report_template | — | 0 | money-table touch (gl_journal, gl_journal_line) with depth + test |
 | `report_schedule_core` | L2 | rpt_schedule_config | — | 1 | business link (tables rpt_schedule_config) + test |
-| `risk_core` | L0 | — | — | 1 | own domain tables only, no core link |
+| `risk_core` | L2 | risk_events | — | 1 | business link (tables risk_events) + test |
 | `sla_tracker_core` | L2 | sla_tracker | — | 1 | business link (tables sla_tracker) + test |
 | `statement_core` | L3 | accounts, journal_entries, ledger | — | 1 | money-table touch (accounts, journal_entries, ledger) with depth + test |
 | `statement_recon_core` | L3 | accounts, ledger | — | 1 | money-table touch (accounts, ledger) with depth + test |

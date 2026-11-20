@@ -9,8 +9,8 @@
 | Status | Modules |
 | --- | ---: |
 | ACTIVE | 26 |
-| PILOT | 35 |
-| REVIEW | 8 |
+| PILOT | 43 |
+| REVIEW | 0 |
 | FROZEN | 0 |
 | RETIRED | 0 |
 
@@ -40,24 +40,24 @@ removed modules are archived in `manifest/wave_legacy.json`).
 | `collateral` | `collateral_core` | L2 | PILOT | collateral.js | collateral | — | Business link proven; integration completion (PR-010E) still open before ACTIVE. |
 | `collection` | `collection_core` | L3 | ACTIVE | collection.js | collection_case | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `compliance_calendar` | `compliance_calendar_core` | L2 | PILOT | compliance_calendar.js | compliance_calendar | — | Business-linked compliance calendar; compliance_calendar table + tests/db/compliance_calendar_db_tests.sh. |
-| `corporate` | `corp_core` | L0 | REVIEW | corporate.js | corporate_entities | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 2 gateway-dispatched action(s); coverage GLEIF corporate resolve/status (PR-097). L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
+| `corporate` | `corp_core` | L2 | PILOT | corporate.js | corporate_entities | — | Business-linked corporate registry (L2); anchor corporate_entities; tests/db/corp_db_tests.sh. |
 | `cost_center` | `cost_center_core` | L2 | PILOT | cost_center.js | cost_center | — | Business-linked cost center; anchor cost_center; cost_center_db_tests.sh (measured 62.01%). |
 | `dashboard` | `dashboard_core` | L3 | ACTIVE | dashboard.js | accounts | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `deposit` | `deposit_core` | L3 | ACTIVE | deposit.js | deposit_account | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `deposit_posting` | `deposit_posting_core` | L3 | ACTIVE | — | deposit_settle_request | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `eod` | `eod_core` | L2 | PILOT | eod.js | eod_phase | — | Business-linked end-of-day; anchor eod_phase; eod_ops_db_tests.sh (measured 60.82%). |
-| `eod_jobs` | `eod_jobs_core` | L1 | REVIEW | eod_jobs.js | eod_job_run | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 6 gateway-dispatched action(s); coverage tests/db/eod_ops_db_tests.sh (7 EODJOB assertions). L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
+| `eod_jobs` | `eod_jobs_core` | L3 | PILOT | eod_jobs.js | eod_job_run | — | Business-linked EOD batch jobs (L3); accounts + eod_job_run; tests/db/eod_jobs_db_tests.sh. |
 | `fee` | `fee_core` | L3 | ACTIVE | fee.js | fee_rule | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `fixed_asset` | `fixed_asset_core` | L2 | PILOT | fixed_asset.js | fixed_asset | — | Business-linked fixed assets; fixed_asset tables + GL linkage + tests/db/fixed_asset_db_tests.sh. |
-| `fx` | `fx_rate_core` | L0 | REVIEW | fx_rates.js | fx_rate_snapshots | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 2 gateway-dispatched action(s); coverage FX fresh/stale e2e (nightly evidence runs). L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
+| `fx` | `fx_rate_core` | L2 | PILOT | fx_rates.js | fx_rate_snapshots | — | Business-linked FX rates (L2); anchor fx_rate_snapshots; tests/integration/fx_rate_flow.sh. |
 | `gl_allocation` | `gl_allocation_core` | L2 | PILOT | gl_allocation.js | gl_allocation | — | Business-linked GL allocation; anchor gl_allocation; gl_allocation_db_tests.sh (measured 61.86%, L2 so no L3 floor). |
 | `gl` | `gl_core` | L3 | ACTIVE | gl.js | gl_account | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `hashlen` | `hashlen_core` | UTILITY | ACTIVE | — | — | — | Utility module; never a retire candidate. |
-| `identity` | `identity_core` | L2 | REVIEW | identity.js | identity_verifications | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 8 gateway-dispatched action(s); coverage KYC gates TRANSFER (mutation M11 kill) + identity/screening e2e. L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). 2026-11-11: ACCOUNT_FREEZE/UNFREEZE link the accounts table (sanctions enforcement), promoting linkage to L2. |
+| `identity` | `identity_core` | L2 | PILOT | identity.js | identity_verifications | — | Business-linked identity/KYC (L2); accounts anchor; tests/db/identity_db_tests.sh + tests/integration/identity_flow.sh. |
 | `import` | `import_core` | L2 | PILOT | import.js | import_row | — | Business-linked import; anchor gl_account validation; import_ops_db_tests.sh (import_row anchor avoided to prevent promoting import_row_core). |
 | `import_post` | `import_post_core` | L3 | ACTIVE | — | import_batch | — | Business-linked import posting; posts validated batches to gl_journal/gl_journal_line; tests/db/import_post_db_tests.sh. |
-| `import_recon` | `import_recon_core` | L2 | PILOT | import_recon.js | import_recon_item | — | Business-linked import reconciliation; import_recon_run over posted batches; tests/db/import_recon_db_tests.sh. |
-| `import` | `import_row_core` | L0 | REVIEW | import.js | import_row | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 6 gateway-dispatched action(s); coverage tests/db/import_ops_db_tests.sh. L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
+| `import_recon` | `import_recon_core` | L3 | PILOT | import_recon.js | import_recon_item | — | Business-linked import reconciliation; import_recon_run over posted batches; tests/db/import_recon_db_tests.sh. |
+| `import` | `import_row_core` | L2 | PILOT | import.js | import_row | — | Business-linked import rows (L2); anchor import_row; tests/db/import_row_db_tests.sh. |
 | `letter_of_credit` | `letter_of_credit_core` | L2 | PILOT | letter_of_credit.js | letter_of_credit | — | Business-linked letter of credit; anchors letter_of_credit + lc_drawing + lc_settlement; tests letter_of_credit_db_tests.sh + domain suite. |
 | `loan` | `loan_core` | L3 | ACTIVE | loan.js | loan | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
 | `loan_posting` | `loan_posting_core` | L3 | ACTIVE | — | loan_disburse_request | — | Proven core-transaction link (or core anchor). Refactor only with equivalence proof. |
@@ -77,10 +77,10 @@ removed modules are archived in `manifest/wave_legacy.json`).
 | `phone_otp` | `phone_otp_core` | L2 | PILOT | phone.js | phone_links | — | Business-linked OTP (L2); anchor otp_challenges; tests/db/phone_otp_db_tests.sh. |
 | `ref_engine` | `ref_engine` | UTILITY | ACTIVE | ref_engine.js | audit_trail | — | Utility module; never a retire candidate. |
 | `ref_ext` | `ref_ext_core` | UTILITY | ACTIVE | ref_ext.js | label | — | Utility module; never a retire candidate. |
-| `report` | `report_core` | L0 | REVIEW | report.js | report_template | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 10 gateway-dispatched action(s); coverage tests/db/report_statement_db_tests.sh (templates). L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
-| `report` | `report_run_core` | L1 | REVIEW | report.js | report_run | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 10 gateway-dispatched action(s); coverage tests/db/report_statement_db_tests.sh (runs). L1 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
+| `report` | `report_core` | L2 | PILOT | report.js | report_template | — | Business-linked report builder (L2); anchors report_template/report_run; tests/cobol/cases/report.cases. |
+| `report` | `report_run_core` | L3 | PILOT | report.js | report_run | — | Business-linked report runs (L3); GL + report_run/template; tests/db/report_run_db_tests.sh. |
 | `report_schedule` | `report_schedule_core` | L2 | PILOT | report_schedule.js | rpt_schedule_config | — | Business-linked report schedule; rpt_schedule_config table + tests/db/report_schedule_db_tests.sh. |
-| `risk` | `risk_core` | L0 | REVIEW | risk.js | risk_events | — | Retirement re-audit 2026-11-07: RETAIN (reviewed, not pending). 2 gateway-dispatched action(s); coverage geo-risk e2e (nightly evidence runs). L0 linkage is structural (no direct money-table touch), not a dead signal; no candidate entry (live code must not enter death-row tracking). |
+| `risk` | `risk_core` | L2 | PILOT | risk.js | risk_events | — | Business-linked risk events (L2); anchor risk_events; tests/db/risk_db_tests.sh. |
 | `sla_tracker` | `sla_tracker_core` | L2 | PILOT | sla_tracker.js | sla_tracker | — | Business-linked SLA tracker; sla_tracker table + tests/db/sla_tracker_db_tests.sh. |
 | `statement` | `statement_core` | L3 | ACTIVE | statement.js | statement_archive | — | Business-linked statements; statement_run/archive lifecycle; tests/db/statement_db_tests.sh. |
 | `statement_recon` | `statement_recon_core` | L3 | ACTIVE | statement_recon.js | statement_recon_item | — | Business-linked statement reconciliation; statement_recon_run over completed runs; tests/db/statement_recon_db_tests.sh. |

@@ -128,3 +128,8 @@ db_wallet_hold_tests=8
 db_wallet_recon_tests=9
 db_wallet_reversal_tests=8
 db_wallet_statement_tests=5
+
+db_corp_tests=7
+db_eod_jobs_tests=8
+db_import_row_tests=10
+db_report_run_tests=11

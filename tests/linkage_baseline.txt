@@ -7,10 +7,3 @@
 #   - dead entries (module file removed).
 # This baseline must only shrink (PR-010A..D retire the entries).
 # Never add an entry to make CI green.
-corp_core L0
-eod_jobs_core L1
-fx_rate_core L0
-import_row_core L0
-report_core L0
-report_run_core L1
-risk_core L0

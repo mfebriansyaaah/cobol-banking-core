@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T10:20:49.945Z",
+  "generatedAt": "2026-11-20T10:49:37.199Z",
   "items": [
     {
       "id": "account_core:audit:core-reference",
@@ -867,6 +867,16 @@
       "owner": "backend"
     },
     {
+      "id": "corp_core:audit:core-reference",
+      "module": "corp_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": "backend"
+    },
+    {
       "id": "cost_center_core:audit:core-reference",
       "module": "cost_center_core",
       "kind": "audit",
@@ -1015,14 +1025,12 @@
       "module": "dashboard_core",
       "kind": "table",
       "subject": "report_run",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "columns: 'completed', 'failed'), 10), check, checksum, constraint, created_at, created_by, error_code, error_detail, finished_at, id, index, parameters, row_count, started_at, started_at), status, template_id, total_credit, total_debit, updated_at, version",
-        "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "report_run is now a registered business table (PR-5c); dashboard report reads are linked."
       ],
-      "owner": "reporting"
+      "owner": "backend"
     },
     {
       "id": "dashboard_core:table:report-schedule",
@@ -1117,6 +1125,58 @@
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'completed', 'failed'), 10), business_date, check, completed_phases, control_credit, control_debit, created_by, error_code, error_detail, finished_at, id, index, phase_count, started_at, status, status), version",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "eod_jobs_core:audit:core-reference",
+      "module": "eod_jobs_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": "backend"
+    },
+    {
+      "id": "eod_jobs_core:table:audit-trail",
+      "module": "eod_jobs_core",
+      "kind": "table",
+      "subject": "audit_trail",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "eod_jobs_core:table:pending-transactions",
+      "module": "eod_jobs_core",
+      "kind": "table",
+      "subject": "pending_transactions",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'committed', 'failed'), 4), amount, constraint, created_at, from_email, id, status, to_email, txn_ref, txn_ref), unique, updated_at",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "eod_jobs_core:table:pending-transactions-archive",
+      "module": "eod_jobs_core",
+      "kind": "table",
+      "subject": "pending_transactions_archive",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'committed', 'failed'), 4), amount, archived_at, created_at, from_email, id, key, status, to_email, txn_ref, updated_at",
         "no core business-key columns",
         "no FOREIGN KEY into core tables"
       ],
@@ -1224,6 +1284,16 @@
       "evidence": [
         "audit rows carry asset_id + old/new: DISPOSE row stores id=182, old_value=ACTIVE, new_value=DISPOSED (tests/db/fixed_asset_db_tests.sh: disposed persisted)"
       ],
+      "owner": "backend"
+    },
+    {
+      "id": "fx_rate_core:audit:core-reference",
+      "module": "fx_rate_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
       "owner": "backend"
     },
     {
@@ -1422,11 +1492,10 @@
       "module": "import_core",
       "kind": "action",
       "subject": "ACTION-BATCH-CLONE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes import_batch, import_row)",
       "evidence": [
-        "paragraph ACTION-BATCH-CLONE",
-        "touched tables: import_batch, import_row"
+        "import_row is now a registered business table (PR-5c); the import write/read path is linked."
       ],
       "owner": "backend"
     },
@@ -1461,11 +1530,10 @@
       "module": "import_core",
       "kind": "action",
       "subject": "ACTION-BATCH-POST",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes import_batch, import_row)",
       "evidence": [
-        "paragraph ACTION-BATCH-POST",
-        "touched tables: import_batch, import_row"
+        "import_row is now a registered business table (PR-5c); the import write/read path is linked."
       ],
       "owner": "backend"
     },
@@ -1474,11 +1542,10 @@
       "module": "import_core",
       "kind": "action",
       "subject": "ACTION-BATCH-RETRY",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes import_batch, import_row)",
       "evidence": [
-        "paragraph ACTION-BATCH-RETRY",
-        "touched tables: import_batch, import_row"
+        "import_row is now a registered business table (PR-5c); the import write/read path is linked."
       ],
       "owner": "backend"
     },
@@ -1487,11 +1554,10 @@
       "module": "import_core",
       "kind": "action",
       "subject": "ACTION-BATCH-VALIDATE",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Write paragraph with no core link (writes import_batch, import_row)",
       "evidence": [
-        "paragraph ACTION-BATCH-VALIDATE",
-        "touched tables: import_batch, import_row"
+        "import_row is now a registered business table (PR-5c); the import write/read path is linked."
       ],
       "owner": "backend"
     },
@@ -1524,12 +1590,10 @@
       "module": "import_core",
       "kind": "table",
       "subject": "import_row",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "columns: 'invalid', 'posted', 'skipped'), 'valid', batch_id, check, constraint, created_at, error_code, error_detail, id, if, raw_data, row_no, row_no), status, unique, updated_at",
-        "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "import_row is now a registered business table (PR-5c); the import write/read path is linked."
       ],
       "owner": "backend"
     },
@@ -1576,12 +1640,10 @@
       "module": "import_post_core",
       "kind": "table",
       "subject": "import_row",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "columns: 'invalid', 'posted', 'skipped'), 'valid', batch_id, check, constraint, created_at, error_code, error_detail, id, if, raw_data, row_no, row_no), status, unique, updated_at",
-        "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "import_row is now a registered business table (PR-5c); the import write/read path is linked."
       ],
       "owner": "backend"
     },
@@ -1667,14 +1729,36 @@
       "module": "import_recon_core",
       "kind": "table",
       "subject": "import_row",
+      "status": "DONE",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "import_row is now a registered business table (PR-5c); the import write/read path is linked."
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "import_row_core:audit:core-reference",
+      "module": "import_row_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": "backend"
+    },
+    {
+      "id": "import_row_core:table:import-batch",
+      "module": "import_row_core",
+      "kind": "table",
+      "subject": "import_batch",
       "status": "OPEN",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "columns: 'invalid', 'posted', 'skipped'), 'valid', batch_id, check, constraint, created_at, error_code, error_detail, id, if, raw_data, row_no, row_no), status, unique, updated_at",
+        "columns: 'accounts', 'completed', 'failed'), 'payments'), 'reference', 'validated', 'validating', batch_code, check, created_at, created_at), created_by, error_code, error_detail, id, import_type, index, invalid_rows, posted_rows, source_name, status, total_rows, updated_at, valid_rows, version",
         "no core business-key columns",
         "no FOREIGN KEY into core tables"
       ],
-      "owner": "reporting"
+      "owner": "backend"
     },
     {
       "id": "letter_of_credit_core:audit:core-reference",
@@ -2870,6 +2954,29 @@
       "owner": "assistant"
     },
     {
+      "id": "report_run_core:action:action-run-row",
+      "module": "report_run_core",
+      "kind": "action",
+      "subject": "ACTION-RUN-ROW",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes report_run_row)",
+      "evidence": [
+        "paragraph ACTION-RUN-ROW",
+        "touched tables: report_run_row"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "report_run_core:audit:core-reference",
+      "module": "report_run_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": "backend"
+    },
+    {
       "id": "report_schedule_core:audit:core-reference",
       "module": "report_schedule_core",
       "kind": "audit",
@@ -2879,6 +2986,16 @@
       "evidence": [
         "audit rows carry rpt_schedule_config_id + old/new: ENABLE row stores id=30, old_value=OPEN, new_value=ACTIVE (tests/db/report_schedule_db_tests.sh: run/disable audited via version bump + DISABLE action count)"
       ],
+      "owner": "backend"
+    },
+    {
+      "id": "risk_core:audit:core-reference",
+      "module": "risk_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
       "owner": "backend"
     },
     {

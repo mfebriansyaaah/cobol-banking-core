@@ -3,7 +3,7 @@
 # never hand-edit. Validate with scripts/check_contract.mjs, regenerate with
 # --write after a reviewed route change.
 version: 1
-generatedAt: "2026-11-20T10:20:46.179Z"
+generatedAt: "2026-11-20T10:49:43.336Z"
 generator: scripts/build_contract.mjs (do not hand-edit)
 count: 559
 actions:
@@ -6406,7 +6406,7 @@ actions:
         required: true
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: CORP_STATUS
     method: get
     path: /corporate/status
@@ -6456,7 +6456,7 @@ actions:
         required: true
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: CSC_ALLO
     method: post
     path: "/finance/cost-centers/:id/allocate"
@@ -8312,7 +8312,7 @@ actions:
         required: true
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: EODJOB_DORM_SUSPEND
     method: post
     path: /eod/jobs/dormant/suspend
@@ -8362,7 +8362,7 @@ actions:
         required: true
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: EODJOB_HOLD_EXPIRY
     method: post
     path: /eod/jobs/holds/expire
@@ -8412,7 +8412,7 @@ actions:
         required: true
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: EODJOB_LIST
     method: get
     path: /eod/jobs
@@ -8462,7 +8462,7 @@ actions:
         required: true
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: EODJOB_RECON
     method: post
     path: /eod/jobs/recon
@@ -8512,7 +8512,7 @@ actions:
         required: true
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: EODJOB_STATEMENT
     method: post
     path: /eod/jobs/statements
@@ -8562,7 +8562,7 @@ actions:
         required: true
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: EOD_CAL_LIST
     method: get
     path: /eod/calendars
@@ -12362,7 +12362,7 @@ actions:
         required: true
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: IMP_BATCH_SUMMARY
     method: get
     path: "/imports/batches/:code/summary"
@@ -12512,7 +12512,7 @@ actions:
         required: true
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: IMP_ROW_CORRECT
     method: post
     path: "/imports/batches/:code/rows/:rowNo"
@@ -12562,7 +12562,7 @@ actions:
         required: true
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: IMP_ROW_SKIP
     method: post
     path: "/imports/batches/:code/rows/:rowNo/skip"
@@ -12612,7 +12612,7 @@ actions:
         required: true
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: IMP_ROW_STAGE
     method: post
     path: "/imports/batches/:code/rows"
@@ -12662,7 +12662,7 @@ actions:
         required: true
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: IMP_ROW_UNSKIP
     method: post
     path: "/imports/batches/:code/rows/:rowNo/unskip"
@@ -12712,7 +12712,7 @@ actions:
         required: true
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: IRC_EXPORT
     method: get
     path: "/imports/recon/:id/export"
@@ -23512,7 +23512,7 @@ actions:
         required: true
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: RPT_RUN_DELETE
     method: delete
     path: "/reports/runs/:id"
@@ -23562,7 +23562,7 @@ actions:
         required: true
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: RPT_RUN_EXPORT
     method: get
     path: "/reports/runs/:id/export"
@@ -23612,7 +23612,7 @@ actions:
         required: true
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: RPT_RUN_FAIL
     method: post
     path: "/reports/runs/:id/fail"
@@ -23662,7 +23662,7 @@ actions:
         required: true
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: RPT_RUN_GENERATE
     method: post
     path: "/reports/runs/:id/generate"
@@ -23712,7 +23712,7 @@ actions:
         required: true
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: RPT_RUN_LIST
     method: get
     path: /reports/runs
@@ -23762,7 +23762,7 @@ actions:
         required: true
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: RPT_RUN_RETRY
     method: post
     path: "/reports/runs/:id/retry"
@@ -23812,7 +23812,7 @@ actions:
         required: true
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: RPT_RUN_ROW
     method: post
     path: "/reports/runs/:id/rows"
@@ -23862,7 +23862,7 @@ actions:
         required: true
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: RPT_RUN_START
     method: post
     path: /reports/runs
@@ -23912,7 +23912,7 @@ actions:
         required: true
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: RPT_RUN_STATUS
     method: get
     path: "/reports/runs/:id"
@@ -23962,7 +23962,7 @@ actions:
         required: true
         inline: false
         maxBytes: 100
-    tested: false
+    tested: true
   - action: RPT_TEMPLATE_CLONE
     method: post
     path: "/reports/templates/:code/clone"
