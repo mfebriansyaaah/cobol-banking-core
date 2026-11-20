@@ -23,7 +23,7 @@ prose explains, never counts:
   (rendered from `tests/baseline_counts.txt`, gated by `check_docs.mjs`).
 - README stats + `docs/STATUS.md` + `docs/MODULE_INDEX.md` ←
   `node scripts/docs_stats.mjs --write` (gated by `check_docs.mjs`).
-- `manifest/*.json`, `tier1_links.json`, domain/backlog registries ←
+- `manifest/*.json`, `linkage_graph.json`, domain/backlog registries ←
   their `scripts/* --write` generators (gated by the matching
   `check_*.mjs`).
 - Regeneration is always deliberate (`--write` after review); CI only

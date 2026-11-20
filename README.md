@@ -1,6 +1,6 @@
 # Cobol Banking Core
 
-A banking backend where **COBOL is the authoritative business tier**. Every
+A banking backend where **COBOL is the system of record**. Every
 balance, limit, status transition, and ledger mutation is decided and executed
 in COBOL. Node/Express is only the HTTP gateway (routing, input-shape
 validation, authentication), and C provides the MySQL bridge plus the low-level
@@ -15,8 +15,10 @@ crypto helpers COBOL cannot call directly.
 > **CI status (2026-11-04):** automatic triggers restored in Phase 0 branch 01
 > (`push: [main]`, `pull_request`, schedules). See [docs/CI.md](docs/CI.md).
 >
-> **Status (2026-10-29):** COBOL modules follow the 9-action contract (see
-> `docs/MODULE_LINKAGE.md`): core anchors (auth, wallet, lending, …) plus business domain modules and utilities.
+> **Status (2026-11-20):** modules are classified by linkage only
+> (`docs/MODULE_LINKAGE.md`): every retained business module is L2+ with
+> test evidence; helpers are `UTILITY`. No template clones remain, and new
+> modules require L2+ linkage.
 > `tests/run_all.sh full` is green locally and in the hosted CI gate.
 > Counts in this README are generated from `manifest/modules.json` and the
 > source tree; see [docs/STATUS.md](docs/STATUS.md) and
@@ -105,7 +107,7 @@ Flagship hand-reviewed domains (core anchors). The full inventory is
 | Chargeback | Done (pilot) | `chargeback_core` (open/assign/evidence/represent/accept/reject/arbitrate/close + hold/release/debit ledger); generic write paths and the legacy dispute clone retired |
 | Payroll | Done (pilot) | `payroll_processing_core` (validate/approve/process/pay/close + tax rule + balance + GL/payment links); generic CREATE/CALC/UPDATE/DELETE kept for compat |
 | Loyalty / Rewards | Done (pilot) | `loyalty_core` (create/activate/enroll/earn/redeem/expire/adjust + ledger/GL link); generic program/reward/redemption/cashback clones retired in `bc389970` |
-| Fixed Asset | Done (pilot) | `fixed_asset_core` (capitalize/depreciate/revalue/dispose + GL link + audit); generic CREATE/CALC/UPDATE/DELETE kept for compat; the legacy asset clone retired |
+| Fixed Asset | Done (pilot) | `fixed_asset_core` (capitalize/depreciate/revalue/dispose + GL link + audit); generic DELETE removed (DISPOSE owns it), CALC kept as the activation path; the legacy asset clone retired |
 
 The authoritative inventory is generated in
 [docs/MODULE_INDEX.md](docs/MODULE_INDEX.md). The 17 retired legacy modules are
@@ -498,14 +500,14 @@ route files are exported from `routes/index.js`, and that dispatch entries match
 
 ## Known gaps
 
-1. **Domain-module depth varies by linkage.** Every module implements the
-   9-action contract (`docs/MODULE_AUTHORING.md`), but some business modules follow the
-   `cost_center_core` template closely. Treat the domain table above as the
-   hand-reviewed flagship set; the full inventory is `manifest/modules.json`.
-   Linkage definitions and strictness live in `docs/MODULE_LINKAGE.md`.
-2. **Copy-paste plumbing.** Boilerplate paragraphs (`TRIM-ALL`, `VALIDATE-ALL`,
-   `TRIM-RESULT-LEN`) are repeated across most generated modules. Shared
-   copybooks for trimming, validation, and audit are the main refactor target.
+1. **Linkage depth varies by domain.** Every retained module is L2+ (or
+   `UTILITY`) with a DB/table/integration test, but L3 money-path depth is
+   concentrated in the posting/ledger modules. Treat the domain table above
+   as the hand-reviewed flagship set; exact levels live in
+   `manifest/linkage_graph.json`, and the rules in `docs/MODULE_LINKAGE.md`.
+2. **Remaining copy-paste plumbing.** Shared copybooks now cover trim,
+   validation, auth, outbox, and result handling; the remaining duplication
+   is pinned in `tests/duplication_baseline.txt` and must only shrink.
 3. **CI is hosted on GitHub Actions with branch protection active.**
    Branch protection on `main` requires `lint`, `build`, `test`, `coverage`,
    `db aggregate`, `coverage-pr` (verified 2026-11-19); merges are enforced by
