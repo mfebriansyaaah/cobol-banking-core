@@ -59,6 +59,18 @@ if [ -n "$test_part_tsv" ]; then
     cp -rf "$test_part_dir"/logs/. "$OUT/logs/" 2>/dev/null || true
 fi
 
+# The coverage job owns the gateway suite on PRs (the test job sets
+# SKIP_GATEWAY=1). Its JUnit XML must be present so the assertion-count gate
+# still sees the gateway_tests baseline.
+coverage_part="$PARTS/coverage-reports"
+if [ -d "$coverage_part" ]; then
+    mkdir -p "$OUT/junit/gateway" 2>/dev/null || true
+    find "$coverage_part" -type f -name '*.xml' -exec cp -f {} "$OUT/junit/gateway/" \; 2>/dev/null || true
+else
+    echo "FAIL: missing coverage-reports part (gateway coverage artifact)" >&2
+    failed=1
+fi
+
 # Expected suite set per shard, straight from the planner both runners use.
 expected_for() {
     local idx="$1" line

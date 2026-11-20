@@ -480,6 +480,7 @@ jobs:
       DB_MIGRATE_PASS: root
       SKIP_BUILD: '1'
       SKIP_STATIC_GATES: '1'
+      SKIP_GATEWAY: '1'
       REQUIRE_MAILPIT: '1'
       ISOLATED_DB: '0'
     steps:
@@ -531,16 +532,6 @@ jobs:
         if: always()
         run: node scripts/ci/summary.mjs --report-dir artifacts/latest
 
-      - name: Gateway residue check
-        if: always()
-        run: |
-          set -o pipefail
-          if [ -z "${TEST_RUN_ID:-}" ]; then
-            echo "no TEST_RUN_ID (gateway smoke did not run?); skipping residue check"
-            exit 0
-          fi
-          TEST_RUN_ID="$TEST_RUN_ID" bash scripts/check_test_residue.sh | tee /tmp/gateway_residue.log
-
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
@@ -550,26 +541,6 @@ jobs:
           path: artifacts/
           retention-days: 14
           if-no-files-found: warn
-
-      - name: Upload gateway log on failure
-        if: failure()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
-        with:
-          name: gateway-log
-          overwrite: true
-          path: /tmp/gateway_endpoints.log
-          retention-days: 7
-          if-no-files-found: ignore
-
-      - name: Upload residue log on failure
-        if: failure()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
-        with:
-          name: gateway-residue-log
-          overwrite: true
-          path: /tmp/gateway_residue.log
-          retention-days: 7
-          if-no-files-found: ignore
 
       - name: Upload failure diagnostics
         if: failure()
@@ -673,7 +644,7 @@ jobs:
 
   db-aggregate:
     name: db aggregate
-    needs: [test, db-shards, schema-drift, changes]
+    needs: [test, db-shards, schema-drift, coverage, changes]
     if: always() && github.event_name == 'pull_request' && needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -699,12 +670,14 @@ jobs:
           set -euo pipefail
           if [ "${{ needs.test.result }}" = "success" ] \
               && [ "${{ needs.db-shards.result }}" = "success" ] \
+              && [ "${{ needs.coverage.result }}" = "success" ] \
               && [ "${{ needs.changes.result }}" = "success" ]; then
             echo "ok=true" >> "$GITHUB_OUTPUT"
           else
             echo "ok=false" >> "$GITHUB_OUTPUT"
             echo "::error::cannot aggregate: test=${{ needs.test.result }} \
               db-shards=${{ needs.db-shards.result }} \
+              coverage=${{ needs.coverage.result }} \
               changes=${{ needs.changes.result }}"
             exit 1
           fi
@@ -763,13 +736,15 @@ jobs:
           reporter: java-junit
           fail-on-error: false
 
-  # Manual smoke gate. Kept as a required context only because branch
-  # protection still lists it; it intentionally does not run on PRs. Removing
-  # it from the protection rules is the cleaner long-term fix.
+  # Gateway coverage is the real PR coverage gate. `test` skips its gateway
+  # phase so the suite runs once here, with coverage and JUnit output; the
+  # required `coverage` context is no longer a manual-only no-op.
   coverage:
     name: coverage
-    if: github.event_name == 'workflow_dispatch'
-    needs: [build, db-snapshot]
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request' && needs.changes.outputs.docs_only != 'true')
+    needs: [build, db-snapshot, changes]
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     services:
@@ -796,6 +771,8 @@ jobs:
       DB_MIGRATE_USER: root
       DB_MIGRATE_PASS: root
       SKIP_BUILD: '1'
+      TEST_RUN_ID: t${{ github.run_id }}-${{ github.run_attempt }}
+      COVERAGE_JUNIT: coverage/junit/gateway/junit-gateway.xml
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
@@ -839,11 +816,17 @@ jobs:
       - name: Gateway coverage
         run: bash scripts/ci/coverage.sh --gateway-only
 
+      - name: Gateway residue check
+        if: always()
+        run: |
+          set -o pipefail
+          TEST_RUN_ID="$TEST_RUN_ID" bash scripts/check_test_residue.sh | tee /tmp/gateway_residue.log
+
       - name: Upload coverage
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
-          name: coverage
+          name: coverage-reports
           overwrite: true
           path: coverage/
           retention-days: 14

@@ -244,7 +244,7 @@ test('static gates run once in lint; PR test skips the gate fleet', () => {
 test('docs-only PRs skip heavy jobs including the test gate (CI-011 option A)', () => {
   const ci = collectWorkflowJobs()['ci.yml'];
   assert.ok(ci['changes'], 'ci.yml must define a changes job');
-  for (const id of ['db-shards', 'coverage-pr', 'db-aggregate', 'db-ops', 'test', 'db-snapshot']) {
+  for (const id of ['db-shards', 'coverage-pr', 'coverage', 'db-aggregate', 'db-ops', 'test', 'db-snapshot']) {
     const job = ci[id];
     assert.ok(job, `ci.yml must define ${id}`);
     assert.match(
@@ -301,7 +301,7 @@ test('push to main skips the PR-only DB gate (cost workstream)', () => {
     );
     assert.match(cond, /docs_only/, `${id} must keep the docs-only skip`);
   }
-  assert.match(String(ci['coverage'].if || ''), /workflow_dispatch/, 'coverage must run on manual dispatch only');
+  assert.match(String(ci['coverage'].if || ''), /workflow_dispatch/, 'coverage must remain manually dispatchable');
 });
 
 test('mutation anchors are validated before the weekly run', () => {
@@ -347,18 +347,21 @@ print(json.dumps(out))
   }
 });
 
-test('gateway coverage job is skipped on PRs; coverage-pr owns PR coverage (CI-009)', () => {
+test('coverage is a real PR gateway gate; test skips its gateway phase', () => {
   const ci = collectWorkflowJobs()['ci.yml'];
   const coverageIf = String(ci['coverage'].if || '');
-  assert.ok(
-    !coverageIf.includes("github.event_name == 'pull_request'"),
-    'coverage job must be skipped on pull requests',
-  );
+  assert.match(coverageIf, /github\.event_name == 'pull_request'/, 'coverage must run on pull requests');
+  assert.match(coverageIf, /docs_only/, 'coverage must honor the docs-only gate');
+  assert.match(coverageIf, /workflow_dispatch/, 'coverage must remain manually dispatchable');
+  assert.equal(ci['test'].env?.SKIP_GATEWAY, '1', 'test must not duplicate the coverage-owned gateway suite');
+  assert.match(ci['coverage'].runs.join('\n'), /coverage\.sh --gateway-only/, 'coverage must run the gateway gate');
   assert.match(
     String(ci['coverage-pr'].if || ''),
     /github\.event_name == 'pull_request'/,
     'coverage-pr must run on pull requests',
   );
+  const aggNeeds = Array.isArray(ci['db-aggregate'].needs) ? ci['db-aggregate'].needs : [ci['db-aggregate'].needs];
+  assert.ok(aggNeeds.includes('coverage'), 'db aggregate must wait for the gateway coverage gate');
 });
 
 test('db consumers wait for the snapshot producer (CI-008B ordering)', () => {
