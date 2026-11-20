@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-20T05:26:28.617Z",
-  "commit": "4c7345c3",
+  "generatedAt": "2026-11-20T06:37:27.382Z",
+  "commit": "23461f67",
   "linkageSource": "manifest/linkage.json",
   "summary": {
     "L3": 23,
-    "L2": 10,
+    "L2": 12,
     "L1": 10,
-    "L0": 23,
+    "L0": 21,
     "UTILITY": 3
   },
   "modules": [
@@ -377,7 +377,11 @@
     {
       "module": "fixed_asset_core",
       "source": "fixed_asset_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "fixed_asset",
+        "fixed_asset_depreciation",
+        "fixed_asset_disposal"
+      ],
       "coreCalls": [],
       "coreActions": [],
       "hasTests": true,
@@ -386,8 +390,8 @@
         "tests/cobol/cases/fixed_asset.cases",
         "tests/integration/fixed_asset_flow.sh"
       ],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
+      "linkageLevel": "L2",
+      "reason": "business link (tables fixed_asset, fixed_asset_depreciation, fixed_asset_disposal) + test",
       "routeFiles": [
         "fixed_asset.js"
       ]
@@ -924,15 +928,17 @@
     {
       "module": "sla_tracker_core",
       "source": "sla_tracker_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "sla_tracker"
+      ],
       "coreCalls": [],
       "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/sla_tracker_db_tests.sh"
       ],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
+      "linkageLevel": "L2",
+      "reason": "business link (tables sla_tracker) + test",
       "routeFiles": [
         "sla_tracker.js"
       ]

@@ -31,7 +31,7 @@
 | `eod_core` | L0 | FROZEN | UNLINKED | — | 60.82 | below-floor | no |
 | `eod_jobs_core` | L1 | REVIEW | — | — | — | unmeasured | no |
 | `fee_core` | L3 | ACTIVE | — | — | 67.82 | below-floor | yes |
-| `fixed_asset_core` | L0 | FROZEN | DUPLICATE | 0.67 | 74.11 | ok | no |
+| `fixed_asset_core` | L2 | PILOT | — | — | 74.11 | ok | yes |
 | `fx_rate_core` | L0 | REVIEW | — | — | — | unmeasured | no |
 | `gl_allocation_core` | L0 | FROZEN | UNLINKED | — | 61.86 | below-floor | no |
 | `gl_core` | L3 | ACTIVE | — | — | 70.23 | ok | yes |
@@ -64,7 +64,7 @@
 | `report_run_core` | L1 | REVIEW | — | — | — | unmeasured | no |
 | `report_schedule_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `risk_core` | L0 | REVIEW | — | — | — | unmeasured | no |
-| `sla_tracker_core` | L0 | FROZEN | DUPLICATE | 0.95 | — | unmeasured | no |
+| `sla_tracker_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `statement_core` | L3 | ACTIVE | — | — | 58.19 | below-floor | yes |
 | `statement_recon_core` | L3 | ACTIVE | — | — | — | unmeasured | yes |
 | `tax_management_core` | L0 | FROZEN | DUPLICATE | 0.66 | — | unmeasured | no |

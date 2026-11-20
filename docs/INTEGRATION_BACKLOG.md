@@ -11,9 +11,9 @@
 | Module status | Modules |
 | --- | ---: |
 | CONNECTED (no open items) | 0 |
-| PARTIAL (open items) | 33 |
+| PARTIAL (open items) | 35 |
 
-Open/in-progress items: 147 of 207 recorded.
+Open/in-progress items: 147 of 209 recorded.
 
 | Module | Status | Items |
 | --- | --- | ---: |
@@ -29,6 +29,7 @@ Open/in-progress items: 147 of 207 recorded.
 | `deposit_core` | PARTIAL | 1 |
 | `deposit_posting_core` | PARTIAL | 1 |
 | `fee_core` | PARTIAL | 7 |
+| `fixed_asset_core` | PARTIAL | 1 |
 | `gl_core` | PARTIAL | 7 |
 | `identity_core` | PARTIAL | 7 |
 | `import_post_core` | PARTIAL | 4 |
@@ -44,6 +45,7 @@ Open/in-progress items: 147 of 207 recorded.
 | `payment_instruction_core` | PARTIAL | 6 |
 | `payroll_processing_core` | PARTIAL | 13 |
 | `report_schedule_core` | PARTIAL | 1 |
+| `sla_tracker_core` | PARTIAL | 1 |
 | `statement_core` | PARTIAL | 6 |
 | `statement_recon_core` | PARTIAL | 8 |
 | `treasury_liquidity_core` | PARTIAL | 6 |
@@ -115,6 +117,7 @@ Open/in-progress items: 147 of 207 recorded.
 | `fee_core:table:pic` | `fee_core` | table | DONE | assistant | Domain table has no core business key or FK into a core table |
 | `fee_core:table:velocity-counter` | `fee_core` | table | OPEN | finance | Domain table has no core business key or FK into a core table |
 | `fee_core:table:velocity-profile` | `fee_core` | table | OPEN | finance | Domain table has no core business key or FK into a core table |
+| `fixed_asset_core:audit:core-reference` | `fixed_asset_core` | audit | DONE | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `gl_core:action:action-account-create` | `gl_core` | action | OPEN | finance | Write paragraph with no core link (writes gl_account) |
 | `gl_core:action:action-period-close` | `gl_core` | action | OPEN | finance | Write paragraph with no core link (writes gl_period) |
 | `gl_core:action:action-period-open` | `gl_core` | action | OPEN | finance | Write paragraph with no core link (writes gl_period) |
@@ -214,6 +217,7 @@ Open/in-progress items: 147 of 207 recorded.
 | `report_core:table:report-template` | `report_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a core table |
 | `report_core:table:report-template-column` | `report_core` | table | WAIVED | assistant | Domain table has no core business key or FK into a core table |
 | `report_schedule_core:audit:core-reference` | `report_schedule_core` | audit | DONE | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `sla_tracker_core:audit:core-reference` | `sla_tracker_core` | audit | DONE | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `statement_core:action:action-run-fail` | `statement_core` | action | OPEN | reporting | Write paragraph with no core link (writes statement_run) |
 | `statement_core:action:action-run-start` | `statement_core` | action | OPEN | reporting | Write paragraph with no core link (writes statement_run) |
 | `statement_core:audit:core-reference` | `statement_core` | audit | OPEN | reporting | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Report schedule lifecycle DB tests via the COBOL binary.
-# Domain actions: ENABLE (OPEN/INACTIVE -> ACTIVE), DISABLE (ACTIVE -> INACTIVE
-# with reason), RUN_NOW (ACTIVE + below max, increments run_count).
+# Domain actions: ENABLE (OPEN/INACTIVE -> ACTIVE window), DISABLE
+# (ACTIVE -> INACTIVE with reason), RUN_NOW (ACTIVE + below max).
 set -u
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 # shellcheck disable=SC1091
@@ -35,15 +35,17 @@ assert_match "duplicate ref" "$(run_cobol "RPS_CREATE|RPS-W4-1|Other|DAILY|||adm
 assert_match "RPS_GET ok" "$(run_cobol "RPS_GET|${id}|||||admin@test.com")" "SUCCESS\|RPS_GET\|${id}\|RPS-W4-1"
 assert_match "RPS_LIST ok" "$(run_cobol "RPS_LIST|||50|0||admin@test.com")" "RPS-W4-1"
 
-# Run-now and disable require ACTIVE.
+# Run-now and disable require ACTIVE; enable opens the window from OPEN.
 assert_match "run-now on OPEN rejected" "$(run_cobol "RPS_RUN_NOW|${id}|||||admin@test.com")" "ERROR\|INVALID_STATUS"
 assert_match "disable on OPEN rejected" "$(run_cobol "RPS_DISABLE|${id}|pause||||admin@test.com")" "ERROR\|INVALID_STATUS"
-assert_match "enable on OPEN ok" "$(run_cobol "RPS_ENABLE|${id}|||||admin@test.com")" "SUCCESS\|RPS_ENABLE\|${id}"
+assert_match "RPS_ENABLE ok" "$(run_cobol "RPS_ENABLE|${id}|||||admin@test.com")" "SUCCESS\|RPS_ENABLE\|${id}"
+
+# NOTE: enable from OPEN is allowed (opens the active window); from ACTIVE it is rejected.
 assert_match "enabled persisted" "$(db_query "SELECT status FROM rpt_schedule_config WHERE id=${id};")" "^ACTIVE$"
 assert_match "enable twice rejected" "$(run_cobol "RPS_ENABLE|${id}|||||admin@test.com")" "ERROR\|INVALID_STATUS"
 assert_match "enable non-admin refused" "$(run_cobol "RPS_ENABLE|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
 
-# Run-now: ACTIVE, increments, capped at max.
+# Run-now: ACTIVE + increments, capped at max.
 assert_match "RPS_RUN_NOW ok" "$(run_cobol "RPS_RUN_NOW|${id}|||||admin@test.com")" "SUCCESS\|RPS_RUN_NOW\|${id}"
 assert_match "run count persisted" "$(db_query "SELECT run_count FROM rpt_schedule_config WHERE id=${id};")" "^1.0000$"
 run_cobol "RPS_RUN_NOW|${id}|||||admin@test.com" > /dev/null
@@ -52,6 +54,7 @@ run_cobol "RPS_RUN_NOW|${id}|||||admin@test.com" > /dev/null
 assert_match "run count at 4" "$(db_query "SELECT run_count FROM rpt_schedule_config WHERE id=${id};")" "^4.0000$"
 assert_match "run-now fifth ok" "$(run_cobol "RPS_RUN_NOW|${id}|||||admin@test.com")" "SUCCESS\|RPS_RUN_NOW\|${id}"
 assert_match "run-now over cap rejected" "$(run_cobol "RPS_RUN_NOW|${id}|||||admin@test.com")" "ERROR\|INVALID_STATUS"
+assert_match "run-now missing id" "$(run_cobol "RPS_RUN_NOW|999999|||||admin@test.com")" "ERROR\|NOT_FOUND"
 assert_match "run-now non-admin refused" "$(run_cobol "RPS_RUN_NOW|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
 
 # Disable: ACTIVE -> INACTIVE with reason.

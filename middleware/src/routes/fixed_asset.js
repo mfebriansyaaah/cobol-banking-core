@@ -98,13 +98,6 @@ export const FIXED_ASSET_ROUTES = [
   },
   {
     method: 'post',
-    path: '/finance/fixed-assets/:id/dispose',
-    action: 'FAS_DELETE',
-    tokenIdentity: 'actor',
-    fields: [ID, { name: 'reason', pattern: PATTERNS.NAME, required: false }, BLANK, BLANK, BLANK, ACTOR],
-  },
-  {
-    method: 'post',
     path: '/fixed-assets',
     action: 'FAS_CAPITALIZE',
     tokenIdentity: 'actor',

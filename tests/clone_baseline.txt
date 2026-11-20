@@ -1,4 +1,2 @@
-fixed_asset_core lines=960 shape=CLONE9 sim=0.67 level=L0
 merchant_settlement_core lines=1061 shape=CLONE9 sim=0.68 level=L0
-sla_tracker_core lines=531 shape=CLONE9 sim=0.95 level=L0
 tax_management_core lines=1145 shape=CLONE9 sim=0.66 level=L0

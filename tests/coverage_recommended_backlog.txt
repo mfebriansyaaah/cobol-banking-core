@@ -26,3 +26,4 @@ wallet_transfer_core  covered by wallet_transfer_db_tests.sh; add to curated cov
 compliance_calendar_core  covered by compliance_calendar_db_tests.sh; add to curated coverage set
 notification_template_core  covered by notification_template_db_tests.sh; add to curated coverage set
 report_schedule_core  covered by report_schedule_db_tests.sh; add to curated coverage set
+sla_tracker_core  covered by sla_tracker_db_tests.sh; add to curated coverage set

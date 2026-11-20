@@ -2951,19 +2951,6 @@
     "tokenIdentity": "actor",
     "stepUp": false
   },
-  "fixed_asset.js :: POST /finance/fixed-assets/:id/dispose": {
-    "action": "FAS_DELETE",
-    "fields": [
-      "ID",
-      "reason",
-      "BLANK",
-      "BLANK",
-      "BLANK",
-      "ACTOR"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": false
-  },
   "fixed_asset.js :: POST /finance/fixed-assets/:id/update": {
     "action": "FAS_UPDATE",
     "fields": [
@@ -6236,15 +6223,15 @@
       "slaRef",
       "slaName",
       "slaType",
-      "BLANK",
+      "target",
       "BLANK",
       "ACTOR"
     ],
     "tokenIdentity": "actor",
     "stepUp": false
   },
-  "sla_tracker.js :: POST /sla-trackers/:id/calc": {
-    "action": "SLT_CALC",
+  "sla_tracker.js :: POST /sla-trackers/:id/breach": {
+    "action": "SLT_BREACH",
     "fields": [
       "ID",
       "BLANK",
@@ -6256,8 +6243,21 @@
     "tokenIdentity": "actor",
     "stepUp": false
   },
-  "sla_tracker.js :: POST /sla-trackers/:id/delete": {
-    "action": "SLT_DELETE",
+  "sla_tracker.js :: POST /sla-trackers/:id/close": {
+    "action": "SLT_CLOSE",
+    "fields": [
+      "ID",
+      "reason",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "sla_tracker.js :: POST /sla-trackers/:id/escalate": {
+    "action": "SLT_ESCALATE",
     "fields": [
       "ID",
       "reason",
@@ -6275,8 +6275,8 @@
       "ID",
       "slaName",
       "slaType",
-      "BLANK",
-      "BLANK",
+      "target",
+      "actual",
       "ACTOR"
     ],
     "tokenIdentity": "actor",

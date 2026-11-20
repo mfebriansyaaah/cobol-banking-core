@@ -8,11 +8,9 @@ bank_guarantee_core CANDIDATE
 chargeback_core CANDIDATE
 cost_center_core CANDIDATE
 eod_core CANDIDATE
-fixed_asset_core CANDIDATE
 gl_allocation_core CANDIDATE
 import_core CANDIDATE
 letter_of_credit_core CANDIDATE
 loyalty_core CANDIDATE
 merchant_settlement_core CANDIDATE
-sla_tracker_core CANDIDATE
 tax_management_core CANDIDATE

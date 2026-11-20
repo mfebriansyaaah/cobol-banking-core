@@ -263,7 +263,6 @@ files:
     - { method: get, path: "/finance/fixed-assets/:id", action: FAS_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
     - { method: post, path: "/finance/fixed-assets/:id/depreciate", action: FAS_CALC, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
     - { method: post, path: "/finance/fixed-assets/:id/update", action: FAS_UPDATE, tokenIdentity: 'actor', fields: [ID, assetName:NAME?, assetType:NAME?, BLANK, BLANK, ACTOR] }
-    - { method: post, path: "/finance/fixed-assets/:id/dispose", action: FAS_DELETE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
     - { method: post, path: "/fixed-assets", action: FAS_CAPITALIZE, tokenIdentity: 'actor', fields: [assetRef:KEY, assetName:NAME, assetType:NAME, costSpec:RPT_PARAMS, assetSpec:RPT_PARAMS, ACTOR] }
     - { method: get, path: "/fixed-assets/summary", action: FAS_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
     - { method: get, path: "/fixed-assets/audit", action: FAS_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }

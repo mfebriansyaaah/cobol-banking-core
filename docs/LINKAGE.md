@@ -6,15 +6,15 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-20T05:26:28.617Z
-- Commit: `4c7345c3`
+- Generated at: 2026-11-20T06:37:27.382Z
+- Commit: `23461f67`
 
 | Level | Modules |
 | --- | ---: |
 | L3 (core transaction) | 23 |
-| L2 (business reference) | 10 |
+| L2 (business reference) | 12 |
 | L1 (weak / untested link) | 10 |
-| L0 (isolated) | 23 |
+| L0 (isolated) | 21 |
 | UTILITY | 3 |
 
 Unresolved route files: none.
@@ -44,7 +44,7 @@ Unresolved route files: none.
 | `eod_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `eod_jobs_core` | L1 | accounts | user_core | 1 | linked code with no DB/table/integration test (downgraded) |
 | `fee_core` | L3 | — | — | 1 | Core anchor module |
-| `fixed_asset_core` | L0 | — | — | 1 | own domain tables only, no core link |
+| `fixed_asset_core` | L2 | fixed_asset, fixed_asset_depreciation, fixed_asset_disposal | — | 1 | business link (tables fixed_asset, fixed_asset_depreciation, fixed_asset_disposal) + test |
 | `fx_rate_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `gl_allocation_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `gl_core` | L3 | — | — | 1 | Core anchor module |
@@ -77,7 +77,7 @@ Unresolved route files: none.
 | `report_run_core` | L1 | gl_journal, gl_journal_line | — | 0 | linked code with no DB/table/integration test (downgraded) |
 | `report_schedule_core` | L2 | rpt_schedule_config | — | 1 | business link (tables rpt_schedule_config) + test |
 | `risk_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `sla_tracker_core` | L0 | — | — | 1 | own domain tables only, no core link |
+| `sla_tracker_core` | L2 | sla_tracker | — | 1 | business link (tables sla_tracker) + test |
 | `statement_core` | L3 | accounts, journal_entries, ledger | — | 1 | money-table touch (accounts, journal_entries, ledger) with depth + test |
 | `statement_recon_core` | L3 | accounts, ledger | — | 1 | money-table touch (accounts, ledger) with depth + test |
 | `tax_management_core` | L0 | — | — | 1 | own domain tables only, no core link |

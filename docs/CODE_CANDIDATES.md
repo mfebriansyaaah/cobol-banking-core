@@ -8,13 +8,13 @@
 
 | Status | Candidates |
 | --- | ---: |
-| CANDIDATE | 12 |
+| CANDIDATE | 10 |
 | DEPRECATED | 0 |
 | RETIRED | 0 |
 
 | Kind | Candidates |
 | --- | ---: |
-| DUPLICATE (template clone) | 4 |
+| DUPLICATE (template clone) | 2 |
 | UNLINKED (custom code, no core link) | 8 |
 
 | Module | Link | Status | Replacement | Traffic | Sign-off | Reason |
@@ -23,11 +23,9 @@
 | `chargeback_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
 | `cost_center_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `eod_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
-| `fixed_asset_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
 | `gl_allocation_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `import_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `letter_of_credit_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
 | `loyalty_core` | L0 | CANDIDATE | — | — | — | UNLINKED: No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
 | `merchant_settlement_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
-| `sla_tracker_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). |
 | `tax_management_core` | L0 | CANDIDATE | — | — | — | DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F. |
