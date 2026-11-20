@@ -18,16 +18,16 @@
 | `auth_session_core` | L0 | REVIEW | — | — | — | unmeasured | no |
 | `bank_guarantee_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `card_core` | L3 | ACTIVE | — | — | 65.76 | below-floor | yes |
-| `card_posting_core` | L3 | ACTIVE | — | — | — | unmeasured | yes |
+| `card_posting_core` | L3 | ACTIVE | — | — | 56.47 | below-floor | yes |
 | `chargeback_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `collateral_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `collection_core` | L3 | ACTIVE | — | — | 55.95 | below-floor | yes |
 | `compliance_calendar_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `corp_core` | L0 | REVIEW | — | — | — | unmeasured | no |
 | `cost_center_core` | L2 | PILOT | — | — | 62.01 | below-floor | yes |
-| `dashboard_core` | L3 | ACTIVE | — | — | — | unmeasured | yes |
+| `dashboard_core` | L3 | ACTIVE | — | — | 59.78 | below-floor | yes |
 | `deposit_core` | L3 | ACTIVE | — | — | 80.72 | ok | yes |
-| `deposit_posting_core` | L3 | ACTIVE | — | — | — | unmeasured | yes |
+| `deposit_posting_core` | L3 | ACTIVE | — | — | 22.86 | below-floor | yes |
 | `eod_core` | L2 | PILOT | — | — | 60.82 | below-floor | yes |
 | `eod_jobs_core` | L1 | REVIEW | — | — | — | unmeasured | no |
 | `fee_core` | L3 | ACTIVE | — | — | 67.82 | below-floor | yes |
@@ -43,7 +43,7 @@
 | `import_row_core` | L0 | REVIEW | — | — | — | unmeasured | no |
 | `letter_of_credit_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `loan_core` | L3 | ACTIVE | — | — | 38.99 | below-floor | yes |
-| `loan_posting_core` | L3 | ACTIVE | — | — | — | unmeasured | yes |
+| `loan_posting_core` | L3 | ACTIVE | — | — | 26.15 | below-floor | yes |
 | `loan_schedule_core` | L3 | ACTIVE | — | — | 52.91 | below-floor | yes |
 | `loan_schedule_lifecycle_core` | L1 | REVIEW | — | — | — | unmeasured | no |
 | `loan_schedule_posting_core` | L1 | REVIEW | — | — | — | unmeasured | no |
@@ -54,7 +54,7 @@
 | `notification_template_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `payment_clearing_core` | L3 | ACTIVE | — | — | 40.53 | below-floor | yes |
 | `payment_core` | L3 | ACTIVE | — | — | — | unmeasured | yes |
-| `payment_hold_core` | L3 | ACTIVE | — | — | — | unmeasured | yes |
+| `payment_hold_core` | L3 | ACTIVE | — | — | 58.88 | below-floor | yes |
 | `payment_instruction_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `payroll_processing_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `phone_otp_core` | L0 | REVIEW | — | — | — | unmeasured | no |
@@ -76,4 +76,4 @@
 | `wallet_recon_core` | L1 | REVIEW | — | — | — | unmeasured | no |
 | `wallet_reversal_core` | L1 | REVIEW | — | — | — | unmeasured | no |
 | `wallet_statement_core` | L1 | REVIEW | — | — | — | unmeasured | no |
-| `wallet_transfer_core` | L3 | ACTIVE | — | — | — | unmeasured | yes |
+| `wallet_transfer_core` | L3 | ACTIVE | — | — | 45.45 | below-floor | yes |

@@ -13,13 +13,13 @@ collection_core  lifecycle branches beyond pay (escalate/assign/write-off) thin 
 card_core  C-06 entry reset adds executed lines; attribution shifted to 69.58% (70.03% before). Capture/repay/authorize paths fully asserted; remaining branches need targeted tests
 treasury_liquidity_core  C-06 entry reset adds executed lines; attribution shifted to 67.76% (70.08% before). Post/settle guards asserted; realization/admin branches need targeted tests
 auth_password_core  utility delegate; not yet in curated coverage set — Phase 4
-card_posting_core  not yet in curated coverage set — Phase 4
-dashboard_core  not yet in curated coverage set — Phase 4
-deposit_posting_core  not yet in curated coverage set — Phase 4
+card_posting_core  card posting/GL branches beyond the existing suite (56.47%)
+dashboard_core  read-only aggregation; suite covers happy paths only (59.78%)
+deposit_posting_core  posting/GL paths exercised only through the deposit suite (22.86%)
 import_post_core  not yet in curated coverage set — Phase 4
-loan_posting_core  not yet in curated coverage set — Phase 4
+loan_posting_core  posting resolve largely lives in loan_core; suite thin (26.15%)
 payment_core  not yet in curated coverage set — Phase 4
-payment_hold_core  not yet in curated coverage set — Phase 4
+payment_hold_core  hold lifecycle branches beyond release are thin (58.88%)
 statement_core  measured 58.19% < 70% — raise coverage in Phase 4
 statement_recon_core  not yet in curated coverage set — Phase 4
-wallet_transfer_core  not yet in curated coverage set — Phase 4
+wallet_transfer_core  transfer lifecycle branches remain thin in the curated run (45.45%)

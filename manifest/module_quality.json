@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T08:25:13.004Z",
+  "generatedAt": "2026-11-20T08:42:33.164Z",
   "modules": [
     {
       "module": "account_core",
@@ -127,8 +127,8 @@
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
       "cloneSimilarity": null,
-      "coveragePercent": null,
-      "coverageStatus": "unmeasured",
+      "coveragePercent": 56.47,
+      "coverageStatus": "below-floor",
       "routeFile": null,
       "dbSuite": "tests/db/card_posting_db_tests.sh",
       "recommendedForTraining": true
@@ -211,8 +211,8 @@
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
       "cloneSimilarity": null,
-      "coveragePercent": null,
-      "coverageStatus": "unmeasured",
+      "coveragePercent": 59.78,
+      "coverageStatus": "below-floor",
       "routeFile": "dashboard.js",
       "dbSuite": "tests/db/dashboard_db_tests.sh",
       "recommendedForTraining": true
@@ -235,8 +235,8 @@
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
       "cloneSimilarity": null,
-      "coveragePercent": null,
-      "coverageStatus": "unmeasured",
+      "coveragePercent": 22.86,
+      "coverageStatus": "below-floor",
       "routeFile": null,
       "dbSuite": "tests/db/deposit_posting_db_tests.sh",
       "recommendedForTraining": true
@@ -427,8 +427,8 @@
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
       "cloneSimilarity": null,
-      "coveragePercent": null,
-      "coverageStatus": "unmeasured",
+      "coveragePercent": 26.15,
+      "coverageStatus": "below-floor",
       "routeFile": null,
       "dbSuite": "tests/db/loan_posting_db_tests.sh",
       "recommendedForTraining": true
@@ -559,8 +559,8 @@
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
       "cloneSimilarity": null,
-      "coveragePercent": null,
-      "coverageStatus": "unmeasured",
+      "coveragePercent": 58.88,
+      "coverageStatus": "below-floor",
       "routeFile": "payment_hold.js",
       "dbSuite": "tests/db/payment_hold_db_tests.sh",
       "recommendedForTraining": true
@@ -823,8 +823,8 @@
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
       "cloneSimilarity": null,
-      "coveragePercent": null,
-      "coverageStatus": "unmeasured",
+      "coveragePercent": 45.45,
+      "coverageStatus": "below-floor",
       "routeFile": null,
       "dbSuite": "tests/db/wallet_transfer_db_tests.sh",
       "recommendedForTraining": true

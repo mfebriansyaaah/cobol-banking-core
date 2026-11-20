@@ -129,6 +129,8 @@ CURATED=(
     payment_clearing_core treasury_liquidity_core
     gl_allocation_core
     cost_center_core fixed_asset_core account_core
+    card_posting_core dashboard_core deposit_posting_core
+    loan_posting_core payment_hold_core wallet_transfer_core
 )
 
 # Representative DB suites. Missing suites are skipped with a warning so the
@@ -148,6 +150,8 @@ SUITES=(
     fixed_asset_domain_db_tests
     notification_template_db_tests
     report_statement_db_tests eod_ops_db_tests
+    dashboard_db_tests deposit_posting_db_tests loan_posting_db_tests
+    payment_hold_db_tests wallet_transfer_db_tests
     ref_pair_db_tests
 )
 
