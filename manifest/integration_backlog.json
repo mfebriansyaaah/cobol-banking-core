@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-18T01:47:35.307Z",
+  "generatedAt": "2026-11-20T02:46:16.899Z",
   "items": [
     {
       "id": "auth_core:action:outbox-claim-logic",
@@ -35,7 +35,7 @@
       "status": "DONE",
       "reason": "Write paragraph with no core link (writes revoked_access_tokens)",
       "evidence": [
-        "Auth-owned session/token tables are not Tier-1 business tables by design (money tables only); no core link is required. Single-writer atomicity proven by tests/db/auth_race_db_tests.sh (consume-once, reuse kills family) + tests/db/auth_invariants_db_tests.sh (rotation, expiry, reuse)."
+        "Auth-owned session/token tables are not core business tables by design (money tables only); no core link is required. Single-writer atomicity proven by tests/db/auth_race_db_tests.sh (consume-once, reuse kills family) + tests/db/auth_invariants_db_tests.sh (rotation, expiry, reuse)."
       ],
       "owner": "assistant"
     },
@@ -47,7 +47,7 @@
       "status": "DONE",
       "reason": "Write paragraph with no core link (writes refresh_sessions)",
       "evidence": [
-        "Auth-owned session/token tables are not Tier-1 business tables by design (money tables only); no core link is required. Single-writer atomicity proven by tests/db/auth_race_db_tests.sh (consume-once, reuse kills family) + tests/db/auth_invariants_db_tests.sh (rotation, expiry, reuse)."
+        "Auth-owned session/token tables are not core business tables by design (money tables only); no core link is required. Single-writer atomicity proven by tests/db/auth_race_db_tests.sh (consume-once, reuse kills family) + tests/db/auth_invariants_db_tests.sh (rotation, expiry, reuse)."
       ],
       "owner": "assistant"
     },
@@ -59,7 +59,7 @@
       "status": "DONE",
       "reason": "Write paragraph with no core link (writes refresh_families, refresh_sessions)",
       "evidence": [
-        "Auth-owned session/token tables are not Tier-1 business tables by design (money tables only); no core link is required. Single-writer atomicity proven by tests/db/auth_race_db_tests.sh (consume-once, reuse kills family) + tests/db/auth_invariants_db_tests.sh (rotation, expiry, reuse)."
+        "Auth-owned session/token tables are not core business tables by design (money tables only); no core link is required. Single-writer atomicity proven by tests/db/auth_race_db_tests.sh (consume-once, reuse kills family) + tests/db/auth_invariants_db_tests.sh (rotation, expiry, reuse)."
       ],
       "owner": "assistant"
     },
@@ -81,7 +81,7 @@
       "kind": "table",
       "subject": "access_review_items",
       "status": "WAIVED",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "references moved to auth_review_core.cob by the PR-057 split",
         "table has DDL (0041_access_review); reviewed with the review module"
@@ -94,7 +94,7 @@
       "kind": "table",
       "subject": "access_reviews",
       "status": "WAIVED",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "references moved to auth_review_core.cob by the PR-057 split",
         "table has DDL (0041_access_review); reviewed with the review module"
@@ -107,7 +107,7 @@
       "kind": "table",
       "subject": "audit_trail",
       "status": "DONE",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "FK fk_audit_user -> users(id); rows carry (action, entity_type, entity_id, status); LOGIN rows asserted in tests/db/auth_race_db_tests.sh"
       ],
@@ -119,9 +119,9 @@
       "kind": "table",
       "subject": "dual_control_operations",
       "status": "DONE",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "PK(operation); operational guard table, no user/money row by design; no Tier-1 money link required"
+        "PK(operation); operational guard table, no user/money row by design; no core money link required"
       ],
       "owner": "assistant"
     },
@@ -131,9 +131,9 @@
       "kind": "table",
       "subject": "known_devices",
       "status": "DONE",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "PK(email,user_agent,ip); email anchors identity; no Tier-1 money link by design"
+        "PK(email,user_agent,ip); email anchors identity; no core money link by design"
       ],
       "owner": "assistant"
     },
@@ -143,7 +143,7 @@
       "kind": "table",
       "subject": "maker_requests",
       "status": "WAIVED",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "references moved to auth_recovery_core.cob by the PR-057 split",
         "table has DDL (0033_dual_control); reviewed with the recovery module"
@@ -156,7 +156,7 @@
       "kind": "table",
       "subject": "mfa_backup_codes",
       "status": "DONE",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "FK fk_backup_user -> users(id); single-use burn proven race-tested in tests/db/auth_race_db_tests.sh"
       ],
@@ -168,7 +168,7 @@
       "kind": "table",
       "subject": "mfa_recovery_requests",
       "status": "WAIVED",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "references moved to auth_recovery_core.cob by the PR-057 split",
         "table has DDL (0035_mfa_recovery); reviewed with the recovery module"
@@ -181,9 +181,9 @@
       "kind": "table",
       "subject": "notification_outbox",
       "status": "DONE",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "outbox queue, no FK by design (transient delivery rows); no Tier-1 money link required"
+        "outbox queue, no FK by design (transient delivery rows); no core money link required"
       ],
       "owner": "assistant"
     },
@@ -193,7 +193,7 @@
       "kind": "table",
       "subject": "permissions",
       "status": "WAIVED",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "references moved to auth_ops_core/auth_review_core by the PR-057 split",
         "table has DDL (0042_scoped_permissions); permission checks JOIN users"
@@ -206,7 +206,7 @@
       "kind": "table",
       "subject": "refresh_families",
       "status": "DONE",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "FK fk_refresh_family_user -> users(email); rotations accounting proven in tests/db/auth_conservation_db_tests.sh"
       ],
@@ -218,7 +218,7 @@
       "kind": "table",
       "subject": "refresh_sessions",
       "status": "DONE",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "FK fk_refresh_user -> users(email); consume-once + reuse-kills-family proven in tests/db/auth_race_db_tests.sh"
       ],
@@ -230,7 +230,7 @@
       "kind": "table",
       "subject": "revoked_access_tokens",
       "status": "DONE",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "FK fk_revoked_user -> users(email); reuse path tested end-to-end (SESSION_REUSED, family dead) in tests/db/auth_race_db_tests.sh"
       ],
@@ -242,7 +242,7 @@
       "kind": "table",
       "subject": "role_permissions",
       "status": "WAIVED",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "references moved to auth_ops_core/auth_review_core by the PR-057 split (permission checks)",
         "the queries JOIN users on role (core-linked reads), not unlinked domain writes"
@@ -255,7 +255,7 @@
       "kind": "table",
       "subject": "step_up_policy",
       "status": "DONE",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "PK(action); policy table exercised by STEP_UP_REQUIRED cases in tests/db/auth_invariants_db_tests.sh"
       ],
@@ -267,9 +267,9 @@
       "kind": "table",
       "subject": "verification_logs",
       "status": "DONE",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "signup/otp log exercised by every auth suite signup flow; no Tier-1 money link by design"
+        "signup/otp log exercised by every auth suite signup flow; no core money link by design"
       ],
       "owner": "assistant"
     },
@@ -451,11 +451,11 @@
       "kind": "table",
       "subject": "collateral",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'active', 'deleted'), 'released', 4), appraised_at, appraised_value, assessed_value, asset_name, asset_type, asset_type), collateral_ref, created_at, created_by, deleted_at, id, if, index, release_reason, released_at, status, unique, updated_at, version",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "collateral"
     },
@@ -465,11 +465,11 @@
       "kind": "table",
       "subject": "collateral_valuation",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'haircut'), 'revaluation', 4), check, collateral_id, constraint, created_at, created_at), created_by, currency, if, index, method, note, valid_until, valuation_id, valuation_type, value_amount, valuer",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "collateral"
     },
@@ -499,11 +499,11 @@
       "kind": "table",
       "subject": "audit_trail",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "reporting"
     },
@@ -513,11 +513,11 @@
       "kind": "table",
       "subject": "dispute_cases",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'acknowledged', 'rejected'), 'resolved', assigned_to, case_id, constraint, created_at, decided_at, detail, due_date, if, key, resolution, state, state), subject, txn_ref, updated_at, user_id",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "reporting"
     },
@@ -527,11 +527,11 @@
       "kind": "table",
       "subject": "import_batch",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'accounts', 'completed', 'failed'), 'payments'), 'reference', 'validated', 'validating', batch_code, check, created_at, created_at), created_by, error_code, error_detail, id, import_type, index, invalid_rows, posted_rows, source_name, status, total_rows, updated_at, valid_rows, version",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "reporting"
     },
@@ -541,11 +541,11 @@
       "kind": "table",
       "subject": "notification_outbox",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'dead'), 'failed', 'sending', 'sent', attempts, claimed_at, claimed_by, code, created_at, created_at), detail, id, key, last_error, next_attempt_at, purpose, recipient, sent_at, state",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "reporting"
     },
@@ -555,11 +555,11 @@
       "kind": "table",
       "subject": "ops_alert",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'acknowledged', 'critical'), 'resolved'), 'warning', acknowledged_at, alert_type, created_at, created_at), created_by, detail, id, index, owner_email, resolved_at, severity, source_key, state, state), title, unique, updated_at",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "reporting"
     },
@@ -569,11 +569,11 @@
       "kind": "table",
       "subject": "payment_policy",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 10), 2), check, currency_code, daily_count, daily_limit, enabled, hold_percent, hold_threshold, max_per_txn, updated_at, updated_by",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "reporting"
     },
@@ -583,11 +583,11 @@
       "kind": "table",
       "subject": "payment_profile",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 10), check, currency_code, currency_code), daily_count, daily_limit, enabled, id, unique, updated_at, updated_by, user_email",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "reporting"
     },
@@ -597,11 +597,11 @@
       "kind": "table",
       "subject": "pending_transactions",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'committed', 'failed'), 4), amount, constraint, created_at, from_email, id, status, to_email, txn_ref, txn_ref), unique, updated_at",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "reporting"
     },
@@ -611,11 +611,11 @@
       "kind": "table",
       "subject": "reconciliation_runs",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'mismatch'), 'scheduled'), actor_email, created_at, key, mismatch_count, run_id, status, trigger_src",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "reporting"
     },
@@ -625,11 +625,11 @@
       "kind": "table",
       "subject": "report_run",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'completed', 'failed'), 10), check, checksum, constraint, created_at, created_by, error_code, error_detail, finished_at, id, index, parameters, row_count, started_at, started_at), status, template_id, total_credit, total_debit, updated_at, version",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "reporting"
     },
@@ -639,11 +639,11 @@
       "kind": "table",
       "subject": "report_schedule",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'fixed', 'json'), 'monthly'), 'weekly', check, created_at, created_by, currency_code, enabled, frequency, id, index, last_run_at, next_run_date, next_run_date), output_format, recipient, schedule_time, template_code, updated_at",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "reporting"
     },
@@ -722,11 +722,11 @@
       "kind": "table",
       "subject": "pic",
       "status": "DONE",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "no DDL found in schema.sql/migrations",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables",
+        "no FOREIGN KEY into core tables",
         "artifact, not a table: subject \"pic\" came from the declaration text \"WS-TIER-FROM ... PIC X(30)\"; the dead declaration was removed in DRY-04 and no such table exists"
       ],
       "owner": "assistant"
@@ -737,11 +737,11 @@
       "kind": "table",
       "subject": "velocity_counter",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 10), account_email, check, id, profile_code, unique, updated_at, used_amount, used_count, window_start, window_start)",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "finance"
     },
@@ -751,11 +751,11 @@
       "kind": "table",
       "subject": "velocity_profile",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 10), check, created_at, created_by, currency_code, enabled, id, max_amount, max_count, name, profile_code, window_seconds",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "finance"
     },
@@ -814,11 +814,11 @@
       "kind": "table",
       "subject": "audit_trail",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "finance"
     },
@@ -828,11 +828,11 @@
       "kind": "table",
       "subject": "gl_account",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'credit'), 'equity', 'expense'), 'liability', 'revenue', account_code, account_type, constraint, created_at, is_active, name, normal_side, parent_code",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "finance"
     },
@@ -842,11 +842,11 @@
       "kind": "table",
       "subject": "gl_period",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'closed'), check, closed_at, closed_by, opened_at, period_code, status",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "finance"
     },
@@ -879,11 +879,11 @@
       "kind": "table",
       "subject": "audit_trail",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "identity"
     },
@@ -893,11 +893,11 @@
       "kind": "table",
       "subject": "identity_verifications",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'error'), 'invalid', 'ktp_ocr', 'manual'), 'manual_review', 'nik_remote', 'valid', 2), attempts, constraint, created_at, created_at), expires_at, id, index, method, provider, provider_ref, result_code, score, status, updated_at, user_id",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "identity"
     },
@@ -907,11 +907,11 @@
       "kind": "table",
       "subject": "manual_reviews",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'approved', 'rejected'), 'screening'), constraint, created_at, created_at), id, index, kind, reason, ref_id, reviewed_at, reviewer_email, status, user_id",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "identity"
     },
@@ -921,11 +921,11 @@
       "kind": "table",
       "subject": "phone_links",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: chat_id, constraint, created_at, id, link_token, linked_at, phone_hash, revoked_at, token_expires_at, unique, user_id, verified_at",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "identity"
     },
@@ -935,11 +935,11 @@
       "kind": "table",
       "subject": "screening_checks",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'confirmed_match', 'false_positive', 'manual_review'), 'potential_match', 2), constraint, created_at, created_at), id, index, provider, provider_ref, query_hash, result, reviewed_by, score, user_id",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "identity"
     },
@@ -959,11 +959,11 @@
       "kind": "table",
       "subject": "gl_period",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'closed'), check, closed_at, closed_by, opened_at, period_code, status",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "backend"
     },
@@ -973,11 +973,11 @@
       "kind": "table",
       "subject": "import_batch",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'accounts', 'completed', 'failed'), 'payments'), 'reference', 'validated', 'validating', batch_code, check, created_at, created_at), created_by, error_code, error_detail, id, import_type, index, invalid_rows, posted_rows, source_name, status, total_rows, updated_at, valid_rows, version",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "backend"
     },
@@ -987,11 +987,11 @@
       "kind": "table",
       "subject": "import_row",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'invalid', 'posted', 'skipped'), 'valid', batch_id, check, constraint, created_at, error_code, error_detail, id, if, raw_data, row_no, row_no), status, unique, updated_at",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "backend"
     },
@@ -1050,11 +1050,11 @@
       "kind": "table",
       "subject": "import_batch",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'accounts', 'completed', 'failed'), 'payments'), 'reference', 'validated', 'validating', batch_code, check, created_at, created_at), created_by, error_code, error_detail, id, import_type, index, invalid_rows, posted_rows, source_name, status, total_rows, updated_at, valid_rows, version",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "reporting"
     },
@@ -1064,11 +1064,11 @@
       "kind": "table",
       "subject": "import_recon_run",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'completed', 'failed'), batch_id, check, constraint, created_by, error_detail, finished_at, id, index, matched_count, mismatch_count, row_count, started_at, started_at), status, unmatched_count",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "reporting"
     },
@@ -1078,11 +1078,11 @@
       "kind": "table",
       "subject": "import_row",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'invalid', 'posted', 'skipped'), 'valid', batch_id, check, constraint, created_at, error_code, error_detail, id, if, raw_data, row_no, row_no), status, unique, updated_at",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "reporting"
     },
@@ -1154,11 +1154,11 @@
       "kind": "table",
       "subject": "loan",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'active', 'closed', 'deleted'), 4), close_reason, closed_at, created_at, created_by, customer_name, deleted_at, disbursed_amount, disbursed_at, id, index, loan_amount, loan_ref, loan_type, loan_type), status, unique, updated_at, version",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "lending"
     },
@@ -1315,11 +1315,11 @@
       "kind": "table",
       "subject": "customer",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'closed', 'deleted'), 'onboarded', 4), close_reason, closed_at, created_at, created_by, credit_limit, customer_ref, customer_type, customer_type), deleted_at, full_name, id, index, kyc_status, onboarded_at, status, unique, updated_at, used_credit, version",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "merchant"
     },
@@ -1329,11 +1329,11 @@
       "kind": "table",
       "subject": "merchant",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'active', 'closed', 'deleted'), 4), activated_at, close_reason, closed_at, created_at, created_by, deleted_at, id, if, index, merchant_name, merchant_ref, merchant_type, merchant_type), settled_volume, status, transaction_volume, unique, updated_at, version",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "merchant"
     },
@@ -1343,11 +1343,11 @@
       "kind": "table",
       "subject": "merchant_settlement",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'active', 'deleted'), 'settled', 4), created_at, created_by, deleted_at, id, if, index, merchant_name, paid_amount, scheduled_at, settle_reason, settled_at, settlement_amount, settlement_ref, settlement_type, settlement_type), status, unique, updated_at, version",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "merchant"
     },
@@ -1418,11 +1418,11 @@
       "kind": "table",
       "subject": "payment_clearing",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'cancelled'), 'posted', 'settled', 4), amount, cancellation_reason, cancelled_at, clearing_ref, created_at, created_by, currency, currency), id, index, payment_ref, posted_amount, posted_at, settled_amount, settled_at, status, unique, updated_at",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "payments"
     },
@@ -1468,11 +1468,11 @@
       "kind": "table",
       "subject": "daily_limit",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'active', 'closed', 'deleted'), 4), activated_at, budget_amount, closed_at, closure_reason, created_at, created_by, dailylimit_ref, deleted_at, id, index, name, spent_amount, status, type, type), unique, updated_at, version",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "payments"
     },
@@ -1482,11 +1482,11 @@
       "kind": "table",
       "subject": "payment_policy",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 10), 2), check, currency_code, daily_count, daily_limit, enabled, hold_percent, hold_threshold, max_per_txn, updated_at, updated_by",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "payments"
     },
@@ -1496,11 +1496,11 @@
       "kind": "table",
       "subject": "payment_profile",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 10), check, currency_code, currency_code), daily_count, daily_limit, enabled, id, unique, updated_at, updated_by, user_email",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "payments"
     },
@@ -1607,11 +1607,11 @@
       "kind": "table",
       "subject": "payment_instruction",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'cancelled', 'completed'), 'daily', 'monthly'), 'paused', 'weekly', 10), amount, check, created_at, created_by, currency_code, end_date, frequency, from_email, id, index, instruction_code, last_run_at, last_txn_ref, next_run_date, next_run_date), status, status), to_email, updated_at",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "payments"
     },
@@ -1621,11 +1621,11 @@
       "kind": "table",
       "subject": "payment_instruction_run",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'failed'), constraint, created_by, error_detail, id, id), index, instruction_id, run_at, status, txn_ref",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "payments"
     },
@@ -1736,11 +1736,11 @@
       "kind": "table",
       "subject": "customer",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'closed', 'deleted'), 'onboarded', 4), close_reason, closed_at, created_at, created_by, credit_limit, customer_ref, customer_type, customer_type), deleted_at, full_name, id, index, kyc_status, onboarded_at, status, unique, updated_at, used_credit, version",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "payroll"
     },
@@ -1750,11 +1750,11 @@
       "kind": "table",
       "subject": "payroll_employee",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'failed'), 'paid', 'valid', 4), batch_id, check, constraint, created_at, deduction_amount, employee_account_id, employee_id, employee_name, employee_ref, employee_ref), gross_amount, index, net_amount, status, status), tax_amount, unique",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "payroll"
     },
@@ -1764,11 +1764,11 @@
       "kind": "table",
       "subject": "payroll_payment",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'failed'), 'paid', 'posted', 4), amount, batch_id, check, constraint, created_at, employee_id, error_code, error_detail, index, paid_at, payment_clearing_ref, payment_id, posted_at, status, status)",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "payroll"
     },
@@ -1778,11 +1778,11 @@
       "kind": "table",
       "subject": "payroll_processing",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'active', 'completed', 'deleted'), 4), batch_name, complete_reason, completed_at, created_at, created_by, deleted_at, id, if, index, payroll_ref, payroll_type, payroll_type), processed_amount, processed_at, status, total_amount, unique, updated_at, version",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "payroll"
     },
@@ -1792,11 +1792,11 @@
       "kind": "table",
       "subject": "tax_management",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'active', 'deleted'), 'inactive', 4), activated_at, collected_tax, created_at, created_by, deactivate_reason, deactivated_at, deleted_at, id, if, index, max_tax, status, tax_name, tax_ref, tax_type, tax_type), unique, updated_at, version",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "payroll"
     },
@@ -1948,7 +1948,7 @@
       "kind": "table",
       "subject": "gl_account",
       "status": "WAIVED",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "reference moved to report_run_core.cob by the PR-058 split",
         "gl_account is a core table owned by gl_core (0056_gl_core); run linkage downgraded with the module, not the data"
@@ -1961,7 +1961,7 @@
       "kind": "table",
       "subject": "report_run",
       "status": "WAIVED",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "references now under report_core/report_run_core (L0/L1, unaudited) after the PR-058 split",
         "tables have DDL; covered by report_statement/report_builder suites"
@@ -1974,7 +1974,7 @@
       "kind": "table",
       "subject": "report_run_row",
       "status": "WAIVED",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "references now under report_core/report_run_core (L0/L1, unaudited) after the PR-058 split",
         "tables have DDL; covered by report_statement/report_builder suites"
@@ -1987,7 +1987,7 @@
       "kind": "table",
       "subject": "report_template",
       "status": "WAIVED",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "references now under report_core/report_run_core (L0/L1, unaudited) after the PR-058 split",
         "tables have DDL; covered by report_statement/report_builder suites"
@@ -2000,7 +2000,7 @@
       "kind": "table",
       "subject": "report_template_column",
       "status": "WAIVED",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "PR-058 split reclassified report_core L3->L0 (templates only); L0 modules unaudited",
         "table has DDL; template columns reviewed with the report module"
@@ -2049,11 +2049,11 @@
       "kind": "table",
       "subject": "statement_archive",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 10), account_email, check, closing_balance, constraint, created_at, currency_code, currency_code), id, opening_balance, row_count, run_id, total_credit, total_debit, unique",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "reporting"
     },
@@ -2063,11 +2063,11 @@
       "kind": "table",
       "subject": "statement_archive_line",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 10), archive_id, balance_after, check, constraint, created_at, credit_amount, debit_amount, description, id, line_no, line_no), posting_date, source, txn_ref, unique",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "reporting"
     },
@@ -2077,11 +2077,11 @@
       "kind": "table",
       "subject": "statement_run",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'completed', 'failed'), account_count, check, created_by, currency_code, error_code, error_detail, failed_count, finished_at, generated_count, id, index, period_end, period_end), period_start, started_at, status, version",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "reporting"
     },
@@ -2140,11 +2140,11 @@
       "kind": "table",
       "subject": "statement_archive",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 10), account_email, check, closing_balance, constraint, created_at, currency_code, currency_code), id, opening_balance, row_count, run_id, total_credit, total_debit, unique",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "reporting"
     },
@@ -2154,11 +2154,11 @@
       "kind": "table",
       "subject": "statement_archive_line",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 10), archive_id, balance_after, check, constraint, created_at, credit_amount, debit_amount, description, id, line_no, line_no), posting_date, source, txn_ref, unique",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "reporting"
     },
@@ -2168,11 +2168,11 @@
       "kind": "table",
       "subject": "statement_recon_run",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'completed', 'failed'), check, constraint, created_by, error_detail, finished_at, id, index, line_count, matched_count, mismatch_count, started_at, started_at), statement_run_id, status, unmatched_count",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "reporting"
     },
@@ -2182,11 +2182,11 @@
       "kind": "table",
       "subject": "statement_run",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'completed', 'failed'), account_count, check, created_by, currency_code, error_code, error_detail, failed_count, finished_at, generated_count, id, index, period_end, period_end), period_start, started_at, status, version",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "reporting"
     },
@@ -2258,11 +2258,11 @@
       "kind": "table",
       "subject": "treasury_liquidity",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'adjusted'), 'closed', 'projected', 'realized', 4), amount, closed_at, closure_reason, created_at, created_by, currency, currency), id, if, index, liq_ref, projected_amount, projected_at, realized_amount, realized_at, source_ref, status, unique, updated_at",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "treasury"
     },
@@ -2282,11 +2282,11 @@
       "kind": "table",
       "subject": "audit_trail",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "backend"
     },
@@ -2296,11 +2296,11 @@
       "kind": "table",
       "subject": "mfa_backup_codes",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: code_hash, constraint, created_at, id, key, used, used), user_id",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "backend"
     },
@@ -2310,11 +2310,11 @@
       "kind": "table",
       "subject": "notification_outbox",
       "status": "WAIVED",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'dead'), 'failed', 'sending', 'sent', attempts, claimed_at, claimed_by, code, created_at, created_at), detail, id, key, last_error, next_attempt_at, purpose, recipient, sent_at, state",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables",
+        "no FOREIGN KEY into core tables",
         "references moved to cobol/copy/common_outbox.cpy by the DRY-03 shared-copybook extraction; auth_core, auth_recovery_core and user_core still write this table via the shared ENQUEUE-NOTIFICATION"
       ],
       "owner": "assistant"
@@ -2325,11 +2325,11 @@
       "kind": "table",
       "subject": "refresh_sessions",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: constraint, created_at, email, expires_at, family, if, ip, jti, key, last_seen_at, revoked, user_agent",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "backend"
     },
@@ -2339,11 +2339,11 @@
       "kind": "table",
       "subject": "verification_logs",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'email_change', 'mfa_recovery'), 'password_reset', attempts, code, created_at, email, expires_at, id, if, is_used, purpose",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "backend"
     },
@@ -2363,11 +2363,11 @@
       "kind": "table",
       "subject": "audit_authz_denied",
       "status": "WAIVED",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "no DDL found in schema.sql/migrations",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables",
+        "no FOREIGN KEY into core tables",
         "references moved to cobol/copy/wallet_audit.cpy by the DRY-02 shared-copybook extraction; all 6 wallet hosts still write this table via the shared AUDIT-DENIED"
       ],
       "owner": "assistant"
@@ -2378,7 +2378,7 @@
       "kind": "table",
       "subject": "audit_trail",
       "status": "DONE",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "resolve relocated to wallet_transfer_core in maint-07 (TRANSFER-LOGIC audit insert joins the transfer tx); core link tracked under wallet_transfer_core:table:audit-trail"
       ],
@@ -2390,7 +2390,7 @@
       "kind": "table",
       "subject": "dispute_cases",
       "status": "WAIVED",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "references moved to wallet_dispute_core.cob by the PR-056 split (14 hits)",
         "tables have DDL (0036_disputes); reviewed with the dispute module"
@@ -2403,7 +2403,7 @@
       "kind": "table",
       "subject": "dispute_messages",
       "status": "WAIVED",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "references moved to wallet_dispute_core.cob by the PR-056 split (14 hits)",
         "tables have DDL (0036_disputes); reviewed with the dispute module"
@@ -2416,7 +2416,7 @@
       "kind": "table",
       "subject": "end",
       "status": "WAIVED",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "void item: SQL keyword matched by the tableRefs heuristic",
         "no table named end in schema/migrations"
@@ -2429,7 +2429,7 @@
       "kind": "table",
       "subject": "exchange_rates",
       "status": "DONE",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "resolve relocated to wallet_transfer_core in maint-07 (TRANSFER-LOGIC FX rate lookup); core link tracked under wallet_transfer_core:table:exchange-rates"
       ],
@@ -2441,7 +2441,7 @@
       "kind": "table",
       "subject": "if",
       "status": "DONE",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "extractor keyword artifact ('IF' in SQL text), not a table; matching statements relocated to wallet_transfer_core in maint-07 (tracked there)"
       ],
@@ -2453,7 +2453,7 @@
       "kind": "table",
       "subject": "in",
       "status": "DONE",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "extractor keyword artifact ('IN' in SQL text), not a table; matching statements relocated to wallet_transfer_core in maint-07 (tracked there)"
       ],
@@ -2465,7 +2465,7 @@
       "kind": "table",
       "subject": "not",
       "status": "WAIVED",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "void item: SQL keyword matched by the tableRefs heuristic",
         "no table named not in schema/migrations"
@@ -2478,11 +2478,11 @@
       "kind": "table",
       "subject": "pending_transactions",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'committed', 'failed'), 4), amount, constraint, created_at, from_email, id, status, to_email, txn_ref, txn_ref), unique, updated_at",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "wallet"
     },
@@ -2492,7 +2492,7 @@
       "kind": "table",
       "subject": "reconciliation_runs",
       "status": "WAIVED",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "reference moved to wallet_recon_core.cob by the PR-056 split (recon run tracking)",
         "table has DDL (0032_reconciliation_runs); operational ledger for recon runs, reviewed with the recon module"
@@ -2505,7 +2505,7 @@
       "kind": "table",
       "subject": "reversal_fee_policy",
       "status": "WAIVED",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "reference moved to wallet_reversal_core.cob by the PR-056 split (refund_fee lookup)",
         "table has DDL + seed rows (0038_reversal_fee_policy); read-only policy lookup, not an unlinked write"
@@ -2518,7 +2518,7 @@
       "kind": "table",
       "subject": "role_permissions",
       "status": "WAIVED",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "reference moved to wallet_recon_core.cob by the PR-056 split (permission check paragraph)",
         "the query JOINs users on role (core-linked read), not an unlinked domain write"
@@ -2531,11 +2531,11 @@
       "kind": "table",
       "subject": "transfer_reversals",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: --, actor_id, constraint, from_email, from_email), if, orig_ref, primary, reason, reversed_at",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "wallet"
     },
@@ -2569,11 +2569,11 @@
       "kind": "table",
       "subject": "audit_trail",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "wallet"
     },
@@ -2583,11 +2583,11 @@
       "kind": "table",
       "subject": "exchange_rates",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 6), base_currency_id, constraint, exchange_rate, rate_id, target_currency_id, target_currency_id), unique, updated_at",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "wallet"
     },
@@ -2597,11 +2597,11 @@
       "kind": "table",
       "subject": "pending_transactions",
       "status": "OPEN",
-      "reason": "Domain table has no core business key or FK into a Tier-1 table",
+      "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
         "columns: 'committed', 'failed'), 4), amount, constraint, created_at, from_email, id, status, to_email, txn_ref, txn_ref), unique, updated_at",
         "no core business-key columns",
-        "no FOREIGN KEY into Tier-1 tables"
+        "no FOREIGN KEY into core tables"
       ],
       "owner": "wallet"
     }

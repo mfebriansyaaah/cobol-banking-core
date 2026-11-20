@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-05T01:42:24.804Z",
+  "generatedAt": "2026-11-20T02:46:29.805841Z",
   "candidates": [
     {
       "module": "account_core",
@@ -10,8 +10,8 @@
         "linkage L0: own domain tables only, no core link",
         "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
         "primary table account: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
+        "trafficLastSeen: null \u2014 no traffic telemetry yet; must be measured before DEPRECATED",
+        "CORE_LINKED actions: none \u2014 core scoring found no business tables, core calls, or money actions"
       ],
       "trafficLastSeen": null,
       "consumer": null,
@@ -28,8 +28,8 @@
         "linkage L0: own domain tables only, no core link",
         "not template-shaped: custom unlinked code, needs manual review for unique rules",
         "primary table backup_drill: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
+        "trafficLastSeen: null \u2014 no traffic telemetry yet; must be measured before DEPRECATED",
+        "CORE_LINKED actions: none \u2014 core scoring found no business tables, core calls, or money actions"
       ],
       "trafficLastSeen": null,
       "consumer": null,
@@ -46,8 +46,8 @@
         "linkage L0: own domain tables only, no core link",
         "not template-shaped: custom unlinked code, needs manual review for unique rules",
         "primary table bank_guarantee: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
+        "trafficLastSeen: null \u2014 no traffic telemetry yet; must be measured before DEPRECATED",
+        "CORE_LINKED actions: none \u2014 core scoring found no business tables, core calls, or money actions"
       ],
       "trafficLastSeen": null,
       "consumer": null,
@@ -64,8 +64,8 @@
         "linkage L0: own domain tables only, no core link",
         "not template-shaped: custom unlinked code, needs manual review for unique rules",
         "primary table chargeback_case: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
+        "trafficLastSeen: null \u2014 no traffic telemetry yet; must be measured before DEPRECATED",
+        "CORE_LINKED actions: none \u2014 core scoring found no business tables, core calls, or money actions"
       ],
       "trafficLastSeen": null,
       "consumer": null,
@@ -82,8 +82,8 @@
         "linkage L0: own domain tables only, no core link",
         "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
         "primary table compliance_calendar: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
+        "trafficLastSeen: null \u2014 no traffic telemetry yet; must be measured before DEPRECATED",
+        "CORE_LINKED actions: none \u2014 core scoring found no business tables, core calls, or money actions"
       ],
       "trafficLastSeen": null,
       "consumer": null,
@@ -100,8 +100,8 @@
         "linkage L0: own domain tables only, no core link",
         "not template-shaped: custom unlinked code, needs manual review for unique rules",
         "primary table cost_center: also referenced by budget_core",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
+        "trafficLastSeen: null \u2014 no traffic telemetry yet; must be measured before DEPRECATED",
+        "CORE_LINKED actions: none \u2014 core scoring found no business tables, core calls, or money actions"
       ],
       "trafficLastSeen": null,
       "consumer": null,
@@ -118,8 +118,8 @@
         "linkage L0: own domain tables only, no core link",
         "not template-shaped: custom unlinked code, needs manual review for unique rules",
         "primary table eod_phase: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
+        "trafficLastSeen: null \u2014 no traffic telemetry yet; must be measured before DEPRECATED",
+        "CORE_LINKED actions: none \u2014 core scoring found no business tables, core calls, or money actions"
       ],
       "trafficLastSeen": null,
       "consumer": null,
@@ -136,8 +136,8 @@
         "linkage L0: own domain tables only, no core link",
         "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
         "primary table fixed_asset: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
+        "trafficLastSeen: null \u2014 no traffic telemetry yet; must be measured before DEPRECATED",
+        "CORE_LINKED actions: none \u2014 core scoring found no business tables, core calls, or money actions"
       ],
       "trafficLastSeen": null,
       "consumer": null,
@@ -154,8 +154,8 @@
         "linkage L0: own domain tables only, no core link",
         "not template-shaped: custom unlinked code, needs manual review for unique rules",
         "primary table gl_allocation: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
+        "trafficLastSeen: null \u2014 no traffic telemetry yet; must be measured before DEPRECATED",
+        "CORE_LINKED actions: none \u2014 core scoring found no business tables, core calls, or money actions"
       ],
       "trafficLastSeen": null,
       "consumer": null,
@@ -172,8 +172,8 @@
         "linkage L0: own domain tables only, no core link",
         "not template-shaped: custom unlinked code, needs manual review for unique rules",
         "primary table import_row: also referenced by export_archive_core, import_post_core, import_recon_core",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
+        "trafficLastSeen: null \u2014 no traffic telemetry yet; must be measured before DEPRECATED",
+        "CORE_LINKED actions: none \u2014 core scoring found no business tables, core calls, or money actions"
       ],
       "trafficLastSeen": null,
       "consumer": null,
@@ -190,8 +190,8 @@
         "linkage L0: own domain tables only, no core link",
         "not template-shaped: custom unlinked code, needs manual review for unique rules",
         "primary table letter_of_credit: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
+        "trafficLastSeen: null \u2014 no traffic telemetry yet; must be measured before DEPRECATED",
+        "CORE_LINKED actions: none \u2014 core scoring found no business tables, core calls, or money actions"
       ],
       "trafficLastSeen": null,
       "consumer": null,
@@ -208,8 +208,8 @@
         "linkage L0: own domain tables only, no core link",
         "not template-shaped: custom unlinked code, needs manual review for unique rules",
         "primary table loyalty_member: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
+        "trafficLastSeen: null \u2014 no traffic telemetry yet; must be measured before DEPRECATED",
+        "CORE_LINKED actions: none \u2014 core scoring found no business tables, core calls, or money actions"
       ],
       "trafficLastSeen": null,
       "consumer": null,
@@ -226,8 +226,8 @@
         "linkage L0: own domain tables only, no core link",
         "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
         "primary table merchant_settlement: also referenced by merchant_core",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
+        "trafficLastSeen: null \u2014 no traffic telemetry yet; must be measured before DEPRECATED",
+        "CORE_LINKED actions: none \u2014 core scoring found no business tables, core calls, or money actions"
       ],
       "trafficLastSeen": null,
       "consumer": null,
@@ -244,8 +244,8 @@
         "linkage L0: own domain tables only, no core link",
         "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
         "primary table ntf_template_config: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
+        "trafficLastSeen: null \u2014 no traffic telemetry yet; must be measured before DEPRECATED",
+        "CORE_LINKED actions: none \u2014 core scoring found no business tables, core calls, or money actions"
       ],
       "trafficLastSeen": null,
       "consumer": null,
@@ -262,8 +262,8 @@
         "linkage L0: own domain tables only, no core link",
         "not template-shaped: custom unlinked code, needs manual review for unique rules",
         "primary table report_builder: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
+        "trafficLastSeen: null \u2014 no traffic telemetry yet; must be measured before DEPRECATED",
+        "CORE_LINKED actions: none \u2014 core scoring found no business tables, core calls, or money actions"
       ],
       "trafficLastSeen": null,
       "consumer": null,
@@ -280,8 +280,8 @@
         "linkage L0: own domain tables only, no core link",
         "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
         "primary table rpt_schedule_config: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
+        "trafficLastSeen: null \u2014 no traffic telemetry yet; must be measured before DEPRECATED",
+        "CORE_LINKED actions: none \u2014 core scoring found no business tables, core calls, or money actions"
       ],
       "trafficLastSeen": null,
       "consumer": null,
@@ -298,8 +298,8 @@
         "linkage L0: own domain tables only, no core link",
         "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
         "primary table sla_tracker: referenced only by this module",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
+        "trafficLastSeen: null \u2014 no traffic telemetry yet; must be measured before DEPRECATED",
+        "CORE_LINKED actions: none \u2014 core scoring found no business tables, core calls, or money actions"
       ],
       "trafficLastSeen": null,
       "consumer": null,
@@ -316,8 +316,8 @@
         "linkage L0: own domain tables only, no core link",
         "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
         "primary table tax_management: also referenced by payroll_processing_core",
-        "trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none — Tier-1 scoring found no business tables, Tier-1 CALLs, or money actions"
+        "trafficLastSeen: null \u2014 no traffic telemetry yet; must be measured before DEPRECATED",
+        "CORE_LINKED actions: none \u2014 core scoring found no business tables, core calls, or money actions"
       ],
       "trafficLastSeen": null,
       "consumer": null,

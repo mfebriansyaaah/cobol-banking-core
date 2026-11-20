@@ -1,4 +1,4 @@
-# Tier-1 floor backlog (PR-044 stage 1: 70% line floor per Tier-1 module).
+# L3 floor backlog (linkage-only: 70% line floor per L3 module).
 # Modules below the floor are recorded here with reason + owner instead of
 # silently dragging the average. Ratchet both ways: unlisted sub-floor
 # modules fail the gate; entries that reach the floor must be removed.
@@ -12,3 +12,14 @@ payment_clearing_core  lifecycle branches beyond settle (create/post/cancel) thi
 collection_core  lifecycle branches beyond pay (escalate/assign/write-off) thin (64.26%)
 card_core  C-06 entry reset adds executed lines; attribution shifted to 69.58% (70.03% before). Capture/repay/authorize paths fully asserted; remaining branches need targeted tests
 treasury_liquidity_core  C-06 entry reset adds executed lines; attribution shifted to 67.76% (70.08% before). Post/settle guards asserted; realization/admin branches need targeted tests
+auth_password_core  utility delegate; not yet in curated coverage set — Phase 4
+card_posting_core  not yet in curated coverage set — Phase 4
+dashboard_core  not yet in curated coverage set — Phase 4
+deposit_posting_core  not yet in curated coverage set — Phase 4
+import_post_core  not yet in curated coverage set — Phase 4
+loan_posting_core  not yet in curated coverage set — Phase 4
+payment_core  not yet in curated coverage set — Phase 4
+payment_hold_core  not yet in curated coverage set — Phase 4
+statement_core  measured 58.19% < 70% — raise coverage in Phase 4
+statement_recon_core  not yet in curated coverage set — Phase 4
+wallet_transfer_core  not yet in curated coverage set — Phase 4

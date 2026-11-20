@@ -16,8 +16,7 @@ crypto helpers COBOL cannot call directly.
 > (`push: [main]`, `pull_request`, schedules). See [docs/CI.md](docs/CI.md).
 >
 > **Status (2026-10-29):** COBOL modules follow the 9-action contract (see
-> `docs/MODULE_CLASSIFICATION.md`): Tier-1 hand-reviewed core (auth, wallet,
-> lending, …) plus Tier-2 generated domain modules and Tier-3 utilities.
+> `docs/MODULE_LINKAGE.md`): core anchors (auth, wallet, lending, …) plus business domain modules and utilities.
 > `tests/run_all.sh full` is green locally and in the hosted CI gate.
 > Counts in this README are generated from `manifest/modules.json` and the
 > source tree; see [docs/STATUS.md](docs/STATUS.md) and
@@ -82,7 +81,7 @@ Rules of the split:
 
 ## Implementation status
 
-Flagship hand-reviewed domains (Tier 1). The full generated inventory is
+Flagship hand-reviewed domains (core anchors). The full inventory is
 [docs/MODULE_INDEX.md](docs/MODULE_INDEX.md); counts are in
 [docs/STATUS.md](docs/STATUS.md).
 
@@ -479,11 +478,11 @@ route files are exported from `routes/index.js`, and that dispatch entries match
 
 ## Known gaps
 
-1. **Generated-domain depth varies by tier.** Every module implements the
-   9-action contract (`docs/MODULE_AUTHORING.md`), but Tier-2 modules follow the
+1. **Domain-module depth varies by linkage.** Every module implements the
+   9-action contract (`docs/MODULE_AUTHORING.md`), but some business modules follow the
    `cost_center_core` template closely. Treat the domain table above as the
    hand-reviewed flagship set; the full inventory is `manifest/modules.json`.
-   Tier definitions and strictness live in `docs/MODULE_CLASSIFICATION.md`.
+   Linkage definitions and strictness live in `docs/MODULE_LINKAGE.md`.
 2. **Copy-paste plumbing.** Boilerplate paragraphs (`TRIM-ALL`, `VALIDATE-ALL`,
    `TRIM-RESULT-LEN`) are repeated across most generated modules. Shared
    copybooks for trimming, validation, and audit are the main refactor target.

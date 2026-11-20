@@ -45,7 +45,7 @@ function makeRoot({ templateLines = 20, baseline = true } = {}) {
   const manifest = path.join(d, 'manifest');
   mkdirSync(manifest, { recursive: true });
   writeFileSync(
-    path.join(manifest, 'tier1_links.json'),
+    path.join(manifest, 'linkage_graph.json'),
     JSON.stringify({
       modules: [
         { module: 'clone_core', linkageLevel: 'L0' },
@@ -94,9 +94,9 @@ test('new clone-shaped L0 module fails', () => {
     path.join(d, 'cobol', 'src', 'fresh_core.cob'),
     readFileSync(path.join(d, 'cobol', 'src', 'cost_center_core.cob'), 'utf8'),
   );
-  const manifest = JSON.parse(readFileSync(path.join(d, 'manifest', 'tier1_links.json'), 'utf8'));
+  const manifest = JSON.parse(readFileSync(path.join(d, 'manifest', 'linkage_graph.json'), 'utf8'));
   manifest.modules.push({ module: 'fresh_core', linkageLevel: 'L0' });
-  writeFileSync(path.join(d, 'manifest', 'tier1_links.json'), JSON.stringify(manifest));
+  writeFileSync(path.join(d, 'manifest', 'linkage_graph.json'), JSON.stringify(manifest));
   assert.match(runFail(d), /NEW CLONES/);
 });
 
@@ -104,17 +104,17 @@ test('new template-sized module fails even without clone shape', () => {
   const d = makeRoot();
   const pad = Array.from({ length: TEMPLATE_LINES - 1 }, (_, i) => `      *> filler ${i}.`).join('\n');
   writeFileSync(path.join(d, 'cobol', 'src', 'big_core.cob'), `IDENTIFICATION DIVISION.\n${pad}\n`);
-  const manifest = JSON.parse(readFileSync(path.join(d, 'manifest', 'tier1_links.json'), 'utf8'));
+  const manifest = JSON.parse(readFileSync(path.join(d, 'manifest', 'linkage_graph.json'), 'utf8'));
   manifest.modules.push({ module: 'big_core', linkageLevel: 'L1' });
-  writeFileSync(path.join(d, 'manifest', 'tier1_links.json'), JSON.stringify(manifest));
+  writeFileSync(path.join(d, 'manifest', 'linkage_graph.json'), JSON.stringify(manifest));
   assert.match(runFail(d), /NEW CLONES/);
 });
 
 test('clone-shaped L2 module warns but passes', () => {
   const d = makeRoot();
-  const manifest = JSON.parse(readFileSync(path.join(d, 'manifest', 'tier1_links.json'), 'utf8'));
+  const manifest = JSON.parse(readFileSync(path.join(d, 'manifest', 'linkage_graph.json'), 'utf8'));
   manifest.modules.find((m) => m.module === 'clone_core').linkageLevel = 'L2';
-  writeFileSync(path.join(d, 'manifest', 'tier1_links.json'), JSON.stringify(manifest));
+  writeFileSync(path.join(d, 'manifest', 'linkage_graph.json'), JSON.stringify(manifest));
   // Baseline still records L0 -> stale failure proves the level change is
   // noticed; rewrite baseline via --write first, then it warns and passes.
   run(d, ['--write']);
@@ -126,9 +126,9 @@ test('clone-shaped L2 module warns but passes', () => {
 
 test('--write drops stale entries and reports counts', () => {
   const d = makeRoot();
-  const manifest = JSON.parse(readFileSync(path.join(d, 'manifest', 'tier1_links.json'), 'utf8'));
+  const manifest = JSON.parse(readFileSync(path.join(d, 'manifest', 'linkage_graph.json'), 'utf8'));
   manifest.modules.find((m) => m.module === 'clone_core').linkageLevel = 'L3';
-  writeFileSync(path.join(d, 'manifest', 'tier1_links.json'), JSON.stringify(manifest));
+  writeFileSync(path.join(d, 'manifest', 'linkage_graph.json'), JSON.stringify(manifest));
   const out = run(d, ['--write']);
   assert.match(out, /total 0/);
   const ok = run(d);
@@ -137,9 +137,9 @@ test('--write drops stale entries and reports counts', () => {
 
 test('stale entry fails (module now linked)', () => {
   const d = makeRoot();
-  const manifest = JSON.parse(readFileSync(path.join(d, 'manifest', 'tier1_links.json'), 'utf8'));
+  const manifest = JSON.parse(readFileSync(path.join(d, 'manifest', 'linkage_graph.json'), 'utf8'));
   manifest.modules.find((m) => m.module === 'clone_core').linkageLevel = 'L2';
-  writeFileSync(path.join(d, 'manifest', 'tier1_links.json'), JSON.stringify(manifest));
+  writeFileSync(path.join(d, 'manifest', 'linkage_graph.json'), JSON.stringify(manifest));
   assert.match(runFail(d), /NO LONGER CLONE-LIKE/);
 });
 

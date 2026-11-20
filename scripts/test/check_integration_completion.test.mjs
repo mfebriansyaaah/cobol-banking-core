@@ -23,16 +23,16 @@ function makeRoot() {
   const manifest = path.join(d, 'manifest');
   mkdirSync(manifest, { recursive: true });
   writeFileSync(
-    path.join(manifest, 'tier1.json'),
+    path.join(manifest, 'linkage.json'),
     JSON.stringify({
-      tier1Modules: [],
+      coreModules: [],
       businessTables: ['ledger'],
       moneyTables: ['ledger'],
       moneyActions: ['TRANSFER'],
     }),
   );
   writeFileSync(
-    path.join(manifest, 'tier1_links.json'),
+    path.join(manifest, 'linkage_graph.json'),
     JSON.stringify({
       modules: [
         {
@@ -187,7 +187,7 @@ test('SQL noise words never become table items and OPEN items get owners', () =>
       '            EXIT PARAGRAPH.',
     ].join('\n') + '\n',
   );
-  const linksPath = path.join(d, 'manifest', 'tier1_links.json');
+  const linksPath = path.join(d, 'manifest', 'linkage_graph.json');
   const links = JSON.parse(readFileSync(linksPath, 'utf8'));
   links.modules.push({
     module: 'noise_core',

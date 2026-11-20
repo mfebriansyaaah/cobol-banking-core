@@ -1,6 +1,6 @@
 // Module quality gate (audit P1-08): manifest/module_quality.json must match
 // the tree; recommendedForTraining must be true only for ACTIVE/PILOT
-// non-clone modules.
+// L2/L3 non-clone modules.
 // Usage: node scripts/check_module_quality.mjs [--root DIR]
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -33,6 +33,7 @@ for (const m of recorded.modules || []) {
   seen.add(m.module);
   const expectRecommended =
     (m.domainStatus === 'ACTIVE' || m.domainStatus === 'PILOT') &&
+    (m.linkageLevel === 'L2' || m.linkageLevel === 'L3') &&
     !(m.cloneSimilarity !== null && m.cloneSimilarity >= 0.9);
   if (m.recommendedForTraining !== expectRecommended) {
     console.error(`FAIL: ${m.module}: recommendedForTraining must be ${expectRecommended}`);

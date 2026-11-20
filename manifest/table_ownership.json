@@ -1556,7 +1556,7 @@
       "note": "PR-085 UU PDP consent",
       "owner": "identity",
       "status": "ACTIVE",
-      "tier1Links": [
+      "coreLinks": [
         "identity"
       ]
     },
@@ -1565,28 +1565,28 @@
       "note": "PR-097 triage cache; not AHU/akta proof",
       "owner": "corporate",
       "status": "ACTIVE",
-      "tier1Links": []
+      "coreLinks": []
     },
     "fx_rate_snapshots": {
       "audited": "provider + fetched_at per row; no separate audit table (reference data, cron-owned)",
       "note": "PR-091 Frankfurter reference; never settlement basis",
       "owner": "market",
       "status": "ACTIVE",
-      "tier1Links": []
+      "coreLinks": []
     },
     "idempotency_request": {
       "audited": "dual-write mirror of the ten *_request tables; the legacy rows stay the audit record and the idempotency DB suites prove the mirror converges",
       "note": "PR-14A unified idempotency mirror; legacy tables remain the decision-makers, none dropped here",
       "owner": "platform",
       "status": "ACTIVE",
-      "tier1Links": []
+      "coreLinks": []
     },
     "identity_verifications": {
       "audited": "result rows immutable (append-only verdicts)",
       "note": "PR-085 NIK/OCR outcomes",
       "owner": "identity",
       "status": "ACTIVE",
-      "tier1Links": [
+      "coreLinks": [
         "identity"
       ]
     },
@@ -1595,7 +1595,7 @@
       "note": "PR-085/089/090 KYC + screening queue",
       "owner": "identity",
       "status": "ACTIVE",
-      "tier1Links": [
+      "coreLinks": [
         "identity",
         "screening"
       ]
@@ -1605,7 +1605,7 @@
       "note": "PR-085 hashed codes, 10-min TTL, 5-attempt lock",
       "owner": "identity",
       "status": "ACTIVE",
-      "tier1Links": [
+      "coreLinks": [
         "identity"
       ]
     },
@@ -1614,7 +1614,7 @@
       "note": "PR-082b/085 Telegram binding",
       "owner": "identity",
       "status": "ACTIVE",
-      "tier1Links": [
+      "coreLinks": [
         "identity"
       ]
     },
@@ -1623,14 +1623,14 @@
       "note": "PR-092 signals only; raw IPs never stored",
       "owner": "risk",
       "status": "ACTIVE",
-      "tier1Links": []
+      "coreLinks": []
     },
     "screening_checks": {
       "audited": "reviewer decisions in manual_reviews (reviewer_email, reviewed_at)",
       "note": "PR-090 sanctions/PEP verdicts; fail-closed",
       "owner": "identity",
       "status": "ACTIVE",
-      "tier1Links": [
+      "coreLinks": [
         "identity"
       ]
     }

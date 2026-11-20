@@ -1,7 +1,7 @@
-# Tier-1 linkage baseline (ratchet).
+# Core linkage baseline (ratchet).
 #
-# Every L0/L1 module recorded here exists today without a proven Tier-1
-# business link. The gate (scripts/check_tier1_links.mjs) fails on:
+# Every L0/L1 module recorded here exists today without a proven core
+# business link. The gate (scripts/check_linkage.mjs) fails on:
 #   - unlisted modules (new L0/L1 code without a test-backed link),
 #   - stale entries (module now L2/L3: link proven, entry left behind),
 #   - dead entries (module file removed).

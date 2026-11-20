@@ -1,29 +1,29 @@
-// Tier-1 linkage graph builder (PR-009).
+// Core linkage graph builder (PR-009, linkage-only).
 //
-// Scores every COBOL module L0-L3 by its business linkage to the Tier-1
-// core defined in manifest/tier1.json. All parsing is textual; nothing is
+// Scores every COBOL module L0-L3 by its business linkage to the core
+// core anchors defined in manifest/linkage.json. All parsing is textual; nothing is
 // imported as code.
 //
-// Scoring (see docs/TIER1_LINKAGE.md and master plan section 1.4):
-//   L3 - Tier-1 module, or money-table touch (accounts/ledger/journal/GL)
+// Scoring (see docs/LINKAGE.md):
+//   L3 - core anchor module, or money-table touch (accounts/ledger/journal/GL)
 //        with depth (>=2 business tables or a money-action literal) plus a
 //        DB/table/integration test proving it.
-//   L2 - any business-table reference, CALL into a Tier-1 module, or
+//   L2 - any business-table reference, CALL into a core anchor module, or
 //        money-action literal, plus a test proving it.
 //   L1 - references only users/currencies/ref_* (incl. the ALLOW-ADMIN
 //        role lookup, which is NOT linkage), or linked code with no test.
 //   L0 - no business linkage at all (own generic tables only, or nothing).
-//   UTILITY - Tier-3 helper listed in tier1.json (never a retire candidate).
+//   UTILITY - utility helper listed in linkage.json (never a retire candidate).
 //
 // Usage:
-//   node scripts/build_tier1_graph.mjs --json [--root DIR]
-//   node scripts/build_tier1_graph.mjs --markdown [--root DIR]
-//   node scripts/build_tier1_graph.mjs --write [--root DIR]
-//   node scripts/build_tier1_graph.mjs --write-baseline [--root DIR]
-// --write refreshes manifest/tier1_links.json and docs/TIER1_LINKAGE.md.
-// --write-baseline (re)writes tests/tier1_links_baseline.txt with the current
+//   node scripts/build_linkage_graph.mjs --json [--root DIR]
+//   node scripts/build_linkage_graph.mjs --markdown [--root DIR]
+//   node scripts/build_linkage_graph.mjs --write [--root DIR]
+//   node scripts/build_linkage_graph.mjs --write-baseline [--root DIR]
+// --write refreshes manifest/linkage_graph.json and docs/LINKAGE.md.
+// --write-baseline (re)writes tests/linkage_baseline.txt with the current
 // L0/L1 set. Use it once at introduction; afterwards the baseline must only
-// shrink (see scripts/check_tier1_links.mjs). Never use it to green CI.
+// shrink (see scripts/check_linkage.mjs). Never use it to green CI.
 // Exit: 0 ok, 2 usage error.
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { execSync } from 'node:child_process';
@@ -46,7 +46,7 @@ for (let i = 0; i < args.length; i += 1) {
     root = args[i + 1] ?? root;
     i += 1;
   } else if (a === '--help' || a === '-h') {
-    console.log('usage: build_tier1_graph.mjs [--json|--markdown] [--write] [--write-baseline] [--root DIR]');
+    console.log('usage: build_linkage_graph.mjs [--json|--markdown] [--write] [--write-baseline] [--root DIR]');
     process.exit(0);
   } else if (a.startsWith('--')) {
     console.error(`unknown argument: ${a}`);
@@ -57,10 +57,10 @@ for (let i = 0; i < args.length; i += 1) {
 }
 root = path.resolve(root);
 
-function loadTier1(rootDir) {
-  const p = path.join(rootDir, 'manifest', 'tier1.json');
+function loadLinkage(rootDir) {
+  const p = path.join(rootDir, 'manifest', 'linkage.json');
   if (!existsSync(p)) {
-    console.error('FAIL: manifest/tier1.json missing');
+    console.error('FAIL: manifest/linkage.json missing');
     process.exit(2);
   }
   return JSON.parse(readFileSync(p, 'utf8'));
@@ -155,11 +155,11 @@ function resolveRouteModules(rootDir, dispatchEntries, cobolModules) {
 }
 
 function entryForModule(module, source, src, ctx) {
-  const { businessTables, moneyTables, moneyActions, tier1Modules, rootDir } = ctx;
+  const { businessTables, moneyTables, moneyActions, coreModules, rootDir } = ctx;
   const tables = extractTables(src);
   const biz = [...tables].filter((t) => businessTables.has(t)).sort();
   const money = biz.filter((t) => moneyTables.has(t));
-  const calls = [...extractCalls(src)].filter((c) => tier1Modules.has(c)).sort();
+  const calls = [...extractCalls(src)].filter((c) => coreModules.has(c)).sort();
   const lits = [...extractActionLiterals(src)].filter((a) => moneyActions.has(a)).sort();
   const base = module.endsWith('_core') ? module.slice(0, -5) : module;
   const evidence = testEvidence(rootDir, base);
@@ -168,8 +168,8 @@ function entryForModule(module, source, src, ctx) {
     module,
     source,
     businessTables: biz,
-    t1Calls: calls,
-    t1Actions: lits,
+    coreCalls: calls,
+    coreActions: lits,
     hasTests: tested,
     testEvidence: evidence,
   };
@@ -200,18 +200,18 @@ function linkageFor({ tables, biz, money, calls, lits, tested }) {
 }
 
 function scoreModule(module, source, src, ctx) {
-  const { tier1Modules, utilityModules } = ctx;
-  if (tier1Modules.has(module)) {
+  const { coreModules, utilityModules } = ctx;
+  if (coreModules.has(module)) {
     return {
       module,
       source,
       linkageLevel: 'L3',
       businessTables: [],
-      t1Calls: [],
-      t1Actions: [],
+      coreCalls: [],
+      coreActions: [],
       hasTests: true,
       testEvidence: [],
-      reason: 'Tier-1 core module',
+      reason: 'Core anchor module',
     };
   }
   if (utilityModules.has(module)) {
@@ -220,11 +220,11 @@ function scoreModule(module, source, src, ctx) {
       source,
       linkageLevel: 'UTILITY',
       businessTables: [],
-      t1Calls: [],
-      t1Actions: [],
+      coreCalls: [],
+      coreActions: [],
       hasTests: true,
       testEvidence: [],
-      reason: 'Tier-3 utility (never a retire candidate)',
+      reason: 'Utility module (never a retire candidate)',
     };
   }
   const data = entryForModule(module, source, src, ctx);
@@ -245,12 +245,12 @@ function attachRouteFiles(modules, rootDir, cobolModules) {
 }
 
 export function buildGraph(rootDir = root) {
-  const tier1 = loadTier1(rootDir);
-  const tier1Modules = new Set(tier1.tier1Modules || []);
-  const utilityModules = new Set(tier1.utilityModules || []);
-  const businessTables = new Set((tier1.businessTables || []).map((t) => t.toLowerCase()));
-  const moneyTables = new Set((tier1.moneyTables || []).map((t) => t.toLowerCase()));
-  const moneyActions = new Set(tier1.moneyActions || []);
+  const linkage = loadLinkage(rootDir);
+  const coreModules = new Set(linkage.coreModules || []);
+  const utilityModules = new Set(linkage.utilityModules || []);
+  const businessTables = new Set((linkage.businessTables || []).map((t) => t.toLowerCase()));
+  const moneyTables = new Set((linkage.moneyTables || []).map((t) => t.toLowerCase()));
+  const moneyActions = new Set(linkage.moneyActions || []);
 
   const cobolDir = path.join(rootDir, 'cobol', 'src');
   const sources = existsSync(cobolDir)
@@ -260,7 +260,7 @@ export function buildGraph(rootDir = root) {
     : [];
   const cobolModules = sources.map((f) => f.replace(/\.cob$/, ''));
 
-  const ctx = { tier1Modules, utilityModules, businessTables, moneyTables, moneyActions, rootDir };
+  const ctx = { coreModules, utilityModules, businessTables, moneyTables, moneyActions, rootDir };
   const modules = sources.map((source) => {
     const module = source.replace(/\.cob$/, '');
     const src = readFileSync(path.join(cobolDir, source), 'utf8');
@@ -285,13 +285,13 @@ function gitCommit(rootDir) {
 export function renderMarkdown(graph, commit = 'unknown', generatedAt = new Date().toISOString()) {
   const rows = graph.modules.map(
     (m) =>
-      `| \`${m.module}\` | ${m.linkageLevel} | ${m.businessTables.join(', ') || '—'} | ${m.t1Calls.join(', ') || '—'} | ${m.routeFiles.length} | ${m.reason} |`,
+      `| \`${m.module}\` | ${m.linkageLevel} | ${m.businessTables.join(', ') || '—'} | ${m.coreCalls.join(', ') || '—'} | ${m.routeFiles.length} | ${m.reason} |`,
   );
-  return `# Tier-1 Linkage
+  return `# Core Linkage
 
-> Generated by \`scripts/build_tier1_graph.mjs\`. Do not edit by hand; run
-> \`node scripts/build_tier1_graph.mjs --write\` after a reviewed change.
-> Scoring policy: [module classification](MODULE_CLASSIFICATION.md) (Tier-1
+> Generated by \`scripts/build_linkage_graph.mjs\`. Do not edit by hand; run
+> \`node scripts/build_linkage_graph.mjs --write\` after a reviewed change.
+> Scoring policy: [module linkage](MODULE_LINKAGE.md) (core
 > linkage policy). Manual reclassification happens in PR-010
 > (\`manifest/domain_status.json\`), not by editing this file.
 
@@ -308,7 +308,7 @@ export function renderMarkdown(graph, commit = 'unknown', generatedAt = new Date
 
 Unresolved route files: ${graph.unresolvedRoutes.length ? graph.unresolvedRoutes.join(', ') : 'none'}.
 
-| Module | Level | Business tables | Tier-1 calls | Route files | Reason |
+| Module | Level | Business tables | Core calls | Route files | Reason |
 | --- | --- | --- | --- | ---: | --- |
 ${rows.join('\n')}
 `;
@@ -316,10 +316,10 @@ ${rows.join('\n')}
 
 export function baselineText(graph) {
   const header = [
-    '# Tier-1 linkage baseline (ratchet).',
+    '# Core linkage baseline (ratchet).',
     '#',
-    '# Every L0/L1 module recorded here exists today without a proven Tier-1',
-    '# business link. The gate (scripts/check_tier1_links.mjs) fails on:',
+    '# Every L0/L1 module recorded here exists today without a proven core',
+    '# business link. The gate (scripts/check_linkage.mjs) fails on:',
     '#   - unlisted modules (new L0/L1 code without a test-backed link),',
     '#   - stale entries (module now L2/L3: link proven, entry left behind),',
     '#   - dead entries (module file removed).',
@@ -341,7 +341,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     const payload = {
       generatedAt,
       commit,
-      tier1: 'manifest/tier1.json',
+      linkageSource: 'manifest/linkage.json',
       summary: graph.summary,
       modules: graph.modules,
     };
@@ -349,16 +349,16 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     // asserts resolvability, so it lives outside the synced modules array.
     payload.routeModules = graph.routeModules;
     payload.unresolvedRoutes = graph.unresolvedRoutes;
-    writeFileSync(path.join(root, 'manifest', 'tier1_links.json'), `${JSON.stringify(payload, null, 2)}\n`);
-    writeFileSync(path.join(root, 'docs', 'TIER1_LINKAGE.md'), renderMarkdown(graph, commit, generatedAt));
+    writeFileSync(path.join(root, 'manifest', 'linkage_graph.json'), `${JSON.stringify(payload, null, 2)}\n`);
+    writeFileSync(path.join(root, 'docs', 'LINKAGE.md'), renderMarkdown(graph, commit, generatedAt));
     console.log(
-      `Wrote manifest/tier1_links.json, docs/TIER1_LINKAGE.md (L3 ${graph.summary.L3}, L2 ${graph.summary.L2}, L1 ${graph.summary.L1}, L0 ${graph.summary.L0})`,
+      `Wrote manifest/linkage_graph.json, docs/LINKAGE.md (L3 ${graph.summary.L3}, L2 ${graph.summary.L2}, L1 ${graph.summary.L1}, L0 ${graph.summary.L0})`,
     );
   }
   if (writeBaseline) {
-    writeFileSync(path.join(root, 'tests', 'tier1_links_baseline.txt'), baselineText(graph));
+    writeFileSync(path.join(root, 'tests', 'linkage_baseline.txt'), baselineText(graph));
     const n = graph.modules.filter((m) => m.linkageLevel === 'L0' || m.linkageLevel === 'L1').length;
-    console.log(`Wrote tests/tier1_links_baseline.txt (${n} L0/L1 entries)`);
+    console.log(`Wrote tests/linkage_baseline.txt (${n} L0/L1 entries)`);
   }
   if (!write && !writeBaseline) {
     if (mode === 'markdown') console.log(renderMarkdown(graph, gitCommit(root)));

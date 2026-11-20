@@ -22,7 +22,7 @@ function makeRoot() {
   const manifest = path.join(d, 'manifest');
   mkdirSync(manifest, { recursive: true });
   writeFileSync(
-    path.join(manifest, 'tier1_links.json'),
+    path.join(manifest, 'linkage_graph.json'),
     JSON.stringify({
       modules: [
         { module: 'dup_core', linkageLevel: 'L0', businessTables: [], routeFiles: [], reason: 't' },

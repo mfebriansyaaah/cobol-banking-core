@@ -26,7 +26,7 @@ fi
 
 # Pre-deploy: static gates + docs + lint (DB suites run in CI separately).
 node "$ROOT/scripts/check_docs.mjs" "$ROOT" | tail -1
-for g in check_manifest check_route_dispatch check_route_conflicts check_route_auth check_action_registry check_dispatch_table check_route_barrel check_openapi check_tier1_links; do
+for g in check_manifest check_route_dispatch check_route_conflicts check_route_auth check_action_registry check_dispatch_table check_route_barrel check_openapi check_linkage; do
     node "$ROOT/scripts/$g.mjs" "$ROOT" | tail -1 || exit 1
 done
 echo "release pre-deploy checks passed"

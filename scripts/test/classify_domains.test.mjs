@@ -15,7 +15,7 @@ after(() => {
   for (const d of dirs) rmSync(d, { recursive: true, force: true });
 });
 
-// Fixture: tier1 + links with one module per level, small COBOL sources for
+// Fixture: linkage + links with one module per level, small COBOL sources for
 // the table heuristic, and one route file.
 function makeRoot() {
   const d = mkdtempSync(path.join(tmpdir(), 'domstatus-'));
@@ -23,8 +23,8 @@ function makeRoot() {
   const manifest = path.join(d, 'manifest');
   mkdirSync(manifest, { recursive: true });
   writeFileSync(
-    path.join(manifest, 'tier1.json'),
-    JSON.stringify({ tier1Modules: ['core_core'], utilityModules: ['util_core'] }),
+    path.join(manifest, 'linkage.json'),
+    JSON.stringify({ coreModules: ['core_core'], utilityModules: ['util_core'] }),
   );
   const links = [
     { module: 'core_core', linkageLevel: 'L3', businessTables: [], routeFiles: [] },
@@ -33,7 +33,7 @@ function makeRoot() {
     { module: 'orphan_core', linkageLevel: 'L0', businessTables: [], routeFiles: [] },
     { module: 'util_core', linkageLevel: 'UTILITY', businessTables: [], routeFiles: [] },
   ];
-  writeFileSync(path.join(manifest, 'tier1_links.json'), JSON.stringify({ modules: links }));
+  writeFileSync(path.join(manifest, 'linkage_graph.json'), JSON.stringify({ modules: links }));
   const cobolDir = path.join(d, 'cobol', 'src');
   mkdirSync(cobolDir, { recursive: true });
   writeFileSync(path.join(cobolDir, 'linked_core.cob'), 'SELECT a FROM widget WHERE id = ?\n');
@@ -76,9 +76,8 @@ test('--write creates rule-based defaults', () => {
   assert.equal(byModule.get('orphan_core').status, 'FROZEN');
   assert.equal(byModule.get('util_core').status, 'ACTIVE');
   assert.equal(byModule.get('linked_core').table, 'widget');
-  assert.equal(byModule.get('linked_core').tier, 2);
-  assert.equal(byModule.get('core_core').tier, 1);
-  assert.equal(byModule.get('util_core').tier, 3);
+  assert.ok(!('tier' in byModule.get('linked_core')));
+  assert.ok(!('tier' in byModule.get('core_core')));
   assert.deepEqual(byModule.get('linked_core').linkedCoreDomains, ['wallet/ledger']);
   assert.ok(existsSync(path.join(d, 'docs', 'DOMAIN_STATUS.md')));
 });
@@ -115,7 +114,7 @@ test('linkage mismatch fails', () => {
   const data = JSON.parse(readFileSync(path.join(d, 'manifest', 'domain_status.json'), 'utf8'));
   data.entries.find((e) => e.module === 'orphan_core').linkageLevel = 'L2';
   writeFileSync(path.join(d, 'manifest', 'domain_status.json'), JSON.stringify(data));
-  assert.match(runFail(d), /linkageLevel L2 != tier1_links L0/);
+  assert.match(runFail(d), /linkageLevel L2 != linkage_graph L0/);
 });
 
 test('L0 ACTIVE fails', () => {
@@ -152,4 +151,37 @@ test('unknown flag exits 2', () => {
     return;
   }
   assert.fail('expected failure for --bogus');
+});
+
+test('--sync-linkage updates levels and preserves status', () => {
+  const d = makeRoot();
+  run(d, ['--write']);
+  const data = JSON.parse(readFileSync(path.join(d, 'manifest', 'domain_status.json'), 'utf8'));
+  const orphan = data.entries.find((e) => e.module === 'orphan_core');
+  orphan.linkageLevel = 'L0';
+  orphan.status = 'PILOT';
+  writeFileSync(path.join(d, 'manifest', 'domain_status.json'), JSON.stringify(data));
+  const graphPath = path.join(d, 'manifest', 'linkage_graph.json');
+  const graph = JSON.parse(readFileSync(graphPath, 'utf8'));
+  graph.modules.find((m) => m.module === 'orphan_core').linkageLevel = 'L2';
+  writeFileSync(graphPath, JSON.stringify(graph));
+  const out = run(d, ['--sync-linkage']);
+  assert.match(out, /Synced linkageLevel for 5 entries/);
+  const after = JSON.parse(readFileSync(path.join(d, 'manifest', 'domain_status.json'), 'utf8'));
+  const updated = after.entries.find((e) => e.module === 'orphan_core');
+  assert.equal(updated.linkageLevel, 'L2');
+  assert.equal(updated.status, 'PILOT');
+});
+
+test('--sync-linkage without graph exits 2', () => {
+  const d = makeRoot();
+  run(d, ['--write']);
+  rmSync(path.join(d, 'manifest', 'linkage_graph.json'));
+  try {
+    run(d, ['--sync-linkage']);
+  } catch (e) {
+    assert.match(String(e.status), /2/);
+    return;
+  }
+  assert.fail('expected failure for missing graph');
 });

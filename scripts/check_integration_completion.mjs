@@ -1,9 +1,9 @@
 // Integration completion audit (PR-010E): every L2/L3 module kept in the tree
-// must be CONNECTED to the Tier-1 core, not merely present.
+// must be CONNECTED to the core, not merely present.
 //
-// For each L2/L3 module (manifest/tier1_links.json) the audit checks:
+// For each L2/L3 module (manifest/linkage_graph.json) the audit checks:
 //   actions - every ACTION-*/LOGIC paragraph (except MAIN-LOGIC): CORE_LINKED
-//             when its body touches a business table, CALLs a Tier-1 module,
+//             when its body touches a business table, CALLs a core anchor module,
 //             uses a money action literal, or mutates the identity table
 //             (users reads/writes inside an action body; the ALLOW-ADMIN role
 //             lookup itself is still NOT linkage). Otherwise a write paragraph
@@ -11,7 +11,7 @@
 //             listed in docs (a paged LIST needs no core link to be correct).
 //   tables  - every own-domain table must carry a core business key
 //             (account/customer/loan/card/journal/deposit/collection/merchant
-//             id) or a FOREIGN KEY into a Tier-1 table, found in CREATE TABLE
+//             id) or a FOREIGN KEY into a core table, found in CREATE TABLE
 //             plus later ALTER TABLE ... ADD COLUMN. Otherwise backlog.
 //   routes  - the module must have a DB/table/integration test proving the
 //             link (auth/shape depth stays with check_route_auth and the
@@ -263,7 +263,7 @@ function slug(s) {
     .replace(/^-|-$/g, '');
 }
 
-function paragraphItems(mod, src, { tableNames, businessTables, moneyActions, tier1Modules }) {
+function paragraphItems(mod, src, { tableNames, businessTables, moneyActions, coreModules }) {
   const items = [];
   const paras = splitParagraphs(src);
   const actions = [...paras.entries()].filter(
@@ -273,7 +273,7 @@ function paragraphItems(mod, src, { tableNames, businessTables, moneyActions, ti
     const text = body.join('\n');
     const tables = tableRefs(text, tableNames);
     const core = [...tables].filter((t) => businessTables.has(t)).sort();
-    const calls = [...text.matchAll(/CALL\s+"([a-z_]+)"/g)].map((m) => m[1]).filter((c) => tier1Modules.has(c));
+    const calls = [...text.matchAll(/CALL\s+"([a-z_]+)"/g)].map((m) => m[1]).filter((c) => coreModules.has(c));
     const lits = [...text.matchAll(/"([A-Z][A-Z0-9_]{2,})"/g)].map((m) => m[1]).filter((a) => moneyActions.has(a));
     const identity = tables.has('users');
     if (core.length > 0 || calls.length > 0 || lits.length > 0 || identity) continue; // CORE_LINKED
@@ -310,11 +310,11 @@ function tableItems(mod, src, { tableNames, businessTables, schemaIndex }) {
       kind: 'table',
       subject: table,
       status: 'OPEN',
-      reason: `Domain table has no core business key or FK into a Tier-1 table`,
+      reason: `Domain table has no core business key or FK into a core table`,
       evidence: [
         cols ? `columns: ${[...cols].sort().join(', ').slice(0, 400)}` : 'no DDL found in schema.sql/migrations',
         keys.length ? `core keys: ${keys.join(', ')}` : 'no core business-key columns',
-        refs.length ? `core FK targets: ${refs.join(', ')}` : 'no FOREIGN KEY into Tier-1 tables',
+        refs.length ? `core FK targets: ${refs.join(', ')}` : 'no FOREIGN KEY into core tables',
       ],
       owner: null,
     });
@@ -331,7 +331,7 @@ function moduleMetaItems(mod) {
       kind: 'route',
       subject: 'integration test',
       status: 'OPEN',
-      reason: 'No DB/table/integration test proves the Tier-1 link (auth/shape depth stays with existing gates)',
+      reason: 'No DB/table/integration test proves the core link (auth/shape depth stays with existing gates)',
       evidence: [],
       owner: null,
     });
@@ -351,18 +351,18 @@ function moduleMetaItems(mod) {
 }
 
 export function audit(rootDir = root) {
-  const tier1 = loadJson(path.join(rootDir, 'manifest', 'tier1.json'));
-  const linksData = loadJson(path.join(rootDir, 'manifest', 'tier1_links.json'));
-  const businessTables = new Set((tier1.businessTables || []).map((t) => t.toLowerCase()));
-  const moneyActions = new Set(tier1.moneyActions || []);
-  const tier1Modules = new Set(tier1.tier1Modules || []);
+  const linkage = loadJson(path.join(rootDir, 'manifest', 'linkage.json'));
+  const linksData = loadJson(path.join(rootDir, 'manifest', 'linkage_graph.json'));
+  const businessTables = new Set((linkage.businessTables || []).map((t) => t.toLowerCase()));
+  const moneyActions = new Set(linkage.moneyActions || []);
+  const coreModules = new Set(linkage.coreModules || []);
   const schemaIndex = buildSchemaIndex(rootDir);
   const cobolDir = path.join(rootDir, 'cobol', 'src');
 
   const modules = (linksData.modules || []).filter((m) => m.linkageLevel === 'L2' || m.linkageLevel === 'L3');
   for (const mod of modules) {
     if (!mod.source) {
-      console.error(`FAIL: tier1_links entry ${mod.module} has no source (regenerate the graph)`);
+      console.error(`FAIL: linkage_graph entry ${mod.module} has no source (regenerate the graph)`);
       process.exit(1);
     }
   }
@@ -380,7 +380,7 @@ export function audit(rootDir = root) {
       items.push(next);
       if (next.status === 'OPEN' || next.status === 'IN_PROGRESS') open += 1;
     };
-    const context = { tableNames, businessTables, moneyActions, tier1Modules, schemaIndex };
+    const context = { tableNames, businessTables, moneyActions, coreModules, schemaIndex };
     for (const item of paragraphItems(mod, src, context)) push(item);
     for (const item of tableItems(mod, src, context)) push(item);
     for (const item of moduleMetaItems(mod)) push(item);

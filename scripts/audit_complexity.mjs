@@ -65,7 +65,7 @@ const list = (dir, suffix) =>
     : [];
 
 // Canonical 9-action template shape (suffix set). Matches the 492 modules
-// generated from cost_center_core.cob via scripts/generate_module.py.
+// Legacy template ancestry; the generator was removed (ADR-0014).
 const CANONICAL_9 = ['AUDIT', 'CALC', 'CREATE', 'DELETE', 'GET', 'LIST', 'SUMMARY', 'UPDATE', 'VALIDATE'];
 
 function cobolActions(source) {

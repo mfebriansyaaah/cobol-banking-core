@@ -1,22 +1,20 @@
 {
-  "generatedAt": "2026-11-18T09:16:54.292Z",
+  "generatedAt": "2026-11-20T02:45:51.954Z",
   "modules": [
     {
       "module": "account_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "FROZEN",
       "candidateStatus": "DUPLICATE",
       "cloneSimilarity": 0.95,
       "coveragePercent": 60.26,
-      "coverageStatus": "floor",
+      "coverageStatus": "below-floor",
       "routeFile": "account.js",
       "dbSuite": "tests/db/account_db_tests.sh",
       "recommendedForTraining": false
     },
     {
       "module": "auth_core",
-      "tier": 1,
       "linkageLevel": "L3",
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
@@ -29,7 +27,6 @@
     },
     {
       "module": "auth_mfa_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "REVIEW",
       "candidateStatus": null,
@@ -42,7 +39,6 @@
     },
     {
       "module": "auth_ops_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "REVIEW",
       "candidateStatus": null,
@@ -55,7 +51,6 @@
     },
     {
       "module": "auth_password_core",
-      "tier": 1,
       "linkageLevel": "L3",
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
@@ -68,7 +63,6 @@
     },
     {
       "module": "auth_recovery_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "REVIEW",
       "candidateStatus": null,
@@ -81,7 +75,6 @@
     },
     {
       "module": "auth_review_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "REVIEW",
       "candidateStatus": null,
@@ -94,7 +87,6 @@
     },
     {
       "module": "auth_session_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "REVIEW",
       "candidateStatus": null,
@@ -107,7 +99,6 @@
     },
     {
       "module": "backup_drill_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "FROZEN",
       "candidateStatus": "UNLINKED",
@@ -120,7 +111,6 @@
     },
     {
       "module": "bank_guarantee_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "FROZEN",
       "candidateStatus": "UNLINKED",
@@ -133,20 +123,18 @@
     },
     {
       "module": "card_core",
-      "tier": 1,
       "linkageLevel": "L3",
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": 65.76,
-      "coverageStatus": "floor",
+      "coverageStatus": "below-floor",
       "routeFile": "card.js",
       "dbSuite": "tests/db/card_db_tests.sh",
       "recommendedForTraining": true
     },
     {
       "module": "card_posting_core",
-      "tier": 2,
       "linkageLevel": "L3",
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
@@ -159,7 +147,6 @@
     },
     {
       "module": "chargeback_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "FROZEN",
       "candidateStatus": "UNLINKED",
@@ -172,7 +159,6 @@
     },
     {
       "module": "collateral_core",
-      "tier": 2,
       "linkageLevel": "L2",
       "domainStatus": "PILOT",
       "candidateStatus": null,
@@ -185,20 +171,18 @@
     },
     {
       "module": "collection_core",
-      "tier": 1,
       "linkageLevel": "L3",
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": 55.95,
-      "coverageStatus": "floor",
+      "coverageStatus": "below-floor",
       "routeFile": "collection.js",
       "dbSuite": "tests/db/collection_db_tests.sh",
       "recommendedForTraining": true
     },
     {
       "module": "compliance_calendar_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "FROZEN",
       "candidateStatus": "DUPLICATE",
@@ -211,7 +195,6 @@
     },
     {
       "module": "corp_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "REVIEW",
       "candidateStatus": null,
@@ -224,20 +207,18 @@
     },
     {
       "module": "cost_center_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "FROZEN",
       "candidateStatus": "UNLINKED",
       "cloneSimilarity": null,
       "coveragePercent": 62.01,
-      "coverageStatus": "floor",
+      "coverageStatus": "below-floor",
       "routeFile": "cost_center.js",
       "dbSuite": "tests/db/cost_center_db_tests.sh",
       "recommendedForTraining": false
     },
     {
       "module": "dashboard_core",
-      "tier": 2,
       "linkageLevel": "L3",
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
@@ -250,7 +231,6 @@
     },
     {
       "module": "deposit_core",
-      "tier": 1,
       "linkageLevel": "L3",
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
@@ -263,7 +243,6 @@
     },
     {
       "module": "deposit_posting_core",
-      "tier": 2,
       "linkageLevel": "L3",
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
@@ -276,20 +255,18 @@
     },
     {
       "module": "eod_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "FROZEN",
       "candidateStatus": "UNLINKED",
       "cloneSimilarity": null,
       "coveragePercent": 60.82,
-      "coverageStatus": "floor",
+      "coverageStatus": "below-floor",
       "routeFile": "eod.js",
       "dbSuite": null,
       "recommendedForTraining": false
     },
     {
       "module": "eod_jobs_core",
-      "tier": 2,
       "linkageLevel": "L1",
       "domainStatus": "REVIEW",
       "candidateStatus": null,
@@ -302,20 +279,18 @@
     },
     {
       "module": "fee_core",
-      "tier": 1,
       "linkageLevel": "L3",
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": 67.82,
-      "coverageStatus": "floor",
+      "coverageStatus": "below-floor",
       "routeFile": "fee.js",
       "dbSuite": null,
       "recommendedForTraining": true
     },
     {
       "module": "fixed_asset_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "FROZEN",
       "candidateStatus": "DUPLICATE",
@@ -328,7 +303,6 @@
     },
     {
       "module": "fx_rate_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "REVIEW",
       "candidateStatus": null,
@@ -341,20 +315,18 @@
     },
     {
       "module": "gl_allocation_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "FROZEN",
       "candidateStatus": "UNLINKED",
       "cloneSimilarity": null,
       "coveragePercent": 61.86,
-      "coverageStatus": "floor",
+      "coverageStatus": "below-floor",
       "routeFile": "gl_allocation.js",
       "dbSuite": "tests/db/gl_allocation_db_tests.sh",
       "recommendedForTraining": false
     },
     {
       "module": "gl_core",
-      "tier": 1,
       "linkageLevel": "L3",
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
@@ -367,7 +339,6 @@
     },
     {
       "module": "hashlen_core",
-      "tier": 3,
       "linkageLevel": "UTILITY",
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
@@ -376,11 +347,10 @@
       "coverageStatus": "unmeasured",
       "routeFile": null,
       "dbSuite": null,
-      "recommendedForTraining": true
+      "recommendedForTraining": false
     },
     {
       "module": "identity_core",
-      "tier": 2,
       "linkageLevel": "L2",
       "domainStatus": "REVIEW",
       "candidateStatus": null,
@@ -393,7 +363,6 @@
     },
     {
       "module": "import_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "FROZEN",
       "candidateStatus": "UNLINKED",
@@ -406,7 +375,6 @@
     },
     {
       "module": "import_post_core",
-      "tier": 2,
       "linkageLevel": "L3",
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
@@ -419,7 +387,6 @@
     },
     {
       "module": "import_recon_core",
-      "tier": 2,
       "linkageLevel": "L2",
       "domainStatus": "PILOT",
       "candidateStatus": null,
@@ -432,7 +399,6 @@
     },
     {
       "module": "import_row_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "REVIEW",
       "candidateStatus": null,
@@ -445,7 +411,6 @@
     },
     {
       "module": "letter_of_credit_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "FROZEN",
       "candidateStatus": "UNLINKED",
@@ -458,20 +423,18 @@
     },
     {
       "module": "loan_core",
-      "tier": 1,
       "linkageLevel": "L3",
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": 38.99,
-      "coverageStatus": "floor",
+      "coverageStatus": "below-floor",
       "routeFile": "loan.js",
       "dbSuite": "tests/db/loan_db_tests.sh",
       "recommendedForTraining": true
     },
     {
       "module": "loan_posting_core",
-      "tier": 2,
       "linkageLevel": "L3",
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
@@ -484,20 +447,18 @@
     },
     {
       "module": "loan_schedule_core",
-      "tier": 1,
       "linkageLevel": "L3",
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": 52.91,
-      "coverageStatus": "floor",
+      "coverageStatus": "below-floor",
       "routeFile": "loan_schedule.js",
       "dbSuite": "tests/db/loan_schedule_db_tests.sh",
       "recommendedForTraining": true
     },
     {
       "module": "loan_schedule_lifecycle_core",
-      "tier": 2,
       "linkageLevel": "L1",
       "domainStatus": "REVIEW",
       "candidateStatus": null,
@@ -510,7 +471,6 @@
     },
     {
       "module": "loan_schedule_posting_core",
-      "tier": 2,
       "linkageLevel": "L1",
       "domainStatus": "REVIEW",
       "candidateStatus": null,
@@ -523,7 +483,6 @@
     },
     {
       "module": "loan_schedule_report_core",
-      "tier": 2,
       "linkageLevel": "L1",
       "domainStatus": "REVIEW",
       "candidateStatus": null,
@@ -536,7 +495,6 @@
     },
     {
       "module": "loyalty_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "FROZEN",
       "candidateStatus": "UNLINKED",
@@ -549,7 +507,6 @@
     },
     {
       "module": "merchant_core",
-      "tier": 2,
       "linkageLevel": "L2",
       "domainStatus": "PILOT",
       "candidateStatus": null,
@@ -562,7 +519,6 @@
     },
     {
       "module": "merchant_settlement_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "FROZEN",
       "candidateStatus": "DUPLICATE",
@@ -575,7 +531,6 @@
     },
     {
       "module": "notification_template_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "FROZEN",
       "candidateStatus": "DUPLICATE",
@@ -588,20 +543,18 @@
     },
     {
       "module": "payment_clearing_core",
-      "tier": 1,
       "linkageLevel": "L3",
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": 40.53,
-      "coverageStatus": "floor",
+      "coverageStatus": "below-floor",
       "routeFile": "payment_clearing.js",
       "dbSuite": "tests/db/payment_clearing_db_tests.sh",
       "recommendedForTraining": true
     },
     {
       "module": "payment_core",
-      "tier": 2,
       "linkageLevel": "L3",
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
@@ -614,7 +567,6 @@
     },
     {
       "module": "payment_hold_core",
-      "tier": 2,
       "linkageLevel": "L3",
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
@@ -627,7 +579,6 @@
     },
     {
       "module": "payment_instruction_core",
-      "tier": 2,
       "linkageLevel": "L2",
       "domainStatus": "PILOT",
       "candidateStatus": null,
@@ -640,7 +591,6 @@
     },
     {
       "module": "payroll_processing_core",
-      "tier": 2,
       "linkageLevel": "L2",
       "domainStatus": "PILOT",
       "candidateStatus": null,
@@ -653,7 +603,6 @@
     },
     {
       "module": "phone_otp_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "REVIEW",
       "candidateStatus": null,
@@ -666,20 +615,18 @@
     },
     {
       "module": "ref_engine",
-      "tier": 3,
       "linkageLevel": "UTILITY",
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": 0,
-      "coverageStatus": "floor",
+      "coverageStatus": "below-floor",
       "routeFile": "ref_engine.js",
       "dbSuite": null,
-      "recommendedForTraining": true
+      "recommendedForTraining": false
     },
     {
       "module": "ref_ext_core",
-      "tier": 3,
       "linkageLevel": "UTILITY",
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
@@ -688,11 +635,10 @@
       "coverageStatus": "unmeasured",
       "routeFile": "ref_ext.js",
       "dbSuite": null,
-      "recommendedForTraining": true
+      "recommendedForTraining": false
     },
     {
       "module": "report_builder_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "FROZEN",
       "candidateStatus": "UNLINKED",
@@ -705,20 +651,18 @@
     },
     {
       "module": "report_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "REVIEW",
       "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": 63.48,
-      "coverageStatus": "floor",
+      "coverageStatus": "below-floor",
       "routeFile": "report.js",
       "dbSuite": null,
       "recommendedForTraining": false
     },
     {
       "module": "report_run_core",
-      "tier": 2,
       "linkageLevel": "L1",
       "domainStatus": "REVIEW",
       "candidateStatus": null,
@@ -731,7 +675,6 @@
     },
     {
       "module": "report_schedule_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "FROZEN",
       "candidateStatus": "DUPLICATE",
@@ -744,7 +687,6 @@
     },
     {
       "module": "risk_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "REVIEW",
       "candidateStatus": null,
@@ -757,7 +699,6 @@
     },
     {
       "module": "sla_tracker_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "FROZEN",
       "candidateStatus": "DUPLICATE",
@@ -770,20 +711,18 @@
     },
     {
       "module": "statement_core",
-      "tier": 2,
       "linkageLevel": "L3",
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": 58.19,
-      "coverageStatus": "floor",
+      "coverageStatus": "below-floor",
       "routeFile": "statement.js",
       "dbSuite": null,
       "recommendedForTraining": true
     },
     {
       "module": "statement_recon_core",
-      "tier": 2,
       "linkageLevel": "L3",
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
@@ -796,7 +735,6 @@
     },
     {
       "module": "tax_management_core",
-      "tier": 2,
       "linkageLevel": "L0",
       "domainStatus": "FROZEN",
       "candidateStatus": "DUPLICATE",
@@ -809,20 +747,18 @@
     },
     {
       "module": "treasury_liquidity_core",
-      "tier": 1,
       "linkageLevel": "L3",
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": 61.41,
-      "coverageStatus": "floor",
+      "coverageStatus": "below-floor",
       "routeFile": "treasury_liquidity.js",
       "dbSuite": "tests/db/treasury_liquidity_db_tests.sh",
       "recommendedForTraining": true
     },
     {
       "module": "user_core",
-      "tier": 1,
       "linkageLevel": "L3",
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
@@ -835,7 +771,6 @@
     },
     {
       "module": "wallet_core",
-      "tier": 1,
       "linkageLevel": "L3",
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
@@ -848,7 +783,6 @@
     },
     {
       "module": "wallet_dispute_core",
-      "tier": 2,
       "linkageLevel": "L1",
       "domainStatus": "REVIEW",
       "candidateStatus": null,
@@ -861,7 +795,6 @@
     },
     {
       "module": "wallet_hold_core",
-      "tier": 2,
       "linkageLevel": "L1",
       "domainStatus": "REVIEW",
       "candidateStatus": null,
@@ -874,7 +807,6 @@
     },
     {
       "module": "wallet_recon_core",
-      "tier": 2,
       "linkageLevel": "L1",
       "domainStatus": "REVIEW",
       "candidateStatus": null,
@@ -887,7 +819,6 @@
     },
     {
       "module": "wallet_reversal_core",
-      "tier": 2,
       "linkageLevel": "L1",
       "domainStatus": "REVIEW",
       "candidateStatus": null,
@@ -900,7 +831,6 @@
     },
     {
       "module": "wallet_statement_core",
-      "tier": 2,
       "linkageLevel": "L1",
       "domainStatus": "REVIEW",
       "candidateStatus": null,
@@ -913,7 +843,6 @@
     },
     {
       "module": "wallet_transfer_core",
-      "tier": 2,
       "linkageLevel": "L3",
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
