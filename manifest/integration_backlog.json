@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T04:46:26.398386Z",
+  "generatedAt": "2026-11-20T05:26:58.747244Z",
   "items": [
     {
       "id": "account_core:audit:core-reference",
@@ -1376,6 +1376,18 @@
       "owner": "merchant"
     },
     {
+      "id": "notification_template_core:audit:core-reference",
+      "module": "notification_template_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "DONE",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [
+        "audit rows carry ntf_template_config_id + old/new: VERSION row stores id=65, old_value=OPEN, new_value=ACTIVE (tests/db/notification_template_db_tests.sh: version audited)"
+      ],
+      "owner": "backend"
+    },
+    {
       "id": "payment_clearing_core:action:action-cancel",
       "module": "payment_clearing_core",
       "kind": "action",
@@ -2030,6 +2042,18 @@
         "table has DDL; template columns reviewed with the report module"
       ],
       "owner": "assistant"
+    },
+    {
+      "id": "report_schedule_core:audit:core-reference",
+      "module": "report_schedule_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "DONE",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [
+        "audit rows carry rpt_schedule_config_id + old/new: ENABLE row stores id=30, old_value=OPEN, new_value=ACTIVE (tests/db/report_schedule_db_tests.sh: run/disable audited via version bump + DISABLE action count)"
+      ],
+      "owner": "backend"
     },
     {
       "id": "statement_core:action:action-run-fail",

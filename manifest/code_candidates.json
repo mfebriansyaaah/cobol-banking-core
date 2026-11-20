@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T04:45:53.878968Z",
+  "generatedAt": "2026-11-20T05:26:35.608908Z",
   "candidates": [
     {
       "module": "bank_guarantee_core",
@@ -172,42 +172,6 @@
         "linkage L0: own domain tables only, no core link",
         "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
         "primary table merchant_settlement: also referenced by merchant_core",
-        "trafficLastSeen: null \u2014 no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none \u2014 core scoring found no business tables, core calls, or money actions"
-      ],
-      "trafficLastSeen": null,
-      "consumer": null,
-      "replacement": null,
-      "ownerSignoff": null,
-      "status": "CANDIDATE"
-    },
-    {
-      "module": "notification_template_core",
-      "domain": "notification_template",
-      "linkageLevel": "L0",
-      "reason": "DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F).",
-      "evidence": [
-        "linkage L0: own domain tables only, no core link",
-        "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
-        "primary table ntf_template_config: referenced only by this module",
-        "trafficLastSeen: null \u2014 no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none \u2014 core scoring found no business tables, core calls, or money actions"
-      ],
-      "trafficLastSeen": null,
-      "consumer": null,
-      "replacement": null,
-      "ownerSignoff": null,
-      "status": "CANDIDATE"
-    },
-    {
-      "module": "report_schedule_core",
-      "domain": "report_schedule",
-      "linkageLevel": "L0",
-      "reason": "DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F).",
-      "evidence": [
-        "linkage L0: own domain tables only, no core link",
-        "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
-        "primary table rpt_schedule_config: referenced only by this module",
         "trafficLastSeen: null \u2014 no traffic telemetry yet; must be measured before DEPRECATED",
         "CORE_LINKED actions: none \u2014 core scoring found no business tables, core calls, or money actions"
       ],

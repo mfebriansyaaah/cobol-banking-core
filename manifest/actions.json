@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-11-20T04:53:37.384Z",
-  "commit": "4c216a1d",
+  "generatedAt": "2026-11-20T05:35:31.630Z",
+  "commit": "b90be2d4",
   "generator": "scripts/build_action_registry.mjs (do not hand-edit)",
-  "count": 539,
+  "count": 541,
   "actions": [
     {
       "action": "ACCOUNT_FREEZE",
@@ -11641,46 +11641,12 @@
       "tokenIdentity": "actor",
       "owner": "comms",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "notification_template",
-      "status": "FROZEN"
-    },
-    {
-      "action": "NTP_CALC",
-      "module": "notification_template_core",
-      "prefix": "NTP_",
-      "method": "post",
-      "path": "/notification-templates/:id/calc",
-      "fields": [
-        "id",
-        "",
-        "",
-        "",
-        "",
-        "actor"
-      ],
-      "required": [
-        true,
-        false,
-        false,
-        false,
-        false,
-        true
-      ],
-      "public": false,
-      "stepUp": false,
-      "tokenIdentity": "actor",
-      "owner": "comms",
-      "authPolicy": "authenticated",
-      "linkageLevel": "L0",
-      "coreActions": [],
-      "coreCalls": [],
-      "tested": true,
-      "domain": "notification_template",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "NTP_CREATE",
@@ -11709,19 +11675,19 @@
       "tokenIdentity": "actor",
       "owner": "comms",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "notification_template",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
-      "action": "NTP_DELETE",
+      "action": "NTP_DEACTIVATE",
       "module": "notification_template_core",
       "prefix": "NTP_",
       "method": "post",
-      "path": "/notification-templates/:id/delete",
+      "path": "/notification-templates/:id/deactivate",
       "fields": [
         "id",
         "reason",
@@ -11743,12 +11709,12 @@
       "tokenIdentity": "actor",
       "owner": "comms",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "notification_template",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "NTP_GET",
@@ -11777,12 +11743,12 @@
       "tokenIdentity": "actor",
       "owner": "comms",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "notification_template",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "NTP_LIST",
@@ -11811,12 +11777,46 @@
       "tokenIdentity": "actor",
       "owner": "comms",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "notification_template",
-      "status": "FROZEN"
+      "status": "PILOT"
+    },
+    {
+      "action": "NTP_PREVIEW",
+      "module": "notification_template_core",
+      "prefix": "NTP_",
+      "method": "post",
+      "path": "/notification-templates/:id/preview",
+      "fields": [
+        "id",
+        "",
+        "",
+        "",
+        "",
+        "actor"
+      ],
+      "required": [
+        true,
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "public": false,
+      "stepUp": false,
+      "tokenIdentity": "actor",
+      "owner": "comms",
+      "authPolicy": "authenticated",
+      "linkageLevel": "L2",
+      "coreActions": [],
+      "coreCalls": [],
+      "tested": true,
+      "domain": "notification_template",
+      "status": "PILOT"
     },
     {
       "action": "NTP_SUMMARY",
@@ -11845,12 +11845,12 @@
       "tokenIdentity": "actor",
       "owner": "comms",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "notification_template",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "NTP_UPDATE",
@@ -11879,12 +11879,12 @@
       "tokenIdentity": "actor",
       "owner": "comms",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "notification_template",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "NTP_VALIDATE",
@@ -11913,12 +11913,46 @@
       "tokenIdentity": "actor",
       "owner": "comms",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "notification_template",
-      "status": "FROZEN"
+      "status": "PILOT"
+    },
+    {
+      "action": "NTP_VERSION",
+      "module": "notification_template_core",
+      "prefix": "NTP_",
+      "method": "post",
+      "path": "/notification-templates/:id/version",
+      "fields": [
+        "id",
+        "",
+        "",
+        "",
+        "",
+        "actor"
+      ],
+      "required": [
+        true,
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "public": false,
+      "stepUp": false,
+      "tokenIdentity": "actor",
+      "owner": "comms",
+      "authPolicy": "authenticated",
+      "linkageLevel": "L2",
+      "coreActions": [],
+      "coreCalls": [],
+      "tested": true,
+      "domain": "notification_template",
+      "status": "PILOT"
     },
     {
       "action": "OPEN_ACCESS_REVIEW",
@@ -14820,46 +14854,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "report_schedule",
-      "status": "FROZEN"
-    },
-    {
-      "action": "RPS_CALC",
-      "module": "report_schedule_core",
-      "prefix": "RPS_",
-      "method": "post",
-      "path": "/report-schedules/:id/calc",
-      "fields": [
-        "id",
-        "",
-        "",
-        "",
-        "",
-        "actor"
-      ],
-      "required": [
-        true,
-        false,
-        false,
-        false,
-        false,
-        true
-      ],
-      "public": false,
-      "stepUp": false,
-      "tokenIdentity": "actor",
-      "owner": "data",
-      "authPolicy": "authenticated",
-      "linkageLevel": "L0",
-      "coreActions": [],
-      "coreCalls": [],
-      "tested": true,
-      "domain": "report_schedule",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "RPS_CREATE",
@@ -14871,7 +14871,7 @@
         "scheduleRef",
         "scheduleName",
         "scheduleType",
-        "",
+        "maxInstances",
         "",
         "actor"
       ],
@@ -14888,19 +14888,19 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "report_schedule",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
-      "action": "RPS_DELETE",
+      "action": "RPS_DISABLE",
       "module": "report_schedule_core",
       "prefix": "RPS_",
       "method": "post",
-      "path": "/report-schedules/:id/delete",
+      "path": "/report-schedules/:id/disable",
       "fields": [
         "id",
         "reason",
@@ -14922,12 +14922,46 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "report_schedule",
-      "status": "FROZEN"
+      "status": "PILOT"
+    },
+    {
+      "action": "RPS_ENABLE",
+      "module": "report_schedule_core",
+      "prefix": "RPS_",
+      "method": "post",
+      "path": "/report-schedules/:id/enable",
+      "fields": [
+        "id",
+        "",
+        "",
+        "",
+        "",
+        "actor"
+      ],
+      "required": [
+        true,
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "public": false,
+      "stepUp": false,
+      "tokenIdentity": "actor",
+      "owner": "data",
+      "authPolicy": "authenticated",
+      "linkageLevel": "L2",
+      "coreActions": [],
+      "coreCalls": [],
+      "tested": true,
+      "domain": "report_schedule",
+      "status": "PILOT"
     },
     {
       "action": "RPS_GET",
@@ -14956,12 +14990,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "report_schedule",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "RPS_LIST",
@@ -14990,12 +15024,46 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "report_schedule",
-      "status": "FROZEN"
+      "status": "PILOT"
+    },
+    {
+      "action": "RPS_RUN_NOW",
+      "module": "report_schedule_core",
+      "prefix": "RPS_",
+      "method": "post",
+      "path": "/report-schedules/:id/run-now",
+      "fields": [
+        "id",
+        "",
+        "",
+        "",
+        "",
+        "actor"
+      ],
+      "required": [
+        true,
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "public": false,
+      "stepUp": false,
+      "tokenIdentity": "actor",
+      "owner": "data",
+      "authPolicy": "authenticated",
+      "linkageLevel": "L2",
+      "coreActions": [],
+      "coreCalls": [],
+      "tested": true,
+      "domain": "report_schedule",
+      "status": "PILOT"
     },
     {
       "action": "RPS_SUMMARY",
@@ -15024,12 +15092,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "report_schedule",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "RPS_UPDATE",
@@ -15058,12 +15126,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "report_schedule",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "RPS_VALIDATE",
@@ -15092,12 +15160,12 @@
       "tokenIdentity": "actor",
       "owner": "data",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "report_schedule",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "RPT_COLUMN_CREATE",

@@ -206,5 +206,29 @@
   "",
   "",
   "actor"
+ ],
+ "RPS_DISABLE": [
+  "id",
+  "reason",
+  "",
+  "",
+  "",
+  "actor"
+ ],
+ "RPS_ENABLE": [
+  "id",
+  "",
+  "",
+  "",
+  "",
+  "actor"
+ ],
+ "RPS_RUN_NOW": [
+  "id",
+  "",
+  "",
+  "",
+  "",
+  "actor"
  ]
 }

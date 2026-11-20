@@ -40,7 +40,9 @@
     "loan_application",
     "loan_installment",
     "loan_repayment",
-    "loan_schedule"
+    "loan_schedule",
+    "ntf_template_config",
+    "rpt_schedule_config"
   ],
   "moneyTables": [
     "accounts",

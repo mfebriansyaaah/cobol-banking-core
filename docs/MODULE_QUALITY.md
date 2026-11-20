@@ -51,7 +51,7 @@
 | `loyalty_core` | L0 | FROZEN | UNLINKED | — | — | unmeasured | no |
 | `merchant_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `merchant_settlement_core` | L0 | FROZEN | DUPLICATE | 0.68 | — | unmeasured | no |
-| `notification_template_core` | L0 | FROZEN | DUPLICATE | 0.95 | — | unmeasured | no |
+| `notification_template_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `payment_clearing_core` | L3 | ACTIVE | — | — | 40.53 | below-floor | yes |
 | `payment_core` | L3 | ACTIVE | — | — | — | unmeasured | yes |
 | `payment_hold_core` | L3 | ACTIVE | — | — | — | unmeasured | yes |
@@ -62,7 +62,7 @@
 | `ref_ext_core` | UTILITY | ACTIVE | — | — | — | unmeasured | no |
 | `report_core` | L0 | REVIEW | — | — | 63.48 | below-floor | no |
 | `report_run_core` | L1 | REVIEW | — | — | — | unmeasured | no |
-| `report_schedule_core` | L0 | FROZEN | DUPLICATE | 0.95 | — | unmeasured | no |
+| `report_schedule_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `risk_core` | L0 | REVIEW | — | — | — | unmeasured | no |
 | `sla_tracker_core` | L0 | FROZEN | DUPLICATE | 0.95 | — | unmeasured | no |
 | `statement_core` | L3 | ACTIVE | — | — | 58.19 | below-floor | yes |

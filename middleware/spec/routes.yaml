@@ -551,11 +551,12 @@ files:
     - { method: get, path: "/report-schedules/summary", action: RPS_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
     - { method: get, path: "/report-schedules/audit", action: RPS_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
     - { method: get, path: "/report-schedules", action: RPS_LIST, tokenIdentity: 'actor', fields: [status:LIST_STATUS?, scheduleType:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
-    - { method: post, path: "/report-schedules", action: RPS_CREATE, tokenIdentity: 'actor', fields: [scheduleRef:KEY, scheduleName:NAME, scheduleType:NAME, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/report-schedules", action: RPS_CREATE, tokenIdentity: 'actor', fields: [scheduleRef:KEY, scheduleName:NAME, scheduleType:NAME, maxInstances:INT?, BLANK, ACTOR] }
     - { method: get, path: "/report-schedules/:id", action: RPS_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
-    - { method: post, path: "/report-schedules/:id/calc", action: RPS_CALC, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/report-schedules/:id/enable", action: RPS_ENABLE, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/report-schedules/:id/disable", action: RPS_DISABLE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/report-schedules/:id/run-now", action: RPS_RUN_NOW, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
     - { method: post, path: "/report-schedules/:id/update", action: RPS_UPDATE, tokenIdentity: 'actor', fields: [ID, scheduleName:NAME?, scheduleType:NAME?, BLANK, BLANK, ACTOR] }
-    - { method: post, path: "/report-schedules/:id/delete", action: RPS_DELETE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
 - file: risk.js
   export: RISK_ROUTES
     - { method: post, path: "/risk/note", action: RISK_NOTE, tokenIdentity: 'actor', fields: [email:EMAIL, country:NAME?, city:NAME?, asn:NAME?, ipHashFlags:IP_HASH_FLAGS?, ACTOR] }

@@ -11,10 +11,10 @@ non-recommended module (including all eight below) via
 
 | Module | Similarity | Link | Decision |
 | --- | ---: | --- | --- |
-| `account_core` | 0.95 | L0 | **Retain, frozen.** Exact 9-action template clone; no proven core link; excluded from `train`. Refactor only if a real consumer appears. |
-| `compliance_calendar_core` | 0.95 | L0 | **Retain, frozen.** Exact clone; regulatory calendar routes/tables are domain-specific but the code shape is template; excluded from `train`. |
+| `account_core` | 0.95→n/a | L2 | **Refactored (PR-2a).** Template CALC/DELETE replaced by domain lifecycle ACTIVATE/FREEZE/UNFREEZE/CLOSE with guards; no longer clone-shaped (dropped from `clone_baseline.txt`); business-linked via `account` table; PILOT. |
+| `compliance_calendar_core` | 0.95→n/a | L2 | **Refactored (PR-2a).** CALC/DELETE replaced by SCHEDULE (due-date)/COMPLETE (capped)/ESCALATE (overdue+reason)/CLOSE (no-pending+reason); no longer clone-shaped; business-linked via `compliance_calendar`; PILOT. |
 | `notification_template_core` | 0.95→n/a | L2 | **Refactored (PR-2b).** CALC/DELETE replaced by PREVIEW (rendered sample)/VERSION (publish+increment)/DEACTIVATE (reason-required); no longer clone-shaped; business-linked via `ntf_template_config`; PILOT. |
-| `report_schedule_core` | 0.95 | L0 | **Retain, frozen.** Exact clone; report scheduling is covered by its DB suite; excluded from `train`. |
+| `report_schedule_core` | 0.95→n/a | L2 | **Refactored (PR-2b).** CALC/DELETE replaced by ENABLE/DISABLE (window guards)/RUN_NOW (capped at max); no longer clone-shaped; business-linked via `rpt_schedule_config`; PILOT. |
 | `sla_tracker_core` | 0.95 | L0 | **Retain, frozen.** Exact clone; SLA tracking is a support surface; excluded from `train`. |
 | `fixed_asset_core` | 0.67 | L0 | **Retain, frozen for now.** Template-shaped but carries a real depreciation/revalue/dispose lifecycle and GL link; keep out of `train` until a core linkage proof or a dedicated refactor exists. |
 | `merchant_settlement_core` | 0.68 | L0 | **Retain, frozen for now.** Template-shaped but carries fee/settlement/GL logic; keep out of `train` until the merchant linkage is proven. |

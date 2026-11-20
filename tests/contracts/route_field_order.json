@@ -4683,11 +4683,11 @@
     "tokenIdentity": "actor",
     "stepUp": false
   },
-  "notification_template.js :: POST /notification-templates/:id/calc": {
-    "action": "NTP_CALC",
+  "notification_template.js :: POST /notification-templates/:id/deactivate": {
+    "action": "NTP_DEACTIVATE",
     "fields": [
       "ID",
-      "BLANK",
+      "reason",
       "BLANK",
       "BLANK",
       "BLANK",
@@ -4696,11 +4696,11 @@
     "tokenIdentity": "actor",
     "stepUp": false
   },
-  "notification_template.js :: POST /notification-templates/:id/delete": {
-    "action": "NTP_DELETE",
+  "notification_template.js :: POST /notification-templates/:id/preview": {
+    "action": "NTP_PREVIEW",
     "fields": [
       "ID",
-      "reason",
+      "BLANK",
       "BLANK",
       "BLANK",
       "BLANK",
@@ -4715,6 +4715,19 @@
       "ID",
       "templateName",
       "templateType",
+      "BLANK",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "notification_template.js :: POST /notification-templates/:id/version": {
+    "action": "NTP_VERSION",
+    "fields": [
+      "ID",
+      "BLANK",
+      "BLANK",
       "BLANK",
       "BLANK",
       "ACTOR"
@@ -5989,31 +6002,44 @@
       "scheduleRef",
       "scheduleName",
       "scheduleType",
-      "BLANK",
-      "BLANK",
-      "ACTOR"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": false
-  },
-  "report_schedule.js :: POST /report-schedules/:id/calc": {
-    "action": "RPS_CALC",
-    "fields": [
-      "ID",
-      "BLANK",
-      "BLANK",
-      "BLANK",
+      "maxInstances",
       "BLANK",
       "ACTOR"
     ],
     "tokenIdentity": "actor",
     "stepUp": false
   },
-  "report_schedule.js :: POST /report-schedules/:id/delete": {
-    "action": "RPS_DELETE",
+  "report_schedule.js :: POST /report-schedules/:id/disable": {
+    "action": "RPS_DISABLE",
     "fields": [
       "ID",
       "reason",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "report_schedule.js :: POST /report-schedules/:id/enable": {
+    "action": "RPS_ENABLE",
+    "fields": [
+      "ID",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "report_schedule.js :: POST /report-schedules/:id/run-now": {
+    "action": "RPS_RUN_NOW",
+    "fields": [
+      "ID",
+      "BLANK",
       "BLANK",
       "BLANK",
       "BLANK",

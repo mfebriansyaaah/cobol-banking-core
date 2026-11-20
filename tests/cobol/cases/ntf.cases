@@ -1,6 +1,7 @@
 # NTF (Wave3) validation cases.
 NTP_CREATE missing ref@@ERROR\|INVALID_INPUT@@NTP_CREATE||||||admin@test.com
 NTP_GET missing id@@ERROR\|INVALID_INPUT@@NTP_GET||||||admin@test.com
-NTP_CALC missing id@@ERROR\|INVALID_INPUT@@NTP_CALC||||||admin@test.com
-NTP_DELETE missing id@@ERROR\|INVALID_INPUT@@NTP_DELETE||||||admin@test.com
+NTP_PREVIEW missing id@@ERROR\|INVALID_INPUT@@NTP_PREVIEW||||||admin@test.com
+NTP_VERSION missing id@@ERROR\|INVALID_INPUT@@NTP_VERSION||||||admin@test.com
+NTP_DEACTIVATE missing id@@ERROR\|INVALID_INPUT@@NTP_DEACTIVATE||||||admin@test.com
 NTP_VALIDATE ok@@SUCCESS\|NTP_VALID@@NTP_VALIDATE|100.00|USD||||admin@test.com

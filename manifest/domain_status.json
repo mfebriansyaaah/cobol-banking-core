@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T04:45:49.267889Z",
+  "generatedAt": "2026-11-20T05:26:35.577204Z",
   "entries": [
     {
       "domain": "account",
@@ -718,14 +718,14 @@
       "module": "notification_template_core",
       "routeFile": "notification_template.js",
       "table": "ntf_template_config",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "linkedCoreDomains": [],
       "replacement": null,
       "consumer": null,
       "trafficLastSeen": null,
       "owner": null,
-      "status": "FROZEN",
-      "reason": "No proven core link; frozen pending dead-candidate evidence (PR-010F).",
+      "status": "PILOT",
+      "reason": "Business-linked notification template; ntf_template_config table + tests/db/notification_template_db_tests.sh.",
       "retireAfter": null,
       "tableDropDate": null
     },
@@ -900,14 +900,14 @@
       "module": "report_schedule_core",
       "routeFile": "report_schedule.js",
       "table": "rpt_schedule_config",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "linkedCoreDomains": [],
       "replacement": null,
       "consumer": null,
       "trafficLastSeen": null,
       "owner": null,
-      "status": "FROZEN",
-      "reason": "No proven core link; frozen pending dead-candidate evidence (PR-010F).",
+      "status": "PILOT",
+      "reason": "Business-linked report schedule; rpt_schedule_config table + tests/db/report_schedule_db_tests.sh.",
       "retireAfter": null,
       "tableDropDate": null
     },

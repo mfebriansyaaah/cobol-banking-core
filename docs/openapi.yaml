@@ -11833,10 +11833,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  "/notification-templates/:id/calc":
+  "/notification-templates/:id/preview":
     post:
-      operationId: NTP_CALC
-      summary: NTP_CALC — Execute action
+      operationId: NTP_PREVIEW
+      summary: NTP_PREVIEW — List entities
       tags:
         - notification_template
       parameters:
@@ -11849,6 +11849,70 @@ paths:
             schema:
               type: object
               properties: {}
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  "/notification-templates/:id/version":
+    post:
+      operationId: NTP_VERSION
+      summary: NTP_VERSION — List entities
+      tags:
+        - notification_template
+      parameters:
+        - $ref: "#/components/parameters/id"
+        - $ref: "#/components/parameters/actor"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  "/notification-templates/:id/deactivate":
+    post:
+      operationId: NTP_DEACTIVATE
+      summary: NTP_DEACTIVATE — List entities
+      tags:
+        - notification_template
+      parameters:
+        - $ref: "#/components/parameters/id"
+        - $ref: "#/components/parameters/actor"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
       responses:
         "200":
           description: Success
@@ -11883,39 +11947,6 @@ paths:
                 templateName:
                   type: string
                 templateType:
-                  type: string
-      responses:
-        "200":
-          description: Success
-        "400":
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-  "/notification-templates/:id/delete":
-    post:
-      operationId: NTP_DELETE
-      summary: NTP_DELETE — Delete/close entity
-      tags:
-        - notification_template
-      parameters:
-        - $ref: "#/components/parameters/id"
-        - $ref: "#/components/parameters/actor"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                reason:
                   type: string
       responses:
         "200":
@@ -15001,6 +15032,8 @@ paths:
                   type: string
                 scheduleType:
                   type: string
+                maxInstances:
+                  type: string
               required:
                 - scheduleRef
                 - scheduleName
@@ -15044,10 +15077,74 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  "/report-schedules/:id/calc":
+  "/report-schedules/:id/enable":
     post:
-      operationId: RPS_CALC
-      summary: RPS_CALC — Execute action
+      operationId: RPS_ENABLE
+      summary: RPS_ENABLE — List entities
+      tags:
+        - report_schedule
+      parameters:
+        - $ref: "#/components/parameters/id"
+        - $ref: "#/components/parameters/actor"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  "/report-schedules/:id/disable":
+    post:
+      operationId: RPS_DISABLE
+      summary: RPS_DISABLE — List entities
+      tags:
+        - report_schedule
+      parameters:
+        - $ref: "#/components/parameters/id"
+        - $ref: "#/components/parameters/actor"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  "/report-schedules/:id/run-now":
+    post:
+      operationId: RPS_RUN_NOW
+      summary: RPS_RUN_NOW — List entities
       tags:
         - report_schedule
       parameters:
@@ -15094,39 +15191,6 @@ paths:
                 scheduleName:
                   type: string
                 scheduleType:
-                  type: string
-      responses:
-        "200":
-          description: Success
-        "400":
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-  "/report-schedules/:id/delete":
-    post:
-      operationId: RPS_DELETE
-      summary: RPS_DELETE — Delete/close entity
-      tags:
-        - report_schedule
-      parameters:
-        - $ref: "#/components/parameters/id"
-        - $ref: "#/components/parameters/actor"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                reason:
                   type: string
       responses:
         "200":

@@ -29,11 +29,9 @@ loan_schedule_posting_core L1
 loan_schedule_report_core L1
 loyalty_core L0
 merchant_settlement_core L0
-notification_template_core L0
 phone_otp_core L0
 report_core L0
 report_run_core L1
-report_schedule_core L0
 risk_core L0
 sla_tracker_core L0
 tax_management_core L0
