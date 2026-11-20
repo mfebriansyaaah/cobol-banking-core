@@ -148,9 +148,6 @@ jobs:
       - name: Schema drift check
         run: bash scripts/check_schema_drift.sh
 
-      - name: Gateway coverage
-        run: bash scripts/ci/coverage.sh --gateway-only --json
-
       - name: Performance benchmarks
         run: bash tests/perf/bench.sh
 

@@ -124,9 +124,6 @@ jobs:
       - name: ESLint
         run: npm run lint
 
-      - name: JS complexity ratchet (15)
-        run: node scripts/check_js_complexity.mjs .
-
       - name: Prettier check
         run: npm run format:check
 
@@ -159,20 +156,14 @@ jobs:
       - name: Secret scan
         run: gitleaks detect --source . --no-git --redact --config .gitleaks.toml
 
-      # Repository invariants formerly split across `build`; they read the
-      # tree only and do not need the compiled binary.
-      - name: Repository invariants
-        run: |
-          set -euo pipefail
-          node scripts/check_manifest.mjs .
-          node scripts/check_docs.mjs .
-          node scripts/check_docs_modules.mjs .
-          node scripts/check_cobol_paragraphs.mjs .
-          node scripts/check_coverage_recommended.mjs .
-          node scripts/check_pr_size_policy.mjs .
-          node scripts/check_error_codes.mjs .
-          node scripts/check_program_signatures.mjs .
-          node scripts/check_test_registration.mjs .
+      # The complete static gate fleet lives here: JS syntax + the 38
+      # parallel tree gates. `test` sets SKIP_STATIC_GATES=1 so none of them
+      # run twice. check_docs (README/stat table) is not part of run_gates.
+      - name: Static gate fleet
+        run: tests/run_all.sh gates
+
+      - name: Docs stats
+        run: node scripts/check_docs.mjs .
 
       # Gate-detection probes mutate a throwaway copy and require the gates
       # to notice; ~38s, no DB and no real build.
@@ -488,6 +479,7 @@ jobs:
       DB_MIGRATE_USER: root
       DB_MIGRATE_PASS: root
       SKIP_BUILD: '1'
+      SKIP_STATIC_GATES: '1'
       REQUIRE_MAILPIT: '1'
       ISOLATED_DB: '0'
     steps:
@@ -517,12 +509,6 @@ jobs:
 
       - name: Install gateway dependencies
         run: npm ci --prefix middleware
-
-      # The test gate still runs the repo's static gate set (run_all.sh), and
-      # that includes the ESLint-based JS complexity ratchet. Keep the root
-      # toolchain installed until the gate set is moved wholesale to lint.
-      - name: Install gate dependencies
-        run: npm ci --no-audit --no-fund
 
       - name: Download core binary
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2

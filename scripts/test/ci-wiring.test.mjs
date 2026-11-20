@@ -32,7 +32,7 @@ const WIRED = [
   ['scripts/ci/coverage.sh', ['coverage.sh']],
   ['scripts/check_test_counts.mjs', ['check_test_counts']],
   ['scripts/check_docs.mjs', ['check_docs']],
-  ['scripts/check_pr_size_policy.mjs', ['check_pr_size_policy']],
+  ['scripts/check_pr_size_policy.mjs', ['check_pr_size_policy', 'tests/run_all.sh gates']],
   ['scripts/pr_size.mjs', ['pr_size.mjs']],
   ['scripts/check_schema_drift.sh', ['check_schema_drift']],
   ['scripts/check_warnings.sh', ['check_warnings']],
@@ -227,12 +227,18 @@ test('performance benchmark runs in nightly, not in the PR gate', () => {
   assert.ok(nightlyJob, 'nightly.yml must define the full-twice job');
   const nightlyRuns = nightlyJob.runs.join('\n');
   assert.match(nightlyRuns, /tests\/perf\/bench\.sh/, 'nightly must run the performance benchmark');
+  assert.doesNotMatch(nightlyRuns, /coverage\.sh/, 'nightly must not duplicate scheduled coverage');
   const ciTestRuns = all['ci.yml']['test'].runs.join('\n');
   assert.doesNotMatch(ciTestRuns, /bench\.sh/, 'PR test job must not run the benchmark');
   const idx = (needle) => nightlyJob.runs.findIndex((s) => s.includes(needle));
-  assert.ok(idx('coverage.sh') >= 0 && idx('bench.sh') >= 0 && idx('load_gateway.sh') >= 0);
-  assert.ok(idx('coverage.sh') < idx('bench.sh'), 'benchmark must run after gateway coverage');
+  assert.ok(idx('bench.sh') >= 0 && idx('load_gateway.sh') >= 0);
   assert.ok(idx('bench.sh') < idx('load_gateway.sh'), 'benchmark must run before the load test');
+});
+
+test('static gates run once in lint; PR test skips the gate fleet', () => {
+  const ci = collectWorkflowJobs()['ci.yml'];
+  assert.match(ci['lint'].runs.join('\n'), /tests\/run_all\.sh gates/, 'lint must run the full gate fleet');
+  assert.equal(ci['test'].env?.SKIP_STATIC_GATES, '1', 'PR test must skip the lint-owned gate fleet');
 });
 
 test('docs-only PRs skip heavy jobs including the test gate (CI-011 option A)', () => {
