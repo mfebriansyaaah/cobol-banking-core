@@ -13,11 +13,11 @@ column-level catalogue ([data dictionary](DATA_DICTIONARY.md)).
 | --- | --- | --- | --- | --- |
 | `account_core` | `ACC_` | [account.js](../middleware/src/routes/account.js) | [account.cases](../tests/cobol/cases/account.cases) | [account_db_tests.sh](../tests/db/account_db_tests.sh) |
 | `auth_core` | `REVOKE_OTHER_DEVICES`, `REVOKE_ALL_SESSIONS`, `RESEND_VERIFICATION`, `REVOKE_USER_SESSION`, `REVOKE_ACCESS_TOKEN`, `GET_TOKEN_VERSION`, `STEP_UP_REQUIRED`, `CONSUME_SESSION`, `REQUEST_SIGNUP`, `REVOKE_SESSION`, `LIST_SESSIONS`, `STORE_SESSION`, `VERIFY_REAUTH`, `LOGIN_NOTICE`, `VERIFY_EMAIL`, `CHECK_TOKEN`, `CHANGE_ROLE`, `CHECK_ROLE`, `AUTH_LOGIN`, `PING` | [auth.js](../middleware/src/routes/auth.js) | — | — |
-| `auth_mfa_core` | `MFA_ENROLL_REQUIRED`, `MFA_ENROLL_CONFIRM`, `MFA_BACKUP_CODES`, `MFA_ENROLL_BEGIN`, `MFA_DISABLE` | — | — | — |
-| `auth_ops_core` | `ARCHIVE_AUDIT`, `OUTBOX_CLAIM`, `LIST_OUTBOX`, `OUTBOX_MARK`, `LIST_AUDIT` | — | — | — |
+| `auth_mfa_core` | `MFA_ENROLL_REQUIRED`, `MFA_ENROLL_CONFIRM`, `MFA_BACKUP_CODES`, `MFA_ENROLL_BEGIN`, `MFA_DISABLE` | — | — | [auth_mfa_db_tests.sh](../tests/db/auth_mfa_db_tests.sh) |
+| `auth_ops_core` | `ARCHIVE_AUDIT`, `OUTBOX_CLAIM`, `LIST_OUTBOX`, `OUTBOX_MARK`, `LIST_AUDIT` | — | — | [auth_ops_db_tests.sh](../tests/db/auth_ops_db_tests.sh) |
 | `auth_password_core` | `FORGOT_PASSWORD`, `CHANGE_PASSWORD`, `RESET_PASSWORD` | — | — | — |
-| `auth_recovery_core` | `REQUEST_MFA_RECOVERY`, `APPROVE_MFA_RECOVERY`, `VERIFY_MFA_RECOVERY`, `REJECT_MFA_RECOVERY`, `REQUEST_OPERATION`, `LIST_MFA_RECOVERY`, `APPROVE_REQUEST`, `REJECT_REQUEST`, `LIST_REQUESTS` | — | — | — |
-| `auth_review_core` | `CLOSE_ACCESS_REVIEW`, `LIST_ACCESS_REVIEWS`, `DECIDE_ACCESS_ITEM`, `OPEN_ACCESS_REVIEW`, `GET_ACCESS_REVIEW`, `LIST_PERMISSIONS`, `CHECK_PERMISSION` | — | — | — |
+| `auth_recovery_core` | `REQUEST_MFA_RECOVERY`, `APPROVE_MFA_RECOVERY`, `VERIFY_MFA_RECOVERY`, `REJECT_MFA_RECOVERY`, `REQUEST_OPERATION`, `LIST_MFA_RECOVERY`, `APPROVE_REQUEST`, `REJECT_REQUEST`, `LIST_REQUESTS` | — | — | [auth_recovery_db_tests.sh](../tests/db/auth_recovery_db_tests.sh) |
+| `auth_review_core` | `CLOSE_ACCESS_REVIEW`, `LIST_ACCESS_REVIEWS`, `DECIDE_ACCESS_ITEM`, `OPEN_ACCESS_REVIEW`, `GET_ACCESS_REVIEW`, `LIST_PERMISSIONS`, `CHECK_PERMISSION` | — | — | [auth_review_db_tests.sh](../tests/db/auth_review_db_tests.sh) |
 | `auth_session_core` | — | — | — | [auth_session_db_tests.sh](../tests/db/auth_session_db_tests.sh) |
 | `bank_guarantee_core` | `BKG_` | [bank_guarantee.js](../middleware/src/routes/bank_guarantee.js) | [bank_guarantee.cases](../tests/cobol/cases/bank_guarantee.cases) | [bank_guarantee_db_tests.sh](../tests/db/bank_guarantee_db_tests.sh) |
 | `card_core` | `CARD_` | [card.js](../middleware/src/routes/card.js) | [card.cases](../tests/cobol/cases/card.cases) | [card_db_tests.sh](../tests/db/card_db_tests.sh) |

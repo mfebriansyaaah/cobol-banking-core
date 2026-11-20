@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T08:59:41.676Z",
+  "generatedAt": "2026-11-20T09:49:40.729Z",
   "modules": [
     {
       "module": "account_core",
@@ -27,27 +27,27 @@
     },
     {
       "module": "auth_mfa_core",
-      "linkageLevel": "L0",
-      "domainStatus": "REVIEW",
+      "linkageLevel": "L2",
+      "domainStatus": "PILOT",
       "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": "auth.js",
-      "dbSuite": null,
-      "recommendedForTraining": false
+      "dbSuite": "tests/db/auth_mfa_db_tests.sh",
+      "recommendedForTraining": true
     },
     {
       "module": "auth_ops_core",
-      "linkageLevel": "L0",
-      "domainStatus": "REVIEW",
+      "linkageLevel": "L2",
+      "domainStatus": "PILOT",
       "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": "admin.js",
-      "dbSuite": null,
-      "recommendedForTraining": false
+      "dbSuite": "tests/db/auth_ops_db_tests.sh",
+      "recommendedForTraining": true
     },
     {
       "module": "auth_password_core",
@@ -63,39 +63,39 @@
     },
     {
       "module": "auth_recovery_core",
-      "linkageLevel": "L0",
-      "domainStatus": "REVIEW",
+      "linkageLevel": "L2",
+      "domainStatus": "PILOT",
       "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": "auth.js",
-      "dbSuite": null,
-      "recommendedForTraining": false
+      "dbSuite": "tests/db/auth_recovery_db_tests.sh",
+      "recommendedForTraining": true
     },
     {
       "module": "auth_review_core",
-      "linkageLevel": "L0",
-      "domainStatus": "REVIEW",
+      "linkageLevel": "L2",
+      "domainStatus": "PILOT",
       "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": "admin.js",
-      "dbSuite": null,
-      "recommendedForTraining": false
+      "dbSuite": "tests/db/auth_review_db_tests.sh",
+      "recommendedForTraining": true
     },
     {
       "module": "auth_session_core",
-      "linkageLevel": "L0",
-      "domainStatus": "REVIEW",
+      "linkageLevel": "L2",
+      "domainStatus": "PILOT",
       "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": null,
       "dbSuite": "tests/db/auth_session_db_tests.sh",
-      "recommendedForTraining": false
+      "recommendedForTraining": true
     },
     {
       "module": "bank_guarantee_core",
@@ -591,15 +591,15 @@
     },
     {
       "module": "phone_otp_core",
-      "linkageLevel": "L0",
-      "domainStatus": "REVIEW",
+      "linkageLevel": "L2",
+      "domainStatus": "PILOT",
       "candidateStatus": null,
       "cloneSimilarity": null,
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": "phone.js",
       "dbSuite": "tests/db/phone_otp_db_tests.sh",
-      "recommendedForTraining": false
+      "recommendedForTraining": true
     },
     {
       "module": "ref_engine",

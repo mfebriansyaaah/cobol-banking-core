@@ -10,12 +10,12 @@
 | --- | --- | --- | --- | ---: | --- | --- | --- |
 | `account_core` | L2 | PILOT | — | — | 60.26 | below-floor | yes |
 | `auth_core` | L3 | ACTIVE | — | — | 73 | ok | yes |
-| `auth_mfa_core` | L0 | REVIEW | — | — | — | unmeasured | no |
-| `auth_ops_core` | L0 | REVIEW | — | — | — | unmeasured | no |
+| `auth_mfa_core` | L2 | PILOT | — | — | — | unmeasured | yes |
+| `auth_ops_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `auth_password_core` | L3 | ACTIVE | — | — | — | unmeasured | yes |
-| `auth_recovery_core` | L0 | REVIEW | — | — | — | unmeasured | no |
-| `auth_review_core` | L0 | REVIEW | — | — | — | unmeasured | no |
-| `auth_session_core` | L0 | REVIEW | — | — | — | unmeasured | no |
+| `auth_recovery_core` | L2 | PILOT | — | — | — | unmeasured | yes |
+| `auth_review_core` | L2 | PILOT | — | — | — | unmeasured | yes |
+| `auth_session_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `bank_guarantee_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `card_core` | L3 | ACTIVE | — | — | 65.76 | below-floor | yes |
 | `card_posting_core` | L3 | ACTIVE | — | — | 56.47 | below-floor | yes |
@@ -57,7 +57,7 @@
 | `payment_hold_core` | L3 | ACTIVE | — | — | 58.88 | below-floor | yes |
 | `payment_instruction_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `payroll_processing_core` | L2 | PILOT | — | — | — | unmeasured | yes |
-| `phone_otp_core` | L0 | REVIEW | — | — | — | unmeasured | no |
+| `phone_otp_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `ref_engine` | UTILITY | ACTIVE | — | — | 0 | below-floor | no |
 | `ref_ext_core` | UTILITY | ACTIVE | — | — | — | unmeasured | no |
 | `report_core` | L0 | REVIEW | — | — | 63.48 | below-floor | no |

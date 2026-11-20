@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T08:25:13.211Z",
+  "generatedAt": "2026-11-20T09:49:52.167Z",
   "items": [
     {
       "id": "account_core:audit:core-reference",
@@ -286,6 +286,68 @@
       "owner": "assistant"
     },
     {
+      "id": "auth_mfa_core:audit:core-reference",
+      "module": "auth_mfa_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": "backend"
+    },
+    {
+      "id": "auth_mfa_core:table:audit-trail",
+      "module": "auth_mfa_core",
+      "kind": "table",
+      "subject": "audit_trail",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "auth_ops_core:audit:core-reference",
+      "module": "auth_ops_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": "backend"
+    },
+    {
+      "id": "auth_ops_core:table:audit-trail",
+      "module": "auth_ops_core",
+      "kind": "table",
+      "subject": "audit_trail",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "auth_ops_core:table:role-permissions",
+      "module": "auth_ops_core",
+      "kind": "table",
+      "subject": "role_permissions",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'manager', 'super_admin'), constraint, permission, permission), primary, role",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
+    },
+    {
       "id": "auth_password_core:audit:core-reference",
       "module": "auth_password_core",
       "kind": "audit",
@@ -296,6 +358,189 @@
         "verified live: password-change rows store (action, entity_type=USER, entity_id=users.id, status)"
       ],
       "owner": "assistant"
+    },
+    {
+      "id": "auth_recovery_core:audit:core-reference",
+      "module": "auth_recovery_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": "identity"
+    },
+    {
+      "id": "auth_recovery_core:table:audit-trail",
+      "module": "auth_recovery_core",
+      "kind": "table",
+      "subject": "audit_trail",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "identity"
+    },
+    {
+      "id": "auth_recovery_core:table:dual-control-operations",
+      "module": "auth_recovery_core",
+      "kind": "table",
+      "subject": "dual_control_operations",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: operation",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "identity"
+    },
+    {
+      "id": "auth_recovery_core:table:maker-requests",
+      "module": "auth_recovery_core",
+      "kind": "table",
+      "subject": "maker_requests",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'approved', 'rejected'), checker_email, constraint, created_at, decided_at, detail, key, maker_email, operation, request_id, state, target_email",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "identity"
+    },
+    {
+      "id": "auth_recovery_core:table:verification-logs",
+      "module": "auth_recovery_core",
+      "kind": "table",
+      "subject": "verification_logs",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'email_change', 'mfa_recovery'), 'password_reset', attempts, code, created_at, email, expires_at, id, if, is_used, purpose",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "identity"
+    },
+    {
+      "id": "auth_review_core:audit:core-reference",
+      "module": "auth_review_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": "identity"
+    },
+    {
+      "id": "auth_review_core:table:audit-trail",
+      "module": "auth_review_core",
+      "kind": "table",
+      "subject": "audit_trail",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "identity"
+    },
+    {
+      "id": "auth_review_core:table:permissions",
+      "module": "auth_review_core",
+      "kind": "table",
+      "subject": "permissions",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: description, name",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "identity"
+    },
+    {
+      "id": "auth_review_core:table:role-permissions",
+      "module": "auth_review_core",
+      "kind": "table",
+      "subject": "role_permissions",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'manager', 'super_admin'), constraint, permission, permission), primary, role",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "identity"
+    },
+    {
+      "id": "auth_session_core:action:revoke-access-token-logic",
+      "module": "auth_session_core",
+      "kind": "action",
+      "subject": "REVOKE-ACCESS-TOKEN-LOGIC",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes revoked_access_tokens)",
+      "evidence": [
+        "paragraph REVOKE-ACCESS-TOKEN-LOGIC",
+        "touched tables: revoked_access_tokens"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "auth_session_core:audit:core-reference",
+      "module": "auth_session_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": "backend"
+    },
+    {
+      "id": "auth_session_core:table:audit-trail",
+      "module": "auth_session_core",
+      "kind": "table",
+      "subject": "audit_trail",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'failed'), 'ledger', 'user', --, actor_id, audit_id, constraint, created_at, entity_type, if, key, user_id",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "auth_session_core:table:refresh-families",
+      "module": "auth_session_core",
+      "kind": "table",
+      "subject": "refresh_families",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: constraint, created_at, email, family, rotations",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "auth_session_core:table:revoked-access-tokens",
+      "module": "auth_session_core",
+      "kind": "table",
+      "subject": "revoked_access_tokens",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: constraint, email, expires_at, jti, key, revoked_at",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
     },
     {
       "id": "bank_guarantee_core:audit:core-reference",
@@ -688,14 +933,12 @@
       "module": "dashboard_core",
       "kind": "table",
       "subject": "notification_outbox",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "columns: 'dead'), 'failed', 'sending', 'sent', attempts, claimed_at, claimed_by, code, created_at, created_at), detail, id, key, last_error, next_attempt_at, purpose, recipient, sent_at, state",
-        "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "notification_outbox is now a registered business table (PR-5a), so the outbox link is proven for auth/ops consumers."
       ],
-      "owner": "reporting"
+      "owner": "backend"
     },
     {
       "id": "dashboard_core:table:ops-alert",
@@ -2340,6 +2583,56 @@
       "owner": "payroll"
     },
     {
+      "id": "phone_otp_core:action:action-link-begin",
+      "module": "phone_otp_core",
+      "kind": "action",
+      "subject": "ACTION-LINK-BEGIN",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes phone_hash, phone_links)",
+      "evidence": [
+        "paragraph ACTION-LINK-BEGIN",
+        "touched tables: phone_links"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "phone_otp_core:action:action-link-confirm",
+      "module": "phone_otp_core",
+      "kind": "action",
+      "subject": "ACTION-LINK-CONFIRM",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes phone_links)",
+      "evidence": [
+        "paragraph ACTION-LINK-CONFIRM",
+        "touched tables: phone_links"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "phone_otp_core:audit:core-reference",
+      "module": "phone_otp_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "OPEN",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [],
+      "owner": "backend"
+    },
+    {
+      "id": "phone_otp_core:table:phone-links",
+      "module": "phone_otp_core",
+      "kind": "table",
+      "subject": "phone_links",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: chat_id, constraint, created_at, id, link_token, linked_at, phone_hash, revoked_at, token_expires_at, unique, user_id, verified_at",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "backend"
+    },
+    {
       "id": "report_core:action:action-column-create",
       "module": "report_core",
       "kind": "action",
@@ -2937,12 +3230,10 @@
       "module": "user_core",
       "kind": "table",
       "subject": "mfa_backup_codes",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "columns: code_hash, constraint, created_at, id, key, used, used), user_id",
-        "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "mfa_backup_codes is now a registered business table (PR-5a) with a dedicated auth_mfa suite."
       ],
       "owner": "backend"
     },
@@ -2966,12 +3257,10 @@
       "module": "user_core",
       "kind": "table",
       "subject": "refresh_sessions",
-      "status": "OPEN",
+      "status": "DONE",
       "reason": "Domain table has no core business key or FK into a core table",
       "evidence": [
-        "columns: constraint, created_at, email, expires_at, family, if, ip, jti, key, last_seen_at, revoked, user_agent",
-        "no core business-key columns",
-        "no FOREIGN KEY into core tables"
+        "refresh_sessions is now a registered business table (PR-5a) with dedicated auth_session and auth_invariants suites."
       ],
       "owner": "backend"
     },

@@ -6,15 +6,15 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-20T09:00:14.388Z
-- Commit: `3ba57df7`
+- Generated at: 2026-11-20T09:49:32.664Z
+- Commit: `3ce78592`
 
 | Level | Modules |
 | --- | ---: |
 | L3 (core transaction) | 23 |
-| L2 (business reference) | 22 |
+| L2 (business reference) | 28 |
 | L1 (weak / untested link) | 10 |
-| L0 (isolated) | 11 |
+| L0 (isolated) | 5 |
 | UTILITY | 3 |
 
 Unresolved route files: none.
@@ -23,12 +23,12 @@ Unresolved route files: none.
 | --- | --- | --- | --- | ---: | --- |
 | `account_core` | L2 | account | — | 1 | business link (tables account) + test |
 | `auth_core` | L3 | — | — | 2 | Core anchor module |
-| `auth_mfa_core` | L0 | — | — | 0 | own domain tables only, no core link |
-| `auth_ops_core` | L0 | — | — | 0 | own domain tables only, no core link |
+| `auth_mfa_core` | L2 | mfa_backup_codes | — | 0 | business link (tables mfa_backup_codes) + test |
+| `auth_ops_core` | L2 | notification_outbox | — | 0 | business link (tables notification_outbox) + test |
 | `auth_password_core` | L3 | — | — | 0 | Core anchor module |
-| `auth_recovery_core` | L0 | — | — | 1 | own domain tables only, no core link |
-| `auth_review_core` | L0 | — | — | 0 | own domain tables only, no core link |
-| `auth_session_core` | L0 | — | — | 0 | own domain tables only, no core link |
+| `auth_recovery_core` | L2 | mfa_backup_codes, mfa_recovery_requests | — | 1 | business link (tables mfa_backup_codes, mfa_recovery_requests) + test |
+| `auth_review_core` | L2 | access_reviews | — | 0 | business link (tables access_reviews) + test |
+| `auth_session_core` | L2 | refresh_sessions | — | 0 | business link (tables refresh_sessions) + test |
 | `bank_guarantee_core` | L2 | bank_guarantee, bg_claim | — | 1 | business link (tables bank_guarantee, bg_claim) + test |
 | `card_core` | L3 | — | — | 1 | Core anchor module |
 | `card_posting_core` | L3 | accounts, card_account, gl_journal | gl_core | 0 | money-table touch (accounts, gl_journal) with depth + test |
@@ -38,7 +38,7 @@ Unresolved route files: none.
 | `compliance_calendar_core` | L2 | compliance_calendar | — | 1 | business link (tables compliance_calendar) + test |
 | `corp_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `cost_center_core` | L2 | cost_center | — | 1 | business link (tables cost_center) + test |
-| `dashboard_core` | L3 | accounts, ledger | — | 1 | money-table touch (accounts, ledger) with depth + test |
+| `dashboard_core` | L3 | accounts, ledger, notification_outbox | — | 1 | money-table touch (accounts, ledger) with depth + test |
 | `deposit_core` | L3 | — | — | 1 | Core anchor module |
 | `deposit_posting_core` | L3 | accounts, deposit_account, deposit_accrual, gl_journal | gl_core | 0 | money-table touch (accounts, gl_journal) with depth + test |
 | `eod_core` | L2 | eod_phase | — | 1 | business link (tables eod_phase) + test |
@@ -70,7 +70,7 @@ Unresolved route files: none.
 | `payment_hold_core` | L3 | accounts, journal_entries, ledger | — | 1 | money-table touch (accounts, journal_entries, ledger) with depth + test |
 | `payment_instruction_core` | L2 | — | wallet_core | 1 | business link (calls wallet_core; actions TRANSFER) + test |
 | `payroll_processing_core` | L2 | accounts | — | 1 | business link (tables accounts) + test |
-| `phone_otp_core` | L0 | — | — | 1 | own domain tables only, no core link |
+| `phone_otp_core` | L2 | otp_challenges | — | 1 | business link (tables otp_challenges) + test |
 | `ref_engine` | UTILITY | — | — | 1 | Utility module (never a retire candidate) |
 | `ref_ext_core` | UTILITY | — | — | 1 | Utility module (never a retire candidate) |
 | `report_core` | L0 | — | — | 1 | own domain tables only, no core link |
