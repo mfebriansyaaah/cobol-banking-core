@@ -24,7 +24,7 @@ if [ "$help_rc" = "0" ]; then
 else
     not_ok "--help exits 0 (got $help_rc)"
 fi
-for token in --mode --only --failed --repeat --keep-logs --no-build --allow-dev-db --json --no-report "fast db db-shard full probes affected integration gates"; do
+for token in --mode --only --failed --repeat --keep-logs --no-build --allow-dev-db --json --no-report "fast db db-shard db-selected full probes affected integration gates"; do
     case "$help_out" in
         *"$token"*) ok "help mentions $token" ;;
         *) not_ok "help mentions $token" ;;

@@ -6,7 +6,7 @@ This directory holds the whole verification fleet. For the safety model
 
 ## Layout
 
-- `run_all.sh` — the unified runner. Modes: `fast db db-shard full probes
+- `run_all.sh` — the unified runner. Modes: `fast db db-shard db-selected full probes
   affected integration gates` (default `full`). Run `./tests/run_all.sh --help`
   for the flag list.
 - `db/*_db_tests.sh` — one DB domain suite per file, plus `schema_tests.sh`; every suite has a

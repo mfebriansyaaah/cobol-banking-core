@@ -145,13 +145,14 @@ DB suites run two ways from the same code (`tests/run_all.sh`):
 
 - Local / single job: `run_all.sh db` shards in-job (`DB_SHARDS` workers,
   default 4) against throwaway worker databases.
-- CI: two `db-shards` matrix jobs (`matrix.shard` 0–1) each run
-  `run_all.sh db-shard` with `DB_SHARD_INDEX`/`DB_SHARD_COUNT`, so every
-  shard gets its own runner and database. `db-aggregate` then merges the
-  per-shard `report.tsv` files, verifies each shard ran exactly its planner
-  slice (missing/duplicated/moved suites fail the gate), checks the
-  fleet-wide inventory, and only then runs the assertion-count gate and the
-  test summary — so `--strict` sees the complete picture.
+- CI full/unknown change set: two `db-shards` matrix jobs (`matrix.shard`
+  0–1) each run `run_all.sh db-shard` with `DB_SHARD_INDEX`/`DB_SHARD_COUNT`,
+  so every shard gets its own runner and database.
+- CI mapped change set: `db-selected` runs only the suites selected by
+  `scripts/select_tests.mjs`; `db-shards` is skipped. `db-aggregate` merges
+  either path, verifies the selected/full suite inventory, and runs the
+  assertion-count gate (`--subset` for selected runs, `--strict` for full
+  runs) plus the summary.
 
 `tests/run_all.sh full` in CI sets `SKIP_DB=1` (the matrix covers the DB
 fleet; local `full` always runs it). This is CI-only plumbing, not a general
