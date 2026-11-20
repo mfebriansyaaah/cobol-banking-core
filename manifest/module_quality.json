@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T13:31:08.294Z",
+  "generatedAt": "2026-11-20T13:50:28.102Z",
   "modules": [
     {
       "module": "account_core",
@@ -547,8 +547,8 @@
       "domainStatus": "ACTIVE",
       "candidateStatus": null,
       "cloneSimilarity": null,
-      "coveragePercent": 68.61,
-      "coverageStatus": "below-floor",
+      "coveragePercent": 70.07,
+      "coverageStatus": "ok",
       "routeFile": "payment.js",
       "dbSuite": "tests/db/payment_db_tests.sh",
       "recommendedForTraining": true

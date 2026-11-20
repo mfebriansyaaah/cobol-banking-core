@@ -53,7 +53,7 @@
 | `merchant_settlement_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `notification_template_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `payment_clearing_core` | L3 | ACTIVE | — | — | 40.53 | below-floor | yes |
-| `payment_core` | L3 | ACTIVE | — | — | 68.61 | below-floor | yes |
+| `payment_core` | L3 | ACTIVE | — | — | 70.07 | ok | yes |
 | `payment_hold_core` | L3 | ACTIVE | — | — | 58.88 | below-floor | yes |
 | `payment_instruction_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `payroll_processing_core` | L3 | PILOT | — | — | — | unmeasured | yes |

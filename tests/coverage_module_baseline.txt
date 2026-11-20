@@ -80,5 +80,5 @@ loan_posting_core 26.15
 payment_hold_core 58.88
 wallet_transfer_core 45.45
 import_post_core 54.36
-payment_core 68.61
+payment_core 70.07
 statement_recon_core 60.53
