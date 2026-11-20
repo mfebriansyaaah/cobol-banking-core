@@ -64,8 +64,8 @@
     "tokenIdentity": "actor",
     "stepUp": false
   },
-  "account.js :: POST /accounts/:id/calc": {
-    "action": "ACC_CALC",
+  "account.js :: POST /accounts/:id/activate": {
+    "action": "ACC_ACTIVATE",
     "fields": [
       "ID",
       "BLANK",
@@ -77,11 +77,37 @@
     "tokenIdentity": "actor",
     "stepUp": false
   },
-  "account.js :: POST /accounts/:id/delete": {
-    "action": "ACC_DELETE",
+  "account.js :: POST /accounts/:id/close": {
+    "action": "ACC_CLOSE",
     "fields": [
       "ID",
       "reason",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "account.js :: POST /accounts/:id/freeze": {
+    "action": "ACC_FREEZE",
+    "fields": [
+      "ID",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "account.js :: POST /accounts/:id/unfreeze": {
+    "action": "ACC_UNFREEZE",
+    "fields": [
+      "ID",
+      "BLANK",
       "BLANK",
       "BLANK",
       "BLANK",
@@ -1799,31 +1825,57 @@
       "calendarRef",
       "eventName",
       "eventType",
-      "BLANK",
-      "BLANK",
-      "ACTOR"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": false
-  },
-  "compliance_calendar.js :: POST /compliance-calendar/:id/calc": {
-    "action": "CCL_CALC",
-    "fields": [
-      "ID",
-      "BLANK",
-      "BLANK",
-      "BLANK",
+      "maxEvents",
       "BLANK",
       "ACTOR"
     ],
     "tokenIdentity": "actor",
     "stepUp": false
   },
-  "compliance_calendar.js :: POST /compliance-calendar/:id/delete": {
-    "action": "CCL_DELETE",
+  "compliance_calendar.js :: POST /compliance-calendar/:id/close": {
+    "action": "CCL_CLOSE",
     "fields": [
       "ID",
       "reason",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "compliance_calendar.js :: POST /compliance-calendar/:id/complete": {
+    "action": "CCL_COMPLETE",
+    "fields": [
+      "ID",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "compliance_calendar.js :: POST /compliance-calendar/:id/escalate": {
+    "action": "CCL_ESCALATE",
+    "fields": [
+      "ID",
+      "reason",
+      "BLANK",
+      "BLANK",
+      "BLANK",
+      "ACTOR"
+    ],
+    "tokenIdentity": "actor",
+    "stepUp": false
+  },
+  "compliance_calendar.js :: POST /compliance-calendar/:id/schedule": {
+    "action": "CCL_SCHEDULE",
+    "fields": [
+      "ID",
+      "dueDate",
       "BLANK",
       "BLANK",
       "BLANK",

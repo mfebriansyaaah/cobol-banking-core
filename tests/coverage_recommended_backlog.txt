@@ -23,3 +23,4 @@ payment_instruction_core  covered by payment_instruction flows; add to curated c
 payroll_processing_core  covered by payroll_domain_db_tests.sh; add to curated coverage set
 statement_recon_core  covered by report_statement_db_tests.sh; add to curated coverage set
 wallet_transfer_core  covered by wallet_transfer_db_tests.sh; add to curated coverage set
+compliance_calendar_core  covered by compliance_calendar_db_tests.sh; add to curated coverage set

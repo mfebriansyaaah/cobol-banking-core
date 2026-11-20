@@ -7,7 +7,6 @@
 #   - dead entries (module file removed).
 # This baseline must only shrink (PR-010A..D retire the entries).
 # Never add an entry to make CI green.
-account_core L0
 auth_mfa_core L0
 auth_ops_core L0
 auth_recovery_core L0
@@ -15,7 +14,6 @@ auth_review_core L0
 auth_session_core L0
 bank_guarantee_core L0
 chargeback_core L0
-compliance_calendar_core L0
 corp_core L0
 cost_center_core L0
 eod_core L0

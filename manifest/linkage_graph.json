@@ -1,19 +1,21 @@
 {
-  "generatedAt": "2026-11-20T02:51:15.160Z",
-  "commit": "4e68a6ce",
+  "generatedAt": "2026-11-20T04:45:43.654Z",
+  "commit": "5a54a340",
   "linkageSource": "manifest/linkage.json",
   "summary": {
     "L3": 23,
-    "L2": 6,
+    "L2": 8,
     "L1": 10,
-    "L0": 27,
+    "L0": 25,
     "UTILITY": 3
   },
   "modules": [
     {
       "module": "account_core",
       "source": "account_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "account"
+      ],
       "coreCalls": [],
       "coreActions": [],
       "hasTests": true,
@@ -21,8 +23,8 @@
         "tests/db/account_db_tests.sh",
         "tests/cobol/cases/account.cases"
       ],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
+      "linkageLevel": "L2",
+      "reason": "business link (tables account) + test",
       "routeFiles": [
         "account.js"
       ]
@@ -224,15 +226,17 @@
     {
       "module": "compliance_calendar_core",
       "source": "compliance_calendar_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "compliance_calendar"
+      ],
       "coreCalls": [],
       "coreActions": [],
       "hasTests": true,
       "testEvidence": [
         "tests/db/compliance_calendar_db_tests.sh"
       ],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
+      "linkageLevel": "L2",
+      "reason": "business link (tables compliance_calendar) + test",
       "routeFiles": [
         "compliance_calendar.js"
       ]

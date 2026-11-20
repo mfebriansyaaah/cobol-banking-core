@@ -4,10 +4,8 @@
 # CANDIDATE -> DEPRECATED (review + sign-off + traffic evidence) -> removed
 # by a retirement wave. Never add an entry to make CI green.
 
-account_core CANDIDATE
 bank_guarantee_core CANDIDATE
 chargeback_core CANDIDATE
-compliance_calendar_core CANDIDATE
 cost_center_core CANDIDATE
 eod_core CANDIDATE
 fixed_asset_core CANDIDATE

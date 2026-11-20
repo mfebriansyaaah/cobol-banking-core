@@ -10,9 +10,11 @@ files:
     - { method: get, path: "/accounts", action: ACC_LIST, tokenIdentity: 'actor', fields: [status:LIST_STATUS?, type:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
     - { method: post, path: "/accounts", action: ACC_CREATE, tokenIdentity: 'actor', fields: [accountRef:KEY, holderName:NAME, accountType:NAME, BLANK, BLANK, ACTOR] }
     - { method: get, path: "/accounts/:id", action: ACC_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
-    - { method: post, path: "/accounts/:id/calc", action: ACC_CALC, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/accounts/:id/activate", action: ACC_ACTIVATE, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/accounts/:id/freeze", action: ACC_FREEZE, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/accounts/:id/unfreeze", action: ACC_UNFREEZE, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/accounts/:id/close", action: ACC_CLOSE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
     - { method: post, path: "/accounts/:id/update", action: ACC_UPDATE, tokenIdentity: 'actor', fields: [ID, holderName:NAME?, accountType:NAME?, BLANK, BLANK, ACTOR] }
-    - { method: post, path: "/accounts/:id/delete", action: ACC_DELETE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
 - file: admin.js
   export: ADMIN_ROUTES
     - { method: post, path: "/admin/dormancy/mark", action: MARK_DORMANT, tokenIdentity: 'actor', stepUp: true, fields: [actor:EMAIL, BLANK, BLANK, BLANK, BLANK, BLANK] }
@@ -158,11 +160,13 @@ files:
     - { method: get, path: "/compliance-calendar/summary", action: CCL_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
     - { method: get, path: "/compliance-calendar/audit", action: CCL_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
     - { method: get, path: "/compliance-calendar", action: CCL_LIST, tokenIdentity: 'actor', fields: [status:LIST_STATUS?, eventType:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
-    - { method: post, path: "/compliance-calendar", action: CCL_CREATE, tokenIdentity: 'actor', fields: [calendarRef:KEY, eventName:NAME, eventType:NAME, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/compliance-calendar", action: CCL_CREATE, tokenIdentity: 'actor', fields: [calendarRef:KEY, eventName:NAME, eventType:NAME, maxEvents:INT?, BLANK, ACTOR] }
     - { method: get, path: "/compliance-calendar/:id", action: CCL_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
-    - { method: post, path: "/compliance-calendar/:id/calc", action: CCL_CALC, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/compliance-calendar/:id/schedule", action: CCL_SCHEDULE, tokenIdentity: 'actor', fields: [ID, dueDate:DATE, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/compliance-calendar/:id/complete", action: CCL_COMPLETE, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/compliance-calendar/:id/escalate", action: CCL_ESCALATE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/compliance-calendar/:id/close", action: CCL_CLOSE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
     - { method: post, path: "/compliance-calendar/:id/update", action: CCL_UPDATE, tokenIdentity: 'actor', fields: [ID, eventName:NAME?, eventType:NAME?, BLANK, BLANK, ACTOR] }
-    - { method: post, path: "/compliance-calendar/:id/delete", action: CCL_DELETE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
 - file: corporate.js
   export: CORPORATE_ROUTES
     - { method: post, path: "/corporate/resolve", action: CORP_RESOLVE, tokenIdentity: 'actor', fields: [lei:KEY, legalName:NAME, status:NAME, address:NAME?, date:DATE, ACTOR] }

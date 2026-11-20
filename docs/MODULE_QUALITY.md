@@ -8,7 +8,7 @@
 
 | Module | Link | Status | Candidate | Clone sim | Coverage % | Coverage | Recommended |
 | --- | --- | --- | --- | ---: | --- | --- | --- |
-| `account_core` | L0 | FROZEN | DUPLICATE | 0.95 | 60.26 | below-floor | no |
+| `account_core` | L2 | PILOT | — | — | 60.26 | below-floor | yes |
 | `auth_core` | L3 | ACTIVE | — | — | 73 | ok | yes |
 | `auth_mfa_core` | L0 | REVIEW | — | — | — | unmeasured | no |
 | `auth_ops_core` | L0 | REVIEW | — | — | — | unmeasured | no |
@@ -22,7 +22,7 @@
 | `chargeback_core` | L0 | FROZEN | UNLINKED | — | — | unmeasured | no |
 | `collateral_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `collection_core` | L3 | ACTIVE | — | — | 55.95 | below-floor | yes |
-| `compliance_calendar_core` | L0 | FROZEN | DUPLICATE | 0.95 | — | unmeasured | no |
+| `compliance_calendar_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `corp_core` | L0 | REVIEW | — | — | — | unmeasured | no |
 | `cost_center_core` | L0 | FROZEN | UNLINKED | — | 62.01 | below-floor | no |
 | `dashboard_core` | L3 | ACTIVE | — | — | — | unmeasured | yes |

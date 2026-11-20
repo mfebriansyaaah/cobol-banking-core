@@ -183,10 +183,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  "/accounts/:id/calc":
+  "/accounts/:id/activate":
     post:
-      operationId: ACC_CALC
-      summary: ACC_CALC — Execute action
+      operationId: ACC_ACTIVATE
+      summary: ACC_ACTIVATE — List entities
       tags:
         - account
       parameters:
@@ -199,6 +199,101 @@ paths:
             schema:
               type: object
               properties: {}
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  "/accounts/:id/freeze":
+    post:
+      operationId: ACC_FREEZE
+      summary: ACC_FREEZE — List entities
+      tags:
+        - account
+      parameters:
+        - $ref: "#/components/parameters/id"
+        - $ref: "#/components/parameters/actor"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  "/accounts/:id/unfreeze":
+    post:
+      operationId: ACC_UNFREEZE
+      summary: ACC_UNFREEZE — List entities
+      tags:
+        - account
+      parameters:
+        - $ref: "#/components/parameters/id"
+        - $ref: "#/components/parameters/actor"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  "/accounts/:id/close":
+    post:
+      operationId: ACC_CLOSE
+      summary: ACC_CLOSE — Delete/close entity
+      tags:
+        - account
+      parameters:
+        - $ref: "#/components/parameters/id"
+        - $ref: "#/components/parameters/actor"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
       responses:
         "200":
           description: Success
@@ -233,39 +328,6 @@ paths:
                 holderName:
                   type: string
                 accountType:
-                  type: string
-      responses:
-        "200":
-          description: Success
-        "400":
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-  "/accounts/:id/delete":
-    post:
-      operationId: ACC_DELETE
-      summary: ACC_DELETE — Delete/close entity
-      tags:
-        - account
-      parameters:
-        - $ref: "#/components/parameters/id"
-        - $ref: "#/components/parameters/actor"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                reason:
                   type: string
       responses:
         "200":
@@ -4618,6 +4680,8 @@ paths:
                   type: string
                 eventType:
                   type: string
+                maxEvents:
+                  type: string
               required:
                 - calendarRef
                 - eventName
@@ -4661,10 +4725,45 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  "/compliance-calendar/:id/calc":
+  "/compliance-calendar/:id/schedule":
     post:
-      operationId: CCL_CALC
-      summary: CCL_CALC — Execute action
+      operationId: CCL_SCHEDULE
+      summary: CCL_SCHEDULE — List entities
+      tags:
+        - compliance_calendar
+      parameters:
+        - $ref: "#/components/parameters/id"
+        - $ref: "#/components/parameters/actor"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                dueDate:
+                  type: string
+              required:
+                - dueDate
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  "/compliance-calendar/:id/complete":
+    post:
+      operationId: CCL_COMPLETE
+      summary: CCL_COMPLETE — List entities
       tags:
         - compliance_calendar
       parameters:
@@ -4677,6 +4776,72 @@ paths:
             schema:
               type: object
               properties: {}
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  "/compliance-calendar/:id/escalate":
+    post:
+      operationId: CCL_ESCALATE
+      summary: CCL_ESCALATE — List entities
+      tags:
+        - compliance_calendar
+      parameters:
+        - $ref: "#/components/parameters/id"
+        - $ref: "#/components/parameters/actor"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  "/compliance-calendar/:id/close":
+    post:
+      operationId: CCL_CLOSE
+      summary: CCL_CLOSE — Delete/close entity
+      tags:
+        - compliance_calendar
+      parameters:
+        - $ref: "#/components/parameters/id"
+        - $ref: "#/components/parameters/actor"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
       responses:
         "200":
           description: Success
@@ -4711,39 +4876,6 @@ paths:
                 eventName:
                   type: string
                 eventType:
-                  type: string
-      responses:
-        "200":
-          description: Success
-        "400":
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-  "/compliance-calendar/:id/delete":
-    post:
-      operationId: CCL_DELETE
-      summary: CCL_DELETE — Delete/close entity
-      tags:
-        - compliance_calendar
-      parameters:
-        - $ref: "#/components/parameters/id"
-        - $ref: "#/components/parameters/actor"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                reason:
                   type: string
       responses:
         "200":

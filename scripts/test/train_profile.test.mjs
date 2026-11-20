@@ -8,8 +8,9 @@ import { ROOT, caseFilesByModule, checkExport, pathsToDrop } from '../train_prof
 
 test('train drop list follows module_quality, not a hardcoded clone list', () => {
   const drops = new Set(pathsToDrop(ROOT));
-  assert.ok(drops.has('cobol/src/account_core.cob'), 'account_core is FROZEN/duplicate');
+  assert.ok(drops.has('cobol/src/sla_tracker_core.cob'), 'sla_tracker is FROZEN/duplicate');
   assert.ok(drops.has('cobol/src/merchant_settlement_core.cob'), 'clone-shaped FROZEN module is excluded');
+  assert.ok(!drops.has('cobol/src/account_core.cob'), 'refactored account module stays');
   assert.ok(!drops.has('cobol/src/auth_core.cob'), 'ACTIVE core module stays');
   assert.ok(!drops.has('cobol/src/wallet_transfer_core.cob'), 'recommended transfer module stays');
 });
@@ -24,10 +25,12 @@ test('generated routes are removed except one exemplar, and the spec stays out o
 
 test('a dedicated clone case file is dropped, a mixed/recommended case file is kept', () => {
   const cases = caseFilesByModule(ROOT);
-  assert.ok(cases.get('tests/cobol/cases/account.cases').has('account_core'));
+  assert.ok(cases.get('tests/cobol/cases/sla.cases').has('sla_tracker_core'));
   assert.ok(cases.get('tests/cobol/cases/auth_user.cases').has('auth_core'));
+  assert.ok(cases.get('tests/cobol/cases/account.cases').has('account_core'));
   const drops = new Set(pathsToDrop(ROOT));
-  assert.ok(drops.has('tests/cobol/cases/account.cases'));
+  assert.ok(drops.has('tests/cobol/cases/sla.cases'));
+  assert.ok(!drops.has('tests/cobol/cases/account.cases'));
   assert.ok(!drops.has('tests/cobol/cases/auth_user.cases'));
 });
 
@@ -59,7 +62,7 @@ test('checkExport rejects a non-recommended module that survived', () => {
   const dir = fixtureExport();
   try {
     mkdirSync(path.join(dir, 'cobol', 'src'), { recursive: true });
-    writeFileSync(path.join(dir, 'cobol', 'src', 'account_core.cob'), 'IDENTIFICATION DIVISION.\n');
+    writeFileSync(path.join(dir, 'cobol', 'src', 'sla_tracker_core.cob'), 'IDENTIFICATION DIVISION.\n');
     assert.equal(checkExport(dir), 1);
   } finally {
     rmSync(dir, { recursive: true, force: true });

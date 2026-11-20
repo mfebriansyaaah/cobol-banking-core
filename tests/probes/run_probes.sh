@@ -278,7 +278,7 @@ mut_p6_deleted_db_suite() {
 # still prints a TAP summary, so the runner looks green; only the count gate
 # notices the denominator shrank.
 mut_p7_missing_assertion() {
-    sed -i -e '/ACC_LIST ok/d' -e '/ACC_CALC ok/d' -e '/used credit persisted/d' \
+    sed -i -e '/ACC_LIST ok/d' -e '/ACC_ACTIVATE ok/d' -e '/activated persisted/d' \
         -e '/ACC_SUMMARY ok/d' -e '/ACC_AUDIT ok/d' tests/db/account_db_tests.sh
 }
 

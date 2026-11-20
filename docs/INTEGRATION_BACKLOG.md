@@ -11,18 +11,20 @@
 | Module status | Modules |
 | --- | ---: |
 | CONNECTED (no open items) | 0 |
-| PARTIAL (open items) | 29 |
+| PARTIAL (open items) | 31 |
 
-Open/in-progress items: 147 of 203 recorded.
+Open/in-progress items: 147 of 205 recorded.
 
 | Module | Status | Items |
 | --- | --- | ---: |
+| `account_core` | PARTIAL | 1 |
 | `auth_core` | PARTIAL | 22 |
 | `auth_password_core` | PARTIAL | 1 |
 | `card_core` | PARTIAL | 1 |
 | `card_posting_core` | PARTIAL | 1 |
 | `collateral_core` | PARTIAL | 13 |
 | `collection_core` | PARTIAL | 1 |
+| `compliance_calendar_core` | PARTIAL | 1 |
 | `dashboard_core` | PARTIAL | 12 |
 | `deposit_core` | PARTIAL | 1 |
 | `deposit_posting_core` | PARTIAL | 1 |
@@ -49,6 +51,7 @@ Open/in-progress items: 147 of 203 recorded.
 
 | Item | Module | Kind | Status | Owner | Reason |
 | --- | --- | --- | --- | --- | --- |
+| `account_core:audit:core-reference` | `account_core` | audit | DONE | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `auth_core:action:outbox-claim-logic` | `auth_core` | action | WAIVED | assistant | Write paragraph with no core link (writes notification_outbox) |
 | `auth_core:action:outbox-mark-logic` | `auth_core` | action | WAIVED | assistant | Write paragraph with no core link (writes notification_outbox) |
 | `auth_core:action:revoke-access-token-logic` | `auth_core` | action | DONE | assistant | Write paragraph with no core link (writes revoked_access_tokens) |
@@ -88,6 +91,7 @@ Open/in-progress items: 147 of 203 recorded.
 | `collateral_core:table:collateral` | `collateral_core` | table | OPEN | collateral | Domain table has no core business key or FK into a core table |
 | `collateral_core:table:collateral-valuation` | `collateral_core` | table | OPEN | collateral | Domain table has no core business key or FK into a core table |
 | `collection_core:audit:core-reference` | `collection_core` | audit | OPEN | collection | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `compliance_calendar_core:audit:core-reference` | `compliance_calendar_core` | audit | DONE | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `dashboard_core:audit:core-reference` | `dashboard_core` | audit | OPEN | reporting | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `dashboard_core:table:audit-trail` | `dashboard_core` | table | OPEN | reporting | Domain table has no core business key or FK into a core table |
 | `dashboard_core:table:dispute-cases` | `dashboard_core` | table | OPEN | reporting | Domain table has no core business key or FK into a core table |

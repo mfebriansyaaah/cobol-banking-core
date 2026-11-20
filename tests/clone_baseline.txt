@@ -1,5 +1,3 @@
-account_core lines=531 shape=CLONE9 sim=0.95 level=L0
-compliance_calendar_core lines=531 shape=CLONE9 sim=0.95 level=L0
 fixed_asset_core lines=960 shape=CLONE9 sim=0.67 level=L0
 merchant_settlement_core lines=1061 shape=CLONE9 sim=0.68 level=L0
 notification_template_core lines=531 shape=CLONE9 sim=0.95 level=L0

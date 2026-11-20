@@ -6,22 +6,22 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-20T02:51:15.160Z
-- Commit: `4e68a6ce`
+- Generated at: 2026-11-20T04:45:43.654Z
+- Commit: `5a54a340`
 
 | Level | Modules |
 | --- | ---: |
 | L3 (core transaction) | 23 |
-| L2 (business reference) | 6 |
+| L2 (business reference) | 8 |
 | L1 (weak / untested link) | 10 |
-| L0 (isolated) | 27 |
+| L0 (isolated) | 25 |
 | UTILITY | 3 |
 
 Unresolved route files: none.
 
 | Module | Level | Business tables | Core calls | Route files | Reason |
 | --- | --- | --- | --- | ---: | --- |
-| `account_core` | L0 | — | — | 1 | own domain tables only, no core link |
+| `account_core` | L2 | account | — | 1 | business link (tables account) + test |
 | `auth_core` | L3 | — | — | 2 | Core anchor module |
 | `auth_mfa_core` | L0 | — | — | 0 | own domain tables only, no core link |
 | `auth_ops_core` | L0 | — | — | 0 | own domain tables only, no core link |
@@ -35,7 +35,7 @@ Unresolved route files: none.
 | `chargeback_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `collateral_core` | L2 | loan_application | — | 1 | business link (tables loan_application) + test |
 | `collection_core` | L3 | — | — | 1 | Core anchor module |
-| `compliance_calendar_core` | L0 | — | — | 1 | own domain tables only, no core link |
+| `compliance_calendar_core` | L2 | compliance_calendar | — | 1 | business link (tables compliance_calendar) + test |
 | `corp_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `cost_center_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `dashboard_core` | L3 | accounts, ledger | — | 1 | money-table touch (accounts, ledger) with depth + test |
