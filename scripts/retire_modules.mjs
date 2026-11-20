@@ -603,11 +603,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     writeFileSync(p, `${JSON.stringify(data, null, 2)}\n`);
     console.log(`${rel}: removed ${before - data[key].length} entries`);
   }
-  for (const rel of [
-    'tests/linkage_baseline.txt',
-    'tests/clone_baseline.txt',
-    'tests/code_candidates_baseline.txt',
-  ]) {
+  for (const rel of ['tests/linkage_baseline.txt', 'tests/clone_baseline.txt', 'tests/code_candidates_baseline.txt']) {
     const p = path.join(root, rel);
     writeFileSync(
       p,

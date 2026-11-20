@@ -334,7 +334,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       }
       e.linkageLevel = byModule.get(e.module);
     }
-    writeFileSync(statusPath, `${JSON.stringify({ generatedAt: new Date().toISOString(), entries: entriesSync }, null, 2)}\n`);
+    writeFileSync(
+      statusPath,
+      `${JSON.stringify({ generatedAt: new Date().toISOString(), entries: entriesSync }, null, 2)}\n`,
+    );
     console.log(`Synced linkageLevel for ${entriesSync.length} entries.`);
     process.exit(0);
   }

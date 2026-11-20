@@ -140,9 +140,7 @@ function buildCandidates(rootDir) {
       evidence.push('no own-domain table detected');
     }
     evidence.push('trafficLastSeen: null — no traffic telemetry yet; must be measured before DEPRECATED');
-    evidence.push(
-      'CORE_LINKED actions: none — core scoring found no business tables, core calls, or money actions',
-    );
+    evidence.push('CORE_LINKED actions: none — core scoring found no business tables, core calls, or money actions');
     const kind = cloneBaseline.has(module) ? 'DUPLICATE' : 'UNLINKED';
     out.push({
       module,

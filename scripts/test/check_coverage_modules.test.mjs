@@ -210,7 +210,14 @@ test('unmeasured L3 fails the floor', () => {
     baseline: 'wallet_core 70.00\n',
     modules: [row('wallet_core', 75.0)],
   });
-  const err = runFailWithGraph(d, ['--floor', '70'], [{ module: 'wallet_core', linkageLevel: 'L3' }, { module: 'ghost_core', linkageLevel: 'L3' }]);
+  const err = runFailWithGraph(
+    d,
+    ['--floor', '70'],
+    [
+      { module: 'wallet_core', linkageLevel: 'L3' },
+      { module: 'ghost_core', linkageLevel: 'L3' },
+    ],
+  );
   assert.match(err, /FLOOR VIOLATION: L3 ghost_core is unmeasured/);
 });
 
