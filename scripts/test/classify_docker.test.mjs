@@ -5,7 +5,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { isDockerRelevant } from '../ci/classify_docker.mjs';
+import { isDockerDefinitionChanged, isDockerRelevant } from '../ci/classify_docker.mjs';
 
 const TOOL = new URL('../ci/classify_docker.mjs', import.meta.url).pathname;
 
@@ -56,14 +56,25 @@ for (const [files, expected] of CASES) {
 test('CLI prints docker_relevant=true for Dockerfile via --stdin', () => {
   const out = execFileSync(process.execPath, [TOOL, '--stdin'], { input: 'Dockerfile\n', encoding: 'utf8' });
   assert.match(out, /^docker_relevant=true/m);
+  assert.match(out, /^docker_definition=true/m);
 });
 
 test('CLI prints docker_relevant=false for docs-only via --stdin', () => {
   const out = execFileSync(process.execPath, [TOOL, '--stdin'], { input: 'docs/CI.md\n', encoding: 'utf8' });
   assert.match(out, /^docker_relevant=false/m);
+  assert.match(out, /^docker_definition=false/m);
 });
 
 test('CLI prints docker_relevant=true for empty input via --stdin', () => {
   const out = execFileSync(process.execPath, [TOOL, '--stdin'], { input: '\n', encoding: 'utf8' });
   assert.match(out, /^docker_relevant=true/m);
+  assert.match(out, /^docker_definition=true/m);
+});
+
+test('input source changes are image-relevant but not definition changes', () => {
+  assert.equal(isDockerDefinitionChanged(['cobol/src/loan_core.cob']), false);
+  assert.equal(isDockerDefinitionChanged(['middleware/src/app.js']), false);
+  assert.equal(isDockerDefinitionChanged(['Dockerfile']), true);
+  assert.equal(isDockerDefinitionChanged(['middleware/package-lock.json']), true);
+  assert.equal(isDockerDefinitionChanged([]), true);
 });

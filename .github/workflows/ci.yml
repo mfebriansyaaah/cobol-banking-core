@@ -44,6 +44,7 @@ jobs:
     outputs:
       docs_only: ${{ steps.classify.outputs.docs_only }}
       docker_relevant: ${{ steps.classify.outputs.docker_relevant }}
+      docker_definition: ${{ steps.classify.outputs.docker_definition }}
       coverage_relevant: ${{ steps.classify.outputs.coverage_relevant }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -290,15 +291,17 @@ jobs:
           name: diagnostics-build
 
   # Packaging validation. It does not consume the build artifact, so it runs
-  # in parallel with `build` instead of waiting for it. On PRs it is limited
-  # to changes that can alter the image; push-to-main always validates.
+  # in parallel with `build`. On PRs it runs only when the image *assembly*
+  # (Dockerfile/.dockerignore/build inputs/lockfile) changed; source-only
+  # changes are already compiled by `build`. Push-to-main always validates.
   docker-build:
     name: docker-build
     needs: changes
     if: >
       needs.changes.outputs.docs_only != 'true' &&
       (github.event_name != 'pull_request' ||
-       needs.changes.outputs.docker_relevant == 'true')
+       (needs.changes.outputs.docker_relevant == 'true' &&
+        needs.changes.outputs.docker_definition == 'true'))
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:

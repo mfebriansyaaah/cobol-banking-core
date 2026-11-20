@@ -51,7 +51,7 @@ the gate and waste minutes.
 
 | Event | Workflow | Jobs |
 | --- | --- | --- |
-| `pull_request` | `ci.yml` | changes, lint, coverage (always for non-docs PRs); build, docker-build, db-snapshot, schema-drift, test, db-shards (2), db-aggregate, coverage-pr (all gated on the change set; docs-only PRs run only changes + lint; `docker-build` runs only when the image can change; `coverage-pr` only when curated COBOL input changed) |
+| `pull_request` | `ci.yml` | changes, lint, coverage (always for non-docs PRs); build, docker-build, db-snapshot, schema-drift, test, db-shards (2), db-aggregate, coverage-pr (all gated on the change set; docs-only PRs run only changes + lint; `docker-build` runs only when the image assembly can change; `coverage-pr` only when curated COBOL input changed) |
 | `push: [main]` | `ci.yml` (+ `db-ops` on push/dispatch) | changes, lint, build, docker-build, db-snapshot, db-ops. Docs-only pushes are filtered at the workflow trigger. `schema-drift` is PR + nightly only (the PR gate already proved it; no post-merge re-run). The PR-only DB gate (`test`, `db-shards`, `db-aggregate`) and `coverage` do not run on push; branch protection guarantees they ran on the PR. `coverage` runs on manual dispatch. |
 | nightly `0 2 * * *` | `nightly.yml` | full-twice (`full twice + drills`) + benchmark + load test + flake compare |
 | nightly `30 2 * * *` | `coverage.yml` | coverage (full COBOL + gateway measurement) |
@@ -173,7 +173,7 @@ Rules:
 | `ci.yml` changes | 5 min | docs/docker/coverage classifier (`scripts/ci/classify_changes.sh`); every heavy job gates on it |
 | `ci.yml` lint | 15 min | shellcheck, eslint, prettier, markdownlint, actionlint, yamllint, promtool, semgrep, gitleaks, the full 38-gate static fleet, docs stats, gate probes, PR-size report, gate unit tests, npm audit, CI docs check |
 | `ci.yml` build | 10 min | pure producer: cached COBOL build + warning ratchet + `cobol-binary` artifact; no lint/static gates |
-| `ci.yml` docker-build | 15 min | production image build + native linkage check (no push); parallel with `build` |
+| `ci.yml` docker-build | 15 min | production image build + native linkage check (no push); PR runs only when Dockerfile/.dockerignore/build inputs/lockfile changed, so source-only changes do not recompile inside Docker |
 | `ci.yml` db-snapshot | 10 min | schema + migrate + ledger check + gzip DB snapshot + normalized `schema-fresh` artifact (pure producer; does not wait for `build`) |
 | `ci.yml` schema-drift | 10 min | compares the producer's normalized `schema-fresh` artifact with committed `schema_full.sql`; no second DB provisioning, and a drift failure blocks merge without blocking DB consumers |
 | `ci.yml` test | 25 min | PR-only non-DB gate: integration, gateway, error harness, table/amount tests; `SKIP_STATIC_GATES=1` because `lint` owns the gate fleet |

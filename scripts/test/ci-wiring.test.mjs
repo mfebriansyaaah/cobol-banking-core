@@ -286,9 +286,11 @@ test('docker-build runs on push and only for docker-relevant PRs', () => {
   const ci = collectWorkflowJobs()['ci.yml'];
   const cond = String(ci['docker-build'].if || '');
   assert.match(cond, /docker_relevant/, 'docker-build must gate on docker_relevant');
+  assert.match(cond, /docker_definition/, 'PR image builds must require a packaging-definition change');
   assert.ok(cond.includes("github.event_name != 'pull_request'"), 'docker-build must always run on push');
   const ciYaml = readFileSync(path.join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8');
   assert.match(ciYaml, /docker_relevant: \$\{\{ steps\.classify\.outputs\.docker_relevant \}\}/);
+  assert.match(ciYaml, /docker_definition: \$\{\{ steps\.classify\.outputs\.docker_definition \}\}/);
 });
 
 test('push to main skips the PR-only DB gate (cost workstream)', () => {

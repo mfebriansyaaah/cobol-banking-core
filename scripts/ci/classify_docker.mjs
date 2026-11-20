@@ -43,6 +43,17 @@ export function isDockerRelevant(files) {
   return list.some((f) => DOCKER_FILES.has(f) || DOCKER_PREFIXES.some((p) => f.startsWith(p)));
 }
 
+/**
+ * True when the image *assembly* changed, not merely its compiled sources.
+ * PRs use this to skip the Docker job when `build` already compiled the same
+ * code; push-to-main still validates the image unconditionally.
+ */
+export function isDockerDefinitionChanged(files) {
+  const list = (files || []).map((f) => String(f).trim()).filter(Boolean);
+  if (!list.length) return true;
+  return list.some((f) => DOCKER_FILES.has(f));
+}
+
 function readStdin() {
   return new Promise((resolve, reject) => {
     let s = '';
@@ -68,6 +79,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       files = [...files, ...raw.split('\n')];
     }
     console.log(`docker_relevant=${isDockerRelevant(files)}`);
+    console.log(`docker_definition=${isDockerDefinitionChanged(files)}`);
     process.exit(0);
   };
   run();
