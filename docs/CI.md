@@ -11,6 +11,7 @@
 - [Current status: AUTOMATIC (restored in Phase 0 branch 01)](#current-status-automatic-restored-in-phase-0-branch-01)
 - [Trigger matrix (target, after unpark)](#trigger-matrix-target-after-unpark)
 - [Docs-only fast path (CI-011)](#docs-only-fast-path-ci-011)
+- [Impact plan (shadow)](#impact-plan-shadow)
 - [CI contract (`scripts/check_ci_contract.mjs`)](#ci-contract-scriptscheck_ci_contractmjs)
 - [Required checks](#required-checks)
 - [Job durations and timeouts](#job-durations-and-timeouts)
@@ -51,7 +52,7 @@ the gate and waste minutes.
 
 | Event | Workflow | Jobs |
 | --- | --- | --- |
-| `pull_request` | `ci.yml` | changes, lint, coverage (always for non-docs PRs); build, docker-build, db-snapshot, schema-drift, test, db-shards (2) or db-selected, db-aggregate, coverage-pr (all gated on the change set; `db-shards` for a full/unknown change set, `db-selected` for a mapped one; docs-only PRs run only changes + lint; `docker-build` runs only when the image assembly can change; `coverage-pr` only when curated COBOL input changed) |
+| `pull_request` | `ci.yml` | changes, lint, plan audit, coverage (always for non-docs PRs); build, docker-build, db-snapshot, schema-drift, test, db-shards (2) or db-selected, db-aggregate, coverage-pr (all gated on the change set; `db-shards` for a full/unknown change set, `db-selected` for a mapped one; docs-only PRs run only changes + lint; `docker-build` runs only when the image assembly can change; `coverage-pr` only when curated COBOL input changed; `plan audit` is advisory-only and never gates) |
 | `push: [main]` | `ci.yml` (+ `db-ops` when the DB surface changed / dispatch) | changes, lint, build, docker-build; `db-snapshot` and `db-ops` run only when `database/**`, migration/backup tooling, or drill tests changed. Docs-only pushes are filtered at the workflow trigger. `schema-drift` is PR + nightly only (the PR gate already proved it; no post-merge re-run). The PR-only DB gate (`test`, `db-shards`, `db-aggregate`) and `coverage` do not run on push; branch protection guarantees they ran on the PR. `coverage` runs on manual dispatch. |
 | nightly `0 2 * * *` | `nightly.yml` | full-twice (`full twice + drills`) + benchmark + load test + flake compare |
 | nightly `30 2 * * *` | `coverage.yml` | coverage (full COBOL + gateway measurement) |
@@ -107,6 +108,30 @@ also failed in the same run (e.g. `db aggregate` after `test`). `--json` adds
 `primary_failure_rate_pct`, `cascaded_failures`, and `primary_failed_jobs`;
 without a dependency graph every failure counts as primary (fail-safe).
 Parse errors degrade to the unclassified view, never hide a failure.
+
+## Impact plan (shadow)
+
+The `changes` job computes an impact plan for every run
+(`scripts/ci/impact-plan.mjs`, policy in `scripts/ci/impact-policy.mjs`)
+and publishes it as the `impact-plan` artifact
+(`artifacts/impact-plan/impact-plan.json`, retention 14 days). The plan maps
+the change set to `plan_*` outputs (`plan_mode`, `plan_test`, `plan_db`,
+`plan_db_suites`, `plan_gateway_coverage`, `plan_cobol_coverage`, ...) plus
+a `would_skip` job list (`build`, `docker-build`, `db-snapshot`,
+`schema-drift`, `test`, `db-shards`, `db-selected`, `coverage`,
+`coverage-pr`, `db aggregate`, `db-ops`).
+
+While `PLAN_ENFORCE` is `'false'` (current), the `eff_*` outputs reproduce
+the legacy behavior exactly: the plan is advisory only and no job is gated
+on it. Unknown paths fall back to a full runtime (`mode=full`,
+`unmapped` non-empty); the pipeline never silently skips.
+
+The `plan audit` job (`plan-audit`, timeout 5 min, never a required check)
+downloads the plan and runs `scripts/ci/impact-audit.mjs` against the real
+`needs` results. A failure on a `would_skip` job is recorded as a false
+negative in the `impact-audit` artifact; anything else is safe. The audit
+always exits 0 so it cannot gate the pipeline. Its evidence feeds the
+impact-targeting enable decision (shadow first, enforce later).
 
 ## CI contract (`scripts/check_ci_contract.mjs`)
 
@@ -183,6 +208,7 @@ Rules:
 | `ci.yml` coverage | 20 min | PR gateway coverage gate + manual dispatch: runs the gateway suite once with coverage/JUnit; `test` skips its gateway phase |
 | `ci.yml` coverage-pr | 35 min | curated COBOL, impact-selected: skipped unless the change set touches curated inputs (`coverage_relevant`; trigger groups in `docs/COVERAGE.md`); compiles its own instrumented binary, no `build` dependency |
 | `ci.yml` db-ops | 20 min | rollback, backup/restore on DB-surface pushes + dispatch; not a PR required check; nightly covers ordinary code pushes |
+| `ci.yml` plan audit (`plan-audit`) | 5 min | advisory shadow audit: compares the impact plan's `would_skip` list with actual results; never required, never fails the pipeline; evidence for the impact-targeting enable decision |
 | `codeql.yml` analyze | 20 min | JS + C, SARIF uploaded to code scanning; path-filtered on PR/push, weekly schedule unfiltered |
 | `coverage.yml` coverage | 45 min | full COBOL + gateway; shares the COBOL object cache |
 | `coverage.yml` notify | 5 min | open/close `ci-failure` issue |
