@@ -50,7 +50,7 @@
 | `loan_schedule_report_core` | L1 | REVIEW | — | — | — | unmeasured | no |
 | `loyalty_core` | L0 | FROZEN | UNLINKED | — | — | unmeasured | no |
 | `merchant_core` | L2 | PILOT | — | — | — | unmeasured | yes |
-| `merchant_settlement_core` | L0 | FROZEN | DUPLICATE | 0.68 | — | unmeasured | no |
+| `merchant_settlement_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `notification_template_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `payment_clearing_core` | L3 | ACTIVE | — | — | 40.53 | below-floor | yes |
 | `payment_core` | L3 | ACTIVE | — | — | — | unmeasured | yes |
@@ -67,7 +67,7 @@
 | `sla_tracker_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `statement_core` | L3 | ACTIVE | — | — | 58.19 | below-floor | yes |
 | `statement_recon_core` | L3 | ACTIVE | — | — | — | unmeasured | yes |
-| `tax_management_core` | L0 | FROZEN | DUPLICATE | 0.66 | — | unmeasured | no |
+| `tax_management_core` | L2 | PILOT | — | — | — | unmeasured | yes |
 | `treasury_liquidity_core` | L3 | ACTIVE | — | — | 61.41 | below-floor | yes |
 | `user_core` | L3 | ACTIVE | — | — | 71.27 | ok | yes |
 | `wallet_core` | L3 | ACTIVE | — | — | 92.22 | ok | yes |

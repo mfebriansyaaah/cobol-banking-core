@@ -12,5 +12,3 @@ gl_allocation_core CANDIDATE
 import_core CANDIDATE
 letter_of_credit_core CANDIDATE
 loyalty_core CANDIDATE
-merchant_settlement_core CANDIDATE
-tax_management_core CANDIDATE

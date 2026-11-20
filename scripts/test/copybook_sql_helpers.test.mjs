@@ -107,5 +107,7 @@ test('every PERFORM stages its binds first (or needs none)', () => {
       });
     }
   }
-  assert.ok(sites >= 100, `expected 100+ converted sites, got ${sites}`);
+  // PR-2d removed three generic tax CRUD paragraphs (each carried a converted site);
+  // keep a floor that still fails if the wrapper rollout collapses.
+  assert.ok(sites >= 95, `expected 95+ converted sites, got ${sites}`);
 });

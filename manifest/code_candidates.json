@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T06:37:42.643947Z",
+  "generatedAt": "2026-11-20T08:03:44.348618Z",
   "candidates": [
     {
       "module": "bank_guarantee_core",
@@ -136,42 +136,6 @@
         "linkage L0: own domain tables only, no core link",
         "not template-shaped: custom unlinked code, needs manual review for unique rules",
         "primary table loyalty_member: referenced only by this module",
-        "trafficLastSeen: null \u2014 no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none \u2014 core scoring found no business tables, core calls, or money actions"
-      ],
-      "trafficLastSeen": null,
-      "consumer": null,
-      "replacement": null,
-      "ownerSignoff": null,
-      "status": "CANDIDATE"
-    },
-    {
-      "module": "merchant_settlement_core",
-      "domain": "merchant_settlement",
-      "linkageLevel": "L0",
-      "reason": "DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F.",
-      "evidence": [
-        "linkage L0: own domain tables only, no core link",
-        "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
-        "primary table merchant_settlement: also referenced by merchant_core",
-        "trafficLastSeen: null \u2014 no traffic telemetry yet; must be measured before DEPRECATED",
-        "CORE_LINKED actions: none \u2014 core scoring found no business tables, core calls, or money actions"
-      ],
-      "trafficLastSeen": null,
-      "consumer": null,
-      "replacement": null,
-      "ownerSignoff": null,
-      "status": "CANDIDATE"
-    },
-    {
-      "module": "tax_management_core",
-      "domain": "tax_management",
-      "linkageLevel": "L0",
-      "reason": "DUPLICATE: No proven core link; frozen pending dead-candidate evidence (PR-010F). NOTE: canonical-adjacent per domain overview; confirm the orchestration link in PR-010E or retire in PR-010F.",
-      "evidence": [
-        "linkage L0: own domain tables only, no core link",
-        "template-clone signal: recorded in tests/clone_baseline.txt (shape/similarity/size match)",
-        "primary table tax_management: also referenced by payroll_processing_core",
         "trafficLastSeen: null \u2014 no traffic telemetry yet; must be measured before DEPRECATED",
         "CORE_LINKED actions: none \u2014 core scoring found no business tables, core calls, or money actions"
       ],

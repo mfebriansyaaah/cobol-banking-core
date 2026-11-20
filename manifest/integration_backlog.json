@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T06:38:01.458592Z",
+  "generatedAt": "2026-11-20T08:05:04.941121Z",
   "items": [
     {
       "id": "account_core:audit:core-reference",
@@ -1388,6 +1388,98 @@
       "owner": "merchant"
     },
     {
+      "id": "merchant_settlement_core:action:action-open",
+      "module": "merchant_settlement_core",
+      "kind": "action",
+      "subject": "ACTION-OPEN",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes merchant_settlement)",
+      "evidence": [
+        "paragraph ACTION-OPEN",
+        "touched tables: merchant, merchant_settlement"
+      ],
+      "owner": "merchant"
+    },
+    {
+      "id": "merchant_settlement_core:action:action-post",
+      "module": "merchant_settlement_core",
+      "kind": "action",
+      "subject": "ACTION-POST",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes merchant_settlement)",
+      "evidence": [
+        "paragraph ACTION-POST",
+        "touched tables: merchant_settlement"
+      ],
+      "owner": "merchant"
+    },
+    {
+      "id": "merchant_settlement_core:action:action-submit",
+      "module": "merchant_settlement_core",
+      "kind": "action",
+      "subject": "ACTION-SUBMIT",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes merchant_settlement)",
+      "evidence": [
+        "paragraph ACTION-SUBMIT",
+        "touched tables: merchant_settlement"
+      ],
+      "owner": "merchant"
+    },
+    {
+      "id": "merchant_settlement_core:action:action-update",
+      "module": "merchant_settlement_core",
+      "kind": "action",
+      "subject": "ACTION-UPDATE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes merchant_settlement)",
+      "evidence": [
+        "paragraph ACTION-UPDATE",
+        "touched tables: merchant_settlement"
+      ],
+      "owner": "merchant"
+    },
+    {
+      "id": "merchant_settlement_core:audit:core-reference",
+      "module": "merchant_settlement_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "DONE",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [
+        "merchant_settlement_audit rows carry merchant_settlement_id + old/new/detail: CANCEL row asserted in tests/db/merchant_settlement_db_tests.sh (cancel audited)"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "merchant_settlement_core:table:merchant",
+      "module": "merchant_settlement_core",
+      "kind": "table",
+      "subject": "merchant",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'active', 'closed', 'deleted'), 4), activated_at, close_reason, closed_at, created_at, created_by, deleted_at, id, if, index, merchant_name, merchant_ref, merchant_type, merchant_type), settled_volume, status, transaction_volume, unique, updated_at, version",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "merchant"
+    },
+    {
+      "id": "merchant_settlement_core:table:merchant-settlement",
+      "module": "merchant_settlement_core",
+      "kind": "table",
+      "subject": "merchant_settlement",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'active', 'deleted'), 'settled', 4), created_at, created_by, deleted_at, id, if, index, merchant_name, paid_amount, scheduled_at, settle_reason, settled_at, settlement_amount, settlement_ref, settlement_type, settlement_type), status, unique, updated_at, version",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "merchant"
+    },
+    {
       "id": "notification_template_core:audit:core-reference",
       "module": "notification_template_core",
       "kind": "audit",
@@ -2261,6 +2353,85 @@
         "no FOREIGN KEY into core tables"
       ],
       "owner": "reporting"
+    },
+    {
+      "id": "tax_management_core:action:action-rule-create",
+      "module": "tax_management_core",
+      "kind": "action",
+      "subject": "ACTION-RULE-CREATE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes tax_management)",
+      "evidence": [
+        "paragraph ACTION-RULE-CREATE",
+        "touched tables: tax_management"
+      ],
+      "owner": "tax"
+    },
+    {
+      "id": "tax_management_core:action:action-rule-update",
+      "module": "tax_management_core",
+      "kind": "action",
+      "subject": "ACTION-RULE-UPDATE",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes tax_management)",
+      "evidence": [
+        "paragraph ACTION-RULE-UPDATE",
+        "touched tables: tax_management"
+      ],
+      "owner": "tax"
+    },
+    {
+      "id": "tax_management_core:action:action-submit",
+      "module": "tax_management_core",
+      "kind": "action",
+      "subject": "ACTION-SUBMIT",
+      "status": "OPEN",
+      "reason": "Write paragraph with no core link (writes tax_management)",
+      "evidence": [
+        "paragraph ACTION-SUBMIT",
+        "touched tables: tax_management"
+      ],
+      "owner": "tax"
+    },
+    {
+      "id": "tax_management_core:audit:core-reference",
+      "module": "tax_management_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "DONE",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [
+        "tax_management_audit rows carry tax_management_id + old/new/detail: RULE_CREATE row stores id=125; audit rows asserted in tests/db/tax_domain_db_tests.sh"
+      ],
+      "owner": "backend"
+    },
+    {
+      "id": "tax_management_core:table:tax-management",
+      "module": "tax_management_core",
+      "kind": "table",
+      "subject": "tax_management",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'active', 'deleted'), 'inactive', 4), activated_at, collected_tax, created_at, created_by, deactivate_reason, deactivated_at, deleted_at, id, if, index, max_tax, status, tax_name, tax_ref, tax_type, tax_type), unique, updated_at, version",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "tax"
+    },
+    {
+      "id": "tax_management_core:table:tax-report-run",
+      "module": "tax_management_core",
+      "kind": "table",
+      "subject": "tax_report_run",
+      "status": "OPEN",
+      "reason": "Domain table has no core business key or FK into a core table",
+      "evidence": [
+        "columns: 'failed'), 'filed', 4), created_at, created_by, currency, currency), evidence_ref, index, period, period), run_id, status, submitted_at, tax_type, total_base, total_tax, unique",
+        "no core business-key columns",
+        "no FOREIGN KEY into core tables"
+      ],
+      "owner": "tax"
     },
     {
       "id": "treasury_liquidity_core:action:action-cancel",

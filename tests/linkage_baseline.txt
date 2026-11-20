@@ -27,12 +27,10 @@ loan_schedule_lifecycle_core L1
 loan_schedule_posting_core L1
 loan_schedule_report_core L1
 loyalty_core L0
-merchant_settlement_core L0
 phone_otp_core L0
 report_core L0
 report_run_core L1
 risk_core L0
-tax_management_core L0
 wallet_dispute_core L1
 wallet_hold_core L1
 wallet_recon_core L1
