@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-20T06:37:27.382Z",
-  "commit": "23461f67",
+  "generatedAt": "2026-11-20T08:03:35.694Z",
+  "commit": "cf45e0c4",
   "linkageSource": "manifest/linkage.json",
   "summary": {
     "L3": 23,
-    "L2": 12,
+    "L2": 14,
     "L1": 10,
-    "L0": 21,
+    "L0": 19,
     "UTILITY": 3
   },
   "modules": [
@@ -689,7 +689,9 @@
     {
       "module": "merchant_settlement_core",
       "source": "merchant_settlement_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "merchant_transaction"
+      ],
       "coreCalls": [],
       "coreActions": [],
       "hasTests": true,
@@ -697,8 +699,8 @@
         "tests/db/merchant_settlement_db_tests.sh",
         "tests/cobol/cases/merchant_settlement.cases"
       ],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
+      "linkageLevel": "L2",
+      "reason": "business link (tables merchant_transaction) + test",
       "routeFiles": [
         "merchant_settlement.js"
       ]
@@ -985,7 +987,9 @@
     {
       "module": "tax_management_core",
       "source": "tax_management_core.cob",
-      "businessTables": [],
+      "businessTables": [
+        "tax_withholding_entry"
+      ],
       "coreCalls": [],
       "coreActions": [],
       "hasTests": true,
@@ -993,8 +997,8 @@
         "tests/db/tax_management_db_tests.sh",
         "tests/cobol/cases/tax_management.cases"
       ],
-      "linkageLevel": "L0",
-      "reason": "own domain tables only, no core link",
+      "linkageLevel": "L2",
+      "reason": "business link (tables tax_withholding_entry) + test",
       "routeFiles": [
         "tax_management.js"
       ]

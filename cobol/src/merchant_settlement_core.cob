@@ -104,9 +104,6 @@
                 GOBACK
             END-IF
             EVALUATE TRUE
-                WHEN LS-CMD-ACTION(1:10) = "MCS_CREATE"
-                    PERFORM TRIM-ALL
-                    PERFORM ACTION-CREATE
                 WHEN LS-CMD-ACTION(1:8) = "MCS_LIST"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-LIST
@@ -119,9 +116,6 @@
                 WHEN LS-CMD-ACTION(1:8) = "MCS_CALC"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-SUBMIT
-                WHEN LS-CMD-ACTION(1:10) = "MCS_DELETE"
-                    PERFORM TRIM-ALL
-                    PERFORM ACTION-CLOSE
                 WHEN LS-CMD-ACTION(1:7) = "MCS_TXN"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-TXN
@@ -213,58 +207,6 @@
             MOVE FUNCTION NUMVAL(WS-TMP-STR) TO WS-NUM-ACTIVE
             MOVE FUNCTION NUMVAL(WS-TMP-ALLOCATED) TO WS-NUM-ALLOCATED
             MOVE FUNCTION NUMVAL(WS-TMP-VERSION) TO WS-NUM-VERSION
-            EXIT PARAGRAPH.
-
-        ACTION-CREATE.
-            MOVE "MERCHANT_SETTLEMENT_CORE" TO WS-DENIED-TARGET
-            PERFORM ADMIN-GUARD
-            IF WS-ALLOWED NOT = 1
-                EXIT PARAGRAPH
-            END-IF.
-            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
-                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
-                EXIT PARAGRAPH
-            END-IF.
-            MOVE "SELECT 1 FROM merchant_settlement WHERE settlement_ref = ? LIMIT 1" TO WS-PREP-SQL
-            MOVE WS-P1-TRIMMED TO WS-BIND-1
-            PERFORM SQL-EXEC-1
-            IF WS-RESULT(1:5) NOT = "ERROR"
-                MOVE "ERROR|DUPLICATE" TO LS-OUTPUT-BUFFER
-                EXIT PARAGRAPH
-            END-IF.
-            SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
-            MOVE "INSERT INTO merchant_settlement (settlement_ref, merchant_name, settlement_type, status, created_by) VALUES (?, ?, NULLIF(?, ''), 'OPEN', ?)" TO WS-PREP-SQL
-            MOVE WS-P1-TRIMMED TO WS-BIND-1
-            MOVE WS-P2-TRIMMED TO WS-BIND-2
-            MOVE WS-P3-TRIMMED TO WS-BIND-3
-            MOVE WS-P6-TRIMMED TO WS-BIND-4
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
-                BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
-                BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
-            END-CALL
-            CALL "GET_RESULT" USING BY REFERENCE WS-RESULT END-CALL
-            IF WS-RESULT(1:5) = "ERROR"
-                SET STEP-FAIL TO TRUE
-            END-IF.
-            IF STEP-OK
-                PERFORM LAST-INSERT-ID
-                IF WS-RESULT(1:5) = "ERROR"
-                    SET STEP-FAIL TO TRUE
-                ELSE
-                    MOVE WS-RESULT(1:20) TO WS-NEW-ID
-                END-IF
-            END-IF.
-            IF STEP-OK
-                MOVE "CREATE" TO WS-AUDIT-ACTION
-                MOVE WS-NEW-ID TO WS-AUDIT-MCS
-                MOVE WS-P1-TRIMMED TO WS-AUDIT-DETAIL
-                PERFORM AUDIT
-            END-IF.
-                MOVE SPACES TO WS-SUCCESS-MSG
-                STRING "SUCCESS|MCS_CREATE|" DELIMITED BY SIZE FUNCTION TRIM(WS-NEW-ID) DELIMITED BY SIZE
-                    "|" DELIMITED BY SIZE FUNCTION TRIM(WS-P2-TRIMMED) DELIMITED BY SIZE INTO WS-SUCCESS-MSG ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
-            PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
         ACTION-LIST.
@@ -446,47 +388,6 @@
                 PERFORM AUDIT
             END-IF.
             MOVE "SUCCESS|MCS_UPDATE" TO WS-SUCCESS-MSG
-            PERFORM TXN-FINISH
-            EXIT PARAGRAPH.
-
-        ACTION-CLOSE.
-            MOVE "MERCHANT_SETTLEMENT_CORE" TO WS-DENIED-TARGET
-            PERFORM ADMIN-GUARD
-            IF WS-ALLOWED NOT = 1
-                EXIT PARAGRAPH
-            END-IF.
-            IF LS-PARAM1 = SPACES
-                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
-                EXIT PARAGRAPH
-            END-IF.
-            PERFORM LOAD-CLEARING
-            IF WS-ERR NOT = SPACES
-                MOVE WS-ERR TO LS-OUTPUT-BUFFER
-                EXIT PARAGRAPH
-            END-IF.
-            IF WS-TMP-STATUS(1:9) = "ALLOCATED" OR WS-TMP-STATUS(1:6) = "CLOSED"
-                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
-                EXIT PARAGRAPH
-            END-IF.
-            SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
-            MOVE "UPDATE merchant_settlement SET status = 'SETTLED', settled_at = NOW(), settle_reason = NULLIF(?, ''), deleted_at = NOW(), version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
-            MOVE WS-P2-TRIMMED TO WS-BIND-1
-            MOVE WS-P1-TRIMMED TO WS-BIND-2
-            MOVE FUNCTION TRIM(WS-TMP-VERSION) TO WS-BIND-3
-            PERFORM SQL-EXEC-3
-            IF WS-RESULT(1:5) = "ERROR"
-                SET STEP-FAIL TO TRUE
-            END-IF.
-            IF STEP-OK
-                MOVE "DELETE" TO WS-AUDIT-ACTION
-                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-MCS
-                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
-                MOVE "ACTIVE" TO WS-AUDIT-OLD
-                MOVE "SETTLED" TO WS-AUDIT-NEW
-                PERFORM AUDIT
-            END-IF.
-            MOVE "SUCCESS|MCS_DELETE" TO WS-SUCCESS-MSG
             PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 

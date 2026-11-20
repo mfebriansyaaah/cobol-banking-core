@@ -6,15 +6,15 @@
 > linkage policy). Manual reclassification happens in PR-010
 > (`manifest/domain_status.json`), not by editing this file.
 
-- Generated at: 2026-11-20T06:37:27.382Z
-- Commit: `23461f67`
+- Generated at: 2026-11-20T08:03:35.694Z
+- Commit: `cf45e0c4`
 
 | Level | Modules |
 | --- | ---: |
 | L3 (core transaction) | 23 |
-| L2 (business reference) | 12 |
+| L2 (business reference) | 14 |
 | L1 (weak / untested link) | 10 |
-| L0 (isolated) | 21 |
+| L0 (isolated) | 19 |
 | UTILITY | 3 |
 
 Unresolved route files: none.
@@ -63,7 +63,7 @@ Unresolved route files: none.
 | `loan_schedule_report_core` | L1 | loan_schedule | — | 0 | linked code with no DB/table/integration test (downgraded) |
 | `loyalty_core` | L0 | — | — | 1 | own domain tables only, no core link |
 | `merchant_core` | L2 | accounts | — | 1 | business link (tables accounts) + test |
-| `merchant_settlement_core` | L0 | — | — | 1 | own domain tables only, no core link |
+| `merchant_settlement_core` | L2 | merchant_transaction | — | 1 | business link (tables merchant_transaction) + test |
 | `notification_template_core` | L2 | ntf_template_config | — | 1 | business link (tables ntf_template_config) + test |
 | `payment_clearing_core` | L3 | — | — | 1 | Core anchor module |
 | `payment_core` | L3 | accounts, ledger | fee_core | 1 | money-table touch (accounts, ledger) with depth + test |
@@ -80,7 +80,7 @@ Unresolved route files: none.
 | `sla_tracker_core` | L2 | sla_tracker | — | 1 | business link (tables sla_tracker) + test |
 | `statement_core` | L3 | accounts, journal_entries, ledger | — | 1 | money-table touch (accounts, journal_entries, ledger) with depth + test |
 | `statement_recon_core` | L3 | accounts, ledger | — | 1 | money-table touch (accounts, ledger) with depth + test |
-| `tax_management_core` | L0 | — | — | 1 | own domain tables only, no core link |
+| `tax_management_core` | L2 | tax_withholding_entry | — | 1 | business link (tables tax_withholding_entry) + test |
 | `treasury_liquidity_core` | L3 | — | — | 1 | Core anchor module |
 | `user_core` | L3 | — | — | 1 | Core anchor module |
 | `wallet_core` | L3 | — | — | 1 | Core anchor module |

@@ -44,9 +44,11 @@
     "loan_installment",
     "loan_repayment",
     "loan_schedule",
+    "merchant_transaction",
     "ntf_template_config",
     "rpt_schedule_config",
-    "sla_tracker"
+    "sla_tracker",
+    "tax_withholding_entry"
   ],
   "moneyTables": [
     "accounts",

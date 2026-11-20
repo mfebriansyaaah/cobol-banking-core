@@ -56,20 +56,6 @@ export const MCS_ROUTES = [
   },
   {
     method: 'post',
-    path: '/merchant-settlements',
-    action: 'MCS_CREATE',
-    tokenIdentity: 'actor',
-    fields: [
-      { name: 'settlementRef', pattern: PATTERNS.KEY, required: true },
-      { name: 'merchantName', pattern: PATTERNS.NAME, required: true },
-      { name: 'settlementType', pattern: PATTERNS.NAME, required: true },
-      BLANK,
-      BLANK,
-      ACTOR,
-    ],
-  },
-  {
-    method: 'post',
     path: '/merchant-settlements/txn',
     action: 'MCS_TXN',
     tokenIdentity: 'actor',
@@ -151,12 +137,5 @@ export const MCS_ROUTES = [
       BLANK,
       ACTOR,
     ],
-  },
-  {
-    method: 'post',
-    path: '/merchant-settlements/:id/delete',
-    action: 'MCS_DELETE',
-    tokenIdentity: 'actor',
-    fields: [ID, { name: 'reason', pattern: PATTERNS.NAME, required: false }, BLANK, BLANK, BLANK, ACTOR],
   },
 ];

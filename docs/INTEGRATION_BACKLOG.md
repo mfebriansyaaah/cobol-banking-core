@@ -11,9 +11,9 @@
 | Module status | Modules |
 | --- | ---: |
 | CONNECTED (no open items) | 0 |
-| PARTIAL (open items) | 35 |
+| PARTIAL (open items) | 37 |
 
-Open/in-progress items: 147 of 209 recorded.
+Open/in-progress items: 158 of 222 recorded.
 
 | Module | Status | Items |
 | --- | --- | ---: |
@@ -38,6 +38,7 @@ Open/in-progress items: 147 of 209 recorded.
 | `loan_posting_core` | PARTIAL | 1 |
 | `loan_schedule_core` | PARTIAL | 1 |
 | `merchant_core` | PARTIAL | 13 |
+| `merchant_settlement_core` | PARTIAL | 7 |
 | `notification_template_core` | PARTIAL | 1 |
 | `payment_clearing_core` | PARTIAL | 6 |
 | `payment_core` | PARTIAL | 6 |
@@ -48,6 +49,7 @@ Open/in-progress items: 147 of 209 recorded.
 | `sla_tracker_core` | PARTIAL | 1 |
 | `statement_core` | PARTIAL | 6 |
 | `statement_recon_core` | PARTIAL | 8 |
+| `tax_management_core` | PARTIAL | 6 |
 | `treasury_liquidity_core` | PARTIAL | 6 |
 | `user_core` | PARTIAL | 6 |
 | `wallet_core` | PARTIAL | 15 |
@@ -164,6 +166,13 @@ Open/in-progress items: 147 of 209 recorded.
 | `merchant_core:table:customer` | `merchant_core` | table | OPEN | merchant | Domain table has no core business key or FK into a core table |
 | `merchant_core:table:merchant` | `merchant_core` | table | OPEN | merchant | Domain table has no core business key or FK into a core table |
 | `merchant_core:table:merchant-settlement` | `merchant_core` | table | OPEN | merchant | Domain table has no core business key or FK into a core table |
+| `merchant_settlement_core:action:action-open` | `merchant_settlement_core` | action | OPEN | merchant | Write paragraph with no core link (writes merchant_settlement) |
+| `merchant_settlement_core:action:action-post` | `merchant_settlement_core` | action | OPEN | merchant | Write paragraph with no core link (writes merchant_settlement) |
+| `merchant_settlement_core:action:action-submit` | `merchant_settlement_core` | action | OPEN | merchant | Write paragraph with no core link (writes merchant_settlement) |
+| `merchant_settlement_core:action:action-update` | `merchant_settlement_core` | action | OPEN | merchant | Write paragraph with no core link (writes merchant_settlement) |
+| `merchant_settlement_core:audit:core-reference` | `merchant_settlement_core` | audit | DONE | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `merchant_settlement_core:table:merchant` | `merchant_settlement_core` | table | OPEN | merchant | Domain table has no core business key or FK into a core table |
+| `merchant_settlement_core:table:merchant-settlement` | `merchant_settlement_core` | table | OPEN | merchant | Domain table has no core business key or FK into a core table |
 | `notification_template_core:audit:core-reference` | `notification_template_core` | audit | DONE | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
 | `payment_clearing_core:action:action-cancel` | `payment_clearing_core` | action | OPEN | payments | Write paragraph with no core link (writes payment_clearing) |
 | `payment_clearing_core:action:action-create` | `payment_clearing_core` | action | OPEN | payments | Write paragraph with no core link (writes payment_clearing) |
@@ -232,6 +241,12 @@ Open/in-progress items: 147 of 209 recorded.
 | `statement_recon_core:table:statement-archive-line` | `statement_recon_core` | table | OPEN | reporting | Domain table has no core business key or FK into a core table |
 | `statement_recon_core:table:statement-recon-run` | `statement_recon_core` | table | OPEN | reporting | Domain table has no core business key or FK into a core table |
 | `statement_recon_core:table:statement-run` | `statement_recon_core` | table | OPEN | reporting | Domain table has no core business key or FK into a core table |
+| `tax_management_core:action:action-rule-create` | `tax_management_core` | action | OPEN | tax | Write paragraph with no core link (writes tax_management) |
+| `tax_management_core:action:action-rule-update` | `tax_management_core` | action | OPEN | tax | Write paragraph with no core link (writes tax_management) |
+| `tax_management_core:action:action-submit` | `tax_management_core` | action | OPEN | tax | Write paragraph with no core link (writes tax_management) |
+| `tax_management_core:audit:core-reference` | `tax_management_core` | audit | DONE | backend | Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics |
+| `tax_management_core:table:tax-management` | `tax_management_core` | table | OPEN | tax | Domain table has no core business key or FK into a core table |
+| `tax_management_core:table:tax-report-run` | `tax_management_core` | table | OPEN | tax | Domain table has no core business key or FK into a core table |
 | `treasury_liquidity_core:action:action-cancel` | `treasury_liquidity_core` | action | OPEN | treasury | Write paragraph with no core link (writes treasury_liquidity) |
 | `treasury_liquidity_core:action:action-close` | `treasury_liquidity_core` | action | OPEN | treasury | Write paragraph with no core link (writes treasury_liquidity) |
 | `treasury_liquidity_core:action:action-create` | `treasury_liquidity_core` | action | OPEN | treasury | Write paragraph with no core link (writes treasury_liquidity) |

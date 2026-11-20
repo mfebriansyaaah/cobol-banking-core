@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-11-20T06:40:41.408Z",
-  "commit": "23461f67",
+  "generatedAt": "2026-11-20T08:04:41.680Z",
+  "commit": "cf45e0c4",
   "generator": "scripts/build_action_registry.mjs (do not hand-edit)",
-  "count": 541,
+  "count": 536,
   "actions": [
     {
       "action": "ACCOUNT_FREEZE",
@@ -10485,12 +10485,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "merchant_settlement",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "MCS_CALC",
@@ -10519,12 +10519,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "merchant_settlement",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "MCS_CANCEL",
@@ -10553,80 +10553,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "merchant_settlement",
-      "status": "FROZEN"
-    },
-    {
-      "action": "MCS_CREATE",
-      "module": "merchant_settlement_core",
-      "prefix": "MCS_",
-      "method": "post",
-      "path": "/merchant-settlements",
-      "fields": [
-        "settlementRef",
-        "merchantName",
-        "settlementType",
-        "",
-        "",
-        "actor"
-      ],
-      "required": [
-        true,
-        true,
-        true,
-        false,
-        false,
-        true
-      ],
-      "public": false,
-      "stepUp": false,
-      "tokenIdentity": "actor",
-      "owner": "money",
-      "authPolicy": "authenticated",
-      "linkageLevel": "L0",
-      "coreActions": [],
-      "coreCalls": [],
-      "tested": true,
-      "domain": "merchant_settlement",
-      "status": "FROZEN"
-    },
-    {
-      "action": "MCS_DELETE",
-      "module": "merchant_settlement_core",
-      "prefix": "MCS_",
-      "method": "post",
-      "path": "/merchant-settlements/:id/delete",
-      "fields": [
-        "id",
-        "reason",
-        "",
-        "",
-        "",
-        "actor"
-      ],
-      "required": [
-        true,
-        false,
-        false,
-        false,
-        false,
-        true
-      ],
-      "public": false,
-      "stepUp": false,
-      "tokenIdentity": "actor",
-      "owner": "money",
-      "authPolicy": "authenticated",
-      "linkageLevel": "L0",
-      "coreActions": [],
-      "coreCalls": [],
-      "tested": true,
-      "domain": "merchant_settlement",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "MCS_GET",
@@ -10655,12 +10587,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "merchant_settlement",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "MCS_LIST",
@@ -10689,12 +10621,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "merchant_settlement",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "MCS_OPEN",
@@ -10723,12 +10655,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "merchant_settlement",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "MCS_POST",
@@ -10757,12 +10689,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "merchant_settlement",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "MCS_SETTLE",
@@ -10791,12 +10723,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "merchant_settlement",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "MCS_SUMMARY",
@@ -10825,12 +10757,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "merchant_settlement",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "MCS_TXN",
@@ -10859,12 +10791,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "merchant_settlement",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "MCS_UPDATE",
@@ -10893,12 +10825,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "merchant_settlement",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "MCS_VALIDATE",
@@ -10927,12 +10859,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "merchant_settlement",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "MFA_BACKUP_CODES",
@@ -17540,33 +17472,33 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "tax_management",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "TXM_CALC",
       "module": "tax_management_core",
       "prefix": "TXM_",
       "method": "post",
-      "path": "/tax-management/:id/calc",
+      "path": "/tax/calculate",
       "fields": [
-        "id",
-        "",
-        "",
-        "",
-        "",
+        "ruleId",
+        "sourceType",
+        "sourceRef",
+        "baseAmount",
+        "currency",
         "actor"
       ],
       "required": [
         true,
-        false,
-        false,
-        false,
-        false,
+        true,
+        true,
+        true,
+        true,
         true
       ],
       "public": false,
@@ -17574,81 +17506,12 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "tax_management",
-      "status": "FROZEN",
-      "duplicatePaths": true
-    },
-    {
-      "action": "TXM_CREATE",
-      "module": "tax_management_core",
-      "prefix": "TXM_",
-      "method": "post",
-      "path": "/tax-management",
-      "fields": [
-        "taxRef",
-        "taxName",
-        "taxType",
-        "",
-        "",
-        "actor"
-      ],
-      "required": [
-        true,
-        true,
-        true,
-        false,
-        false,
-        true
-      ],
-      "public": false,
-      "stepUp": false,
-      "tokenIdentity": "actor",
-      "owner": "governance",
-      "authPolicy": "authenticated",
-      "linkageLevel": "L0",
-      "coreActions": [],
-      "coreCalls": [],
-      "tested": true,
-      "domain": "tax_management",
-      "status": "FROZEN"
-    },
-    {
-      "action": "TXM_DELETE",
-      "module": "tax_management_core",
-      "prefix": "TXM_",
-      "method": "post",
-      "path": "/tax-management/:id/delete",
-      "fields": [
-        "id",
-        "reason",
-        "",
-        "",
-        "",
-        "actor"
-      ],
-      "required": [
-        true,
-        false,
-        false,
-        false,
-        false,
-        true
-      ],
-      "public": false,
-      "stepUp": false,
-      "tokenIdentity": "actor",
-      "owner": "governance",
-      "authPolicy": "authenticated",
-      "linkageLevel": "L0",
-      "coreActions": [],
-      "coreCalls": [],
-      "tested": true,
-      "domain": "tax_management",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "TXM_GET",
@@ -17677,12 +17540,12 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "tax_management",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "TXM_LIST",
@@ -17711,12 +17574,12 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "tax_management",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "TXM_POST",
@@ -17745,12 +17608,12 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "tax_management",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "TXM_REPORT",
@@ -17779,12 +17642,12 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "tax_management",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "TXM_REVERSE",
@@ -17813,12 +17676,12 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "tax_management",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "TXM_RULE_CREATE",
@@ -17847,12 +17710,12 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "tax_management",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "TXM_RULE_GET",
@@ -17881,12 +17744,12 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "tax_management",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "TXM_RULE_LIST",
@@ -17915,12 +17778,12 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "tax_management",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "TXM_RULE_UPDATE",
@@ -17949,12 +17812,12 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "tax_management",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "TXM_SUMMARY",
@@ -17983,46 +17846,12 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "tax_management",
-      "status": "FROZEN"
-    },
-    {
-      "action": "TXM_UPDATE",
-      "module": "tax_management_core",
-      "prefix": "TXM_",
-      "method": "post",
-      "path": "/tax-management/:id/update",
-      "fields": [
-        "id",
-        "taxName",
-        "taxType",
-        "",
-        "",
-        "actor"
-      ],
-      "required": [
-        true,
-        false,
-        false,
-        false,
-        false,
-        true
-      ],
-      "public": false,
-      "stepUp": false,
-      "tokenIdentity": "actor",
-      "owner": "governance",
-      "authPolicy": "authenticated",
-      "linkageLevel": "L0",
-      "coreActions": [],
-      "coreCalls": [],
-      "tested": true,
-      "domain": "tax_management",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "TXM_VALIDATE",
@@ -18051,12 +17880,12 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "tax_management",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "TX_STATUS",

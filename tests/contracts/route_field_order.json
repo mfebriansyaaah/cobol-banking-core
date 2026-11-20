@@ -4475,19 +4475,6 @@
     "tokenIdentity": "actor",
     "stepUp": false
   },
-  "merchant_settlement.js :: POST /merchant-settlements": {
-    "action": "MCS_CREATE",
-    "fields": [
-      "settlementRef",
-      "merchantName",
-      "settlementType",
-      "BLANK",
-      "BLANK",
-      "ACTOR"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": false
-  },
   "merchant_settlement.js :: POST /merchant-settlements/:id/calc": {
     "action": "MCS_CALC",
     "fields": [
@@ -4503,19 +4490,6 @@
   },
   "merchant_settlement.js :: POST /merchant-settlements/:id/cancel": {
     "action": "MCS_CANCEL",
-    "fields": [
-      "ID",
-      "reason",
-      "BLANK",
-      "BLANK",
-      "BLANK",
-      "ACTOR"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": false
-  },
-  "merchant_settlement.js :: POST /merchant-settlements/:id/delete": {
-    "action": "MCS_DELETE",
     "fields": [
       "ID",
       "reason",
@@ -6574,58 +6548,6 @@
       "ID",
       "BLANK",
       "BLANK",
-      "BLANK",
-      "BLANK",
-      "ACTOR"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": false
-  },
-  "tax_management.js :: POST /tax-management": {
-    "action": "TXM_CREATE",
-    "fields": [
-      "taxRef",
-      "taxName",
-      "taxType",
-      "BLANK",
-      "BLANK",
-      "ACTOR"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": false
-  },
-  "tax_management.js :: POST /tax-management/:id/calc": {
-    "action": "TXM_CALC",
-    "fields": [
-      "ID",
-      "BLANK",
-      "BLANK",
-      "BLANK",
-      "BLANK",
-      "ACTOR"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": false
-  },
-  "tax_management.js :: POST /tax-management/:id/delete": {
-    "action": "TXM_DELETE",
-    "fields": [
-      "ID",
-      "reason",
-      "BLANK",
-      "BLANK",
-      "BLANK",
-      "ACTOR"
-    ],
-    "tokenIdentity": "actor",
-    "stepUp": false
-  },
-  "tax_management.js :: POST /tax-management/:id/update": {
-    "action": "TXM_UPDATE",
-    "fields": [
-      "ID",
-      "taxName",
-      "taxType",
       "BLANK",
       "BLANK",
       "ACTOR"

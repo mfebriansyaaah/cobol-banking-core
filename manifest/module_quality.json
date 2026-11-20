@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-20T07:43:33.398Z",
+  "generatedAt": "2026-11-20T08:06:33.349Z",
   "modules": [
     {
       "module": "account_core",
@@ -507,15 +507,15 @@
     },
     {
       "module": "merchant_settlement_core",
-      "linkageLevel": "L0",
-      "domainStatus": "FROZEN",
-      "candidateStatus": "DUPLICATE",
-      "cloneSimilarity": 0.68,
+      "linkageLevel": "L2",
+      "domainStatus": "PILOT",
+      "candidateStatus": null,
+      "cloneSimilarity": null,
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": "merchant_settlement.js",
       "dbSuite": "tests/db/merchant_settlement_db_tests.sh",
-      "recommendedForTraining": false
+      "recommendedForTraining": true
     },
     {
       "module": "notification_template_core",
@@ -711,15 +711,15 @@
     },
     {
       "module": "tax_management_core",
-      "linkageLevel": "L0",
-      "domainStatus": "FROZEN",
-      "candidateStatus": "DUPLICATE",
-      "cloneSimilarity": 0.66,
+      "linkageLevel": "L2",
+      "domainStatus": "PILOT",
+      "candidateStatus": null,
+      "cloneSimilarity": null,
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": "tax_management.js",
       "dbSuite": "tests/db/tax_management_db_tests.sh",
-      "recommendedForTraining": false
+      "recommendedForTraining": true
     },
     {
       "module": "treasury_liquidity_core",

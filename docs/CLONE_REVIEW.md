@@ -17,8 +17,8 @@ non-recommended module (including all eight below) via
 | `report_schedule_core` | 0.95→n/a | L2 | **Refactored (PR-2b).** CALC/DELETE replaced by ENABLE/DISABLE (window guards)/RUN_NOW (capped at max); no longer clone-shaped; business-linked via `rpt_schedule_config`; PILOT. |
 | `sla_tracker_core` | 0.95→n/a | L2 | **Refactored (PR-2c).** CALC/DELETE replaced by BREACH (actual-vs-target check)/ESCALATE (breached+reason)/CLOSE (reason-required); UPDATE carries target/actual; no longer clone-shaped; business-linked via `sla_tracker`; PILOT. |
 | `fixed_asset_core` | 0.67 | L0 | **Retain, frozen for now.** Template-shaped but carries a real depreciation/revalue/dispose lifecycle and GL link; keep out of `train` until a core linkage proof or a dedicated refactor exists. |
-| `merchant_settlement_core` | 0.68 | L0 | **Retain, frozen for now.** Template-shaped but carries fee/settlement/GL logic; keep out of `train` until the merchant linkage is proven. |
-| `tax_management_core` | 0.66 | L0 | **Retain, frozen for now.** Template-shaped but carries tax rule/calc/post/reverse logic; keep out of `train` until the linkage is proven. |
+| `merchant_settlement_core` | 0.68→n/a | L2 | **Refactored (PR-2d).** Generic CREATE removed (OPEN creates batches) and DELETE removed (CANCEL owns terminal state); fee/calc/post/settle lifecycle and GL link retained; no longer clone-shaped; business-linked via `merchant_transaction`; PILOT. |
+| `tax_management_core` | 0.66→n/a | L2 | **Refactored (PR-2d).** Generic CREATE/UPDATE/DELETE removed; rule engine (RULE_CREATE/UPDATE/GET/LIST + CALC/POST/REVERSE/REPORT) is the whole surface; enable/disable stays on RULE_UPDATE P4 (no duplicate action); no longer clone-shaped; business-linked via `tax_withholding_entry`; PILOT. |
 
 The two reviewer notes emitted by `check_clone_budget.mjs` are also resolved:
 

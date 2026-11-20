@@ -11273,45 +11273,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-    post:
-      operationId: MCS_CREATE
-      summary: MCS_CREATE — Create entity
-      tags:
-        - merchant_settlement
-      parameters:
-        - $ref: "#/components/parameters/actor"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                settlementRef:
-                  type: string
-                merchantName:
-                  type: string
-                settlementType:
-                  type: string
-              required:
-                - settlementRef
-                - merchantName
-                - settlementType
-      responses:
-        "200":
-          description: Success
-        "400":
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
   /merchant-settlements/txn:
     post:
       operationId: MCS_TXN
@@ -11576,39 +11537,6 @@ paths:
                 merchantName:
                   type: string
                 settlementType:
-                  type: string
-      responses:
-        "200":
-          description: Success
-        "400":
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-  "/merchant-settlements/:id/delete":
-    post:
-      operationId: MCS_DELETE
-      summary: MCS_DELETE — Delete/close entity
-      tags:
-        - merchant_settlement
-      parameters:
-        - $ref: "#/components/parameters/id"
-        - $ref: "#/components/parameters/actor"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                reason:
                   type: string
       responses:
         "200":
@@ -16362,45 +16290,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-    post:
-      operationId: TXM_CREATE
-      summary: TXM_CREATE — Create entity
-      tags:
-        - tax_management
-      parameters:
-        - $ref: "#/components/parameters/actor"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                taxRef:
-                  type: string
-                taxName:
-                  type: string
-                taxType:
-                  type: string
-              required:
-                - taxRef
-                - taxName
-                - taxType
-      responses:
-        "200":
-          description: Success
-        "400":
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
   "/tax-management/:id":
     get:
       operationId: TXM_GET
@@ -16410,105 +16299,6 @@ paths:
       parameters:
         - $ref: "#/components/parameters/id"
         - $ref: "#/components/parameters/actor"
-      responses:
-        "200":
-          description: Success
-        "400":
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-  "/tax-management/:id/calc":
-    post:
-      operationId: TXM_CALC
-      summary: TXM_CALC — Execute action
-      tags:
-        - tax_management
-      parameters:
-        - $ref: "#/components/parameters/id"
-        - $ref: "#/components/parameters/actor"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties: {}
-      responses:
-        "200":
-          description: Success
-        "400":
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-  "/tax-management/:id/update":
-    post:
-      operationId: TXM_UPDATE
-      summary: TXM_UPDATE — Update entity
-      tags:
-        - tax_management
-      parameters:
-        - $ref: "#/components/parameters/id"
-        - $ref: "#/components/parameters/actor"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                taxName:
-                  type: string
-                taxType:
-                  type: string
-      responses:
-        "200":
-          description: Success
-        "400":
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-  "/tax-management/:id/delete":
-    post:
-      operationId: TXM_DELETE
-      summary: TXM_DELETE — Delete/close entity
-      tags:
-        - tax_management
-      parameters:
-        - $ref: "#/components/parameters/id"
-        - $ref: "#/components/parameters/actor"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                reason:
-                  type: string
       responses:
         "200":
           description: Success
