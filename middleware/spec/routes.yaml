@@ -412,7 +412,6 @@ files:
     - { method: get, path: "/merchant-settlements/summary", action: MCS_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
     - { method: get, path: "/merchant-settlements/audit", action: MCS_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
     - { method: get, path: "/merchant-settlements", action: MCS_LIST, tokenIdentity: 'actor', fields: [status:LIST_STATUS?, settlementType:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
-    - { method: post, path: "/merchant-settlements", action: MCS_CREATE, tokenIdentity: 'actor', fields: [settlementRef:KEY, merchantName:NAME, settlementType:NAME, BLANK, BLANK, ACTOR] }
     - { method: post, path: "/merchant-settlements/txn", action: MCS_TXN, tokenIdentity: 'actor', fields: [merchantId:INT, txnRef:KEY, amount:AMOUNT, currency:CURRENCY, paymentClearingRef:KEY?, ACTOR] }
     - { method: post, path: "/merchant-settlements/open", action: MCS_OPEN, tokenIdentity: 'actor', fields: [merchantId:INT, settlementRef:KEY, periodStart:DATE, periodEnd:DATE, currency:CURRENCY, ACTOR] }
     - { method: post, path: "/merchant-settlements/:id/post", action: MCS_POST, tokenIdentity: 'actor', fields: [ID, paymentClearingRef:KEY?, glJournalId:INT?, BLANK, BLANK, ACTOR] }
@@ -421,7 +420,6 @@ files:
     - { method: get, path: "/merchant-settlements/:id", action: MCS_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
     - { method: post, path: "/merchant-settlements/:id/calc", action: MCS_CALC, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
     - { method: post, path: "/merchant-settlements/:id/update", action: MCS_UPDATE, tokenIdentity: 'actor', fields: [ID, merchantName:NAME?, settlementType:NAME?, BLANK, BLANK, ACTOR] }
-    - { method: post, path: "/merchant-settlements/:id/delete", action: MCS_DELETE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
 - file: notification_template.js
   export: NTP_ROUTES
     - { method: post, path: "/notification-templates/validate", action: NTP_VALIDATE, tokenIdentity: 'actor', fields: [amount:AMOUNT, currency:CURRENCY, BLANK, BLANK, BLANK, ACTOR] }

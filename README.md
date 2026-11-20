@@ -157,9 +157,9 @@ suites, table cases, and the action/suite inventory gates. See
 | --- | ---: |
 | COBOL modules | **69** |
 | COBOL source files (incl. dispatcher) | **70** |
-| COBOL lines | **48,643** |
+| COBOL lines | **48,404** |
 | Gateway route files | **52** |
-| Gateway route definitions | **567** |
+| Gateway route definitions | **561** |
 | Dispatch entries | **192** |
 | Recorded migrations | **678** |
 | Tables in schema.sql | **466** |
@@ -338,7 +338,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 <!-- BEGIN GENERATED TEST TABLE -->
 | Suite file | Assertions |
 | --- | ---: |
-| `tests/cobol/cases/*.cases` | 234 |
+| `tests/cobol/cases/*.cases` | 230 |
 | `tests/db/schema_db_tests.sh` | 76 |
 | `tests/db/loan_schedule_db_tests.sh` | 42 |
 | `tests/db/deposit_db_tests.sh` | 67 |
@@ -359,10 +359,10 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/merchant_domain_db_tests.sh` | 22 |
 | `tests/db/merchant_schema_db_tests.sh` | 10 |
 | `tests/db/compliance_calendar_db_tests.sh` | 44 |
-| `tests/db/tax_management_db_tests.sh` | 23 |
+| `tests/db/tax_management_db_tests.sh` | 33 |
 | `tests/db/tax_domain_db_tests.sh` | 26 |
 | `tests/db/tax_schema_db_tests.sh` | 8 |
-| `tests/db/merchant_settlement_db_tests.sh` | 21 |
+| `tests/db/merchant_settlement_db_tests.sh` | 26 |
 | `tests/db/merchant_settlement_domain_db_tests.sh` | 29 |
 | `tests/db/payroll_processing_db_tests.sh` | 21 |
 | `tests/db/payroll_schema_db_tests.sh` | 7 |
@@ -423,7 +423,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/migration_baseline_db_tests.sh` | 16 |
 | `tests/db/migration_archive_db_tests.sh` | 12 |
 | `tests/db/commit_failure_db_tests.sh` | 6 |
-| **Total** | **3043** |
+| **Total** | **3054** |
 <!-- END GENERATED TEST TABLE -->
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database
