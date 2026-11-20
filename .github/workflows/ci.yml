@@ -365,6 +365,16 @@ jobs:
             sudo timeout 180 apt-get install -y --no-install-recommends mariadb-client
           }
 
+      # The service creates cobol_db with the server default collation. The
+      # committed snapshot was generated in a database explicitly created with
+      # utf8mb4_unicode_ci, so align the default before schema.sql runs; tables
+      # that inherit the database collation must not drift on collation alone.
+      - name: Align database collation with snapshot baseline
+        run: >
+          mysql -h "$DB_HOST" -P "$DB_PORT"
+          -u "$DB_MIGRATE_USER" -p"$DB_MIGRATE_PASS"
+          -e "ALTER DATABASE \`$DB_NAME\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
       - name: Load baseline schema
         run: >
           mysql -h "$DB_HOST" -P "$DB_PORT"

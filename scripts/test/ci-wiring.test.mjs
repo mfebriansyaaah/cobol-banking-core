@@ -161,13 +161,21 @@ test('schema-drift reuses the snapshot producer without blocking DB consumers', 
   assert.equal(ci['schema-drift'].name, 'schema-drift');
   const runs = ci['schema-drift'].runs.join('\n');
   assert.match(runs, /check_schema_drift/, 'schema-drift must run the drift check');
-  assert.match(runs, /--from \/tmp\/schema-fresh\/schema-fresh\.sql/, 'schema-drift must consume the producer artifact');
+  assert.match(
+    runs,
+    /--from \/tmp\/schema-fresh\/schema-fresh\.sql/,
+    'schema-drift must consume the producer artifact',
+  );
   const needs = Array.isArray(ci['schema-drift'].needs) ? ci['schema-drift'].needs : [ci['schema-drift'].needs];
   assert.ok(needs.includes('changes'), 'schema-drift must honor the docs-only gate');
   assert.ok(needs.includes('db-snapshot'), 'schema-drift must reuse the producer schema snapshot');
 
   const producerRuns = ci['db-snapshot'].runs.join('\n');
-  assert.match(producerRuns, /generate_schema_snapshot\.sh --from-db/, 'db-snapshot must emit the normalized schema snapshot');
+  assert.match(
+    producerRuns,
+    /generate_schema_snapshot\.sh --from-db/,
+    'db-snapshot must emit the normalized schema snapshot',
+  );
   const ciYaml = readFileSync(path.join(ROOT, '.github/workflows/ci.yml'), 'utf8');
   assert.match(ciYaml, /name: schema-fresh/, 'db-snapshot must publish the schema-fresh artifact');
   assert.doesNotMatch(
