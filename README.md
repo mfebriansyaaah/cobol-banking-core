@@ -338,7 +338,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 <!-- BEGIN GENERATED TEST TABLE -->
 | Suite file | Assertions |
 | --- | ---: |
-| `tests/cobol/cases/*.cases` | 235 |
+| `tests/cobol/cases/*.cases` | 225 |
 | `tests/db/schema_db_tests.sh` | 76 |
 | `tests/db/loan_schedule_db_tests.sh` | 42 |
 | `tests/db/deposit_db_tests.sh` | 67 |
@@ -347,10 +347,8 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/payment_clearing_db_tests.sh` | 36 |
 | `tests/db/treasury_liquidity_db_tests.sh` | 39 |
 | `tests/db/gl_allocation_db_tests.sh` | 13 |
-| `tests/db/backup_drill_db_tests.sh` | 13 |
 | `tests/db/grants_db_tests.sh` | 6 |
 | `tests/db/migration_checksum_db_tests.sh` | 6 |
-| `tests/db/report_builder_db_tests.sh` | 13 |
 | `middleware/test/*.js` | 349 |
 | `tests/db/cost_center_db_tests.sh` | 23 |
 | `tests/db/fixed_asset_db_tests.sh` | 21 |
@@ -425,7 +423,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/migration_baseline_db_tests.sh` | 16 |
 | `tests/db/migration_archive_db_tests.sh` | 12 |
 | `tests/db/commit_failure_db_tests.sh` | 6 |
-| **Total** | **2976** |
+| **Total** | **2940** |
 <!-- END GENERATED TEST TABLE -->
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database

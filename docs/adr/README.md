@@ -19,3 +19,4 @@ relying on a decision — deferred records are explicitly *not* in force.
 | [0011-migration-baseline-v2](0011-migration-baseline-v2.md) | Migration baseline v2 | Deferred (2026-11-16) |
 | [0012-clone-template-freeze](0012-clone-template-freeze.md) | Clone-template freeze, no generator skeleton (DRY-08) | Accepted |
 | [0013-idempotency-generalization-done](0013-idempotency-generalization-done.md) | Idempotency generalization complete (DRY-07) | Accepted |
+| [0014-linkage-only-classification](0014-linkage-only-classification.md) | Linkage-only classification, no tiers (PR-1) | Accepted |
