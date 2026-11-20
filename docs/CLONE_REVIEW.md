@@ -13,7 +13,7 @@ non-recommended module (including all eight below) via
 | --- | ---: | --- | --- |
 | `account_core` | 0.95 | L0 | **Retain, frozen.** Exact 9-action template clone; no proven core link; excluded from `train`. Refactor only if a real consumer appears. |
 | `compliance_calendar_core` | 0.95 | L0 | **Retain, frozen.** Exact clone; regulatory calendar routes/tables are domain-specific but the code shape is template; excluded from `train`. |
-| `notification_template_core` | 0.95 | L0 | **Retain, frozen.** Exact clone; notification-template CRUD is a support surface; excluded from `train`. |
+| `notification_template_core` | 0.95→n/a | L2 | **Refactored (PR-2b).** CALC/DELETE replaced by PREVIEW (rendered sample)/VERSION (publish+increment)/DEACTIVATE (reason-required); no longer clone-shaped; business-linked via `ntf_template_config`; PILOT. |
 | `report_schedule_core` | 0.95 | L0 | **Retain, frozen.** Exact clone; report scheduling is covered by its DB suite; excluded from `train`. |
 | `sla_tracker_core` | 0.95 | L0 | **Retain, frozen.** Exact clone; SLA tracking is a support surface; excluded from `train`. |
 | `fixed_asset_core` | 0.67 | L0 | **Retain, frozen for now.** Template-shaped but carries a real depreciation/revalue/dispose lifecycle and GL link; keep out of `train` until a core linkage proof or a dedicated refactor exists. |

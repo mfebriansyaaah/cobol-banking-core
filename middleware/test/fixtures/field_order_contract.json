@@ -182,5 +182,29 @@
   "",
   "",
   "actor"
+ ],
+ "NTP_DEACTIVATE": [
+  "id",
+  "reason",
+  "",
+  "",
+  "",
+  "actor"
+ ],
+ "NTP_PREVIEW": [
+  "id",
+  "",
+  "",
+  "",
+  "",
+  "actor"
+ ],
+ "NTP_VERSION": [
+  "id",
+  "",
+  "",
+  "",
+  "",
+  "actor"
  ]
 }

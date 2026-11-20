@@ -431,9 +431,10 @@ files:
     - { method: get, path: "/notification-templates", action: NTP_LIST, tokenIdentity: 'actor', fields: [status:LIST_STATUS?, templateType:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
     - { method: post, path: "/notification-templates", action: NTP_CREATE, tokenIdentity: 'actor', fields: [templateRef:KEY, templateName:NAME, templateType:NAME, BLANK, BLANK, ACTOR] }
     - { method: get, path: "/notification-templates/:id", action: NTP_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
-    - { method: post, path: "/notification-templates/:id/calc", action: NTP_CALC, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/notification-templates/:id/preview", action: NTP_PREVIEW, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/notification-templates/:id/version", action: NTP_VERSION, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
+    - { method: post, path: "/notification-templates/:id/deactivate", action: NTP_DEACTIVATE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
     - { method: post, path: "/notification-templates/:id/update", action: NTP_UPDATE, tokenIdentity: 'actor', fields: [ID, templateName:NAME?, templateType:NAME?, BLANK, BLANK, ACTOR] }
-    - { method: post, path: "/notification-templates/:id/delete", action: NTP_DELETE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
 - file: payment.js
   export: PAYMENT_ROUTES
     - { method: post, path: "/payments/policies", action: PAY_POLICY_SET, tokenIdentity: 'actor', fields: [currency:CURRENCY, limits:PAY_POLICY_SPEC, enabled:FLAG, BLANK, BLANK, ACTOR] }
