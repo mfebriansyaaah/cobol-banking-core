@@ -1,6 +1,18 @@
 {
-  "generatedAt": "2026-11-20T02:51:18.756Z",
+  "generatedAt": "2026-11-20T04:46:26.398386Z",
   "items": [
+    {
+      "id": "account_core:audit:core-reference",
+      "module": "account_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "DONE",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [
+        "account_audit rows carry account_id + old/new: ACTIVATE row stores account_id=79, old_value=OPEN, new_value=ACTIVE (tests/db/account_db_tests.sh: activate audited)"
+      ],
+      "owner": "backend"
+    },
     {
       "id": "auth_core:action:outbox-claim-logic",
       "module": "auth_core",
@@ -482,6 +494,18 @@
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [],
       "owner": "collection"
+    },
+    {
+      "id": "compliance_calendar_core:audit:core-reference",
+      "module": "compliance_calendar_core",
+      "kind": "audit",
+      "subject": "audit core reference",
+      "status": "DONE",
+      "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
+      "evidence": [
+        "compliance_calendar_audit rows carry compliance_calendar_id + old/new: SCHEDULE row stores id=39, old_value=OPEN, new_value=ACTIVE, detail=due date (tests/db/compliance_calendar_db_tests.sh: schedule/close audited)"
+      ],
+      "owner": "backend"
     },
     {
       "id": "dashboard_core:audit:core-reference",
@@ -1938,7 +1962,7 @@
       "status": "DONE",
       "reason": "Manual: verify audit rows store a core reference (old/new value + core id); automation cannot prove semantics",
       "evidence": [
-        "verified by inspection: AUDIT-REPORT inserts (action, actor_email, template_code, run_id, detail) — run_id and template_code are the core references"
+        "verified by inspection: AUDIT-REPORT inserts (action, actor_email, template_code, run_id, detail) \u2014 run_id and template_code are the core references"
       ],
       "owner": "assistant"
     },

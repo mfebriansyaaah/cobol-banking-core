@@ -22,25 +22,42 @@
     "ref_ext_core"
   ],
   "businessTables": [
+    "account",
     "accounts",
-    "ledger",
-    "journal_entries",
-    "loan_application",
-    "loan_repayment",
-    "loan_schedule",
-    "loan_installment",
-    "deposit_account",
-    "deposit_accrual",
     "card_account",
     "collection_case",
-    "fee_schedule",
+    "compliance_calendar",
+    "deposit_account",
+    "deposit_accrual",
     "fee_rule",
+    "fee_schedule",
     "fee_tier",
     "fee_waiver",
     "gl_journal",
+    "gl_journal_line",
+    "journal_entries",
+    "ledger",
+    "loan_application",
+    "loan_installment",
+    "loan_repayment",
+    "loan_schedule"
+  ],
+  "moneyTables": [
+    "accounts",
+    "ledger",
+    "journal_entries",
+    "gl_journal",
     "gl_journal_line"
   ],
-  "moneyTables": ["accounts", "ledger", "journal_entries", "gl_journal", "gl_journal_line"],
-  "moneyActions": ["TRANSFER", "REVERSE_TRANSFER", "CHECK_BALANCE", "TX_STATUS", "GL_JOURNAL_POST"],
-  "referenceTables": ["users", "currencies"]
+  "moneyActions": [
+    "TRANSFER",
+    "REVERSE_TRANSFER",
+    "CHECK_BALANCE",
+    "TX_STATUS",
+    "GL_JOURNAL_POST"
+  ],
+  "referenceTables": [
+    "users",
+    "currencies"
+  ]
 }

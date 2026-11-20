@@ -56,13 +56,14 @@
         01  WS-TMP-ID               PIC X(100) VALUE SPACES.
         01  WS-TMP-ALLOCATED          PIC X(30) VALUE SPACES.
         01  WS-TMP-VERSION            PIC X(10) VALUE SPACES.
+        01  WS-TMP-DUE              PIC X(20) VALUE SPACES.
+        01  WS-TODAY                PIC X(10) VALUE SPACES.
         01  WS-NEW-ID               PIC X(20) VALUE SPACES.
         01  WS-NUM-AMOUNT           PIC 9(15)V9(4) VALUE 0.
         01  WS-NUM-ACTIVE           PIC 9(15)V9(4) VALUE 0.
         01  WS-NUM-ALLOCATED          PIC 9(15)V9(4) VALUE 0.
         01  WS-NUM-VERSION            PIC 9(9) VALUE 0.
         01  WS-NUM-TOTAL            PIC 9(15)V9(4) VALUE 0.
-        01  WS-AMT-EDIT             PIC Z(14)9.9999 VALUE ZERO.
         01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
@@ -104,10 +105,16 @@
                 WHEN LS-CMD-ACTION(1:10) = "CCL_UPDATE"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-UPDATE
-                WHEN LS-CMD-ACTION(1:8) = "CCL_CALC"
+                WHEN LS-CMD-ACTION(1:12) = "CCL_SCHEDULE"
                     PERFORM TRIM-ALL
-                    PERFORM ACTION-SUBMIT
-                WHEN LS-CMD-ACTION(1:10) = "CCL_DELETE"
+                    PERFORM ACTION-SCHEDULE
+                WHEN LS-CMD-ACTION(1:12) = "CCL_COMPLETE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-COMPLETE
+                WHEN LS-CMD-ACTION(1:12) = "CCL_ESCALATE"
+                    PERFORM TRIM-ALL
+                    PERFORM ACTION-ESCALATE
+                WHEN LS-CMD-ACTION(1:9) = "CCL_CLOSE"
                     PERFORM TRIM-ALL
                     PERFORM ACTION-CLOSE
                 WHEN LS-CMD-ACTION(1:11) = "CCL_SUMMARY"
@@ -198,6 +205,19 @@
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
+            IF WS-P4-TRIMMED NOT = SPACES
+                PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > WS-P4-LEN
+                    IF WS-P4-TRIMMED(WS-I:1) < "0" OR WS-P4-TRIMMED(WS-I:1) > "9"
+                        MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                        EXIT PARAGRAPH
+                    END-IF
+                END-PERFORM
+                MOVE FUNCTION NUMVAL(WS-P4-TRIMMED) TO WS-NUM-AMOUNT
+                IF WS-NUM-AMOUNT <= 0
+                    MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                    EXIT PARAGRAPH
+                END-IF
+            END-IF.
             MOVE "SELECT 1 FROM compliance_calendar WHERE calendar_ref = ? LIMIT 1" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             PERFORM SQL-EXEC-1
@@ -207,12 +227,13 @@
             END-IF.
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN" END-CALL
-            MOVE "INSERT INTO compliance_calendar (calendar_ref, event_name, event_type, status, created_by) VALUES (?, ?, NULLIF(?, ''), 'OPEN', ?)" TO WS-PREP-SQL
+            MOVE "INSERT INTO compliance_calendar (calendar_ref, event_name, event_type, max_events, status, created_by) VALUES (?, ?, NULLIF(?, ''), COALESCE(NULLIF(?, ''), 0), 'OPEN', ?)" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
             MOVE WS-P3-TRIMMED TO WS-BIND-3
-            MOVE WS-P6-TRIMMED TO WS-BIND-4
-            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 5
+            MOVE WS-P4-TRIMMED TO WS-BIND-4
+            MOVE WS-P6-TRIMMED TO WS-BIND-5
+            CALL "SQL_PREPARE_EXEC" USING BY REFERENCE WS-PREP-SQL BY VALUE 6
                 BY REFERENCE WS-BIND-1 BY REFERENCE WS-BIND-2 BY REFERENCE WS-BIND-3
                 BY REFERENCE WS-BIND-4 BY REFERENCE WS-BIND-5 BY REFERENCE WS-BIND-6
             END-CALL
@@ -325,36 +346,60 @@
             STRING "SUCCESS|CCL_GET|" DELIMITED BY SIZE WS-RESULT(1:WS-RLEN) DELIMITED BY SIZE INTO LS-OUTPUT-BUFFER ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING.
             EXIT PARAGRAPH.
 
-        ACTION-SUBMIT.
+        LOAD-DUE.
+            MOVE SPACES TO WS-ERR
+            MOVE SPACES TO WS-TMP-STATUS
+            MOVE SPACES TO WS-TMP-DUE
+            MOVE "SELECT CONCAT(status, '|', COALESCE(CAST(activated_at AS DATE), '')) FROM compliance_calendar WHERE id = ? LIMIT 1" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            PERFORM SQL-EXEC-1
+            IF WS-RESULT = "ERROR|NO_DATA"
+                MOVE "ERROR|NOT_FOUND" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
+            IF WS-RESULT(1:5) = "ERROR"
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
+            UNSTRING WS-RESULT DELIMITED BY "|" INTO
+                WS-TMP-STATUS WS-TMP-DUE
+            END-UNSTRING
+            EXIT PARAGRAPH.
+
+        ACTION-SCHEDULE.
             MOVE "COMPLIANCE_CALENDAR_CORE" TO WS-DENIED-TARGET
             PERFORM ADMIN-GUARD
             IF WS-ALLOWED NOT = 1
                 EXIT PARAGRAPH
             END-IF.
-            IF LS-PARAM1 = SPACES
+            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            IF WS-P2-TRIMMED IS NUMERIC AND WS-P2-TRIMMED > 0
-                MOVE FUNCTION NUMVAL(WS-P2-TRIMMED) TO WS-NUM-AMOUNT
-            ELSE
-                MOVE 1 TO WS-NUM-AMOUNT
-            END-IF
-            IF WS-NUM-AMOUNT <= 0
-                MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
+            IF WS-P2-LEN NOT = 10 OR WS-P2-TRIMMED(5:1) NOT = "-" OR WS-P2-TRIMMED(8:1) NOT = "-"
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
+            MOVE SPACES TO WS-TODAY
+            STRING FUNCTION CURRENT-DATE(1:4) DELIMITED BY SIZE "-" DELIMITED BY SIZE FUNCTION CURRENT-DATE(5:2) DELIMITED BY SIZE "-" DELIMITED BY SIZE FUNCTION CURRENT-DATE(7:2) DELIMITED BY SIZE INTO WS-TODAY
+            END-STRING
+            IF WS-P2-TRIMMED < WS-TODAY
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
             PERFORM LOAD-CLEARING
             IF WS-ERR NOT = SPACES
                 MOVE WS-ERR TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
-            END-IF
+            END-IF.
+            IF WS-TMP-STATUS NOT = "OPEN"
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN" END-CALL
-            MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
-            MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
-            MOVE "UPDATE compliance_calendar SET completed_events = completed_events + ?, status = 'ACTIVE', activated_at = COALESCE(activated_at, NOW()), version = version + 1 WHERE id = ? AND version = ? AND status = 'OPEN'" TO WS-PREP-SQL
-            MOVE WS-TMP-AMT TO WS-BIND-1
+            MOVE "UPDATE compliance_calendar SET activated_at = ?, status = 'ACTIVE', version = version + 1 WHERE id = ? AND version = ? AND status = 'OPEN'" TO WS-PREP-SQL
+            MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P1-TRIMMED TO WS-BIND-2
             MOVE FUNCTION TRIM(WS-TMP-VERSION) TO WS-BIND-3
             PERFORM SQL-EXEC-3
@@ -365,14 +410,107 @@
                 SET STEP-FAIL TO TRUE
             END-IF
             IF STEP-OK
-                MOVE "CALC" TO WS-AUDIT-ACTION
+                MOVE "SCHEDULE" TO WS-AUDIT-ACTION
                 MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-CCL
-                MOVE "allocated" TO WS-AUDIT-DETAIL
-                MOVE SPACES TO WS-AUDIT-OLD
-                MOVE WS-TMP-AMT TO WS-AUDIT-NEW
+                MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
+                MOVE "OPEN" TO WS-AUDIT-OLD
+                MOVE "ACTIVE" TO WS-AUDIT-NEW
                 PERFORM AUDIT
             END-IF.
-            MOVE "SUCCESS|CCL_CALC|1" TO WS-SUCCESS-MSG
+            MOVE SPACES TO WS-SUCCESS-MSG
+            STRING "SUCCESS|CCL_SCHEDULE|" DELIMITED BY SIZE FUNCTION TRIM(WS-P1-TRIMMED) DELIMITED BY SIZE INTO WS-SUCCESS-MSG ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
+            PERFORM TXN-FINISH
+            EXIT PARAGRAPH.
+
+        ACTION-COMPLETE.
+            MOVE "COMPLIANCE_CALENDAR_CORE" TO WS-DENIED-TARGET
+            PERFORM ADMIN-GUARD
+            IF WS-ALLOWED NOT = 1
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-CLEARING
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TMP-STATUS NOT = "ACTIVE"
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE FUNCTION NUMVAL(WS-TMP-STR) TO WS-NUM-ACTIVE
+            MOVE FUNCTION NUMVAL(WS-TMP-ALLOCATED) TO WS-NUM-ALLOCATED
+            IF WS-NUM-ALLOCATED >= WS-NUM-ACTIVE
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "UPDATE compliance_calendar SET completed_events = completed_events + 1, version = version + 1 WHERE id = ? AND version = ? AND status = 'ACTIVE'" TO WS-PREP-SQL
+            MOVE WS-P1-TRIMMED TO WS-BIND-1
+            MOVE FUNCTION TRIM(WS-TMP-VERSION) TO WS-BIND-2
+            PERFORM SQL-EXEC-2
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            IF WS-RESULT = "SUCCESS|AFFECTED_0" OR WS-RESULT = "ERROR|NO_DATA"
+                SET STEP-FAIL TO TRUE
+            END-IF
+            IF STEP-OK
+                MOVE "COMPLETE" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-CCL
+                MOVE "completed" TO WS-AUDIT-DETAIL
+                MOVE "ACTIVE" TO WS-AUDIT-OLD
+                MOVE "ACTIVE" TO WS-AUDIT-NEW
+                PERFORM AUDIT
+            END-IF.
+            MOVE SPACES TO WS-SUCCESS-MSG
+            STRING "SUCCESS|CCL_COMPLETE|" DELIMITED BY SIZE FUNCTION TRIM(WS-P1-TRIMMED) DELIMITED BY SIZE INTO WS-SUCCESS-MSG ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
+            PERFORM TXN-FINISH
+            EXIT PARAGRAPH.
+
+        ACTION-ESCALATE.
+            MOVE "COMPLIANCE_CALENDAR_CORE" TO WS-DENIED-TARGET
+            PERFORM ADMIN-GUARD
+            IF WS-ALLOWED NOT = 1
+                EXIT PARAGRAPH
+            END-IF.
+            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
+                MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            PERFORM LOAD-DUE
+            IF WS-ERR NOT = SPACES
+                MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            IF WS-TMP-STATUS = "CLOSED" OR WS-TMP-STATUS = "DELETED"
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE SPACES TO WS-TODAY
+            STRING FUNCTION CURRENT-DATE(1:4) DELIMITED BY SIZE "-" DELIMITED BY SIZE FUNCTION CURRENT-DATE(5:2) DELIMITED BY SIZE "-" DELIMITED BY SIZE FUNCTION CURRENT-DATE(7:2) DELIMITED BY SIZE INTO WS-TODAY
+            END-STRING
+            IF WS-TMP-DUE = SPACES OR WS-TMP-DUE NOT < WS-TODAY
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            SET STEP-OK TO TRUE
+            CALL "SQL_BEGIN" END-CALL
+            MOVE "ESCALATE" TO WS-AUDIT-ACTION
+            MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-CCL
+            MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
+            MOVE WS-TMP-STATUS TO WS-AUDIT-OLD
+            MOVE WS-TMP-STATUS TO WS-AUDIT-NEW
+            PERFORM AUDIT
+            IF WS-RESULT(1:5) = "ERROR"
+                SET STEP-FAIL TO TRUE
+            END-IF.
+            MOVE SPACES TO WS-SUCCESS-MSG
+            STRING "SUCCESS|CCL_ESCALATE|" DELIMITED BY SIZE FUNCTION TRIM(WS-P1-TRIMMED) DELIMITED BY SIZE INTO WS-SUCCESS-MSG ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
             PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
@@ -420,7 +558,7 @@
             IF WS-ALLOWED NOT = 1
                 EXIT PARAGRAPH
             END-IF.
-            IF LS-PARAM1 = SPACES
+            IF LS-PARAM1 = SPACES OR LS-PARAM2 = SPACES
                 MOVE "ERROR|INVALID_INPUT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
@@ -429,13 +567,19 @@
                 MOVE WS-ERR TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            IF WS-TMP-STATUS(1:9) = "ALLOCATED" OR WS-TMP-STATUS(1:6) = "CLOSED"
+            IF WS-TMP-STATUS = "CLOSED" OR WS-TMP-STATUS = "DELETED"
+                MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                EXIT PARAGRAPH
+            END-IF.
+            MOVE FUNCTION NUMVAL(WS-TMP-STR) TO WS-NUM-ACTIVE
+            MOVE FUNCTION NUMVAL(WS-TMP-ALLOCATED) TO WS-NUM-ALLOCATED
+            IF WS-NUM-ALLOCATED < WS-NUM-ACTIVE
                 MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
             CALL "SQL_BEGIN" END-CALL
-            MOVE "UPDATE compliance_calendar SET status = 'CLOSED', closed_at = NOW(), close_reason = NULLIF(?, ''), deleted_at = NOW(), version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
+            MOVE "UPDATE compliance_calendar SET status = 'CLOSED', closed_at = NOW(), close_reason = NULLIF(?, ''), deleted_at = NOW(), version = version + 1 WHERE id = ? AND version = ? AND status <> 'CLOSED'" TO WS-PREP-SQL
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P1-TRIMMED TO WS-BIND-2
             MOVE FUNCTION TRIM(WS-TMP-VERSION) TO WS-BIND-3
@@ -444,14 +588,15 @@
                 SET STEP-FAIL TO TRUE
             END-IF.
             IF STEP-OK
-                MOVE "DELETE" TO WS-AUDIT-ACTION
+                MOVE "CLOSE" TO WS-AUDIT-ACTION
                 MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-CCL
                 MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
-                MOVE "ACTIVE" TO WS-AUDIT-OLD
+                MOVE WS-TMP-STATUS TO WS-AUDIT-OLD
                 MOVE "CLOSED" TO WS-AUDIT-NEW
                 PERFORM AUDIT
             END-IF.
-            MOVE "SUCCESS|CCL_DELETE" TO WS-SUCCESS-MSG
+            MOVE SPACES TO WS-SUCCESS-MSG
+            STRING "SUCCESS|CCL_CLOSE|" DELIMITED BY SIZE FUNCTION TRIM(WS-P1-TRIMMED) DELIMITED BY SIZE INTO WS-SUCCESS-MSG ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
             PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 

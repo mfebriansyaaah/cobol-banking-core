@@ -150,5 +150,37 @@
   "",
   "",
   "actor"
+ ],
+ "CCL_CLOSE": [
+  "id",
+  "reason",
+  "",
+  "",
+  "",
+  "actor"
+ ],
+ "CCL_COMPLETE": [
+  "id",
+  "",
+  "",
+  "",
+  "",
+  "actor"
+ ],
+ "CCL_ESCALATE": [
+  "id",
+  "reason",
+  "",
+  "",
+  "",
+  "actor"
+ ],
+ "CCL_SCHEDULE": [
+  "id",
+  "dueDate",
+  "",
+  "",
+  "",
+  "actor"
  ]
 }

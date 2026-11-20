@@ -1,17 +1,17 @@
 {
-  "generatedAt": "2026-11-20T02:51:18.531Z",
+  "generatedAt": "2026-11-20T04:45:58.289Z",
   "modules": [
     {
       "module": "account_core",
-      "linkageLevel": "L0",
-      "domainStatus": "FROZEN",
-      "candidateStatus": "DUPLICATE",
-      "cloneSimilarity": 0.95,
+      "linkageLevel": "L2",
+      "domainStatus": "PILOT",
+      "candidateStatus": null,
+      "cloneSimilarity": null,
       "coveragePercent": 60.26,
       "coverageStatus": "below-floor",
       "routeFile": "account.js",
       "dbSuite": "tests/db/account_db_tests.sh",
-      "recommendedForTraining": false
+      "recommendedForTraining": true
     },
     {
       "module": "auth_core",
@@ -171,15 +171,15 @@
     },
     {
       "module": "compliance_calendar_core",
-      "linkageLevel": "L0",
-      "domainStatus": "FROZEN",
-      "candidateStatus": "DUPLICATE",
-      "cloneSimilarity": 0.95,
+      "linkageLevel": "L2",
+      "domainStatus": "PILOT",
+      "candidateStatus": null,
+      "cloneSimilarity": null,
       "coveragePercent": null,
       "coverageStatus": "unmeasured",
       "routeFile": "compliance_calendar.js",
       "dbSuite": "tests/db/compliance_calendar_db_tests.sh",
-      "recommendedForTraining": false
+      "recommendedForTraining": true
     },
     {
       "module": "corp_core",

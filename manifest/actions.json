@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-11-20T02:51:10.822Z",
-  "commit": "4e68a6ce",
+  "generatedAt": "2026-11-20T04:53:37.384Z",
+  "commit": "4c216a1d",
   "generator": "scripts/build_action_registry.mjs (do not hand-edit)",
-  "count": 535,
+  "count": 539,
   "actions": [
     {
       "action": "ACCOUNT_FREEZE",
@@ -73,6 +73,40 @@
       "status": "REVIEW"
     },
     {
+      "action": "ACC_ACTIVATE",
+      "module": "account_core",
+      "prefix": "ACC_",
+      "method": "post",
+      "path": "/accounts/:id/activate",
+      "fields": [
+        "id",
+        "",
+        "",
+        "",
+        "",
+        "actor"
+      ],
+      "required": [
+        true,
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "public": false,
+      "stepUp": false,
+      "tokenIdentity": "actor",
+      "owner": "money",
+      "authPolicy": "authenticated",
+      "linkageLevel": "L2",
+      "coreActions": [],
+      "coreCalls": [],
+      "tested": true,
+      "domain": "account",
+      "status": "PILOT"
+    },
+    {
       "action": "ACC_AUDIT",
       "module": "account_core",
       "prefix": "ACC_",
@@ -99,22 +133,22 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "account",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
-      "action": "ACC_CALC",
+      "action": "ACC_CLOSE",
       "module": "account_core",
       "prefix": "ACC_",
       "method": "post",
-      "path": "/accounts/:id/calc",
+      "path": "/accounts/:id/close",
       "fields": [
         "id",
-        "",
+        "reason",
         "",
         "",
         "",
@@ -133,12 +167,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "account",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "ACC_CREATE",
@@ -167,22 +201,22 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "account",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
-      "action": "ACC_DELETE",
+      "action": "ACC_FREEZE",
       "module": "account_core",
       "prefix": "ACC_",
       "method": "post",
-      "path": "/accounts/:id/delete",
+      "path": "/accounts/:id/freeze",
       "fields": [
         "id",
-        "reason",
+        "",
         "",
         "",
         "",
@@ -201,12 +235,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "account",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "ACC_GET",
@@ -235,12 +269,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "account",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "ACC_LIST",
@@ -269,12 +303,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "account",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "ACC_SUMMARY",
@@ -303,12 +337,46 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "account",
-      "status": "FROZEN"
+      "status": "PILOT"
+    },
+    {
+      "action": "ACC_UNFREEZE",
+      "module": "account_core",
+      "prefix": "ACC_",
+      "method": "post",
+      "path": "/accounts/:id/unfreeze",
+      "fields": [
+        "id",
+        "",
+        "",
+        "",
+        "",
+        "actor"
+      ],
+      "required": [
+        true,
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "public": false,
+      "stepUp": false,
+      "tokenIdentity": "actor",
+      "owner": "money",
+      "authPolicy": "authenticated",
+      "linkageLevel": "L2",
+      "coreActions": [],
+      "coreCalls": [],
+      "tested": true,
+      "domain": "account",
+      "status": "PILOT"
     },
     {
       "action": "ACC_UPDATE",
@@ -337,12 +405,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "account",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "ACC_VALIDATE",
@@ -371,12 +439,12 @@
       "tokenIdentity": "actor",
       "owner": "money",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "account",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "ACK_DISPUTE",
@@ -1736,87 +1804,19 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "compliance_calendar",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
-      "action": "CCL_CALC",
+      "action": "CCL_CLOSE",
       "module": "compliance_calendar_core",
       "prefix": "CCL_",
       "method": "post",
-      "path": "/compliance-calendar/:id/calc",
-      "fields": [
-        "id",
-        "",
-        "",
-        "",
-        "",
-        "actor"
-      ],
-      "required": [
-        true,
-        false,
-        false,
-        false,
-        false,
-        true
-      ],
-      "public": false,
-      "stepUp": false,
-      "tokenIdentity": "actor",
-      "owner": "governance",
-      "authPolicy": "authenticated",
-      "linkageLevel": "L0",
-      "coreActions": [],
-      "coreCalls": [],
-      "tested": true,
-      "domain": "compliance_calendar",
-      "status": "FROZEN"
-    },
-    {
-      "action": "CCL_CREATE",
-      "module": "compliance_calendar_core",
-      "prefix": "CCL_",
-      "method": "post",
-      "path": "/compliance-calendar",
-      "fields": [
-        "calendarRef",
-        "eventName",
-        "eventType",
-        "",
-        "",
-        "actor"
-      ],
-      "required": [
-        true,
-        true,
-        true,
-        false,
-        false,
-        true
-      ],
-      "public": false,
-      "stepUp": false,
-      "tokenIdentity": "actor",
-      "owner": "governance",
-      "authPolicy": "authenticated",
-      "linkageLevel": "L0",
-      "coreActions": [],
-      "coreCalls": [],
-      "tested": true,
-      "domain": "compliance_calendar",
-      "status": "FROZEN"
-    },
-    {
-      "action": "CCL_DELETE",
-      "module": "compliance_calendar_core",
-      "prefix": "CCL_",
-      "method": "post",
-      "path": "/compliance-calendar/:id/delete",
+      "path": "/compliance-calendar/:id/close",
       "fields": [
         "id",
         "reason",
@@ -1838,12 +1838,114 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "compliance_calendar",
-      "status": "FROZEN"
+      "status": "PILOT"
+    },
+    {
+      "action": "CCL_COMPLETE",
+      "module": "compliance_calendar_core",
+      "prefix": "CCL_",
+      "method": "post",
+      "path": "/compliance-calendar/:id/complete",
+      "fields": [
+        "id",
+        "",
+        "",
+        "",
+        "",
+        "actor"
+      ],
+      "required": [
+        true,
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "public": false,
+      "stepUp": false,
+      "tokenIdentity": "actor",
+      "owner": "governance",
+      "authPolicy": "authenticated",
+      "linkageLevel": "L2",
+      "coreActions": [],
+      "coreCalls": [],
+      "tested": true,
+      "domain": "compliance_calendar",
+      "status": "PILOT"
+    },
+    {
+      "action": "CCL_CREATE",
+      "module": "compliance_calendar_core",
+      "prefix": "CCL_",
+      "method": "post",
+      "path": "/compliance-calendar",
+      "fields": [
+        "calendarRef",
+        "eventName",
+        "eventType",
+        "maxEvents",
+        "",
+        "actor"
+      ],
+      "required": [
+        true,
+        true,
+        true,
+        false,
+        false,
+        true
+      ],
+      "public": false,
+      "stepUp": false,
+      "tokenIdentity": "actor",
+      "owner": "governance",
+      "authPolicy": "authenticated",
+      "linkageLevel": "L2",
+      "coreActions": [],
+      "coreCalls": [],
+      "tested": true,
+      "domain": "compliance_calendar",
+      "status": "PILOT"
+    },
+    {
+      "action": "CCL_ESCALATE",
+      "module": "compliance_calendar_core",
+      "prefix": "CCL_",
+      "method": "post",
+      "path": "/compliance-calendar/:id/escalate",
+      "fields": [
+        "id",
+        "reason",
+        "",
+        "",
+        "",
+        "actor"
+      ],
+      "required": [
+        true,
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "public": false,
+      "stepUp": false,
+      "tokenIdentity": "actor",
+      "owner": "governance",
+      "authPolicy": "authenticated",
+      "linkageLevel": "L2",
+      "coreActions": [],
+      "coreCalls": [],
+      "tested": true,
+      "domain": "compliance_calendar",
+      "status": "PILOT"
     },
     {
       "action": "CCL_GET",
@@ -1872,12 +1974,12 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "compliance_calendar",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CCL_LIST",
@@ -1906,12 +2008,46 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "compliance_calendar",
-      "status": "FROZEN"
+      "status": "PILOT"
+    },
+    {
+      "action": "CCL_SCHEDULE",
+      "module": "compliance_calendar_core",
+      "prefix": "CCL_",
+      "method": "post",
+      "path": "/compliance-calendar/:id/schedule",
+      "fields": [
+        "id",
+        "dueDate",
+        "",
+        "",
+        "",
+        "actor"
+      ],
+      "required": [
+        true,
+        true,
+        false,
+        false,
+        false,
+        true
+      ],
+      "public": false,
+      "stepUp": false,
+      "tokenIdentity": "actor",
+      "owner": "governance",
+      "authPolicy": "authenticated",
+      "linkageLevel": "L2",
+      "coreActions": [],
+      "coreCalls": [],
+      "tested": true,
+      "domain": "compliance_calendar",
+      "status": "PILOT"
     },
     {
       "action": "CCL_SUMMARY",
@@ -1940,12 +2076,12 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "compliance_calendar",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CCL_UPDATE",
@@ -1974,12 +2110,12 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "compliance_calendar",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CCL_VALIDATE",
@@ -2008,12 +2144,12 @@
       "tokenIdentity": "actor",
       "owner": "governance",
       "authPolicy": "authenticated",
-      "linkageLevel": "L0",
+      "linkageLevel": "L2",
       "coreActions": [],
       "coreCalls": [],
       "tested": true,
       "domain": "compliance_calendar",
-      "status": "FROZEN"
+      "status": "PILOT"
     },
     {
       "action": "CHANGE_PASSWORD",

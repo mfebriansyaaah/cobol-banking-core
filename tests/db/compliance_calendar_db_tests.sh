@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-# Compliance calendar (Wave3) end-to-end DB tests via the COBOL binary.
+# Compliance calendar lifecycle DB tests via the COBOL binary.
+# Domain actions: SCHEDULE (OPEN->ACTIVE with due date), COMPLETE
+# (ACTIVE +1, capped at max), ESCALATE (overdue + reason, audited),
+# CLOSE (no pending events + reason -> CLOSED).
 set -u
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 # shellcheck disable=SC1091
@@ -15,29 +18,64 @@ T_PASS=0; T_FAIL=0; T_TOTAL=0
 db_seed
 db_reset_compliance_calendar
 
-# Create a cost center.
-create_out="$(run_cobol "CCL_CREATE|CCL-W3-1|EventA|REG|||admin@test.com")"
+# Create with max events.
+create_out="$(run_cobol "CCL_CREATE|CCL-W3-1|EventA|REG|2||admin@test.com")"
 assert_match "CCL_CREATE ok" "$create_out" "SUCCESS\|CCL_CREATE\|[0-9]+"
 assert_match "create non-admin refused" "$(run_cobol "CCL_CREATE|CCL-P10-1|EventA|REG|||sender@test.com")" "ERROR\|FORBIDDEN"
 assert_match "create missing ref" "$(run_cobol "CCL_CREATE||||||admin@test.com")" "ERROR\|INVALID_INPUT"
+assert_match "create bad max" "$(run_cobol "CCL_CREATE|CCL-W3-X|EventA|REG|abc||admin@test.com")" "ERROR\|INVALID_INPUT"
+assert_match "create zero max" "$(run_cobol "CCL_CREATE|CCL-W3-Y|EventA|REG|0||admin@test.com")" "ERROR\|INVALID_INPUT"
 id="$(printf '%s' "$create_out" | awk -F'|' '{print $3}')"
 assert_match "status open" "$(db_query "SELECT status FROM compliance_calendar WHERE id=${id};")" "^OPEN$"
+assert_match "max persisted" "$(db_query "SELECT max_events FROM compliance_calendar WHERE id=${id};")" "^2.0000$"
 
 # Duplicate ref rejected.
-assert_match "duplicate ref" "$(run_cobol "CCL_CREATE|CCL-W3-1|Other|CAPEX|||admin@test.com")" "ERROR\|DUPLICATE"
+assert_match "duplicate ref" "$(run_cobol "CCL_CREATE|CCL-W3-1|Other|REG|||admin@test.com")" "ERROR\|DUPLICATE"
 
 # Read paths.
 assert_match "CCL_GET ok" "$(run_cobol "CCL_GET|${id}|||||admin@test.com")" "SUCCESS\|CCL_GET\|${id}\|CCL-W3-1"
 assert_match "CCL_LIST ok" "$(run_cobol "CCL_LIST|||50|0||admin@test.com")" "CCL-W3-1"
 
-# Allocate.
-assert_match "CCL_CALC ok" "$(run_cobol "CCL_CALC|${id}|||||admin@test.com")" "SUCCESS\|CCL_CALC\|1"
-assert_match "used credit persisted" "$(db_query "SELECT completed_events FROM compliance_calendar WHERE id=${id};")" "^1.0000$"
+# Schedule: OPEN -> ACTIVE with today-or-later due date.
+assert_match "schedule past rejected" "$(run_cobol "CCL_SCHEDULE|${id}|2000-01-01||||admin@test.com")" "ERROR\|INVALID_STATUS"
+assert_match "schedule bad format" "$(run_cobol "CCL_SCHEDULE|${id}|tomorrow||||admin@test.com")" "ERROR\|INVALID_INPUT"
+assert_match "schedule missing date" "$(run_cobol "CCL_SCHEDULE|${id}|||||admin@test.com")" "ERROR\|INVALID_INPUT"
+future="$(date -d '+30 days' +%F)"
+assert_match "CCL_SCHEDULE ok" "$(run_cobol "CCL_SCHEDULE|${id}|${future}||||admin@test.com")" "SUCCESS\|CCL_SCHEDULE\|${id}"
+assert_match "scheduled persisted" "$(db_query "SELECT status FROM compliance_calendar WHERE id=${id};")" "^ACTIVE$"
+assert_match "schedule twice rejected" "$(run_cobol "CCL_SCHEDULE|${id}|${future}||||admin@test.com")" "ERROR\|INVALID_STATUS"
+assert_match "schedule non-admin refused" "$(run_cobol "CCL_SCHEDULE|${id}|${future}||||sender@test.com")" "ERROR\|FORBIDDEN"
 
-# Close.
-assert_match "CCL_DELETE ok" "$(run_cobol "CCL_DELETE|${id}|Closed||||admin@test.com")" "SUCCESS\|CCL_DELETE"
-assert_match "delete non-admin refused" "$(run_cobol "CCL_DELETE|${id}|Closed||||sender@test.com")" "ERROR\|FORBIDDEN"
+# Complete: ACTIVE +1, capped at max.
+assert_match "CCL_COMPLETE ok" "$(run_cobol "CCL_COMPLETE|${id}|||||admin@test.com")" "SUCCESS\|CCL_COMPLETE\|${id}"
+assert_match "completed persisted" "$(db_query "SELECT completed_events FROM compliance_calendar WHERE id=${id};")" "^1.0000$"
+assert_match "complete second ok" "$(run_cobol "CCL_COMPLETE|${id}|||||admin@test.com")" "SUCCESS\|CCL_COMPLETE\|${id}"
+assert_match "complete overflow rejected" "$(run_cobol "CCL_COMPLETE|${id}|||||admin@test.com")" "ERROR\|INVALID_STATUS"
+assert_match "complete non-admin refused" "$(run_cobol "CCL_COMPLETE|${id}|||||sender@test.com")" "ERROR\|FORBIDDEN"
+
+# Close: no pending events + reason required.
+assert_match "close missing reason" "$(run_cobol "CCL_CLOSE|${id}|||||admin@test.com")" "ERROR\|INVALID_INPUT"
+close_out="$(run_cobol "CCL_CLOSE|${id}|cycle done||||admin@test.com")"
+assert_match "CCL_CLOSE ok" "$close_out" "SUCCESS\|CCL_CLOSE\|${id}"
 assert_match "closed persisted" "$(db_query "SELECT status FROM compliance_calendar WHERE id=${id};")" "^CLOSED$"
+assert_match "close audited" "$(db_query "SELECT COUNT(*) FROM compliance_calendar_audit WHERE compliance_calendar_id=${id} AND action='CLOSE';")" "^1$"
+assert_match "complete on closed rejected" "$(run_cobol "CCL_COMPLETE|${id}|||||admin@test.com")" "ERROR\|INVALID_STATUS"
+assert_match "close on closed rejected" "$(run_cobol "CCL_CLOSE|${id}|again||||admin@test.com")" "ERROR\|INVALID_STATUS"
+
+# Close blocked by pending events.
+pend_out="$(run_cobol "CCL_CREATE|CCL-W3-2|EventB|REG|5||admin@test.com")"
+pend_id="$(printf '%s' "$pend_out" | awk -F'|' '{print $3}')"
+run_cobol "CCL_SCHEDULE|${pend_id}|${future}||||admin@test.com" > /dev/null
+assert_match "close with pending rejected" "$(run_cobol "CCL_CLOSE|${pend_id}|too early||||admin@test.com")" "ERROR\|INVALID_STATUS"
+assert_match "pending close keeps status" "$(db_query "SELECT status FROM compliance_calendar WHERE id=${pend_id};")" "^ACTIVE$"
+
+# Escalate: overdue + reason, audited.
+assert_match "escalate not-overdue rejected" "$(run_cobol "CCL_ESCALATE|${pend_id}|late||||admin@test.com")" "ERROR\|INVALID_STATUS"
+db_exec "UPDATE compliance_calendar SET activated_at='2000-01-01 00:00:00' WHERE id=${pend_id};"
+assert_match "escalate missing reason" "$(run_cobol "CCL_ESCALATE|${pend_id}|||||admin@test.com")" "ERROR\|INVALID_INPUT"
+assert_match "CCL_ESCALATE ok" "$(run_cobol "CCL_ESCALATE|${pend_id}|needs review||||admin@test.com")" "SUCCESS\|CCL_ESCALATE\|${pend_id}"
+assert_match "escalate audited" "$(db_query "SELECT COUNT(*) FROM compliance_calendar_audit WHERE compliance_calendar_id=${pend_id} AND action='ESCALATE';")" "^1$"
+assert_match "escalate non-admin refused" "$(run_cobol "CCL_ESCALATE|${pend_id}|late||||sender@test.com")" "ERROR\|FORBIDDEN"
 
 # Summary and audit.
 assert_match "CCL_SUMMARY ok" "$(run_cobol "CCL_SUMMARY||||||admin@test.com")" "SUCCESS\|CCL_SUMMARY"
