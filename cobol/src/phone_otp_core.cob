@@ -50,6 +50,10 @@
         01  WS-HASH-SRC             PIC X(200) VALUE SPACES.
         01  WS-HASH-OUT             PIC X(64) VALUE SPACES.
         01  WS-NEW-ID               PIC X(20) VALUE SPACES.
+        01  WS-AUDIT-ACTION         PIC X(40) VALUE SPACES.
+        01  WS-AUDIT-ENTITY         PIC X(64) VALUE SPACES.
+        01  WS-AUDIT-STATUS         PIC X(10) VALUE SPACES.
+        01  WS-AUDIT-DETAIL         PIC X(255) VALUE SPACES.
         01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
         01  F-QUOTE                 PIC X VALUE "'".
         01  F-DQUOTE                PIC X VALUE '"'.
@@ -108,6 +112,20 @@
 
         COPY "common_trim.cpy".
         COPY "common_txn.cpy".
+
+        AUDIT-OTP.
+            *> Every OTP/link state change lands in the shared audit_trail.
+            *> Entity id is the challenge id (ISSUE/RESEND/VERIFY) or the
+            *> user id for phone_links (LINK_BEGIN/LINK_CONFIRM).
+            MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, detail, status) VALUES (?, ?, ?, 'PHONE_OTP', ?, ?, ?)" TO WS-PREP-SQL
+            MOVE WS-USER-ID TO WS-BIND-1
+            MOVE WS-USER-ID TO WS-BIND-2
+            MOVE WS-AUDIT-ACTION TO WS-BIND-3
+            MOVE WS-AUDIT-ENTITY TO WS-BIND-4
+            MOVE WS-AUDIT-DETAIL TO WS-BIND-5
+            MOVE WS-AUDIT-STATUS TO WS-BIND-6
+            PERFORM SQL-EXEC-6
+            EXIT PARAGRAPH.
 
         CHECK-OWNER.
             *> p1 = email, p4 = actor. Owner-only.
@@ -175,6 +193,16 @@
             IF WS-RESULT(1:5) = "ERROR"
                 SET STEP-FAIL TO TRUE
             END-IF.
+            IF STEP-OK
+                MOVE "LINK_BEGIN" TO WS-AUDIT-ACTION
+                MOVE WS-USER-ID TO WS-AUDIT-ENTITY
+                MOVE SPACES TO WS-AUDIT-DETAIL
+                MOVE "SUCCESS" TO WS-AUDIT-STATUS
+                PERFORM AUDIT-OTP
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
                 MOVE SPACES TO WS-SUCCESS-MSG
                 STRING "SUCCESS|LINK_BEGIN|" DELIMITED BY SIZE
                        FUNCTION TRIM(WS-TOKEN) DELIMITED BY SIZE
@@ -219,6 +247,16 @@
             IF WS-RESULT(1:5) = "ERROR"
                 SET STEP-FAIL TO TRUE
             END-IF.
+            IF STEP-OK
+                MOVE "LINK_CONFIRM" TO WS-AUDIT-ACTION
+                MOVE WS-USER-ID TO WS-AUDIT-ENTITY
+                MOVE SPACES TO WS-AUDIT-DETAIL
+                MOVE "SUCCESS" TO WS-AUDIT-STATUS
+                PERFORM AUDIT-OTP
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
             MOVE "SUCCESS|LINK_CONFIRMED" TO WS-SUCCESS-MSG
             PERFORM TXN-FINISH
             EXIT PARAGRAPH.
@@ -250,6 +288,15 @@
                     SET STEP-FAIL TO TRUE
                 ELSE
                     MOVE WS-RESULT(1:20) TO WS-NEW-ID
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE WS-NEW-ID TO WS-AUDIT-ENTITY
+                MOVE WS-P3-TRIMMED TO WS-AUDIT-DETAIL
+                MOVE "SUCCESS" TO WS-AUDIT-STATUS
+                PERFORM AUDIT-OTP
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
                 END-IF
             END-IF.
             IF STEP-OK
@@ -293,6 +340,7 @@
                 MOVE "ERROR|RATE_LIMITED" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
+            MOVE "OTP_ISSUE" TO WS-AUDIT-ACTION
             PERFORM ISSUE-CORE
             IF STEP-FAIL
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
@@ -334,6 +382,7 @@
                 MOVE "ERROR|RATE_LIMITED" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
+            MOVE "OTP_RESEND" TO WS-AUDIT-ACTION
             MOVE "UPDATE otp_challenges SET status = 'EXPIRED' WHERE user_id = ? AND purpose = ? AND status = 'PENDING'" TO WS-PREP-SQL
             MOVE WS-USER-ID TO WS-BIND-1
             MOVE WS-P3-TRIMMED TO WS-BIND-2
@@ -415,6 +464,11 @@
                 MOVE "UPDATE otp_challenges SET attempts = attempts + 1, status = CASE WHEN attempts + 1 >= 5 THEN 'LOCKED' ELSE status END WHERE id = ?" TO WS-PREP-SQL
                 MOVE WS-TOKEN TO WS-BIND-1
                 PERFORM SQL-EXEC-1
+                MOVE "OTP_VERIFY" TO WS-AUDIT-ACTION
+                MOVE WS-TOKEN TO WS-AUDIT-ENTITY
+                MOVE WS-P3-TRIMMED TO WS-AUDIT-DETAIL
+                MOVE "FAILED" TO WS-AUDIT-STATUS
+                PERFORM AUDIT-OTP
                 MOVE "ERROR|INVALID_CODE" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
@@ -442,6 +496,16 @@
                 MOVE "UPDATE users SET phone_verified_at = NOW() WHERE id = ?" TO WS-PREP-SQL
                 MOVE WS-USER-ID TO WS-BIND-1
                 PERFORM SQL-EXEC-1
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET STEP-FAIL TO TRUE
+                END-IF
+            END-IF.
+            IF STEP-OK
+                MOVE "OTP_VERIFY" TO WS-AUDIT-ACTION
+                MOVE WS-TOKEN TO WS-AUDIT-ENTITY
+                MOVE WS-P3-TRIMMED TO WS-AUDIT-DETAIL
+                MOVE "SUCCESS" TO WS-AUDIT-STATUS
+                PERFORM AUDIT-OTP
                 IF WS-RESULT(1:5) = "ERROR"
                     SET STEP-FAIL TO TRUE
                 END-IF
