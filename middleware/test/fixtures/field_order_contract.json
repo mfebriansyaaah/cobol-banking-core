@@ -230,5 +230,29 @@
   "",
   "",
   "actor"
+ ],
+ "SLT_BREACH": [
+  "id",
+  "",
+  "",
+  "",
+  "",
+  "actor"
+ ],
+ "SLT_CLOSE": [
+  "id",
+  "reason",
+  "",
+  "",
+  "",
+  "actor"
+ ],
+ "SLT_ESCALATE": [
+  "id",
+  "reason",
+  "",
+  "",
+  "",
+  "actor"
  ]
 }
