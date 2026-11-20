@@ -31,7 +31,7 @@
 | `eod_core` | L0 | FROZEN | UNLINKED | — | 60.82 | below-floor | no |
 | `eod_jobs_core` | L1 | REVIEW | — | — | — | unmeasured | no |
 | `fee_core` | L3 | ACTIVE | — | — | 67.82 | below-floor | yes |
-| `fixed_asset_core` | L2 | PILOT | — | — | 74.11 | ok | yes |
+| `fixed_asset_core` | L2 | PILOT | — | — | 72.91 | ok | yes |
 | `fx_rate_core` | L0 | REVIEW | — | — | — | unmeasured | no |
 | `gl_allocation_core` | L0 | FROZEN | UNLINKED | — | 61.86 | below-floor | no |
 | `gl_core` | L3 | ACTIVE | — | — | 70.23 | ok | yes |

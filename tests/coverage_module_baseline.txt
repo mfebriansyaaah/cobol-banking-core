@@ -71,5 +71,5 @@ payment_clearing_core 40.53
 treasury_liquidity_core 61.41
 gl_allocation_core 61.86
 cost_center_core 62.01
-fixed_asset_core 74.11
+fixed_asset_core 72.91
 account_core 60.26
