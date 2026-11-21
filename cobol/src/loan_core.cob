@@ -667,11 +667,21 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
             MOVE WS-P6-TRIMMED TO WS-BIND-2
             MOVE WS-P1-TRIMMED TO WS-BIND-3
             PERFORM SQL-EXEC-3
-            IF WS-RESULT(1:5) = "ERROR"
-                SET STEP-FAIL TO TRUE
+            IF WS-RESULT = "SUCCESS|AFFECTED_1"
+                MOVE "LOAN_APPROVE" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-LOAN
+                MOVE SPACES TO WS-AUDIT-DETAIL WS-AUDIT-OLD WS-AUDIT-NEW
+                PERFORM AUDIT
+                MOVE "SUCCESS|LOAN_APPROVE" TO WS-SUCCESS-MSG
+                PERFORM TXN-FINISH
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                    MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
             END-IF.
-            MOVE "SUCCESS|LOAN_APPROVE" TO WS-SUCCESS-MSG
-            PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
         ACTION-REJECT.
@@ -691,11 +701,21 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
             MOVE WS-P6-TRIMMED TO WS-BIND-2
             MOVE WS-P1-TRIMMED TO WS-BIND-3
             PERFORM SQL-EXEC-3
-            IF WS-RESULT(1:5) = "ERROR"
-                SET STEP-FAIL TO TRUE
+            IF WS-RESULT = "SUCCESS|AFFECTED_1"
+                MOVE "LOAN_REJECT" TO WS-AUDIT-ACTION
+                MOVE WS-P1-TRIMMED TO WS-AUDIT-LOAN
+                MOVE SPACES TO WS-AUDIT-DETAIL WS-AUDIT-OLD WS-AUDIT-NEW
+                PERFORM AUDIT
+                MOVE "SUCCESS|LOAN_REJECT" TO WS-SUCCESS-MSG
+                PERFORM TXN-FINISH
+            ELSE
+                CALL "SQL_ROLLBACK" END-CALL
+                IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                    MOVE "ERROR|INVALID_STATUS" TO LS-OUTPUT-BUFFER
+                ELSE
+                    MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
+                END-IF
             END-IF.
-            MOVE "SUCCESS|LOAN_REJECT" TO WS-SUCCESS-MSG
-            PERFORM TXN-FINISH
             EXIT PARAGRAPH.
 
        ACTION-DISBURSE.

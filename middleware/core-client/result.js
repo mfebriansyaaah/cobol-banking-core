@@ -4,6 +4,7 @@
 export const ERROR_STATUS = {
   MISSING_ACTION: 400,
   INVALID_ACTION: 400,
+  INVALID_RESPONSE: 500,
   EMPTY_RESPONSE: 500,
   INVALID_CODE: 400,
   WEAK_PASSWORD: 400,
@@ -176,17 +177,29 @@ export const ERROR_STATUS = {
   RESULT_BIND_FAILED: 500,
 };
 
+export const MAX_RESULT_BYTES = 16384;
+
 export function parse(raw) {
-  const parts = String(raw ?? '').split('|');
+  const text = String(raw ?? '');
+  if (Buffer.byteLength(text, 'utf8') > MAX_RESULT_BYTES) {
+    return { ok: false, code: 'RESULT_TRUNCATED', fields: [] };
+  }
+  if (text.trim() === '') {
+    return { ok: false, code: 'EMPTY_RESPONSE', fields: [] };
+  }
+  if (/[\r\n]/.test(text)) {
+    return { ok: false, code: 'INVALID_RESPONSE', fields: [] };
+  }
+  const parts = text.split('|');
   const kind = parts[0];
   if (kind === 'SUCCESS') {
     return { ok: true, code: parts[1] ?? '', fields: parts.slice(1) };
   }
   if (kind === 'ERROR') {
-    return { ok: false, code: parts[1] ?? '', fields: parts.slice(2) };
+    if (!parts[1]) return { ok: false, code: 'INVALID_RESPONSE', fields: [] };
+    return { ok: false, code: parts[1], fields: parts.slice(2) };
   }
-  // Some actions return a bare value (e.g. GET_USER "1|email", CHECK_BALANCE "1000.00").
-  return { ok: true, code: 'OK', fields: parts };
+  return { ok: false, code: 'INVALID_RESPONSE', fields: [] };
 }
 
 export function toHttp(raw) {

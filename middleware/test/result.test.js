@@ -169,6 +169,7 @@ const EXPECT = {
     'BIND_FAILED',
     'EXEC_FAILED',
     'RESULT_BIND_FAILED',
+    'INVALID_RESPONSE',
     'EMPTY_RESPONSE',
     'CARD_RECEIVABLE_MISSING',
     'MERCHANT_PAYABLE_MISSING',
@@ -193,9 +194,38 @@ test('locked account maps to 423', () => {
   assert.equal(r.body.error, 'ACCOUNT_LOCKED');
 });
 
-test('a bare value (no prefix) is treated as success data', () => {
-  assert.deepEqual(toHttp('1|sender@test.com'), { status: 200, body: { data: ['1', 'sender@test.com'] } });
-  assert.deepEqual(toHttp('1000.00'), { status: 200, body: { data: ['1000.00'] } });
+test('a bare value (no prefix) is rejected, never success data', () => {
+  // arch9 WP-02: an unprefixed line is a protocol violation, not data.
+  // COBOL always emits SUCCESS|... or ERROR|...; anything else is 500.
+  assert.deepEqual(toHttp('1|sender@test.com'), {
+    status: 500,
+    body: { error: 'INVALID_RESPONSE', detail: [] },
+  });
+  assert.deepEqual(toHttp('garbage'), { status: 500, body: { error: 'INVALID_RESPONSE', detail: [] } });
+});
+
+test('empty output is not a success', () => {
+  assert.deepEqual(toHttp(''), {
+    status: 500,
+    body: { error: 'EMPTY_RESPONSE', detail: [] },
+  });
+});
+
+test('unknown output is not a success', () => {
+  assert.equal(toHttp('garbage').status, 500);
+  assert.equal(toHttp('garbage').body.error, 'INVALID_RESPONSE');
+});
+
+test('output with line breaks is rejected, never split', () => {
+  assert.equal(toHttp('SUCCESS|OK\nINJECTED').status, 500);
+  assert.equal(toHttp('SUCCESS|OK\nINJECTED').body.error, 'INVALID_RESPONSE');
+});
+
+test('oversized output maps to RESULT_TRUNCATED', () => {
+  const big = `SUCCESS|${'x'.repeat(16384)}`;
+  const r = toHttp(big);
+  assert.equal(r.status, 500);
+  assert.equal(r.body.error, 'RESULT_TRUNCATED');
 });
 
 test('reconcile mismatch maps to 409 with the offending account(s)', () => {

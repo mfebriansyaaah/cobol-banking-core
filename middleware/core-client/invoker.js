@@ -29,8 +29,15 @@ async function fileInvoke(action, params = [], opts = {}) {
         clearTimeout(timer);
         reject(new InvocationError(err.message));
       });
-      child.on('close', () => {
+      child.on('close', (code) => {
         clearTimeout(timer);
+        // A non-zero exit means the binary never produced a trustworthy
+        // result (crash, signal, missing binary): fail closed instead of
+        // reading a stale or partial output.txt as success.
+        if (code !== 0) {
+          reject(new InvocationError(`COBOL exited with code ${code}`));
+          return;
+        }
         resolve();
       });
     });
