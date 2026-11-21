@@ -1,0 +1,17 @@
+# A6 allowlist (arch9 WP-01 baseline): COBOL modules over 1000 lines.
+# Split in WP-24; each split module must be REMOVED from this list.
+# Format: path|owner|expiry|reason. Deleting this file = zero exceptions allowed.
+cobol/src/card_core.cob|arch9|2027-06-30|WP-24 split pending (1635 lines)
+cobol/src/wallet_transfer_core.cob|arch9|2027-06-30|WP-24 split pending (1358 lines)
+cobol/src/fee_core.cob|arch9|2027-06-30|WP-24 split pending (1305 lines)
+cobol/src/user_core.cob|arch9|2027-06-30|WP-24 split pending (1289 lines)
+cobol/src/chargeback_core.cob|arch9|2027-06-30|WP-24 split pending (1232 lines)
+cobol/src/import_core.cob|arch9|2027-06-30|WP-24 split pending (1161 lines)
+cobol/src/collection_core.cob|arch9|2027-06-30|WP-24 split pending (1145 lines)
+cobol/src/letter_of_credit_core.cob|arch9|2027-06-30|WP-24 split pending (1125 lines)
+cobol/src/collateral_core.cob|arch9|2027-06-30|WP-24 split pending (1108 lines)
+cobol/src/payroll_processing_core.cob|arch9|2027-06-30|WP-24 split pending (1098 lines)
+cobol/src/loyalty_core.cob|arch9|2027-06-30|WP-24 split pending (1073 lines)
+cobol/src/loan_core.cob|arch9|2027-06-30|WP-24 split pending (1050 lines)
+cobol/src/gl_core.cob|arch9|2027-06-30|WP-24 split pending (1024 lines)
+cobol/src/tax_management_core.cob|arch9|2027-06-30|WP-24 split pending (1006 lines)

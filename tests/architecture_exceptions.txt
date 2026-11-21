@@ -1,0 +1,8 @@
+# Architecture exceptions (arch9 WP-01 baseline): A3/A4/A5 rules.
+# Format: RULE:path|owner|expiry|reason. Fixed in the WP noted; then REMOVED.
+A3:cobol/src/dashboard_core.cob|arch9|2026-12-15|WP-02 T-02.3: AUTHZ_DENIED audit status must be FAILED
+A4:cobol/src/loan_posting_core.cob|arch9|2027-03-31|WP-20 T-20.2: gl_journal link by txn_ref
+A4:cobol/src/deposit_posting_core.cob|arch9|2027-03-31|WP-20 T-20.2: gl_journal link by txn_ref
+A4:cobol/src/payment_clearing_core.cob|arch9|2027-03-31|WP-20 T-20.2: gl_journal link by txn_ref
+A5:middleware/src/server.js|arch9|2027-03-31|WP-21 T-21.3: composition root moves boot asserts to adapters
+A4:cobol/src/card_posting_core.cob|arch9|2027-03-31|WP-20 T-20.2: gl_journal link by txn_ref
