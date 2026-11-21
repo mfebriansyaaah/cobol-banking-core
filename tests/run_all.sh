@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Unified test runner.
-# Usage: tests/run_all.sh [options] [fast|db|db-shard|db-selected|full|probes|affected|integration|gates]   (default: full)
+# Usage: tests/run_all.sh [options] [fast|db|db-shard|db-selected|full|probes|affected|integration|gates|ci-test]   (default: full)
 #   --json            print the report path at the end (artifacts/run-all.json)
 #   --no-report       skip machine-readable reporting (logs only)
 #   --mode <mode>     same as the positional mode argument
@@ -11,6 +11,13 @@
 #   --no-build        skip the COBOL build (same as SKIP_BUILD=1)
 #   --allow-dev-db    acknowledge the developer database may be modified
 #                     (same as ALLOW_DEV_DB=1; required without DDL rights)
+#   --case-file <path>      repeatable: limit table tests to one case file
+#                     (default from SELECT_CASE_FILES; ci-test only)
+#   --node-suite <suite>    node suite for ci-test: none|unit|endpoints|fast|gateway|full
+#                     (default from SELECT_NODE_SUITE, fallback none)
+#   --node-file <path>      repeatable: run one middleware test file (ci-test only)
+#   --integration-flow <n>  repeatable: run one tests/integration/<n>.sh flow
+#                     (default from SELECT_INTEGRATION_FLOWS; ci-test only)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -25,9 +32,16 @@ ONLY_GIVEN=0
 FAILED_ONLY=0
 REPEAT_COUNT="${REPEAT_COUNT:-1}"
 KEEP_LOGS=0
+# ci-test selection (flags are repeatable; env defaults let CI pass the
+# impact plan without spelling flags).
+CASE_FILES="${SELECT_CASE_FILES:-}"
+NODE_SUITE="${SELECT_NODE_SUITE:-none}"
+NODE_FILES="${SELECT_NODE_FILES:-}"
+SELECT_INTEGRATION_MODE="${SELECT_INTEGRATION_MODE:-none}"
+SELECT_INTEGRATION_FLOWS="${SELECT_INTEGRATION_FLOWS:-}"
 usage() {
-    sed -n '2,15p' "$0"
-    echo "Modes: fast db db-shard db-selected full probes affected integration gates"
+    sed -n '2,20p' "$0"
+    echo "Modes: fast db db-shard db-selected full probes affected integration gates ci-test"
 }
 need_arg() {
     # $1 = flag as typed, $2 = candidate value (may be empty).
@@ -52,6 +66,14 @@ while [ $# -gt 0 ]; do
         --keep-logs) KEEP_LOGS=1; shift ;;
         --no-build) SKIP_BUILD=1; shift ;;
         --allow-dev-db) ALLOW_DEV_DB=1; shift ;;
+        --case-file) CASE_FILES="${CASE_FILES:-} $(need_arg "$1" "${2:-}")"; shift 2 ;;
+        --case-file=*) CASE_FILES="${CASE_FILES:-} ${1#--case-file=}"; shift ;;
+        --node-suite) NODE_SUITE="$(need_arg "$1" "${2:-}")"; shift 2 ;;
+        --node-suite=*) NODE_SUITE="${1#--node-suite=}"; shift ;;
+        --node-file) NODE_FILES="${NODE_FILES:-} $(need_arg "$1" "${2:-}")"; shift 2 ;;
+        --node-file=*) NODE_FILES="${NODE_FILES:-} ${1#--node-file=}"; shift ;;
+        --integration-flow) SELECT_INTEGRATION_FLOWS="${SELECT_INTEGRATION_FLOWS:-} $(need_arg "$1" "${2:-}")"; shift 2 ;;
+        --integration-flow=*) SELECT_INTEGRATION_FLOWS="${SELECT_INTEGRATION_FLOWS:-} ${1#--integration-flow=}"; shift ;;
         --help|-h)
             usage
             exit 0
@@ -668,6 +690,60 @@ run_affected() {
     fi
 }
 
+# CI impact-selected test gate: only the selected table cases, node tests
+# and integration flows run, plus the always-cheap amount matrix, error
+# harness and smoke. No static gates (lint owns them), no build (the binary
+# comes from the `build` job artifact), no DB fleet (db-shards owns it),
+# no gateway suite (coverage owns it). Selection arrives via env
+# (SELECT_CASE_FILES, SELECT_NODE_SUITE, SELECT_NODE_FILES,
+# SELECT_INTEGRATION_MODE, SELECT_INTEGRATION_FLOWS) or the repeatable
+# --case-file/--node-suite/--node-file/--integration-flow flags.
+run_ci_test() {
+    echo "=== CI-TEST (impact-selected) ==="
+    case "${NODE_SUITE:-none}" in
+        none|unit|endpoints|fast|gateway|full) :;;
+        *) echo "FAIL: --node-suite needs one of none|unit|endpoints|fast|gateway|full (got '$NODE_SUITE')" >&2; exit 2;;
+    esac
+    local p
+    # shellcheck disable=SC2086
+    for p in $CASE_FILES; do
+        [ -f "$p" ] || { echo "FAIL: --case-file not found: $p" >&2; exit 2; }
+    done
+    # shellcheck disable=SC2086
+    for p in $NODE_FILES; do
+        [ -f "$p" ] || { echo "FAIL: --node-file not found: $p" >&2; exit 2; }
+    done
+    # shellcheck disable=SC2086
+    for p in $SELECT_INTEGRATION_FLOWS; do
+        [ -f "tests/integration/$p.sh" ] || { echo "FAIL: --integration-flow not found: $p" >&2; exit 2; }
+    done
+    # shellcheck disable=SC1091
+    . "$ROOT/tests/lib/report.sh"
+    # shellcheck disable=SC2119
+    report_init
+    local selected_failed=0
+    if [ -n "${CASE_FILES:-}" ]; then
+        echo "=== COBOL TABLE TESTS (selected) ==="
+        node scripts/check_case_actions.mjs "$ROOT"
+        # shellcheck disable=SC2086
+        report_run "table" tests/cobol/table_runner.sh $CASE_FILES || selected_failed=1
+    else
+        echo "(no case files selected; skipping table tests)"
+    fi
+    echo "=== COBOL AMOUNT MATRIX (PARSE-AMOUNT unit vectors) ==="
+    report_run "amount-matrix" tests/cobol/amount_matrix.sh || selected_failed=1
+    echo "=== COBOL/C ERROR HARNESS ==="
+    tests/check_cobol_c_errors.sh || selected_failed=1
+    SELECT_NODE_SUITE="$NODE_SUITE" SELECT_NODE_FILES="$NODE_FILES" run_node_selected || selected_failed=1
+    run_smoke || selected_failed=1
+    SELECT_INTEGRATION_MODE="$SELECT_INTEGRATION_MODE" SELECT_INTEGRATION_FLOWS="$SELECT_INTEGRATION_FLOWS" run_integration || selected_failed=1
+    if [ "$selected_failed" -ne 0 ]; then
+        echo "=== CI-TEST FAILED ==="
+        exit 1
+    fi
+    echo "=== CI-TEST GREEN ==="
+}
+
 # Node part of an affected run. SELECT_NODE_SUITE is a suite script;
 # SELECT_NODE_FILES are exact test files (deduplicated against the suite).
 run_node_selected() {
@@ -678,6 +754,7 @@ run_node_selected() {
         gateway) ( cd middleware && npm run test:gateway ) || node_failed=1;;
         fast) ( cd middleware && npm run test:fast ) || node_failed=1;;
         endpoints) ( cd middleware && npm run test:endpoints ) || node_failed=1;;
+        unit) ( cd middleware && npm run test:unit ) || node_failed=1;;
         none) :;;
         *) echo "FAIL: unknown node suite: $suite" >&2; return 1;;
     esac
@@ -816,6 +893,22 @@ run_db() {
 # same way run_db does.
 run_integration() {
     echo "=== INTEGRATION FLOWS ==="
+    local imode="${SELECT_INTEGRATION_MODE:-full}"
+    case "$imode" in
+        none)
+            echo "(integration skipped: SELECT_INTEGRATION_MODE=none)"
+            return 0
+            ;;
+        full|selected) :;;
+        *)
+            echo "FAIL: unknown integration mode: $imode (expected none|full|selected)" >&2
+            return 1
+            ;;
+    esac
+    if [ "$imode" = "selected" ] && [ -z "${SELECT_INTEGRATION_FLOWS:-}" ]; then
+        echo "(no integration flows selected; skipping)"
+        return 0
+    fi
     # shellcheck disable=SC1091
     . "$ROOT/tests/lib/guard.sh"
     # shellcheck disable=SC1091
@@ -836,14 +929,31 @@ run_integration() {
     COBOL_TEST_SERVE=0 db_seed
     export DB_SEEDED=1
     local int_failed=0 f
-    for f in tests/integration/*.sh; do
-        [ -f "$f" ] || continue
-        echo "=== INTEGRATION: $(basename "$f") ==="
-        if ! "$f"; then
-            echo "FAIL: $(basename "$f")"
-            int_failed=1
-        fi
-    done
+    if [ "$imode" = "selected" ]; then
+        local name
+        # shellcheck disable=SC2086
+        for name in $SELECT_INTEGRATION_FLOWS; do
+            f="tests/integration/$name.sh"
+            if [ ! -f "$f" ]; then
+                echo "FAIL: integration flow not found: $name" >&2
+                return 1
+            fi
+            echo "=== INTEGRATION: $(basename "$f") ==="
+            if ! "$f"; then
+                echo "FAIL: $(basename "$f")"
+                int_failed=1
+            fi
+        done
+    else
+        for f in tests/integration/*.sh; do
+            [ -f "$f" ] || continue
+            echo "=== INTEGRATION: $(basename "$f") ==="
+            if ! "$f"; then
+                echo "FAIL: $(basename "$f")"
+                int_failed=1
+            fi
+        done
+    fi
     if [ "$int_failed" -ne 0 ]; then
         echo "FAIL: integration flow(s) failed"
         return 1
@@ -958,8 +1068,11 @@ case "$MODE" in
         # SELECT_FILES env bypasses git with an explicit path list.
         run_affected
         ;;
+    ci-test)
+        run_ci_test
+        ;;
     *)
-        echo "unknown mode: $MODE (fast|db|db-shard|db-selected|full|probes|affected|integration|gates)" >&2
+        echo "unknown mode: $MODE (fast|db|db-shard|db-selected|full|probes|affected|integration|gates|ci-test)" >&2
         exit 2
         ;;
 esac
