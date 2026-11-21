@@ -138,10 +138,7 @@ function walk(dir, ext) {
 const A1_ALLOW = loadAllowlist('architecture_sql_begin_allowlist.txt', 'A1');
 {
   const seen = new Set();
-  const files = [
-    ...walk(path.join(ROOT, 'cobol', 'src'), '.cob'),
-    ...walk(path.join(ROOT, 'cobol', 'copy'), '.cpy'),
-  ];
+  const files = [...walk(path.join(ROOT, 'cobol', 'src'), '.cob'), ...walk(path.join(ROOT, 'cobol', 'copy'), '.cpy')];
   for (const f of files) {
     const r = rel(f);
     if (r === 'cobol/copy/common_txn.cpy') continue;
@@ -173,10 +170,7 @@ for (const [key, e] of EXC) {
 }
 {
   const seen = new Set();
-  const files = [
-    ...walk(path.join(ROOT, 'cobol', 'src'), '.cob'),
-    ...walk(path.join(ROOT, 'cobol', 'copy'), '.cpy'),
-  ];
+  const files = [...walk(path.join(ROOT, 'cobol', 'src'), '.cob'), ...walk(path.join(ROOT, 'cobol', 'copy'), '.cpy')];
   for (const f of files) {
     const r = rel(f);
     const src = readFileSync(f, 'utf8');
@@ -228,7 +222,9 @@ const A7_ALLOW = loadAllowlist('legacy_routes.txt', 'A7', 'key|expiry|owner|reas
   const routesDir = path.join(ROOT, 'middleware', 'src', 'routes');
   const found = [];
   if (existsSync(routesDir)) {
-    for (const name of readdirSync(routesDir).filter((f) => f.endsWith('.js') && f !== 'index.js').sort()) {
+    for (const name of readdirSync(routesDir)
+      .filter((f) => f.endsWith('.js') && f !== 'index.js')
+      .sort()) {
       const source = readFileSync(path.join(routesDir, name), 'utf8');
       for (let i = 0; i < source.length; i += 1) {
         if (source[i] !== '{') continue;
@@ -270,7 +266,13 @@ const A7_ALLOW = loadAllowlist('legacy_routes.txt', 'A7', 'key|expiry|owner|reas
   for (const [action, uses] of [...byAction.entries()].sort()) {
     if (uses.length < 2) continue;
     if (uses.every((u) => u.deprecated)) continue;
-    checkAllowlisted('A7', A7_ALLOW, action, `action on ${uses.length} routes (mark legacy deprecated:true or allowlist)`, seen);
+    checkAllowlisted(
+      'A7',
+      A7_ALLOW,
+      action,
+      `action on ${uses.length} routes (mark legacy deprecated:true or allowlist)`,
+      seen,
+    );
   }
   reportStale('A7', A7_ALLOW, seen);
 }
@@ -282,4 +284,6 @@ if (errors.length) {
   for (const e of errors) console.error(`  ${e}`);
   process.exit(1);
 }
-console.log('OK: architecture rules pass (A1 SQL_BEGIN, A2 SQL_COMMIT, A3/A4/A5 exceptions, A6 size, A7 legacy routes)');
+console.log(
+  'OK: architecture rules pass (A1 SQL_BEGIN, A2 SQL_COMMIT, A3/A4/A5 exceptions, A6 size, A7 legacy routes)',
+);

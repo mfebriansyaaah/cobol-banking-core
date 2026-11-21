@@ -39,9 +39,7 @@ test('A1 fires on direct SQL_BEGIN, passes on TXN-BEGIN', () => {
   const bad = run(fixture({ 'cobol/src/a_core.cob': `${COB_HEAD}           CALL "SQL_BEGIN" END-CALL\n` }));
   assert.equal(bad.code, 1);
   assert.match(bad.out, /A1/);
-  const good = run(
-    fixture({ 'cobol/src/a_core.cob': `${COB_HEAD}           PERFORM TXN-BEGIN\n` }),
-  );
+  const good = run(fixture({ 'cobol/src/a_core.cob': `${COB_HEAD}           PERFORM TXN-BEGIN\n` }));
   assert.equal(good.code, 0);
 });
 
@@ -69,9 +67,7 @@ test('A2 fires on bare SQL_COMMIT in src', () => {
 });
 
 test('A3 fires on DENIED audit status', () => {
-  const r = run(
-    fixture({ 'cobol/src/a_core.cob': `${COB_HEAD}           MOVE 'DENIED' TO WS-X\n` }),
-  );
+  const r = run(fixture({ 'cobol/src/a_core.cob': `${COB_HEAD}           MOVE 'DENIED' TO WS-X\n` }));
   assert.equal(r.code, 1);
   assert.match(r.out, /A3/);
 });
@@ -87,14 +83,10 @@ test('A4 fires on gl_journal description lookup', () => {
 });
 
 test('A5 fires on direct services import in middleware/src', () => {
-  const bad = run(
-    fixture({ 'middleware/src/a.js': "import { x } from '../services/y.js';\n" }),
-  );
+  const bad = run(fixture({ 'middleware/src/a.js': "import { x } from '../services/y.js';\n" }));
   assert.equal(bad.code, 1);
   assert.match(bad.out, /A5/);
-  const good = run(
-    fixture({ 'middleware/adapters/a.js': "import { x } from '../services/y.js';\n" }),
-  );
+  const good = run(fixture({ 'middleware/adapters/a.js': "import { x } from '../services/y.js';\n" }));
   assert.equal(good.code, 0);
 });
 
@@ -155,9 +147,7 @@ test('expired exceptions fail', () => {
 });
 
 test('malformed allowlist entries fail', () => {
-  const r = run(
-    fixture({ 'tests/architecture_sql_begin_allowlist.txt': 'no-pipes-here\n' }),
-  );
+  const r = run(fixture({ 'tests/architecture_sql_begin_allowlist.txt': 'no-pipes-here\n' }));
   assert.equal(r.code, 1);
   assert.match(r.out, /malformed/);
 });
