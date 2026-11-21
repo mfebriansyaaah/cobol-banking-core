@@ -1,76 +1,110 @@
-// Unit tests for scripts/ci/coverage_trigger.mjs (CI-004).
-// Table-driven: every row pins whether a changed path triggers the curated
-// COBOL coverage measurement. No database, no build.
+// Unit tests for scripts/ci/coverage_trigger.mjs (CI-004, PR-05 precision).
+// Table-driven over both dimensions: every row pins whether a changed path
+// requires the gateway coverage gate and whether it requires the curated
+// COBOL measurement. No database, no build.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { classifyFile, shouldMeasure } from '../ci/coverage_trigger.mjs';
+import {
+  classifyCoverage,
+  shouldMeasureCobol,
+  shouldMeasureGateway,
+  classifyFile,
+  shouldMeasure,
+} from '../ci/coverage_trigger.mjs';
 
 const TRIGGER = new URL('../ci/coverage_trigger.mjs', import.meta.url).pathname;
 
-// [changed files, expected shouldMeasure]
+const SUITES = new Set(['loan_db_tests']);
+const MODULES = new Set(['loan_core']);
+const CTX = { suites: SUITES, modules: MODULES };
+
+// [path, expected gateway, expected cobol]
 const CASES = [
-  [['docs/CI.md'], false],
-  [['docs/CI.md', 'README.md', 'CHANGELOG.md'], false],
-  [['middleware/src/routes/account.js'], true],
-  [['middleware/src/app.js'], true],
-  [['middleware/test/gateway.test.js'], true],
-  [['tests/gateway/endpoint_smoke.sh'], true],
-  [['tests/lib/db.sh'], true],
-  [['cobol/src/loan_core.cob'], true],
-  [['cobol/copy/loan-copy.cpy'], true],
-  [['cobol/c_lib/hash_lib.c'], true],
-  [['cobol/src/sql_bridge.c'], true],
-  [['build.sh'], true],
-  [['cobol/Makefile'], true],
-  [['database/schema.sql'], true],
-  [['database/migrations/0999_x.sql'], true],
-  [['tests/cobol/cases/loan.cases'], true],
-  [['tests/cobol/table_runner.sh'], true],
-  [['tests/db/loan_db_tests.sh'], true],
-  [['scripts/ci/coverage.sh'], true],
-  [['scripts/ci/coverage_trigger.mjs'], true],
-  [['scripts/coverage/map_cobol.py'], true],
-  [['tests/coverage_baseline.txt'], true],
-  [['tests/coverage_copybook_baseline.txt'], true],
-  [['coverage/cobol.txt'], false],
-  [['coverage/foo'], false],
-  [['artifacts/run-all.json'], false],
-  [['input.txt'], false],
-  [['manifest/modules.json'], false],
-  [['scripts/foo.mjs'], true],
-  [['.github/workflows/ci.yml'], true],
-  [[], false],
-  [['docs/CI.md', 'middleware/src/routes/account.js'], true],
+  ['docs/CI.md', false, false],
+  ['README.md', false, false],
+  ['manifest/modules.json', false, false],
+  ['manifest/actions.json', false, false],
+  ['contracts/actions.yaml', false, false],
+  ['contracts/errors.yaml', false, false],
+  ['tests/baseline_counts.txt', false, false],
+  ['tests/coverage_baseline.txt', false, true],
+  ['tests/coverage_floor_backlog.txt', false, true],
+  ['.github/workflows/ci.yml', false, false],
+  ['.github/actions/db-bootstrap/action.yml', false, false],
+  ['scripts/check_docs.mjs', false, false],
+  ['scripts/test/select_tests.test.mjs', false, false],
+  ['scripts/ci/classify_changes.sh', false, false],
+  ['scripts/ci/impact-plan.mjs', false, false],
+  ['tests/scripts/test_run_all_cli.sh', false, false],
+  ['tests/probes/run_probes.sh', false, false],
+  ['middleware/src/routes/account.js', true, true],
+  ['middleware/src/app.js', true, false],
+  ['middleware/spec/routes.yaml', true, false],
+  ['middleware/test/gateway.test.js', true, false],
+  ['middleware/test/support.js', true, false],
+  ['middleware/package.json', false, false],
+  ['tests/gateway/endpoint_smoke.sh', true, false],
+  ['tests/lib/db.sh', true, false],
+  ['cobol/src/loan_core.cob', false, true],
+  ['cobol/src/main_logic.cob', false, true],
+  ['cobol/copy/loan-copy.cpy', false, true],
+  ['cobol/c_lib/hash_lib.c', false, true],
+  ['cobol/src/sql_bridge.c', false, true],
+  ['build.sh', false, true],
+  ['cobol/Makefile', false, true],
+  ['database/schema.sql', false, true],
+  ['database/migrations/0999_x.sql', false, true],
+  ['tests/cobol/cases/loan.cases', false, true],
+  ['tests/cobol/table_runner.sh', false, true],
+  ['tests/db/loan_db_tests.sh', false, true],
+  ['tests/db/new_domain_db_tests.sh', false, false],
+  ['scripts/ci/coverage.sh', false, true],
+  ['scripts/ci/coverage_trigger.mjs', false, false],
+  ['scripts/coverage/map_cobol.py', false, true],
+  ['coverage/cobol.txt', false, false],
+  ['input.txt', false, false],
 ];
 
-for (const [files, expected] of CASES) {
-  test(`shouldMeasure([${files.join(', ') || '<empty>'}]) === ${expected}`, () => {
-    assert.equal(shouldMeasure(files), expected);
+for (const [file, gateway, cobol] of CASES) {
+  test(`classifyCoverage(${file}) === {gateway:${gateway},cobol:${cobol}}`, () => {
+    assert.deepEqual(classifyCoverage(file, CTX), { gateway, cobol });
   });
 }
 
-test('classifyFile returns trigger groups', () => {
-  assert.equal(classifyFile('cobol/src/loan_core.cob'), 'cobol');
-  assert.equal(classifyFile('build.sh'), 'cobol');
-  assert.equal(classifyFile('tests/db/loan_db_tests.sh'), 'data');
-  assert.equal(classifyFile('database/schema.sql'), 'data');
-  assert.equal(classifyFile('scripts/ci/coverage.sh'), 'measurement');
-  assert.equal(classifyFile('middleware/src/routes/account.js'), 'gateway');
-  assert.equal(classifyFile('middleware/test/gateway.test.js'), 'gateway');
-  assert.equal(classifyFile('tests/lib/db.sh'), 'gateway');
+test('suite conditional resolves against the curated set', () => {
+  assert.equal(classifyCoverage('tests/db/loan_db_tests.sh', CTX).cobol, true);
+  assert.equal(classifyCoverage('tests/db/loan_db_tests.sh', { suites: new Set() }).cobol, false);
+  assert.equal(classifyCoverage('tests/db/loan_db_tests.sh').cobol, true);
 });
 
-test('classifyFile returns null for known-safe paths', () => {
-  assert.equal(classifyFile('docs/CI.md'), null);
-  assert.equal(classifyFile('README.md'), null);
-  assert.equal(classifyFile('coverage/cobol.txt'), null);
-  assert.equal(classifyFile('manifest/modules.json'), null);
+test('case conditional resolves against the curated modules', () => {
+  assert.equal(classifyCoverage('tests/cobol/cases/loan.cases', CTX).cobol, true);
+  assert.equal(classifyCoverage('tests/cobol/cases/loan.cases', { modules: new Set() }).cobol, false);
 });
 
-test('classifyFile returns unknown for unrecognized paths (safe default: measure)', () => {
-  assert.equal(classifyFile('scripts/foo.mjs'), 'unknown');
-  assert.equal(classifyFile('.github/workflows/ci.yml'), 'unknown');
+test('shouldMeasureCobol is true only when a curated input changed', () => {
+  assert.equal(shouldMeasureCobol(['docs/CI.md', 'manifest/modules.json'], CTX), false);
+  assert.equal(shouldMeasureCobol(['docs/CI.md', 'cobol/src/loan_core.cob'], CTX), true);
+  assert.equal(shouldMeasureCobol([], CTX), false);
+});
+
+test('shouldMeasureGateway is true only when gateway behavior may change', () => {
+  assert.equal(shouldMeasureGateway(['docs/CI.md', 'contracts/actions.yaml'], CTX), false);
+  assert.equal(shouldMeasureGateway(['middleware/src/app.js'], CTX), true);
+});
+
+test('legacy classifyFile keeps the measure/skip contract', () => {
+  assert.equal(classifyFile('cobol/src/loan_core.cob', CTX), 'cobol');
+  assert.equal(classifyFile('middleware/src/app.js', CTX), 'gateway');
+  assert.equal(classifyFile('docs/CI.md', CTX), null);
+  assert.equal(classifyFile('manifest/modules.json', CTX), null);
+  assert.equal(classifyFile('contracts/actions.yaml', CTX), null);
+  assert.equal(classifyFile('.github/workflows/ci.yml', CTX), null);
+  assert.equal(classifyFile('totally/unknown.xyz', CTX), 'unknown');
+  // Legacy predicate still measures anything not known-safe.
+  assert.equal(shouldMeasure(['middleware/src/app.js'], CTX), true);
+  assert.equal(shouldMeasure(['docs/CI.md'], CTX), false);
 });
 
 function runTrigger(files) {
@@ -86,8 +120,11 @@ function runTrigger(files) {
   }
 }
 
-test('CLI exits 0 when triggered, 1 when skipped', () => {
+test('CLI exits 0 when COBOL measurement is required, 1 when skipped', () => {
   assert.equal(runTrigger(['middleware/src/routes/account.js']), 0);
+  assert.equal(runTrigger(['tests/db/loan_db_tests.sh']), 0);
+  assert.equal(runTrigger(['middleware/src/app.js']), 1);
   assert.equal(runTrigger(['docs/CI.md', 'README.md']), 1);
+  assert.equal(runTrigger(['manifest/modules.json']), 1);
   assert.equal(runTrigger([]), 1);
 });

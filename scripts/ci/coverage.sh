@@ -122,41 +122,26 @@ fi
 # (notification_core, sanctions_list_core, and product_catalog_core were
 # removed here when wave C retired those modules; their baseline entries
 # went with them. Do not re-add deleted modules.)
-CURATED=(
-    main_logic user_core wallet_core auth_core ref_engine gl_core
-    report_core fee_core eod_core statement_core loan_core
-    loan_schedule_core deposit_core card_core collection_core
-    payment_clearing_core treasury_liquidity_core
-    gl_allocation_core
-    cost_center_core fixed_asset_core account_core
-    card_posting_core dashboard_core deposit_posting_core
-    loan_posting_core payment_hold_core wallet_transfer_core
-    import_post_core payment_core statement_recon_core
-)
+# Single source: scripts/ci/coverage-modules.txt (one module per line;
+# blank lines and # comments are ignored). scripts/test/coverage_suites.test.mjs
+# pins the file contents.
+CURATED=()
+while IFS= read -r line || [ -n "$line" ]; do
+    line="${line%%#*}"
+    line="$(printf '%s' "$line" | tr -d '[:space:]')"
+    [ -n "$line" ] && CURATED+=("$line")
+done < "$ROOT/scripts/ci/coverage-modules.txt"
 
 # Representative DB suites. Missing suites are skipped with a warning so the
 # script remains usable on branches where a suite has not landed yet.
 # (Suites of retired modules are removed here, not left to warn forever.)
-SUITES=(
-    schema_tests loan_db_tests loan_schedule_db_tests deposit_db_tests
-    lending_posting_db_tests
-    card_db_tests card_posting_db_tests collection_db_tests payment_clearing_db_tests
-    payment_posting_db_tests payment_race_db_tests
-    payment_conservation_db_tests payment_limits_db_tests
-    treasury_liquidity_db_tests
-    gl_allocation_db_tests
-    account_db_tests
-    cost_center_db_tests fixed_asset_db_tests
-    fee_read_db_tests
-    fixed_asset_domain_db_tests
-    notification_template_db_tests
-    report_statement_db_tests eod_ops_db_tests
-    dashboard_db_tests deposit_posting_db_tests loan_posting_db_tests
-    payment_hold_db_tests wallet_transfer_db_tests
-    import_post_db_tests payment_db_tests statement_db_tests
-    statement_recon_db_tests
-    ref_pair_db_tests
-)
+# Single source: scripts/ci/coverage-suites.txt (one suite per line).
+SUITES=()
+while IFS= read -r line || [ -n "$line" ]; do
+    line="${line%%#*}"
+    line="$(printf '%s' "$line" | tr -d '[:space:]')"
+    [ -n "$line" ] && SUITES+=("$line")
+done < "$ROOT/scripts/ci/coverage-suites.txt"
 
 baseline() {
     awk -v k="$1" '$1==k {print $2}' "$BASELINE" 2>/dev/null || true

@@ -190,27 +190,33 @@ test('database surface means full fleet plus drift', () => {
   assert.equal(c.plan.docker, false);
 });
 
-test('gateway route selects the endpoints suite', () => {
+test('gateway route selects the endpoints suite plus COBOL coverage', () => {
   const c = plan('middleware/src/routes/loan.js');
   assert.equal(c.mode, 'code');
   assert.equal(c.plan.test, 'selected');
   assert.equal(c.plan.node_suite, 'endpoints');
   assert.equal(c.plan.db, 'none');
   assert.equal(c.plan.gateway_coverage, true);
+  // Conservative: routes exercise COBOL actions through the instrumented
+  // binary, so only routes (not other gateway sources) keep COBOL coverage.
+  assert.equal(c.plan.cobol_coverage, true);
 });
 
-test('gateway sources select the fast suite', () => {
+test('gateway sources select the fast suite without COBOL coverage', () => {
   const c = plan('middleware/src/app.js');
   assert.equal(c.mode, 'code');
   assert.equal(c.plan.node_suite, 'fast');
   assert.equal(c.plan.db, 'none');
+  assert.equal(c.plan.gateway_coverage, true);
+  assert.equal(c.plan.cobol_coverage, false);
 });
 
-test('gateway deps select the full node suite plus docker', () => {
+test('gateway deps select the full node suite plus docker, no COBOL coverage', () => {
   for (const f of ['middleware/package.json', 'middleware/package-lock.json']) {
     const c = plan(f);
     assert.equal(c.plan.node_suite, 'full', f);
     assert.equal(c.plan.docker, true, f);
+    assert.equal(c.plan.cobol_coverage, false, f);
   }
 });
 
@@ -226,10 +232,11 @@ test('field order fixture maps to its test file', () => {
   assert.deepEqual(c.plan.node_files, ['middleware/test/field_order.test.js']);
 });
 
-test('gateway support maps to the full node suite', () => {
+test('gateway support maps to the full node suite without COBOL coverage', () => {
   const c = plan('middleware/test/support.js');
   assert.equal(c.plan.node_suite, 'full');
-  assert.equal(c.plan.cobol_coverage, true);
+  assert.equal(c.plan.gateway_coverage, true);
+  assert.equal(c.plan.cobol_coverage, false);
 });
 
 test('gateway smoke selects the gateway suite', () => {

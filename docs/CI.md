@@ -224,7 +224,7 @@ Rules:
 | `ci.yml` db selected (`db-selected`) | 20 min | PR-only mapped-change path: one runner runs the selected DB suites; full fallback remains `db-shards` |
 | `ci.yml` db-aggregate | 10 min | PR-only merge of test, shard/selected, and coverage reports + subset/full count gate + summary |
 | `ci.yml` coverage | 20 min | PR gateway coverage gate + manual dispatch: runs the gateway suite once with coverage/JUnit; `test` skips its gateway phase |
-| `ci.yml` coverage-pr | 35 min | curated COBOL, impact-selected: skipped unless the change set touches curated inputs (`coverage_relevant`; trigger groups in `docs/COVERAGE.md`); compiles its own instrumented binary, no `build` dependency |
+| `ci.yml` coverage-pr | 35 min | curated COBOL, impact-selected: runs only when the change set touches curated inputs (`scripts/ci/coverage-suites.txt` modules/suites, COBOL sources, database, coverage tooling, or gateway routes which exercise COBOL actions; manifest/contracts/CI-only changes skip it); compiles its own instrumented binary, no `build` dependency |
 | `ci.yml` db-ops | 20 min | rollback, backup/restore on DB-surface pushes + dispatch; not a PR required check; nightly covers ordinary code pushes |
 | `ci.yml` plan audit (`plan-audit`) | 5 min | advisory shadow audit: compares the impact plan's `would_skip` list with actual results; never required, never fails the pipeline; evidence for the impact-targeting enable decision |
 | `codeql.yml` analyze | 20 min | JS + C, SARIF uploaded to code scanning; path-filtered on PR/push, weekly schedule unfiltered |
