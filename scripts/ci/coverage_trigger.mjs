@@ -1,79 +1,181 @@
-// Coverage trigger classifier (CI-004).
+// Coverage trigger classifier (CI-004, PR-05 precision).
 //
 // Decides whether a change set requires the curated COBOL coverage
-// measurement (`scripts/ci/coverage.sh --cobol-only`). Extracted from the
-// shell `case` block so the scope is unit-tested instead of copy-pasted.
+// measurement (`scripts/ci/coverage.sh --cobol-only --changed`) and whether
+// it requires the gateway coverage gate. Two independent dimensions:
 //
-// Groups:
-//   cobol       curated modules, shared COBOL inputs, build, C bridge
-//   data        database surface, exercised suites/cases
-//   measurement the measurement scripts and baselines themselves
-//   gateway     the gateway suites that exercise COBOL actions through the
-//               instrumented binary (a route change can drop COBOL coverage)
-// Known-safe paths (docs, generated data, build noise) never trigger.
-// Anything else is `unknown` and triggers: a false full measurement wastes
-// minutes, a false skip silently drops coverage.
+//   gateway  gateway suite behavior may change (middleware, gateway suites,
+//            shared suite helpers).
+//   cobol    curated COBOL line coverage may change (COBOL sources, database
+//            surface, measurement tooling, curated suites/cases).
+//
+// Known-safe paths (docs, contracts, manifest, baselines, CI config) trigger
+// neither. Anything else is `unknown` and triggers neither here: the impact
+// planner (`scripts/ci/impact-plan.mjs`) fails safe to full separately, so
+// an unmapped path still runs the whole fleet.
+//
+// Suite/case conditionals resolve against scripts/ci/coverage-suites.txt and
+// scripts/ci/coverage-modules.txt (the same files coverage.sh measures).
+// A null set resolves conservatively to true (cannot tell).
 //
 // Usage:
 //   node scripts/ci/coverage_trigger.mjs [--stdin] [files...]
-// Exit 0 when the measurement is required, 1 when it can be skipped.
-// Prints the first triggering `<group>:<file>` on stdout when triggered.
+// Exit 0 when the COBOL measurement is required, 1 when it can be skipped.
+// Prints the first triggering `trigger:<dimension>:<file>` on stdout.
 //
-// Pure functions (classifyFile, shouldMeasure) are imported by
-// scripts/test/coverage_trigger.test.mjs.
-const TRIGGER_RULES = [
-  [
-    'cobol',
-    [
-      /^cobol\/src\/[^/]*_core\.cob$/,
-      /^cobol\/copy\//,
-      /^cobol\/c_lib\//,
-      /^cobol\/src\/[^/]*\.[ch]$/,
-      /^build\.sh$/,
-      /^cobol\/Makefile$/,
-    ],
-  ],
-  ['data', [/^database\//, /^tests\/cobol\/cases\//, /^tests\/cobol\/table_runner\.sh$/, /^tests\/db\//]],
-  [
-    'measurement',
-    [
-      /^scripts\/ci\/coverage\.sh$/,
-      /^scripts\/ci\/coverage_trigger\.mjs$/,
-      /^scripts\/coverage\//,
-      /^tests\/coverage_/,
-    ],
-  ],
-  ['gateway', [/^middleware\/src\//, /^middleware\/test\//, /^tests\/gateway\//, /^tests\/lib\//]],
+// Pure functions (classifyCoverage, shouldMeasureCobol, shouldMeasureGateway)
+// are imported by scripts/test/coverage_trigger.test.mjs.
+const GATEWAY_RULES = [
+  /^middleware\/src\//,
+  /^middleware\/test\//,
+  /^middleware\/spec\//,
+  /^tests\/gateway\//,
+  /^tests\/lib\//,
 ];
 
-// Generated or volatile paths that can never affect measured COBOL lines.
+const COBOL_RULES = [
+  /^cobol\/src\//,
+  /^cobol\/copy\//,
+  /^cobol\/c_lib\//,
+  /^build\.sh$/,
+  /^cobol\/Makefile$/,
+  /^database\//,
+  // Gateway routes exercise COBOL actions through the instrumented binary;
+  // a route change can drop measured COBOL lines, so re-measure.
+  /^middleware\/src\/routes\//,
+  /^scripts\/ci\/coverage\.sh$/,
+  /^scripts\/coverage\//,
+  /^tests\/coverage_/,
+  /^tests\/cobol\/table_runner\.sh$/,
+];
+
+// Generated or volatile paths that can never affect either measurement.
 const SAFE_RULES = [
   /^docs\//,
   /^(README\.md|CONTRIBUTING\.md|SECURITY\.md|CHANGELOG\.md|LICENSE)$/,
-  /^manifest\/modules\.json$/,
-  /^(coverage\/|artifacts\/|backups\/|test-results\/|reports\/|tmp\/)/,
+  /^manifest\//,
+  /^contracts\//,
+  /^tests\/README\.md$/,
+  /^tests\/[^/]*baseline[^/]*\.txt$/,
+  /^tests\/[^/]+\.(txt|json)$/,
+  /^tests\/fixtures\//,
+  /^tests\/contracts\//,
+  /^tests\/scripts\//,
+  /^tests\/perf\//,
+  /^tests\/probes\//,
+  /^tests\/\.dbenv/,
+  /^monitoring\//,
+  /^Makefile$/,
+  /^package\.json$/,
+  /^package-lock\.json$/,
+  /^eslint\.config\.mjs$/,
+  /^docker-compose\.test\.yml$/,
+  /^ci\.sh$/,
+  /^ci-fast\.sh$/,
+  /^data\//,
   /^(input\.txt|output\.txt|sql_debug\.log|\.DS_Store|Thumbs\.db)$/,
-  /^tests\/\.dbenv$/,
+  /^(coverage\/|artifacts\/|backups\/|test-results\/|reports\/|tmp\/)/,
+  /^\./,
+  /^Dockerfile$/,
+  /^\.dockerignore$/,
+  /^scripts\/check_/,
+  /^scripts\/generate_schema_snapshot\.sh$/,
+  /^scripts\/test\//,
+  /^scripts\/ci\/classify_/,
+  /^scripts\/ci\/impact-/,
+  /^scripts\/ci\/check_/,
+  /^scripts\/ci\/shard_/,
+  /^scripts\/ci\/aggregate_/,
+  /^scripts\/ci\/summary\.mjs$/,
+  /^scripts\/ci\/compare_runs\.mjs$/,
+  /^scripts\/ci\/quarantine_flag\.mjs$/,
+  /^scripts\/ci\/ci_/,
+  /^scripts\/ci\//,
+  /^\.github\//,
 ];
 
+function suiteName(suiteFile) {
+  const m = String(suiteFile).match(/^tests\/db\/([a-z0-9_]+_db_tests)\.sh$/);
+  return m ? m[1] : null;
+}
+
+function caseDomain(caseFile) {
+  const m = String(caseFile).match(/^tests\/cobol\/cases\/([a-z0-9_]+)\.cases$/);
+  return m ? m[1] : null;
+}
+
 /**
- * Classify one repo-relative path. Returns a trigger group ('cobol',
- * 'data', 'measurement', 'gateway'), 'unknown' for unrecognized paths
- * (safe default: measure), or null for known-safe paths (skip).
+ * Classify one path. Returns { gateway, cobol } booleans. Conditional
+ * suite/case hits resolve against ctx ({ suites:Set|null, modules:Set|null }).
  */
-export function classifyFile(file) {
+export function classifyCoverage(file, ctx = {}) {
+  const f = String(file);
+  if (!f) return { gateway: false, cobol: false };
+  const { suites = null, modules = null } = ctx;
+  let gateway = GATEWAY_RULES.some((re) => re.test(f));
+  let cobol = COBOL_RULES.some((re) => re.test(f));
+  if (!cobol) {
+    const suite = suiteName(f);
+    if (suite) {
+      cobol = suites === null ? true : suites.has(suite);
+    } else {
+      const domain = caseDomain(f);
+      if (domain) cobol = modules === null ? true : modules.has(`${domain}_core`);
+    }
+  }
+  if (!gateway && !cobol && !SAFE_RULES.some((re) => re.test(f))) {
+    return { gateway: false, cobol: false };
+  }
+  return { gateway, cobol };
+}
+
+/** True when at least one path requires the curated COBOL measurement. */
+export function shouldMeasureCobol(files, ctx = {}) {
+  return (files || []).some((f) => classifyCoverage(f, ctx).cobol);
+}
+
+/** True when at least one path requires the gateway coverage gate. */
+export function shouldMeasureGateway(files, ctx = {}) {
+  return (files || []).some((f) => classifyCoverage(f, ctx).gateway);
+}
+
+/**
+ * Legacy single-dimension view for scripts that only gate the COBOL
+ * measurement (coverage.sh --changed): a trigger group string, or null
+ * when the path is known-safe. Unknown paths return 'unknown' (measure).
+ * Prefer classifyCoverage for new callers.
+ */
+export function classifyFile(file, ctx = {}) {
   const f = String(file);
   if (!f) return null;
-  for (const [group, patterns] of TRIGGER_RULES) {
-    if (patterns.some((re) => re.test(f))) return group;
-  }
+  const { gateway, cobol } = classifyCoverage(f, ctx);
+  if (cobol) return 'cobol';
+  if (gateway) return 'gateway';
   if (SAFE_RULES.some((re) => re.test(f))) return null;
   return 'unknown';
 }
 
-/** True when at least one path requires the curated measurement. */
-export function shouldMeasure(files) {
-  return (files || []).some((f) => classifyFile(f) !== null);
+/** Legacy predicate: true when at least one path is not known-safe. */
+export function shouldMeasure(files, ctx = {}) {
+  return (files || []).some((f) => classifyFile(f, ctx) !== null);
+}
+
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const TRIGGER_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+
+function readTriggerList(rel) {
+  try {
+    const names = readFileSync(path.join(TRIGGER_ROOT, rel), 'utf8')
+      .split('\n')
+      .map((s) => s.trim())
+      .filter((s) => s && !s.startsWith('#'));
+    return new Set(names);
+  } catch {
+    return null;
+  }
 }
 
 function readStdin() {
@@ -106,11 +208,15 @@ if (import.meta.url === `file://${process.argv[1]}`) {
           .filter(Boolean),
       ];
     }
-    const hit = files.find((f) => classifyFile(f) !== null);
+    const ctx = {
+      suites: readTriggerList('scripts/ci/coverage-suites.txt'),
+      modules: readTriggerList('scripts/ci/coverage-modules.txt'),
+    };
+    const hit = files.find((f) => classifyCoverage(f, ctx).cobol);
     if (hit === undefined) {
       process.exit(1);
     }
-    console.log(`trigger:${classifyFile(hit)}:${hit}`);
+    console.log(`trigger:${classifyFile(hit, ctx)}:${hit}`);
     process.exit(0);
   };
   run();
