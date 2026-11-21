@@ -20,3 +20,8 @@ relying on a decision — deferred records are explicitly *not* in force.
 | [0012-clone-template-freeze](0012-clone-template-freeze.md) | Clone-template freeze, no generator skeleton (DRY-08) | Accepted |
 | [0013-idempotency-generalization-done](0013-idempotency-generalization-done.md) | Idempotency generalization complete (DRY-07) | Accepted |
 | [0014-linkage-only-classification](0014-linkage-only-classification.md) | Linkage-only classification, no tiers (PR-1) | Accepted |
+| [0015-transaction-kernel](0015-transaction-kernel.md) | Transaction kernel TXN-BEGIN/FINISH/ABORT, no unchecked SQL_BEGIN | Accepted |
+| [0016-result-protocol](0016-result-protocol.md) | Strict result protocol, fail-closed parser | Accepted |
+| [0017-contract-first](0017-contract-first.md) | Contract-first API, single spec with derived fields | Accepted |
+| [0018-data-ownership](0018-data-ownership.md) | Data ownership and FK policy for email-keyed tables | Accepted |
+| [0019-module-boundaries](0019-module-boundaries.md) | Module dependency rules and size budget | Accepted |
