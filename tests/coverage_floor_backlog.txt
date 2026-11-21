@@ -32,3 +32,4 @@ report_run_core  not yet in curated coverage set — Phase 5
 identity_core  now L3 after business-table registration; not yet in curated coverage set — integration cleanup
 merchant_core  now L3 after business-table registration; not yet in curated coverage set — integration cleanup
 payroll_processing_core  now L3 after business-table registration; not yet in curated coverage set — integration cleanup
+gl_core  TXN-BEGIN defensive lines (BEGIN-failure branches) added in arch9 WP-10; journal-post happy paths covered, BEGIN-failure branches thin (67.87%)
