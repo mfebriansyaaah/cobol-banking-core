@@ -1581,6 +1581,15 @@
       "status": "ACTIVE",
       "coreLinks": []
     },
+    "card_authorize_request": {
+      "audited": "status machine + adopted auth_ref in-row; card_audit rows the authorize action; unified mirror converges via IDEM-COMPLETE",
+      "note": "arch9 WP-11 CARD_AUTHORIZE idempotency; legacy decision row for the authorize scope",
+      "owner": "cards",
+      "status": "ACTIVE",
+      "coreLinks": [
+        "cards"
+      ]
+    },
     "identity_verifications": {
       "audited": "result rows immutable (append-only verdicts)",
       "note": "PR-085 NIK/OCR outcomes",

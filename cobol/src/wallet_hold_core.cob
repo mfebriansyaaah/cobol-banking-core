@@ -429,7 +429,11 @@
             IF WS-RESULT(1:5) = "ERROR"
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
+           *> Fail closed: never leave the open transaction behind on an
+           *> early exit (the bridge would roll back a leaked txn on the
+           *> next BEGIN, but an explicit abort keeps ownership obvious).
             IF WS-TRANSFER-FAIL-DB
+                PERFORM TXN-ABORT
                 EXIT PARAGRAPH
             END-IF.
             UNSTRING WS-RESULT DELIMITED BY "|"
@@ -469,6 +473,7 @@
                 SET WS-TRANSFER-FAIL-DB TO TRUE
             END-IF.
             IF WS-TRANSFER-FAIL-DB
+                PERFORM TXN-ABORT
                 EXIT PARAGRAPH
             END-IF.
             MOVE WS-RESULT(1:20) TO WS-HOLD-ID

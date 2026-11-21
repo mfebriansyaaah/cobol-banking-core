@@ -9,6 +9,8 @@
        DATA DIVISION.
        WORKING-STORAGE SECTION.
        01  WS-RESULT               PIC X(16384) VALUE SPACES.
+       01  WS-STATE-OK             PIC 9 VALUE 0.
+       01  WS-STATE-ERR            PIC X(40) VALUE SPACES.
        01  WS-PREP-SQL             PIC X(1024) VALUE SPACES.
        01  WS-BIND-1               PIC X(256) VALUE SPACES.
        01  WS-BIND-2               PIC X(256) VALUE SPACES.
@@ -221,6 +223,7 @@
 
         COPY "common_result.cpy".
         COPY "common_txn.cpy".
+        COPY "common_state.cpy".
         COPY "sql_exec_6.cpy".
 
        ACTION-CREATE.
@@ -654,12 +657,18 @@
            IF STEP-FAIL
                EXIT PARAGRAPH
            END-IF
-           MOVE "UPDATE payment_instruction SET next_run_date = CASE frequency WHEN 'DAILY' THEN DATE_ADD(next_run_date, INTERVAL 1 DAY) WHEN 'WEEKLY' THEN DATE_ADD(next_run_date, INTERVAL 7 DAY) ELSE DATE_ADD(next_run_date, INTERVAL 1 MONTH) END, last_run_at = NOW(), last_txn_ref = ? WHERE instruction_code = ? AND frequency <> 'ONCE'" TO WS-PREP-SQL
+           MOVE "UPDATE payment_instruction SET next_run_date = CASE frequency WHEN 'DAILY' THEN DATE_ADD(next_run_date, INTERVAL 1 DAY) WHEN 'WEEKLY' THEN DATE_ADD(next_run_date, INTERVAL 7 DAY) ELSE DATE_ADD(next_run_date, INTERVAL 1 MONTH) END, last_run_at = NOW(), last_txn_ref = ? WHERE instruction_code = ? AND frequency <> 'ONCE' AND next_run_date = ?" TO WS-PREP-SQL
            MOVE WS-IDEMPOTENCY TO WS-BIND-1
            MOVE WS-P1-TRIMMED TO WS-BIND-2
-           PERFORM SQL-EXEC-2
-           IF WS-RESULT(1:5) = "ERROR"
-               SET STEP-FAIL TO TRUE
+           MOVE WS-NEXT-DATE TO WS-BIND-3
+           PERFORM SQL-EXEC-3
+           *> A lost race advances nothing: exactly one EXECUTE may consume
+           *> this due date. Anything else is a stale retry, not DB_ERROR.
+           PERFORM STATE-EXPECT-ONE
+           IF WS-STATE-OK = 0
+               CALL "SQL_ROLLBACK" END-CALL
+               MOVE WS-STATE-ERR TO LS-OUTPUT-BUFFER
+               EXIT PARAGRAPH
            END-IF.
            IF STEP-OK
                MOVE "UPDATE payment_instruction SET status = 'COMPLETED', last_run_at = NOW(), last_txn_ref = ? WHERE instruction_code = ? AND frequency = 'ONCE'" TO WS-PREP-SQL

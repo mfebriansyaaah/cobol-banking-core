@@ -120,7 +120,7 @@ export const CARD_ROUTES = [
       { name: 'amount', pattern: PATTERNS.AMOUNT, required: true },
       { name: 'merchant', pattern: PATTERNS.NAME, required: false },
       { name: 'currency', pattern: PATTERNS.CURRENCY, required: false },
-      BLANK,
+      { name: 'idempotencyKey', pattern: PATTERNS.KEY, required: false },
       ACTOR,
     ],
   },

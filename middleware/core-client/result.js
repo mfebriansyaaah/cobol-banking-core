@@ -2,6 +2,7 @@
 // HTTP status and a JSON body. No business logic lives here.
 
 export const ERROR_STATUS = {
+  AUTHORIZE_IN_PROGRESS: 409,
   MISSING_ACTION: 400,
   INVALID_ACTION: 400,
   INVALID_RESPONSE: 500,

@@ -968,7 +968,7 @@
       "amount",
       "merchant",
       "currency",
-      "BLANK",
+      "idempotencyKey",
       "ACTOR"
     ],
     "tokenIdentity": "actor",

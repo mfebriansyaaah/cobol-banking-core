@@ -17,6 +17,7 @@ codes:
   BALANCE: { status: 409, origin: cobol, note: "insufficient pooled balance for payroll posting" }
   BEGIN_FAILED: { status: 500, origin: gateway }
   BIND_FAILED: { status: 500, origin: gateway }
+  AUTHORIZE_IN_PROGRESS: { status: 409, origin: cobol, note: "keyed authorize race loser" }
   BREACHED_PASSWORD: { status: 400, origin: gateway }
   CALENDAR_NOT_OPEN: { status: 409, origin: cobol }
   CAPTCHA_REJECTED: { status: 400, origin: gateway }

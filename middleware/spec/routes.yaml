@@ -90,7 +90,7 @@ files:
     - { method: post, path: "/cards/:id/block", action: CARD_BLOCK, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
     - { method: post, path: "/cards/:id/unblock", action: CARD_UNBLOCK, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
     - { method: post, path: "/cards/:id/close", action: CARD_CLOSE, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
-    - { method: post, path: "/cards/:id/authorize", action: CARD_AUTHORIZE, tokenIdentity: 'actor', fields: [ID, amount:AMOUNT, merchant:NAME?, currency:CURRENCY?, BLANK, ACTOR] }
+    - { method: post, path: "/cards/:id/authorize", action: CARD_AUTHORIZE, tokenIdentity: 'actor', fields: [ID, amount:AMOUNT, merchant:NAME?, currency:CURRENCY?, idempotencyKey:KEY?, ACTOR] }
     - { method: post, path: "/cards/:id/capture", action: CARD_CAPTURE, tokenIdentity: 'actor', fields: [ID, authRef:KEY, BLANK, BLANK, idempotencyKey:KEY?, ACTOR] }
     - { method: post, path: "/cards/:id/repay", action: CARD_REPAY, tokenIdentity: 'actor', fields: [ID, amount:AMOUNT, BLANK, BLANK, idempotencyKey:KEY?, ACTOR] }
     - { method: post, path: "/cards/:id/reverse", action: CARD_REVERSE, tokenIdentity: 'actor', fields: [ID, authRef:KEY, BLANK, BLANK, idempotencyKey:KEY?, ACTOR] }

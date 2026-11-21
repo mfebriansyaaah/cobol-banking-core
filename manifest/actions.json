@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-20T13:02:40.540Z",
-  "commit": "705867b0",
+  "generatedAt": "2026-11-21T09:48:42.739Z",
+  "commit": "f21adcc1",
   "generator": "scripts/build_action_registry.mjs (do not hand-edit)",
   "count": 536,
   "actions": [
@@ -1278,7 +1278,7 @@
         "amount",
         "merchant",
         "currency",
-        "",
+        "idempotencyKey",
         "actor"
       ],
       "required": [

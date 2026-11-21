@@ -300,6 +300,8 @@
            PERFORM IDEM-DELETE.
            EXIT PARAGRAPH.
 
+       COPY "card_authorize.cpy".
+
        ACTION-ISSUE.
            MOVE "CARD_CORE" TO WS-DENIED-TARGET
            PERFORM ADMIN-GUARD
@@ -680,6 +682,17 @@
                MOVE "ERROR|LIMIT_EXCEEDED" TO LS-OUTPUT-BUFFER
                EXIT PARAGRAPH
            END-IF.
+           IF WS-P5-TRIMMED NOT = SPACES
+               PERFORM CLAIM-AUTHORIZE-REQUEST
+               IF WS-ERR NOT = SPACES
+                   MOVE WS-ERR TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
+               IF WS-IDEM-STATUS = "DONE"
+                   PERFORM REPLAY-AUTHORIZE-REQUEST
+                   EXIT PARAGRAPH
+               END-IF
+           END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
            PERFORM TXN-BEGIN
@@ -698,6 +711,9 @@
                MOVE WS-P2-TRIMMED TO WS-BIND-3
                PERFORM SQL-EXEC-3
                IF WS-RESULT = "SUCCESS|AFFECTED_0"
+                   IF WS-P5-TRIMMED NOT = SPACES
+                       PERFORM DELETE-AUTHORIZE-REQUEST
+                   END-IF
                    MOVE "ERROR|LIMIT_EXCEEDED" TO WS-ERR
                    SET STEP-FAIL TO TRUE
                ELSE
@@ -725,6 +741,9 @@
                ELSE
                    MOVE WS-RESULT(1:64) TO WS-TMP-STR
                END-IF
+           END-IF.
+           IF STEP-OK AND WS-P5-TRIMMED NOT = SPACES
+               PERFORM ADOPT-AUTHORIZE-REQUEST
            END-IF.
            IF STEP-OK
                MOVE "AUTHORIZE" TO WS-AUDIT-ACTION

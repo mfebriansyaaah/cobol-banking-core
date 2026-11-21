@@ -1,0 +1,53 @@
+# A8 allowlist (arch9 WP-11 baseline): guarded status/version transitions
+# without STATE-EXPECT-ONE or explicit AFFECTED handling nearby. Burn down
+# by converting to STATE-EXPECT-ONE; each converted paragraph must be REMOVED.
+# Scope: SET status + status/version guard in WHERE (unconditional writes out of scope).
+# Format: path::paragraph|owner|expiry|reason. Deleting this file = zero exceptions allowed.
+cobol/src/account_core.cob::ACTION-CLOSE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/bank_guarantee_core.cob::ACTION-CLOSE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/bank_guarantee_core.cob::ACTION-ISSUE-BG|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/chargeback_core.cob::ACTION-CLOSE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/collateral_core.cob::ACTION-CLOSE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/collateral_core.cob::ACTION-DISPOSE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/collateral_core.cob::ACTION-PLEDGE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/collateral_core.cob::ACTION-RELEASE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/collateral_core.cob::ACTION-REPOSSESS|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/collection_core.cob::ACTION-REOPEN|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/compliance_calendar_core.cob::ACTION-CLOSE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/cost_center_core.cob::ACTION-CLOSE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/deposit_core.cob::ACTION-ACCRUE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/deposit_core.cob::ACTION-POST-INTEREST|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/deposit_core.cob::ACTION-SETTLE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/eod_core.cob::ACTION-CAL-OPEN|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/eod_core.cob::ACTION-PHASE-SET|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/eod_core.cob::ACTION-RUN-CLOSE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/fixed_asset_core.cob::ACTION-DISPOSE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/fixed_asset_core.cob::ACTION-REVALUE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/gl_allocation_core.cob::ACTION-CLOSE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/gl_allocation_core.cob::ACTION-SUBMIT|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/identity_core.cob::ACTION-REVIEW-DECIDE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/import_core.cob::ACTION-BATCH-POST|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/import_post_core.cob::ACTION-POST-LEDGER|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/import_recon_core.cob::ACTION-FINISH|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/letter_of_credit_core.cob::ACTION-CLOSE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/letter_of_credit_core.cob::ACTION-ISSUE-LC|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/loan_core.cob::ACTION-CLOSE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/loan_schedule_lifecycle_core.cob::ACTION-LSC_APPROVE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/loyalty_core.cob::ACTION-ACTIVATE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/merchant_core.cob::ACTION-ACTIVATE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/merchant_core.cob::ACTION-CLOSE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/merchant_settlement_core.cob::ACTION-CALC-SETTLE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/merchant_settlement_core.cob::ACTION-CANCEL|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/payment_hold_core.cob::ACTION-EXPIRE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/payment_instruction_core.cob::ACTION-EXECUTE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/payment_instruction_core.cob::ACTION-PAUSE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/payment_instruction_core.cob::ACTION-RESUME|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/payroll_processing_core.cob::ACTION-CLOSE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/payroll_processing_core.cob::ACTION-PAY|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/payroll_processing_core.cob::ACTION-PROCESS|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/payroll_processing_core.cob::ACTION-VALIDATE-BATCH|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/phone_otp_core.cob::ACTION-RESEND|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/statement_core.cob::ACTION-RUN-FAIL|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/statement_core.cob::ACTION-RUN-GENERATE|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/statement_recon_core.cob::ACTION-FINISH|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
+cobol/src/tax_management_core.cob::ACTION-POST|arch9|2027-06-30|WP-11 legacy transition; convert to STATE-EXPECT-ONE
