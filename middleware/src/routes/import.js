@@ -23,6 +23,7 @@ export const IMPORT_ROUTES = [
     path: '/imports/batches',
     action: 'IMP_BATCH_LIST',
     tokenIdentity: 'actor',
+    pagination: { limit: 'limit', offset: 'offset', totalField: 'total' },
     fields: [
       { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
       { name: 'offset', pattern: PATTERNS.INT, required: false },

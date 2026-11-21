@@ -44,6 +44,8 @@ const UNIT = [
   'test/validation.test.js',
   'test/trust-boundary.test.js',
   'test/derivations.test.js',
+  'test/envelope.test.js',
+  'test/pagination.test.js',
 ];
 
 const FAST_EXTRA = [

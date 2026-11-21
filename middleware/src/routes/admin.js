@@ -370,6 +370,7 @@ export const ADMIN_ROUTES = [
     path: '/admin/access-reviews',
     action: 'LIST_ACCESS_REVIEWS',
     tokenIdentity: 'actor',
+    pagination: { limit: 'limit', offset: 'offset', totalField: 'total' },
     fields: [
       { name: 'actor', pattern: PATTERNS.EMAIL, required: true },
       { name: 'state', pattern: PATTERNS.REVIEW_STATE, required: false },

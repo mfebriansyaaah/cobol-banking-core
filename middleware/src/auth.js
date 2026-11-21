@@ -223,20 +223,29 @@ export function verifyStepUp(token) {
 }
 
 /** Express middleware: require a valid bearer token. */
+import { fail, isV1 } from './envelope.js';
+
+function authFail(req, res, status, body) {
+  if (!isV1(req)) return res.status(status).json(body);
+  return res
+    .status(status)
+    .json(fail(body.error || 'INTERNAL', body.detail ?? body.field ?? null, { requestId: req.requestId || null }));
+}
+
 export function requireAuth(req, res, next) {
   const header = req.headers.authorization || '';
   const [scheme, token] = header.split(' ');
   if (scheme !== 'Bearer' || !token) {
-    return res.status(401).json({ error: 'MISSING_TOKEN' });
+    return authFail(req, res, 401, { error: 'MISSING_TOKEN' });
   }
   try {
     req.user = verifyWithAny(token, SECRET, 'JWT_SECRET_PREVIOUS');
     // A step-up (or any other purpose-tagged) token is not an access token.
     if (req.user.purpose) {
-      return res.status(401).json({ error: 'INVALID_TOKEN' });
+      return authFail(req, res, 401, { error: 'INVALID_TOKEN' });
     }
     return next();
   } catch {
-    return res.status(401).json({ error: 'INVALID_TOKEN' });
+    return authFail(req, res, 401, { error: 'INVALID_TOKEN' });
   }
 }

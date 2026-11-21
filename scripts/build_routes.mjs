@@ -34,10 +34,12 @@ function fail(msg) {
   throw new Error(`routes.yaml: ${msg}`);
 }
 
-// Split a flow list on top-level commas (quote-aware; no nesting in spec).
+// Split a flow list on top-level commas (quote-aware; []- and {}-nesting
+// are honored so pagination objects survive intact).
 function splitFlow(inner) {
   const parts = [];
   let depth = 0;
+  let brace = 0;
   let quote = null;
   let cur = '';
   for (let i = 0; i < inner.length; i += 1) {
@@ -54,7 +56,9 @@ function splitFlow(inner) {
     }
     if (c === '[') depth += 1;
     if (c === ']') depth -= 1;
-    if (c === ',' && depth === 0) {
+    if (c === '{') brace += 1;
+    if (c === '}') brace -= 1;
+    if (c === ',' && depth === 0 && brace === 0) {
       parts.push(cur.trim());
       cur = '';
       continue;
@@ -105,6 +109,30 @@ function parseDerivedValue(v, lineno) {
   return out;
 }
 
+// Pagination declaration (WP-14): which query params page the list and which
+// COBOL body field carries the total. Emitted as literal names; limit/offset
+// values must name real PATTERNS (checked again by the openapi/contract gates
+// via the generated import).
+function parsePaginationValue(v, lineno) {
+  const t = v.trim();
+  if (!t.startsWith('{') || !t.endsWith('}')) fail(`line ${lineno}: bad pagination ${t}`);
+  const out = {};
+  for (const part of splitFlow(t.slice(1, -1))) {
+    const kv = part.trim().match(/^([A-Za-z][A-Za-z0-9_]*)\s*:\s*([A-Za-z][A-Za-z0-9_]*)$/);
+    if (!kv) fail(`line ${lineno}: bad pagination pair ${JSON.stringify(part)}`);
+    out[kv[1]] = kv[2];
+  }
+  if (out.limit === undefined || out.offset === undefined || out.totalField === undefined) {
+    fail(`line ${lineno}: pagination needs limit, offset and totalField`);
+  }
+  for (const k of ['limit', 'offset']) {
+    if (!/^[A-Z][A-Z0-9_]*$/.test(out[k])) fail(`line ${lineno}: pagination ${k} must name a PATTERN`);
+  }
+  if (!/^[a-z][A-Za-z0-9_]*$/.test(out.totalField))
+    fail(`line ${lineno}: pagination totalField must name a body field`);
+  return out;
+}
+
 // Parse one `- { ... }` route line into an object. Strict: unknown keys and
 // malformed fields fail loudly.
 function parseRoute(line, lineno) {
@@ -119,6 +147,8 @@ function parseRoute(line, lineno) {
       route.fields = parseFieldsValue(v, lineno);
     } else if (k === 'derivedFields') {
       route.derivedFields = parseDerivedValue(v, lineno);
+    } else if (k === 'pagination') {
+      route.pagination = parsePaginationValue(v, lineno);
     } else if (['method', 'path', 'action', 'tokenIdentity'].includes(k)) {
       const val = parseValue(v, `${k} (line ${lineno})`);
       route[k] = typeof val === 'string' ? val : val.bare;
@@ -216,6 +246,10 @@ export function emitFile(spec) {
       // Same prettier-canonical wrapping as fields below.
       const single = `    derivedFields: [${slots.join(', ')}],`;
       lines.push(single.length <= 120 ? single : `    derivedFields: [\n      ${slots.join(',\n      ')},\n    ],`);
+    }
+    if (r.pagination) {
+      // Runtime needs param names (the keys) and the total field (the value).
+      lines.push(`    pagination: { limit: 'limit', offset: 'offset', totalField: '${r.pagination.totalField}' },`);
     }
     let fieldsLine;
     if (r.fields.ref) {

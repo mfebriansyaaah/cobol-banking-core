@@ -59,6 +59,7 @@ export const CARD_ROUTES = [
     path: '/cards',
     action: 'CARD_LIST',
     tokenIdentity: 'actor',
+    pagination: { limit: 'limit', offset: 'offset', totalField: 'total' },
     fields: [
       { name: 'status', pattern: PATTERNS.CARD_STATUS, required: false },
       { name: 'limit', pattern: PATTERNS.LIMIT, required: false },

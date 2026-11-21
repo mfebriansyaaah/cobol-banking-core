@@ -8,6 +8,7 @@ export const USER_PROFILE_ROUTES = [
     path: '/users',
     action: 'LIST_USERS',
     tokenIdentity: 'actor',
+    pagination: { limit: 'limit', offset: 'offset', totalField: 'total' },
     fields: [
       { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
       { name: 'offset', pattern: PATTERNS.INT, required: false },

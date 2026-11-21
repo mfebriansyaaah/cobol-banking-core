@@ -45,6 +45,7 @@ export const ACCOUNT_ROUTES = [
     path: '/accounts',
     action: 'ACC_LIST',
     tokenIdentity: 'actor',
+    pagination: { limit: 'limit', offset: 'offset', totalField: 'total' },
     fields: [
       { name: 'status', pattern: PATTERNS.LIST_STATUS, required: false },
       { name: 'type', pattern: PATTERNS.NAME, required: false },
