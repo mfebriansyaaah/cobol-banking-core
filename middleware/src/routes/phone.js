@@ -9,6 +9,7 @@ export const PHONE_ROUTES = [
     path: '/auth/phone/link/begin',
     action: 'OTP_LINK_BEGIN',
     tokenIdentity: 'actor',
+    derivedFields: [{ name: 'phone', pattern: PATTERNS.PHONE, required: true }],
     fields: [
       { name: 'email', pattern: PATTERNS.EMAIL, required: true },
       { name: 'phoneHash', pattern: PATTERNS.REF_VALUE_CODE, required: false },

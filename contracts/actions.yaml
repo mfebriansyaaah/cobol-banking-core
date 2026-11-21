@@ -3,7 +3,7 @@
 # never hand-edit. Validate with scripts/check_contract.mjs, regenerate with
 # --write after a reviewed route change.
 version: 1
-generatedAt: "2026-11-21T09:27:08.494Z"
+generatedAt: "2026-11-21T11:19:06.540Z"
 generator: scripts/build_contract.mjs (do not hand-edit)
 count: 559
 actions:
@@ -11412,6 +11412,10 @@ actions:
         required: true
         inline: false
         maxBytes: 100
+    derivedFields:
+      - name: imageRef
+        pattern: KEY
+        required: true
     tested: true
   - action: IDV_NIK_VALIDATE
     method: post
@@ -11462,6 +11466,10 @@ actions:
         required: true
         inline: false
         maxBytes: 100
+    derivedFields:
+      - name: nik
+        pattern: NIK
+        required: true
     tested: true
   - action: IDV_REVIEW_DECIDE
     method: post
@@ -18412,6 +18420,10 @@ actions:
         required: false
         inline: false
         maxBytes: 100
+    derivedFields:
+      - name: phone
+        pattern: PHONE
+        required: true
     tested: true
   - action: OTP_LINK_CONFIRM
     method: post
@@ -24762,6 +24774,16 @@ actions:
         required: true
         inline: false
         maxBytes: 100
+    derivedFields:
+      - name: name
+        pattern: NAME
+        required: true
+      - name: dob
+        pattern: DATE
+        required: false
+      - name: consent
+        pattern: FLAG
+        required: true
     tested: true
   - action: SCR_STATUS
     method: get

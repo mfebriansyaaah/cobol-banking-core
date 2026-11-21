@@ -6,7 +6,7 @@ const EMAIL = /^[A-Za-z0-9._%+-]{1,100}@[A-Za-z0-9.-]{1,100}$/;
 // COBOL escapes values before embedding, so quotes/backslash/semicolon are fine;
 // only the input-line format characters (pipe, newlines) are forbidden.
 const PASSWORD = /^[^|\n\r]{1,100}$/;
-const NAME = /^[A-Za-z0-9 .'-]{1,100}$/;
+const NAME = /^[A-Za-z0-9 .'\-_]{1,100}$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const DATERANGE = /^(\d{4}-\d{2}-\d{2})?,(\d{4}-\d{2}-\d{2})?$/;
 const CODE = /^\d{6}$/;

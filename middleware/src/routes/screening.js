@@ -9,6 +9,11 @@ export const SCREENING_ROUTES = [
     path: '/screening/check',
     action: 'SCR_SCREEN',
     tokenIdentity: 'actor',
+    derivedFields: [
+      { name: 'name', pattern: PATTERNS.NAME, required: true },
+      { name: 'dob', pattern: PATTERNS.DATE, required: false },
+      { name: 'consent', pattern: PATTERNS.FLAG, required: true },
+    ],
     fields: [
       { name: 'email', pattern: PATTERNS.EMAIL, required: true },
       { name: 'queryHash', pattern: PATTERNS.REF_VALUE_CODE, required: false },

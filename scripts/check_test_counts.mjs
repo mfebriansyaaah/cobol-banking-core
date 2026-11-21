@@ -184,6 +184,10 @@ function loadRuntime() {
   // Only junit/gateway/ counts: junit/db/ holds converted TAP logs for PR
   // annotations, not gateway tests. Legacy flat dirs (no junit/gateway)
   // fall back to scanning the report root while pruning junit/db/.
+  // Leaf <testcase> elements are authoritative when present (a parent test
+  // with subtests also emits a <testsuite tests="k"> summary; counting that
+  // would drop sibling leaf tests, so testcases win ties). Converted TAP
+  // summaries without testcases still count via the testsuite attrs.
   let gateway = null;
   if (existsSync(reportDir)) {
     let tests = 0;
@@ -197,9 +201,10 @@ function loadRuntime() {
           const src = readFileSync(p, 'utf8');
           if (!src.includes('<testsuite') && !src.includes('<testcase')) continue;
           files += 1;
+          const cases = (src.match(/<testcase[\s>]/g) || []).length;
           const m = src.match(/<testsuite[^>]*\stests="(\d+)"/);
-          if (m) tests += Number(m[1]);
-          else tests += (src.match(/<testcase[\s>]/g) || []).length;
+          if (cases > 0) tests += cases;
+          else if (m) tests += Number(m[1]);
         }
       }
     };

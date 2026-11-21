@@ -8267,8 +8267,11 @@ paths:
                   type: string
                 verdict:
                   type: string
+                nik:
+                  type: string
               required:
                 - email
+                - nik
       responses:
         "200":
           description: Success
@@ -8305,8 +8308,11 @@ paths:
                   type: string
                 reason:
                   type: string
+                imageRef:
+                  type: string
               required:
                 - email
+                - imageRef
       responses:
         "200":
           description: Success
@@ -13494,8 +13500,11 @@ paths:
                   type: string
                 phoneHash:
                   type: string
+                phone:
+                  type: string
               required:
                 - email
+                - phone
       responses:
         "200":
           description: Success
@@ -15198,8 +15207,16 @@ paths:
                   type: string
                 providerRef:
                   type: string
+                name:
+                  type: string
+                dob:
+                  type: string
+                consent:
+                  type: string
               required:
                 - email
+                - name
+                - consent
       responses:
         "200":
           description: Success

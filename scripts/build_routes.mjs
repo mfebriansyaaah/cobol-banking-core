@@ -81,6 +81,30 @@ function parseValue(raw, what) {
   return null;
 }
 
+function parseFieldsValue(v, lineno) {
+  const t = v.trim();
+  if (t.startsWith('[')) {
+    return splitFlow(t.slice(1, -1)).map((f) => parseField(f, lineno));
+  }
+  if (/^[A-Z][A-Za-z0-9_]*$/.test(t)) return { ref: t };
+  fail(`line ${lineno}: bad fields ${t}`);
+  return null;
+}
+
+// Client inputs consumed by server-side derivations (WP-13): validated by
+// the adapter, documented in OpenAPI, never sent on the COBOL pipe.
+function parseDerivedValue(v, lineno) {
+  const t = v.trim();
+  if (!t.startsWith('[')) fail(`line ${lineno}: bad derivedFields ${t}`);
+  const out = splitFlow(t.slice(1, -1))
+    .filter((f) => f.trim() !== '')
+    .map((f) => parseField(f, lineno));
+  for (const f of out) {
+    if (f.const) fail(`line ${lineno}: derivedFields must be inline name:PATTERN, not ${f.const}`);
+  }
+  return out;
+}
+
 // Parse one `- { ... }` route line into an object. Strict: unknown keys and
 // malformed fields fail loudly.
 function parseRoute(line, lineno) {
@@ -92,12 +116,9 @@ function parseRoute(line, lineno) {
     if (!kv) fail(`line ${lineno}: bad pair ${JSON.stringify(part)}`);
     const [, k, v] = kv;
     if (k === 'fields') {
-      const t = v.trim();
-      if (t.startsWith('[')) {
-        route.fields = splitFlow(t.slice(1, -1)).map((f) => parseField(f, lineno));
-      } else if (/^[A-Z][A-Za-z0-9_]*$/.test(t)) {
-        route.fields = { ref: t };
-      } else fail(`line ${lineno}: bad fields ${t}`);
+      route.fields = parseFieldsValue(v, lineno);
+    } else if (k === 'derivedFields') {
+      route.derivedFields = parseDerivedValue(v, lineno);
     } else if (['method', 'path', 'action', 'tokenIdentity'].includes(k)) {
       const val = parseValue(v, `${k} (line ${lineno})`);
       route[k] = typeof val === 'string' ? val : val.bare;
@@ -186,6 +207,15 @@ export function emitFile(spec) {
     for (const [k, v] of r.extra) {
       if (v && typeof v === 'object' && v.ident) push(k, v.ident, true);
       else push(k, v);
+    }
+    if (r.derivedFields && r.derivedFields.length) {
+      const slots = r.derivedFields.map((f) => {
+        usesPatterns.add(f.pattern);
+        return emitField(f);
+      });
+      // Same prettier-canonical wrapping as fields below.
+      const single = `    derivedFields: [${slots.join(', ')}],`;
+      lines.push(single.length <= 120 ? single : `    derivedFields: [\n      ${slots.join(',\n      ')},\n    ],`);
     }
     let fieldsLine;
     if (r.fields.ref) {

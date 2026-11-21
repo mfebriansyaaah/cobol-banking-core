@@ -20,7 +20,6 @@ scripts/check_route_auth.mjs|@26|16
 scripts/check_test_counts.mjs|@150|17
 scripts/classify_code_candidates.mjs|@104|19
 scripts/generate_data_dictionary.mjs|@40|16
-scripts/lib/contract.mjs|@103|17
 scripts/lib/dispatch_table.mjs|@14|17
 scripts/lib/route_fields.mjs|@148|16
 scripts/lib/route_fields.mjs|@43|17

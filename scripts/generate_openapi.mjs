@@ -132,6 +132,7 @@ for (const entry of [...loadContract(ROOT)].sort((a, b) => a.seq - b.seq)) {
   const { method, path: routePath, action } = entry;
   const file = entry.routeFile || '';
   const fields = entry.fields || [];
+  const derived = entry.derivedFields || [];
   {
     const opKey = Object.keys(actionToOp).find((k) => action.endsWith(k));
     const op = opKey ? actionToOp[opKey] : 'list';
@@ -151,6 +152,14 @@ for (const entry of [...loadContract(ROOT)].sort((a, b) => a.seq - b.seq)) {
     // (BLANK/ACTOR/ID) are positional padding or server-injected identity.
     for (const f of fields) {
       if (!f.inline || !f.name) continue;
+      properties[f.name] = { type: 'string' };
+      if (f.required) required.push(f.name);
+    }
+    // Derived inputs (WP-13): client-sent raw values consumed by server-side
+    // adapters (nik, imageRef, name/dob/consent, phone). Documented as normal
+    // body fields; they never travel on the COBOL pipe.
+    for (const f of derived) {
+      if (!f.name) continue;
       properties[f.name] = { type: 'string' };
       if (f.required) required.push(f.name);
     }
