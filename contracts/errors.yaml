@@ -60,6 +60,7 @@ codes:
   INVALID_MFA: { status: 401, origin: cobol }
   INVALID_PERIOD: { status: 400, origin: cobol }
   INVALID_PRINCIPAL: { status: 400, origin: cobol, note: "deposit principal rejected" }
+  INVALID_RESPONSE: { status: 500, origin: gateway, note: "COBOL output without SUCCESS|/ERROR| prefix (protocol violation, never success)" }
   INVALID_RETENTION: { status: 400, origin: cobol, note: "retention window rejected" }
   INVALID_ROLE: { status: 400, origin: cobol }
   INVALID_ROWS: { status: 409, origin: cobol }

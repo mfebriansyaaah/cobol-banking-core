@@ -314,7 +314,10 @@
                 MOVE "ERROR|TOKEN_CHECK_FAILED" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            IF WS-RESULT(1:WS-P2-LEN) NOT = WS-PARAM2-TRIMMED(1:WS-P2-LEN)
+            *> Exact comparison: a prefix compare (1:WS-P2-LEN) lets a stale
+            *> single-digit version pass once the counter reaches two digits
+            *> (e.g. token ver=1 vs DB ver=10). Compare the full strings.
+            IF FUNCTION TRIM(WS-RESULT) NOT = FUNCTION TRIM(WS-PARAM2-TRIMMED)
                 MOVE "ERROR|TOKEN_REVOKED" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.

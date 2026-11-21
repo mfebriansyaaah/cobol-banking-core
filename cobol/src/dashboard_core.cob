@@ -149,7 +149,7 @@
         COPY "common_auth.cpy".
 
        AUDIT-DENIED.
-           MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, status) SELECT u.id, a.id, 'AUTHZ_DENIED', 'DASHBOARD', 0, 'DENIED' FROM users u, users a WHERE u.email = ? AND a.email = ?" TO WS-PREP-SQL
+           MOVE "INSERT INTO audit_trail (user_id, actor_id, action, entity_type, entity_id, status) SELECT u.id, a.id, 'AUTHZ_DENIED', 'DASHBOARD', 0, 'FAILED' FROM users u, users a WHERE u.email = ? AND a.email = ?" TO WS-PREP-SQL
            MOVE WS-DENIED-ACTOR TO WS-BIND-1
            MOVE WS-DENIED-ACTOR TO WS-BIND-2
            PERFORM SQL-EXEC-2.

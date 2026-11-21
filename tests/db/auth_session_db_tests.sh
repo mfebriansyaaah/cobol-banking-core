@@ -61,6 +61,11 @@ assert_match "version differs" "$bumped" "^yes$"
 ver="$(printf '%s' "$v1" | awk -F'|' '{print $2}')"
 assert_match "token valid" "$(run_cobol "CHECK_TOKEN|${U}|${ver}||||")" "SUCCESS\|TOKEN_VALID"
 assert_match "stale token refused" "$(run_cobol "CHECK_TOKEN|${U}|0||||")" "ERROR\|TOKEN_REVOKED"
+# Multi-digit version: a stale single-digit token must not prefix-match DB ver=10.
+db_query "UPDATE users SET token_version = 10 WHERE email='${U}';" >/dev/null
+assert_match "old ver=1 refused at DB ver=10" "$(run_cobol "CHECK_TOKEN|${U}|1||||")" "ERROR\|TOKEN_REVOKED"
+assert_match "current ver=10 accepted" "$(run_cobol "CHECK_TOKEN|${U}|10||||")" "SUCCESS\|TOKEN_VALID"
+db_query "UPDATE users SET token_version = ${v1n} WHERE email='${U}';" >/dev/null
 assert_match "revoke token ok" "$(run_cobol "REVOKE_ACCESS_TOKEN|TJTI-9|${U}|3600|||")" "SUCCESS\|TOKEN_REVOKED"
 assert_match "denied token refused" "$(run_cobol "CHECK_TOKEN|${U}|${ver}|TJTI-9|||")" "ERROR\|TOKEN_REVOKED"
 

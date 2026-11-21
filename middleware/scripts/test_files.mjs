@@ -28,6 +28,7 @@ const UNIT = [
   'test/contract.test.js',
   'test/field_order.test.js',
   'test/invoker.timeout.test.js',
+  'test/invoker.exit.test.js',
   'test/mailer.test.js',
   'test/namespace.test.js',
   'test/pool-config.test.js',

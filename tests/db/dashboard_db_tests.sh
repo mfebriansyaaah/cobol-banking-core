@@ -28,6 +28,12 @@ assert_match "DSH_POLICY ok" "$(run_cobol "DSH_POLICY||||||${A}")" "SUCCESS\|"
 assert_match "DSH_RECON ok" "$(run_cobol "DSH_RECON||||||${A}")" "SUCCESS\|"
 assert_match "DSH_CASHFLOW ok" "$(run_cobol "DSH_CASHFLOW|2026-01-01|2026-12-31|USD|||${A}")" "SUCCESS\|"
 assert_match "non-admin refused" "$(run_cobol "DSH_OVERVIEW||||||sender@test.com")" "ERROR\|FORBIDDEN"
+# The refused attempt must be audited (status FAILED; DENIED is not a valid enum value).
+denied_before="$(db_query "SELECT COUNT(*) FROM audit_trail WHERE action='AUTHZ_DENIED' AND entity_type='DASHBOARD' AND status='FAILED';")"
+assert_match "non-admin refused again" "$(run_cobol "DSH_OVERVIEW||||||sender@test.com")" "ERROR\|FORBIDDEN"
+denied_after="$(db_query "SELECT COUNT(*) FROM audit_trail WHERE action='AUTHZ_DENIED' AND entity_type='DASHBOARD' AND status='FAILED';")"
+if [ "$denied_after" -gt "$denied_before" ] 2>/dev/null; then denied_grew=yes; else denied_grew=no; fi
+assert_match "denied dashboard audit recorded" "$denied_grew" "^yes$"
 
 print_summary
 if [ "$T_FAIL" -ne 0 ]; then exit 1; fi

@@ -703,6 +703,54 @@
             END-IF.
             EXIT PARAGRAPH.
 
+        RELOAD-ACCOUNT-STATUS.
+            *> Re-read both account statuses under the lock taken above: a
+            *> freeze/close committed between RESOLVE and LOCK must refuse
+            *> the transfer instead of posting into a dead account. The
+            *> posting UPDATEs carry the same status guard as a second net.
+            IF WS-TRANSFER-OK
+                MOVE "SELECT a.status, CAST(c.is_active AS CHAR) FROM accounts a JOIN currencies c ON c.currency_id = a.currency_id WHERE a.account_id = ? LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-SENDER-ACC TO WS-BIND-1
+                PERFORM SQL-EXEC-1
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
+                ELSE
+                    UNSTRING WS-RESULT DELIMITED BY "|"
+                        INTO WS-SENDER-STATUS WS-SENDER-CURACTIVE
+                    END-UNSTRING
+                END-IF
+            END-IF.
+            IF WS-TRANSFER-OK
+                MOVE "SELECT a.status, CAST(c.is_active AS CHAR) FROM accounts a JOIN currencies c ON c.currency_id = a.currency_id WHERE a.account_id = ? LIMIT 1" TO WS-PREP-SQL
+                MOVE WS-TARGET-ACC TO WS-BIND-1
+                PERFORM SQL-EXEC-1
+                IF WS-RESULT(1:5) = "ERROR"
+                    SET WS-TRANSFER-FAIL-DB TO TRUE
+                ELSE
+                    UNSTRING WS-RESULT DELIMITED BY "|"
+                        INTO WS-TARGET-STATUS WS-TARGET-CURACTIVE
+                    END-UNSTRING
+                END-IF
+            END-IF.
+            IF WS-TRANSFER-OK AND WS-SENDER-STATUS NOT = "ACTIVE"
+                IF WS-SENDER-STATUS(1:6) = "FROZEN"
+                    SET WS-TRANSFER-FAIL-FROZEN TO TRUE
+                ELSE
+                    SET WS-TRANSFER-FAIL-CLOSED TO TRUE
+                END-IF
+            END-IF.
+            IF WS-TRANSFER-OK AND WS-TARGET-STATUS NOT = "ACTIVE"
+                IF WS-TARGET-STATUS(1:6) = "FROZEN"
+                    SET WS-TRANSFER-FAIL-FROZEN TO TRUE
+                ELSE
+                    SET WS-TRANSFER-FAIL-CLOSED TO TRUE
+                END-IF
+            END-IF.
+            IF WS-TRANSFER-OK AND (WS-SENDER-CURACTIVE NOT = "1" OR WS-TARGET-CURACTIVE NOT = "1")
+                SET WS-TRANSFER-FAIL-CURINACT TO TRUE
+            END-IF.
+            EXIT PARAGRAPH.
+
 
         TRANSFER-LOGIC.
             PERFORM CHECK-ACCOUNT-PINS
@@ -991,6 +1039,9 @@
             IF WS-TRANSFER-OK
                 PERFORM LOCK-ACCOUNTS
             END-IF
+            IF WS-TRANSFER-OK
+                PERFORM RELOAD-ACCOUNT-STATUS
+            END-IF
             *> Note: post-lock plain re-reads are not used here. Under READ
             *> COMMITTED (set in sql_bridge.c) the locked rows are read with
             *> SELECT ... FOR UPDATE if needed; the invariants below are also
@@ -1126,7 +1177,7 @@
             *> Debit sender, rounded to its currency precision.
             IF WS-TRANSFER-OK
                 MOVE SPACES TO WS-PREP-SQL
-                STRING "UPDATE accounts SET balance = balance - ROUND(?, " WS-SENDER-PREC(1:1) ") WHERE account_id = ?" DELIMITED BY SIZE INTO WS-PREP-SQL
+                STRING "UPDATE accounts SET balance = balance - ROUND(?, " WS-SENDER-PREC(1:1) ") WHERE account_id = ? AND status = 'ACTIVE'" DELIMITED BY SIZE INTO WS-PREP-SQL
                 ON OVERFLOW MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
                 MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
                 MOVE WS-SENDER-ACC TO WS-BIND-2
@@ -1140,7 +1191,7 @@
             *> Credit target (converted to its currency, at its precision).
             IF WS-TRANSFER-OK
                 MOVE SPACES TO WS-PREP-SQL
-                STRING "UPDATE accounts SET balance = balance + ROUND(? * ?, " WS-TARGET-PREC(1:1) ") WHERE account_id = ?" DELIMITED BY SIZE INTO WS-PREP-SQL
+                STRING "UPDATE accounts SET balance = balance + ROUND(? * ?, " WS-TARGET-PREC(1:1) ") WHERE account_id = ? AND status = 'ACTIVE'" DELIMITED BY SIZE INTO WS-PREP-SQL
                 ON OVERFLOW MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
                 MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
                 MOVE WS-RATE-STR TO WS-BIND-2
