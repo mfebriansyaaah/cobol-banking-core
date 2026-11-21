@@ -4555,6 +4555,31 @@ CREATE TABLE `card_audit` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `card_authorize_request`
+--
+
+DROP TABLE IF EXISTS `card_authorize_request`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `card_authorize_request` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `card_id` bigint(20) NOT NULL,
+  `idempotency_key` varchar(64) NOT NULL,
+  `amount` decimal(18,4) NOT NULL,
+  `currency` char(3) NOT NULL DEFAULT '',
+  `merchant` varchar(100) NOT NULL DEFAULT '',
+  `auth_ref` varchar(64) DEFAULT NULL,
+  `status` enum('PENDING','DONE') NOT NULL DEFAULT 'PENDING',
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_card_auth_idem` (`card_id`,`idempotency_key`),
+  KEY `idx_card_auth_status` (`status`),
+  CONSTRAINT `fk_card_auth_request_card` FOREIGN KEY (`card_id`) REFERENCES `card_account` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `card_capture_request`
 --
 

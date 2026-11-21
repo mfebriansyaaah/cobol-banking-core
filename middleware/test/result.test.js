@@ -110,6 +110,7 @@ const EXPECT = {
     'SANCTION_CHECK_REQUIRED',
     'NO_OVERDUE',
     'OUTSTANDING_BALANCE',
+    'AUTHORIZE_IN_PROGRESS',
     'CAPTURE_IN_PROGRESS',
     'OPEN_IN_PROGRESS',
     'REPAY_IN_PROGRESS',
@@ -279,6 +280,7 @@ test('previously unmapped COBOL codes no longer fall back to 500 (maint-01)', ()
   const cases = {
     RATE_LIMITED: 429,
     OVERPAID: 409,
+    AUTHORIZE_IN_PROGRESS: 409,
     CAPTURE_IN_PROGRESS: 409,
     OPEN_IN_PROGRESS: 409,
     REPAY_IN_PROGRESS: 409,

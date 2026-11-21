@@ -162,3 +162,53 @@ test('clean tree passes', () => {
   assert.equal(r.code, 0);
   assert.match(r.out, /OK: architecture rules pass/);
 });
+
+const UPDATE_CORE = (tail) =>
+  `${COB_HEAD}       DO-IT.\n           MOVE "UPDATE loan SET status = 'X' WHERE id = ? AND status = 'Y'" TO WS-PREP-SQL\n           PERFORM SQL-EXEC-1\n${tail}\n           EXIT PARAGRAPH.\n`;
+
+test('A8 fires on a guarded status UPDATE without outcome handling', () => {
+  const r = run(fixture({ 'cobol/src/a_core.cob': UPDATE_CORE('           MOVE 1 TO WS-X.\n') }));
+  assert.equal(r.code, 1);
+  assert.match(r.out, /A8/);
+});
+
+test('A8 passes with STATE-EXPECT-ONE', () => {
+  const r = run(
+    fixture({
+      'cobol/src/a_core.cob': UPDATE_CORE(
+        '           PERFORM STATE-EXPECT-ONE\n           IF WS-STATE-OK = 0\n               EXIT PARAGRAPH\n           END-IF.\n',
+      ),
+    }),
+  );
+  assert.equal(r.code, 0);
+});
+
+test('A8 passes with an explicit AFFECTED check', () => {
+  const r = run(
+    fixture({
+      'cobol/src/a_core.cob': UPDATE_CORE(
+        '           IF WS-RESULT = "SUCCESS|AFFECTED_0"\n               MOVE 1 TO WS-X.\n           END-IF.\n',
+      ),
+    }),
+  );
+  assert.equal(r.code, 0);
+});
+
+test('A8 allowlist covers legacy paragraphs and rejects stale lines', () => {
+  const bad = UPDATE_CORE('           MOVE 1 TO WS-X.\n');
+  const r = run(
+    fixture({
+      'cobol/src/a_core.cob': bad,
+      'tests/state_transition_allowlist.txt': 'cobol/src/a_core.cob::DO-IT|arch9|2099-01-01|test\n',
+    }),
+  );
+  assert.equal(r.code, 0);
+  const stale = run(
+    fixture({
+      'cobol/src/a_core.cob': UPDATE_CORE('           PERFORM STATE-EXPECT-ONE\n'),
+      'tests/state_transition_allowlist.txt': 'cobol/src/a_core.cob::DO-IT|arch9|2099-01-01|test\n',
+    }),
+  );
+  assert.equal(stale.code, 1);
+  assert.match(stale.out, /stale/);
+});

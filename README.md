@@ -159,11 +159,11 @@ suites, table cases, and the action/suite inventory gates. See
 | --- | ---: |
 | COBOL modules | **69** |
 | COBOL source files (incl. dispatcher) | **70** |
-| COBOL lines | **49,728** |
+| COBOL lines | **49,769** |
 | Gateway route files | **52** |
 | Gateway route definitions | **561** |
 | Dispatch entries | **192** |
-| Recorded migrations | **678** |
+| Recorded migrations | **679** |
 | Tables in schema.sql | **466** |
 <!-- END GENERATED STATS -->
 
@@ -344,7 +344,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/schema_db_tests.sh` | 76 |
 | `tests/db/loan_schedule_db_tests.sh` | 42 |
 | `tests/db/deposit_db_tests.sh` | 67 |
-| `tests/db/card_db_tests.sh` | 52 |
+| `tests/db/card_db_tests.sh` | 59 |
 | `tests/db/collection_db_tests.sh` | 74 |
 | `tests/db/payment_clearing_db_tests.sh` | 36 |
 | `tests/db/treasury_liquidity_db_tests.sh` | 39 |
@@ -449,7 +449,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/report_run_db_tests.sh` | 11 |
 | `tests/db/arch9_p0_db_tests.sh` | 12 |
 | `tests/db/begin_failure_db_tests.sh` | 6 |
-| **Total** | **3340** |
+| **Total** | **3347** |
 <!-- END GENERATED TEST TABLE -->
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database

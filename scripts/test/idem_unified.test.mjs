@@ -95,7 +95,7 @@ test('14B domains route every *_request access through the copybook', () => {
   const cases = [
     [
       'card_core.cob',
-      ['card_capture_request', 'card_repay_request', 'card_reverse_request'],
+      ['card_capture_request', 'card_repay_request', 'card_reverse_request', 'card_authorize_request'],
       ['IDEM-CLAIM', 'IDEM-COMPLETE', 'IDEM-DELETE'],
     ],
     [
@@ -136,6 +136,7 @@ test('copybook covers the 14B scopes and journal variants', () => {
     'CARD_CAPTURE',
     'CARD_REPAY',
     'CARD_REVERSE',
+    'CARD_AUTHORIZE',
     'DEP_OPEN',
     'DEP_CLOSE',
     'DEP_SETTLE',

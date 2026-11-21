@@ -89,6 +89,9 @@
                WHEN "CARD_REVERSE"
                    MOVE "card_reverse_request" TO WS-IDEM-TABLE
                    MOVE "card_id" TO WS-IDEM-ENTITY
+               WHEN "CARD_AUTHORIZE"
+                   MOVE "card_authorize_request" TO WS-IDEM-TABLE
+                   MOVE "card_id" TO WS-IDEM-ENTITY
                WHEN "DEP_OPEN"
                    MOVE "deposit_open_request" TO WS-IDEM-TABLE
                    MOVE SPACES TO WS-IDEM-ENTITY

@@ -277,6 +277,93 @@ const A7_ALLOW = loadAllowlist('legacy_routes.txt', 'A7', 'key|expiry|owner|reas
   reportStale('A7', A7_ALLOW, seen);
 }
 
+// --- A8: guarded status transitions ------------------------------------------
+// Every UPDATE that writes a status column under a status/version guard in
+// WHERE is a state transition: exactly one row must flip (STATE-EXPECT-ONE)
+// or the outcome must be handled explicitly (SUCCESS|AFFECTED_0/1).
+// Anything else is a silent no-op or false success. Unconditional status
+// writes (no guard in WHERE) are out of scope: idempotent re-assertions
+// with no guard to race; version guards count as the same bug class.
+// The check window starts at the statement's own SQL-EXEC and stops at the
+// next SQL statement or paragraph end, so a check belonging to a later
+// statement is never misattributed.
+// Paragraph labels follow scripts/check_cobol_paragraphs.mjs (LABEL + SKIP;
+// an END- terminator is never a paragraph).
+
+const A8_ALLOW = loadAllowlist('state_transition_allowlist.txt', 'A8');
+{
+  const LABEL = /^\s{4,14}([A-Z][A-Z0-9_-]+)\.\s*$/;
+  const SKIP = /^(END-|ELSE$|WHEN$|EXIT$|CONTINUE$|GOBACK$|STOP$|ENTRY$|PROCEDURE$)/;
+  const isLabel = (line) => {
+    const m = line.match(LABEL);
+    return m && !SKIP.test(m[1]) ? m[1] : null;
+  };
+  const seen = new Set();
+  for (const f of walk(path.join(ROOT, 'cobol', 'src'), '.cob')) {
+    if (!f.endsWith('_core.cob')) continue;
+    const r = rel(f);
+    const lines = readFileSync(f, 'utf8').split('\n');
+    let para = '(top)';
+    for (let i = 0; i < lines.length; i += 1) {
+      const label = isLabel(lines[i]);
+      if (label) {
+        para = label;
+        continue;
+      }
+      if (!/^\s*MOVE "UPDATE\s+\w+\s+SET\b.*\bstatus\b/i.test(lines[i])) continue;
+      const whereAt = lines[i].toUpperCase().indexOf('WHERE');
+      if (whereAt === -1) continue;
+      // Guarded transitions only: the WHERE clause must predicate on the
+      // guarded column (status) or the optimistic-concurrency column
+      // (version). Unconditional status writes are idempotent
+      // re-assertions with no guard to race; they stay out of scope.
+      const tail = lines[i].toUpperCase().slice(whereAt);
+      if (!/\bSTATUS\b/.test(tail) && !/\bVERSION\b/.test(tail)) continue;
+      // This statement's own execution: the first SQL-EXEC after the MOVE,
+      // before any next paragraph label.
+      let exec = -1;
+      for (let k = i + 1; k < Math.min(i + 25, lines.length); k += 1) {
+        if (isLabel(lines[k])) break;
+        if (/PERFORM SQL-EXEC|CALL "SQL_PREPARE_EXEC/.test(lines[k])) {
+          exec = k;
+          break;
+        }
+      }
+      if (exec === -1) {
+        checkAllowlisted(
+          'A8',
+          A8_ALLOW,
+          `${r}|${para}`,
+          'guarded status UPDATE with no SQL-EXEC in reach (cannot verify outcome)',
+          seen,
+        );
+        continue;
+      }
+      // Outcome handling must follow this execution, before the next SQL
+      // statement or paragraph label.
+      let handled = false;
+      for (let k = exec + 1; k < Math.min(exec + 45, lines.length); k += 1) {
+        if (isLabel(lines[k])) break;
+        if (/^\s*MOVE "(UPDATE|INSERT|DELETE|SELECT)\b/.test(lines[k])) break;
+        if (/STATE-EXPECT-ONE|SUCCESS\|AFFECTED_1|SUCCESS\|AFFECTED_0/.test(lines[k])) {
+          handled = true;
+          break;
+        }
+      }
+      if (!handled) {
+        checkAllowlisted(
+          'A8',
+          A8_ALLOW,
+          `${r}::${para}`,
+          'guarded status UPDATE without STATE-EXPECT-ONE or AFFECTED check (silent no-op risk)',
+          seen,
+        );
+      }
+    }
+  }
+  reportStale('A8', A8_ALLOW, seen);
+}
+
 // --- Verdict -------------------------------------------------------------------
 
 if (errors.length) {

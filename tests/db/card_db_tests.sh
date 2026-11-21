@@ -90,6 +90,25 @@ run_cobol "CARD_REVERSE|${card_id}|${auth2_ref}||||admin@test.com" >/dev/null
 avail="$(db_query "SELECT available_limit FROM card_account WHERE id=${card_id};")"
 assert_match "authorization hold released" "$avail" "^5000.0000$"
 
+# Idempotent authorize: the same key replays without a second hold, and a
+# different amount under the same key conflicts instead of double-holding.
+authk="$(run_cobol "CARD_AUTHORIZE|${card_id}|150.00|Shop K|USD|AUTHK-1|admin@test.com")"
+assert_match "authorize with key ok" "$authk" "SUCCESS\|CARD_AUTHORIZE\|AUTH-"
+authk_ref="$(printf '%s' "$authk" | awk -F'|' '{print $3}')"
+avail="$(db_query "SELECT available_limit FROM card_account WHERE id=${card_id};")"
+assert_match "keyed hold placed once" "$avail" "^4850.0000$"
+replay="$(run_cobol "CARD_AUTHORIZE|${card_id}|150.00|Shop K|USD|AUTHK-1|admin@test.com")"
+assert_match "same key replays original ref" "$replay" "SUCCESS\|CARD_AUTHORIZE\|${authk_ref}|150.0000"
+avail="$(db_query "SELECT available_limit FROM card_account WHERE id=${card_id};")"
+assert_match "replay moves no limit" "$avail" "^4850.0000$"
+conflict="$(run_cobol "CARD_AUTHORIZE|${card_id}|151.00|Shop K|USD|AUTHK-1|admin@test.com")"
+assert_match "same key different amount conflicts" "$conflict" "ERROR\|IDEMPOTENCY_CONFLICT"
+avail="$(db_query "SELECT available_limit FROM card_account WHERE id=${card_id};")"
+assert_match "conflict moves no limit" "$avail" "^4850.0000$"
+run_cobol "CARD_REVERSE|${card_id}|${authk_ref}||||admin@test.com" >/dev/null
+avail="$(db_query "SELECT available_limit FROM card_account WHERE id=${card_id};")"
+assert_match "keyed hold released" "$avail" "^5000.0000$"
+
 # Capture 300, then repay 100.
 auth3="$(run_cobol "CARD_AUTHORIZE|${card_id}|300.00|Shop E|USD||admin@test.com")"
 auth3_ref="$(printf '%s' "$auth3" | awk -F'|' '{print $3}')"
