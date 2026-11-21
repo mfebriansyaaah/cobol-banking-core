@@ -23,6 +23,7 @@ export const LOAN_ROUTES = [
     path: '/loans',
     action: 'LOAN_LIST',
     tokenIdentity: 'actor',
+    pagination: { limit: 'limit', offset: 'offset', totalField: 'total' },
     fields: [
       { name: 'status', pattern: PATTERNS.LOAN_STATUS, required: false },
       { name: 'limit', pattern: PATTERNS.LIMIT, required: false },

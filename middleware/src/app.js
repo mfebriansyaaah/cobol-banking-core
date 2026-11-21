@@ -14,6 +14,7 @@ import { assertPasswordAllowed } from '../adapters/guards.js';
 import { verifyTurnstile } from '../adapters/guards.js';
 import { createTokenStore } from './tokenStore.js';
 import { RESPONSE_MAPPERS } from './responseMappers.js';
+import { reply, envelopeBody, isV1 } from './envelope.js';
 import { completeRefresh } from './authService.js';
 import { applyDerivation } from '../adapters/signals.js';
 
@@ -58,7 +59,7 @@ export function buildRouter({ mailer, tokenStore, logger = null } = {}) {
       const u = req.user || {};
       const ok = await tokenStore.isActive({ email: u.email || '', ver: u.ver, jti: u.jti });
       if (ok) return next();
-      return res.status(401).json({ error: 'TOKEN_REVOKED' });
+      return reply(req, res, 401, { error: 'TOKEN_REVOKED' });
     } catch (err) {
       return next(err);
     }
@@ -72,9 +73,9 @@ export function buildRouter({ mailer, tokenStore, logger = null } = {}) {
       const email = (req.user && req.user.email) || '';
       const raw = await invoke('CHECK_PERMISSION', [email, permission]);
       if (raw === 'SUCCESS|PERMISSION_OK') return next();
-      if (raw === 'ERROR|ACCOUNT_NOT_FOUND') return res.status(404).json({ error: 'ACCOUNT_NOT_FOUND' });
+      if (raw === 'ERROR|ACCOUNT_NOT_FOUND') return reply(req, res, 404, { error: 'ACCOUNT_NOT_FOUND' });
       recordAuthFailure('PERMISSION_DENIED');
-      return res.status(403).json({ error: 'FORBIDDEN' });
+      return reply(req, res, 403, { error: 'FORBIDDEN' });
     } catch (err) {
       return next(err);
     }
@@ -87,19 +88,19 @@ export function buildRouter({ mailer, tokenStore, logger = null } = {}) {
     const token = req.get('x-step-up') || (req.body && req.body.stepUpToken) || '';
     if (!token) {
       recordAuthFailure('STEP_UP_REQUIRED');
-      res.status(401).json({ error: 'STEP_UP_REQUIRED' });
+      reply(req, res, 401, { error: 'STEP_UP_REQUIRED' });
       return false;
     }
     let payload;
     try {
       payload = verifyStepUp(token);
     } catch {
-      res.status(401).json({ error: 'STEP_UP_REQUIRED' });
+      reply(req, res, 401, { error: 'STEP_UP_REQUIRED' });
       return false;
     }
     const u = req.user || {};
     if (payload.email !== u.email || String(payload.ver) !== String(u.ver)) {
-      res.status(401).json({ error: 'STEP_UP_REQUIRED' });
+      reply(req, res, 401, { error: 'STEP_UP_REQUIRED' });
       return false;
     }
     return true;
@@ -124,7 +125,7 @@ export function buildRouter({ mailer, tokenStore, logger = null } = {}) {
       }
       if (raw.startsWith('ERROR')) {
         recordAuthFailure('STEP_UP_POLICY_FAILED');
-        return res.status(500).json({ error: 'STEP_UP_POLICY_FAILED' });
+        return reply(req, res, 500, { error: 'STEP_UP_POLICY_FAILED' });
       }
       return next();
     } catch (err) {
@@ -135,35 +136,35 @@ export function buildRouter({ mailer, tokenStore, logger = null } = {}) {
   // Deep health: confirm the COBOL core can reach the database. Rate-limited:
   // it is public and performs a COBOL/DB round-trip, so it must not be an
   // anonymous amplification vector.
-  const infraHealth = async (_req, res) => {
+  const infraHealth = async (req, res) => {
     const t0 = Date.now();
     try {
       const raw = await invoke('PING', []);
       const ms = Date.now() - t0;
       res.set('X-Cobol-Ms', String(ms));
       if (raw === 'SUCCESS|PONG') {
-        return res.json({ status: 'ok', db: 'up', data: ['PONG'] });
+        return reply(req, res, 200, { status: 'ok', db: 'up', data: ['PONG'] });
       }
-      return res.status(503).json({ status: 'degraded', db: 'down' });
+      return reply(req, res, 503, { status: 'degraded', db: 'down' });
     } catch {
       res.set('X-Cobol-Ms', String(Date.now() - t0));
-      return res.status(503).json({ status: 'degraded', db: 'down' });
+      return reply(req, res, 503, { status: 'degraded', db: 'down' });
     }
   };
 
   // Liveness: the process is up. No dependencies — never flaps on a DB blip.
-  const infraLive = (_req, res) => res.json({ status: 'alive' });
+  const infraLive = (req, res) => reply(req, res, 200, { status: 'alive' });
 
   // Readiness: dependencies usable (DB reachable, pool has a worker when
   // pooling is on). Public like a readiness probe must be, so it is
   // rate-limited and its result is cached for a short window (PROBE_CACHE_MS)
   // to bound the DB round-trips an anonymous caller can trigger.
   let readyCache = null; // { at, status, body }
-  const infraReady = async (_req, res) => {
+  const infraReady = async (req, res) => {
     const ttl = Number(process.env.PROBE_CACHE_MS || 1000);
     const now = Date.now();
     if (readyCache && now - readyCache.at < ttl) {
-      return res.status(readyCache.status).json(readyCache.body);
+      return reply(req, res, readyCache.status, readyCache.body);
     }
     const checks = {};
     try {
@@ -181,12 +182,13 @@ export function buildRouter({ mailer, tokenStore, logger = null } = {}) {
     const status = ok ? 200 : 503;
     const body = { status: ok ? 'ready' : 'not_ready', checks };
     readyCache = { at: now, status, body };
-    return res.status(status).json(body);
+    return reply(req, res, status, body);
   };
 
   // Prometheus-style counters (support only). Authenticated to keep the
   // surface closed; scrapers send a bearer token.
-  const infraMetrics = (_req, res) => {
+  const infraMetrics = (req, res) => {
+    if (isV1(req)) return reply(req, res, 200, { metrics: metricsText() });
     res.type('text/plain').send(metricsText());
   };
 
@@ -199,16 +201,16 @@ export function buildRouter({ mailer, tokenStore, logger = null } = {}) {
       payload = verifyRefresh((req.body && req.body.refreshToken) || '');
       const consume = await invoke('CONSUME_SESSION', [payload.jti || '']);
       if (consume !== 'SUCCESS|SESSION_CONSUMED') {
-        return res.status(401).json({ error: 'INVALID_REFRESH_TOKEN' });
+        return reply(req, res, 401, { error: 'INVALID_REFRESH_TOKEN' });
       }
     } catch {
-      return res.status(401).json({ error: 'INVALID_REFRESH_TOKEN' });
+      return reply(req, res, 401, { error: 'INVALID_REFRESH_TOKEN' });
     }
     // Rotation persistence must not be reported as success when it fails.
     try {
-      return res.json(await completeRefresh(payload, { req }));
+      return reply(req, res, 200, await completeRefresh(payload, { req }));
     } catch {
-      return res.status(500).json({ error: 'SESSION_STORE_FAILED' });
+      return reply(req, res, 500, { error: 'SESSION_STORE_FAILED' });
     }
   };
 
@@ -221,12 +223,12 @@ export function buildRouter({ mailer, tokenStore, logger = null } = {}) {
     try {
       payload = verifyRefresh((req.body && req.body.refreshToken) || '');
     } catch {
-      return res.status(401).json({ error: 'INVALID_REFRESH_TOKEN' });
+      return reply(req, res, 401, { error: 'INVALID_REFRESH_TOKEN' });
     }
     try {
       const revoked = await invoke('REVOKE_SESSION', [payload.jti || '']);
       if (revoked !== 'SUCCESS|SESSION_REVOKED') {
-        return res.status(500).json({ error: 'SESSION_REVOKE_FAILED' });
+        return reply(req, res, 500, { error: 'SESSION_REVOKE_FAILED' });
       }
       const header = req.headers.authorization || '';
       const [scheme, token] = header.split(' ');
@@ -236,9 +238,9 @@ export function buildRouter({ mailer, tokenStore, logger = null } = {}) {
           await tokenStore.revoke({ jti: u.jti, email: u.email, ttlSeconds: ACCESS_TTL_SECONDS });
         }
       }
-      return res.json({ data: ['LOGGED_OUT'] });
+      return reply(req, res, 200, { data: ['LOGGED_OUT'] });
     } catch {
-      return res.status(500).json({ error: 'SESSION_REVOKE_FAILED' });
+      return reply(req, res, 500, { error: 'SESSION_REVOKE_FAILED' });
     }
   };
 
@@ -247,9 +249,9 @@ export function buildRouter({ mailer, tokenStore, logger = null } = {}) {
   const infraRevoke = async (req, res) => {
     try {
       await tokenStore.revoke({ jti: req.user.jti, email: req.user.email, ttlSeconds: ACCESS_TTL_SECONDS });
-      return res.json({ data: ['TOKEN_REVOKED'] });
+      return reply(req, res, 200, { data: ['TOKEN_REVOKED'] });
     } catch {
-      return res.status(500).json({ error: 'TOKEN_REVOKE_FAILED' });
+      return reply(req, res, 500, { error: 'TOKEN_REVOKE_FAILED' });
     }
   };
 
@@ -290,7 +292,7 @@ export function buildRouter({ mailer, tokenStore, logger = null } = {}) {
         if (!allowed) {
           res.locals.errorCode = 'BREACHED_PASSWORD';
           recordError('BREACHED_PASSWORD');
-          res.status(400).json({ error: 'BREACHED_PASSWORD' });
+          reply(req, res, 400, { error: 'BREACHED_PASSWORD' });
           return true;
         }
       }
@@ -300,7 +302,7 @@ export function buildRouter({ mailer, tokenStore, logger = null } = {}) {
           const code = verdict.code === 'missing-input-response' ? 'CAPTCHA_REQUIRED' : 'CAPTCHA_REJECTED';
           res.locals.errorCode = code;
           recordError(code);
-          res.status(400).json({ error: code });
+          reply(req, res, 400, { error: code });
           return true;
         }
       }
@@ -333,9 +335,12 @@ export function buildRouter({ mailer, tokenStore, logger = null } = {}) {
       }
       const mapper = status === 200 ? RESPONSE_MAPPERS[route.action] : null;
       if (mapper) {
-        return res.status(status).json(await mapper(body, input, { mailer, req }));
+        const mapped = await mapper(body, input, { mailer, req });
+        if (!isV1(req)) return res.status(status).json(mapped);
+        return res.status(status).json(envelopeBody(req, route, status, mapped));
       }
-      return res.status(status).json(body);
+      if (!isV1(req)) return res.status(status).json(body);
+      return res.status(status).json(envelopeBody(req, route, status, body));
     };
 
     const handler = async (req, res, next) => {
@@ -380,10 +385,16 @@ export function buildRouter({ mailer, tokenStore, logger = null } = {}) {
   // Domain mounts (PR-054): one sub-router per first path segment, mounted
   // at '/' in first-seen order. Matching is identical to the flat table
   // (see routes/mount.js); the split only bounds blast radius per domain.
+  // /v1 alias (WP-14, D-05): the same routes mounted a second time under
+  // '/v1'. Legacy paths keep their exact shape; only the alias is enveloped
+  // (see envelopeBody/reply above and isV1 in envelope.js).
   for (const { routes } of groupRoutes(ROUTES)) {
     const sub = express.Router();
     for (const route of routes) registerRoute(sub, route);
     router.use(sub);
+    const subV1 = express.Router();
+    for (const route of routes) registerRoute(subV1, route);
+    router.use('/v1', subV1);
   }
 
   return router;
@@ -419,7 +430,7 @@ export function buildApp({ logger = null, mailer = null, tokenStore = null } = {
     buildRouter({ mailer: mailer || createMailer({ logger }), tokenStore: tokenStore || createTokenStore(), logger }),
   );
   // eslint-disable-next-line no-unused-vars
-  app.use((err, _req, res, _next) => {
+  app.use((err, req, res, _next) => {
     let status = 500;
     let code = 'INTERNAL';
     if (err instanceof ValidationError) {
@@ -458,11 +469,11 @@ export function buildApp({ logger = null, mailer = null, tokenStore = null } = {
       // error joins to its request (ADR-0005). Null when the observer never
       // ran (e.g. a body-parser rejection ahead of it is impossible today —
       // the observer is first — but defensiveness here is free).
-      id: (_req && _req.requestId) || null,
+      id: (req && req.requestId) || null,
       code,
       status,
-      method: _req && _req.method,
-      route: (_req && _req.route && _req.route.path) || 'unmatched',
+      method: req && req.method,
+      route: (req && req.route && req.route.path) || 'unmatched',
       message: err && err.message,
       ...(serverError ? { stack: err && err.stack } : {}),
     };
@@ -473,9 +484,9 @@ export function buildApp({ logger = null, mailer = null, tokenStore = null } = {
       process.stderr.write(JSON.stringify(record) + '\n');
     }
     if (err instanceof ValidationError) {
-      return res.status(status).json({ error: code, field: err.field });
+      return reply(req, res, status, { error: code, field: err.field });
     }
-    return res.status(status).json({ error: code });
+    return reply(req, res, status, { error: code });
   });
   return app;
 }

@@ -23,6 +23,7 @@ export const PAYMENT_ROUTES = [
     path: '/payments/policies',
     action: 'PAY_POLICY_LIST',
     tokenIdentity: 'actor',
+    pagination: { limit: 'limit', offset: 'offset', totalField: 'total' },
     fields: [
       { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
       { name: 'offset', pattern: PATTERNS.INT, required: false },

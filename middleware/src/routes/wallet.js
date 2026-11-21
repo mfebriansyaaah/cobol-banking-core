@@ -22,6 +22,7 @@ export const WALLET_ROUTES = [
     path: '/statements',
     action: 'STATEMENT',
     tokenIdentity: 'actor',
+    pagination: { limit: 'limit', offset: 'offset', totalField: 'total' },
     fields: [
       { name: 'email', pattern: PATTERNS.EMAIL, required: true },
       { name: 'actor', pattern: PATTERNS.EMAIL, required: true },

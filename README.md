@@ -351,7 +351,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/gl_allocation_db_tests.sh` | 13 |
 | `tests/db/grants_db_tests.sh` | 6 |
 | `tests/db/migration_checksum_db_tests.sh` | 6 |
-| `middleware/test/*.js` | 931 |
+| `middleware/test/*.js` | 961 |
 | `tests/db/cost_center_db_tests.sh` | 23 |
 | `tests/db/fixed_asset_db_tests.sh` | 21 |
 | `tests/db/fixed_asset_schema_db_tests.sh` | 8 |
@@ -449,7 +449,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/report_run_db_tests.sh` | 11 |
 | `tests/db/arch9_p0_db_tests.sh` | 12 |
 | `tests/db/begin_failure_db_tests.sh` | 6 |
-| **Total** | **3925** |
+| **Total** | **3955** |
 <!-- END GENERATED TEST TABLE -->
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database

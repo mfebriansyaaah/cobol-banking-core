@@ -25,6 +25,7 @@ export const DEPOSIT_ROUTES = [
     path: '/deposits',
     action: 'DEP_LIST',
     tokenIdentity: 'actor',
+    pagination: { limit: 'limit', offset: 'offset', totalField: 'total' },
     fields: [
       { name: 'status', pattern: PATTERNS.DEP_STATUS, required: false },
       { name: 'limit', pattern: PATTERNS.LIMIT, required: false },

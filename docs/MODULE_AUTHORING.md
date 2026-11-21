@@ -151,3 +151,23 @@ regenerate them and review the diff.
   the captured pipe). `npm run test:scripts` runs
   `scripts/test/derived_fields.test.mjs` (spec → routes → registry →
   OpenAPI round-trip, derived never in pipe).
+
+## Response envelope v1 and pagination (WP-14)
+
+Every route is served twice: the legacy path keeps its exact shape, and the
+`/v1` alias (mounted in `buildRouter`, D-05) wraps responses in the envelope
+from `middleware/src/envelope.js` (`ok`/`fail`, `isV1`). All response edges
+in `app.js`/`auth.js` go through `reply()`/`envelopeBody()`; no handler
+calls `res.json` directly.
+
+- Adding a paginated list: annotate the spec line with
+  `pagination: { limit: LIMIT, offset: INT, totalField: total }`
+  (see `parsePaginationValue` in `scripts/build_routes.mjs`), regenerate
+  routes, then give the action a v1 mapper branch returning
+  `{ data: <items>, meta: pageMeta(input, total) }` (`total` is the COBOL
+  COUNT(*) when the output carries one, else `null` — never the page size).
+  Non-v1 callers keep the legacy shape untouched (new domain mappers return
+  the raw body when `!isV1(req)`).
+- `middleware/test/pagination.test.js` asserts the envelope and every
+  `pagination` route's data+meta on v1; it fails if a newly annotated route
+  has no meta-capable mapper.

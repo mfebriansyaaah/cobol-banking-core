@@ -23,6 +23,7 @@ export const REPORT_ROUTES = [
     path: '/reports/templates',
     action: 'RPT_TEMPLATE_LIST',
     tokenIdentity: 'actor',
+    pagination: { limit: 'limit', offset: 'offset', totalField: 'total' },
     fields: [
       { name: 'limit', pattern: PATTERNS.LIMIT, required: false },
       { name: 'offset', pattern: PATTERNS.INT, required: false },

@@ -81,6 +81,7 @@ export const DISPUTE_ROUTES = [
     path: '/disputes',
     action: 'LIST_DISPUTES',
     tokenIdentity: 'actor',
+    pagination: { limit: 'limit', offset: 'offset', totalField: 'total' },
     fields: [
       { name: 'actor', pattern: PATTERNS.EMAIL, required: true },
       { name: 'email', pattern: PATTERNS.EMAIL, required: false },

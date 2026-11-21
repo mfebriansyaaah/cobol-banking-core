@@ -9,7 +9,9 @@
 //   - COBOL invoke is allowed only in invoker.js (defines), app.js,
 //     authService.js, and tokenStore.js.
 //   - responseMappers.js is pure presentation: may delegate to authService,
-//     must not invoke COBOL or sign tokens directly.
+//     must not invoke COBOL or sign tokens directly. The envelope shape
+//     module (./envelope.js, dependency-free) is allowed: it only names the
+//     v1 data/meta/error structure mappers fill.
 //   - No SQL strings, DB drivers, or money arithmetic in src.
 //   - No src imports from workers/jobs; services imports only via allowlist.
 //
@@ -130,9 +132,12 @@ for (const f of listJs(SRC)) {
         imp.startsWith('.') &&
         imp !== './authService.js' &&
         imp !== '../adapters/otp.js' &&
-        imp !== './otpService.js'
+        imp !== './otpService.js' &&
+        imp !== './envelope.js'
       ) {
-        fail(`${rel}: only './authService.js' and adapters/otp relative imports allowed (got '${imp}')`);
+        fail(
+          `${rel}: only './authService.js', adapters/otp and './envelope.js' relative imports allowed (got '${imp}')`,
+        );
       }
     }
   }

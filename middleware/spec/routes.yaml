@@ -7,7 +7,7 @@ files:
     - { method: post, path: "/accounts/validate", action: ACC_VALIDATE, tokenIdentity: 'actor', fields: [amount:AMOUNT, currency:CURRENCY, BLANK, BLANK, BLANK, ACTOR] }
     - { method: get, path: "/accounts/summary", action: ACC_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
     - { method: get, path: "/accounts/audit", action: ACC_AUDIT, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, BLANK, BLANK, BLANK, ACTOR] }
-    - { method: get, path: "/accounts", action: ACC_LIST, tokenIdentity: 'actor', fields: [status:LIST_STATUS?, type:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
+    - { method: get, path: "/accounts", action: ACC_LIST, pagination: { limit: LIMIT, offset: INT, totalField: total }, tokenIdentity: 'actor', fields: [status:LIST_STATUS?, type:NAME?, limit:LIMIT?, offset:INT?, BLANK, ACTOR] }
     - { method: post, path: "/accounts", action: ACC_CREATE, tokenIdentity: 'actor', fields: [accountRef:KEY, holderName:NAME, accountType:NAME, BLANK, BLANK, ACTOR] }
     - { method: get, path: "/accounts/:id", action: ACC_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
     - { method: post, path: "/accounts/:id/activate", action: ACC_ACTIVATE, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
@@ -43,7 +43,7 @@ files:
     - { method: post, path: "/admin/role", action: CHANGE_ROLE, tokenIdentity: 'actor', stepUp: true, fields: [email:EMAIL, role:ROLE, actor:EMAIL, BLANK, BLANK, BLANK] }
     - { method: post, path: "/admin/audit/archive", action: ARCHIVE_AUDIT, tokenIdentity: 'actor', stepUp: true, fields: [days:INT, actor:EMAIL, BLANK, BLANK, BLANK, BLANK] }
     - { method: post, path: "/admin/access-reviews", action: OPEN_ACCESS_REVIEW, tokenIdentity: 'actor', stepUp: true, fields: [actor:EMAIL, periodStart:DATE, periodEnd:DATE, BLANK, BLANK, BLANK] }
-    - { method: get, path: "/admin/access-reviews", action: LIST_ACCESS_REVIEWS, tokenIdentity: 'actor', fields: [actor:EMAIL, state:REVIEW_STATE?, limit:LIMIT?, offset:INT?, BLANK, BLANK] }
+    - { method: get, path: "/admin/access-reviews", action: LIST_ACCESS_REVIEWS, pagination: { limit: LIMIT, offset: INT, totalField: total }, tokenIdentity: 'actor', fields: [actor:EMAIL, state:REVIEW_STATE?, limit:LIMIT?, offset:INT?, BLANK, BLANK] }
     - { method: get, path: "/admin/access-reviews/:id", action: GET_ACCESS_REVIEW, tokenIdentity: 'actor', fields: [actor:EMAIL, id:INT, BLANK, BLANK, BLANK, BLANK] }
     - { method: post, path: "/admin/access-review-items/:itemId/decide", action: DECIDE_ACCESS_ITEM, tokenIdentity: 'actor', stepUp: true, fields: [actor:EMAIL, itemId:INT, decision:REVIEW_DECISION, note:REASON?, BLANK, BLANK] }
     - { method: post, path: "/admin/access-reviews/:id/close", action: CLOSE_ACCESS_REVIEW, tokenIdentity: 'actor', stepUp: true, fields: [actor:EMAIL, id:INT, BLANK, BLANK, BLANK, BLANK] }
@@ -84,7 +84,7 @@ files:
     - { method: post, path: "/cards/validate", action: CARD_VALIDATE, tokenIdentity: 'actor', fields: [email:EMAIL, type:CARD_TYPE, limit:AMOUNT?, currency:CURRENCY, BLANK, ACTOR] }
     - { method: get, path: "/cards/summary", action: CARD_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
     - { method: get, path: "/cards/audit", action: CARD_AUDIT, tokenIdentity: 'actor', fields: [cardId:INT?, limit:LIMIT?, offset:INT?, BLANK, BLANK, ACTOR] }
-    - { method: get, path: "/cards", action: CARD_LIST, tokenIdentity: 'actor', fields: [status:CARD_STATUS?, limit:LIMIT?, offset:INT?, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/cards", action: CARD_LIST, pagination: { limit: LIMIT, offset: INT, totalField: total }, tokenIdentity: 'actor', fields: [status:CARD_STATUS?, limit:LIMIT?, offset:INT?, BLANK, BLANK, ACTOR] }
     - { method: get, path: "/cards/:id", action: CARD_GET, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
     - { method: get, path: "/cards/:id/statement", action: CARD_STATEMENT, tokenIdentity: 'actor', fields: [ID, limit:LIMIT?, offset:INT?, BLANK, BLANK, ACTOR] }
     - { method: post, path: "/cards/:id/block", action: CARD_BLOCK, tokenIdentity: 'actor', fields: [ID, BLANK, BLANK, BLANK, BLANK, ACTOR] }
@@ -199,7 +199,7 @@ files:
 - file: deposit.js
   export: DEPOSIT_ROUTES
     - { method: post, path: "/deposits", action: DEP_OPEN, tokenIdentity: 'actor', fields: [email:EMAIL, principal:AMOUNT, currency:CURRENCY, term:TERM, rate:RATE?, ACTOR, idempotencyKey:KEY?] }
-    - { method: get, path: "/deposits", action: DEP_LIST, tokenIdentity: 'actor', fields: [status:DEP_STATUS?, limit:LIMIT?, offset:INT?, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/deposits", action: DEP_LIST, pagination: { limit: LIMIT, offset: INT, totalField: total }, tokenIdentity: 'actor', fields: [status:DEP_STATUS?, limit:LIMIT?, offset:INT?, BLANK, BLANK, ACTOR] }
     - { method: post, path: "/deposits/mature", action: DEP_MATURE, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
     - { method: post, path: "/deposits/validate", action: DEP_VALIDATE, tokenIdentity: 'actor', fields: [principal:AMOUNT, currency:CURRENCY, term:TERM, rate:RATE?, BLANK, ACTOR] }
     - { method: post, path: "/deposits/calc", action: DEP_CALC, tokenIdentity: 'actor', fields: [principal:AMOUNT, rate:RATE, days:TERM, BLANK, BLANK, ACTOR] }
@@ -218,7 +218,7 @@ files:
     - { method: post, path: "/disputes/:id/acknowledge", action: ACK_DISPUTE, tokenIdentity: 'actor', stepUp: true, fields: [id:INT, actor:EMAIL, due:DATE?, BLANK, BLANK, BLANK] }
     - { method: post, path: "/disputes/:id/resolve", action: RESOLVE_DISPUTE, tokenIdentity: 'actor', stepUp: true, fields: [id:INT, actor:EMAIL, resolution:REASON, BLANK, BLANK, BLANK] }
     - { method: post, path: "/disputes/:id/reject", action: REJECT_DISPUTE, tokenIdentity: 'actor', stepUp: true, fields: [id:INT, actor:EMAIL, reason:REASON, BLANK, BLANK, BLANK] }
-    - { method: get, path: "/disputes", action: LIST_DISPUTES, tokenIdentity: 'actor', fields: [actor:EMAIL, email:EMAIL?, status:DISPUTE_STATUS?, limit:LIMIT?, offset:INT?, BLANK] }
+    - { method: get, path: "/disputes", action: LIST_DISPUTES, pagination: { limit: LIMIT, offset: INT, totalField: total }, tokenIdentity: 'actor', fields: [actor:EMAIL, email:EMAIL?, status:DISPUTE_STATUS?, limit:LIMIT?, offset:INT?, BLANK] }
     - { method: get, path: "/disputes/:id", action: GET_DISPUTE, tokenIdentity: 'actor', fields: [id:INT, actor:EMAIL, BLANK, BLANK, BLANK, BLANK] }
 - file: eod.js
   export: EOD_ROUTES
@@ -306,7 +306,7 @@ files:
 - file: import.js
   export: IMPORT_ROUTES
     - { method: post, path: "/imports/batches", action: IMP_BATCH_CREATE, tokenIdentity: 'actor', fields: [code:BATCH_CODE, source:RPT_NAME, type:IMP_TYPE, BLANK, BLANK, ACTOR] }
-    - { method: get, path: "/imports/batches", action: IMP_BATCH_LIST, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, status:IMP_STATUS?, type:IMP_TYPE?, BLANK, ACTOR] }
+    - { method: get, path: "/imports/batches", action: IMP_BATCH_LIST, pagination: { limit: LIMIT, offset: INT, totalField: total }, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, status:IMP_STATUS?, type:IMP_TYPE?, BLANK, ACTOR] }
     - { method: get, path: "/imports/batches/:code", action: IMP_BATCH_GET, tokenIdentity: 'actor', fields: [code:BATCH_CODE, rows:FLAG?, BLANK, BLANK, BLANK, ACTOR] }
     - { method: post, path: "/imports/batches/:code/rows", action: IMP_ROW_STAGE, tokenIdentity: 'actor', fields: [code:BATCH_CODE, rowNo:INT, raw:IMP_RAW, BLANK, BLANK, ACTOR] }
     - { method: post, path: "/imports/batches/:code/validate", action: IMP_BATCH_VALIDATE, tokenIdentity: 'actor', fields: [code:BATCH_CODE, BLANK, BLANK, BLANK, BLANK, ACTOR] }
@@ -359,7 +359,7 @@ files:
 - file: loan.js
   export: LOAN_ROUTES
     - { method: post, path: "/loans", action: LOAN_APPLY, tokenIdentity: 'actor', fields: [email:EMAIL, principal:AMOUNT, currency:CURRENCY, term:TERM, rate:RATE?, ACTOR] }
-    - { method: get, path: "/loans", action: LOAN_LIST, tokenIdentity: 'actor', fields: [status:LOAN_STATUS?, limit:LIMIT?, offset:INT?, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/loans", action: LOAN_LIST, pagination: { limit: LIMIT, offset: INT, totalField: total }, tokenIdentity: 'actor', fields: [status:LOAN_STATUS?, limit:LIMIT?, offset:INT?, BLANK, BLANK, ACTOR] }
     - { method: get, path: "/loans/summary", action: LOAN_SUMMARY, tokenIdentity: 'actor', fields: [BLANK, BLANK, BLANK, BLANK, BLANK, ACTOR] }
     - { method: post, path: "/loans/:id/approve", action: LOAN_APPROVE, tokenIdentity: 'actor', fields: [id:INT, rate:RATE?, note:BATCH_DETAIL?, BLANK, BLANK, ACTOR] }
     - { method: post, path: "/loans/:id/reject", action: LOAN_REJECT, tokenIdentity: 'actor', fields: [id:INT, note:BATCH_DETAIL?, BLANK, BLANK, BLANK, ACTOR] }
@@ -435,7 +435,7 @@ files:
 - file: payment.js
   export: PAYMENT_ROUTES
     - { method: post, path: "/payments/policies", action: PAY_POLICY_SET, tokenIdentity: 'actor', fields: [currency:CURRENCY, limits:PAY_POLICY_SPEC, enabled:FLAG, BLANK, BLANK, ACTOR] }
-    - { method: get, path: "/payments/policies", action: PAY_POLICY_LIST, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, currency:CURRENCY?, BLANK, BLANK, ACTOR] }
+    - { method: get, path: "/payments/policies", action: PAY_POLICY_LIST, pagination: { limit: LIMIT, offset: INT, totalField: total }, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, currency:CURRENCY?, BLANK, BLANK, ACTOR] }
     - { method: get, path: "/payments/policies/:currency", action: PAY_POLICY_GET, tokenIdentity: 'actor', fields: [currency:CURRENCY, BLANK, BLANK, BLANK, BLANK, ACTOR] }
     - { method: post, path: "/payments/profiles", action: PAY_PROFILE_SET, tokenIdentity: 'actor', fields: [email:EMAIL, currency:CURRENCY, limits:PAY_PROFILE_SPEC, enabled:FLAG, BLANK, ACTOR] }
     - { method: get, path: "/payments/profiles/:email", action: PAY_PROFILE_LIST, tokenIdentity: 'actor', fields: [email:EMAIL, limit:LIMIT?, offset:INT?, BLANK, BLANK, ACTOR] }
@@ -523,7 +523,7 @@ files:
 - file: report.js
   export: REPORT_ROUTES
     - { method: post, path: "/reports/templates", action: RPT_TEMPLATE_CREATE, tokenIdentity: 'actor', fields: [code:RPT_CODE, name:RPT_NAME, type:RPT_TYPE, format:RPT_FORMAT, title:RPT_NAME, ACTOR] }
-    - { method: get, path: "/reports/templates", action: RPT_TEMPLATE_LIST, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, type:RPT_TYPE?, enabled:FLAG?, BLANK, ACTOR] }
+    - { method: get, path: "/reports/templates", action: RPT_TEMPLATE_LIST, pagination: { limit: LIMIT, offset: INT, totalField: total }, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, type:RPT_TYPE?, enabled:FLAG?, BLANK, ACTOR] }
     - { method: get, path: "/reports/templates/:code", action: RPT_TEMPLATE_GET, tokenIdentity: 'actor', fields: [code:RPT_CODE, columns:FLAG?, BLANK, BLANK, BLANK, ACTOR] }
     - { method: post, path: "/reports/templates/:code/columns", action: RPT_COLUMN_CREATE, tokenIdentity: 'actor', fields: [code:RPT_CODE, ordinal:INT, header:RPT_NAME, source:KEY, options:RPT_COLUMN_OPTIONS, ACTOR] }
     - { method: get, path: "/reports/templates/:code/columns", action: RPT_COLUMN_LIST, tokenIdentity: 'actor', fields: [code:RPT_CODE, limit:LIMIT?, offset:INT?, BLANK, BLANK, ACTOR] }
@@ -652,7 +652,7 @@ files:
     - { method: post, path: "/treasury/liquidity/:id/close", action: TRL_CLOSE, tokenIdentity: 'actor', fields: [ID, reason:NAME?, BLANK, BLANK, BLANK, ACTOR] }
 - file: user_profile.js
   export: USER_PROFILE_ROUTES
-    - { method: get, path: "/users", action: LIST_USERS, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, actor:EMAIL, role:ROLE?, BLANK, BLANK] }
+    - { method: get, path: "/users", action: LIST_USERS, pagination: { limit: LIMIT, offset: INT, totalField: total }, tokenIdentity: 'actor', fields: [limit:LIMIT?, offset:INT?, actor:EMAIL, role:ROLE?, BLANK, BLANK] }
     - { method: get, path: "/users/:email", action: GET_USER, tokenIdentity: 'actor', fields: [email:EMAIL, actor:EMAIL, BLANK, BLANK, BLANK, BLANK] }
     - { method: get, path: "/profile", action: GET_DASHBOARD, tokenIdentity: 'actor', fields: [email:EMAIL, actor:EMAIL, BLANK, BLANK, BLANK, BLANK] }
     - { method: patch, path: "/profile", action: UPDATE_PROFILE, tokenIdentity: 'actor', fields: [email:EMAIL, name:NAME, actor:EMAIL, dob:DATE?, BLANK, BLANK] }
@@ -663,7 +663,7 @@ files:
 - file: wallet.js
   export: WALLET_ROUTES
     - { method: get, path: "/wallet/balance", action: CHECK_BALANCE, tokenIdentity: 'actor', fields: [email:EMAIL, actor:EMAIL, BLANK, BLANK, BLANK, BLANK] }
-    - { method: get, path: "/statements", action: STATEMENT, tokenIdentity: 'actor', fields: [email:EMAIL, actor:EMAIL, currency:CURRENCY, range:DATERANGE?, limit:LIMIT?, offset:INT?] }
+    - { method: get, path: "/statements", action: STATEMENT, pagination: { limit: LIMIT, offset: INT, totalField: total }, tokenIdentity: 'actor', fields: [email:EMAIL, actor:EMAIL, currency:CURRENCY, range:DATERANGE?, limit:LIMIT?, offset:INT?] }
     - { method: post, path: "/wallet/transfer", action: TRANSFER, tokenIdentity: 'from', stepUpPolicy: 'TRANSFER', fields: [from:EMAIL, to:EMAIL, amount:AMOUNT, idempotencyKey:KEY, fromCurrency:CURRENCY?, toCurrency:CURRENCY?] }
     - { method: get, path: "/transactions/:ref", action: TX_STATUS, tokenIdentity: 'actor', fields: [ref:KEY, actor:EMAIL, sender:EMAIL?, BLANK, BLANK, BLANK] }
     - { method: post, path: "/transactions/:ref/reverse", action: REVERSE_TRANSFER, tokenIdentity: 'actor', stepUp: true, fields: [ref:KEY, actor:EMAIL, sender:EMAIL?, reason:REASON, BLANK, BLANK] }
