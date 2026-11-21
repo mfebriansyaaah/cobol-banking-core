@@ -25,6 +25,7 @@ permissions:
 
 # A new commit on the same branch/PR cancels the previous run. This is the
 # single largest wall-clock saving on active branches.
+# Canary C6: comment-only workflow edit to prove meta plans stay green.
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
