@@ -6,6 +6,37 @@
 import { completeLogin, completeStepUp, listPermissions } from './authService.js';
 import { completeIssue } from '../adapters/otp.js';
 
+/**
+ * Split a multi-row COBOL field into rows of fields. COBOL packs rows with
+ * ';' inside one pipe field and fields with ':'; a short row means the
+ * output was truncated or reshaped upstream, so throw instead of returning
+ * a misaligned object (the error middleware turns it into a 500).
+ */
+export function splitRows(value, { rowSep = ';', fieldSep = ':', min = 1, context = 'row' } = {}) {
+  return String(value || '')
+    .split(rowSep)
+    .filter(Boolean)
+    .map((row) => {
+      const fields = row.split(fieldSep);
+      if (fields.length < min) {
+        throw new Error(`invalid ${context}: expected at least ${min} fields, got ${fields.length}`);
+      }
+      return fields;
+    });
+}
+
+/**
+ * Assert an exact field count for fixed-shape rows (every field is
+ * allowlisted without ':' at the source: emails, ISO codes, enums, amounts).
+ * Free-text rows (statement descriptions) use splitRows min + rest-join.
+ */
+export function assertFieldCount(fields, count, context) {
+  if (fields.length !== count) {
+    throw new Error(`invalid ${context}: expected ${count} fields, got ${fields.length}`);
+  }
+  return fields;
+}
+
 export const RESPONSE_MAPPERS = {
   REQUEST_SIGNUP: async () => {
     // Delivery is owned by the outbox worker (transactional enqueue in
@@ -27,13 +58,10 @@ export const RESPONSE_MAPPERS = {
   LIST_USERS: async (body) => {
     // data: ['LIST_DONE', total, 'id:email:name:role:status;...']
     const total = Number(body.data[1]);
-    const users = String(body.data[2] || '')
-      .split(';')
-      .filter(Boolean)
-      .map((row) => {
-        const [id, email, name, role, status] = row.split(':');
-        return { id, email, name, role, status };
-      });
+    const users = splitRows(body.data[2], { min: 5, context: 'LIST_USERS row' }).map((row) => {
+      const [id, email, name, role, status] = assertFieldCount(row, 5, 'LIST_USERS row');
+      return { id, email, name, role, status };
+    });
     return { data: ['USERS'], total, users };
   },
   GET_USER: async (body) => {
@@ -43,36 +71,32 @@ export const RESPONSE_MAPPERS = {
   },
   CHECK_BALANCE: async (body) => {
     // Every account, parsed from "iso:balance:available:status" rows.
-    const balances = String(body.data[1] || '')
-      .split(';')
-      .filter(Boolean)
-      .map((row) => {
-        const [currency, balance, available, status] = row.split(':');
-        return { currency, balance, available, status };
-      });
+    const balances = splitRows(body.data[1], { min: 4, context: 'CHECK_BALANCE row' }).map((row) => {
+      const [currency, balance, available, status] = assertFieldCount(row, 4, 'CHECK_BALANCE row');
+      return { currency, balance, available, status };
+    });
     return { data: ['BALANCES'], balances };
   },
   STATEMENT: async (body) => {
     // One row per posting: id, posting/value dates, ref, source, side,
-    // amount, balance after the row, reversal flag, description.
-    const rows = String(body.data[5] || '')
-      .split(';')
-      .filter(Boolean)
-      .map((row) => {
-        const [id, postedAt, valueDate, ref, source, side, amount, balanceAfter, reversed, ...desc] = row.split(':');
-        return {
-          id,
-          postedAt,
-          valueDate,
-          ref,
-          source,
-          side,
-          amount,
-          balanceAfter,
-          reversed: reversed === '1',
-          description: desc.join(':'),
-        };
-      });
+    // amount, balance after the row, reversal flag, description. The
+    // description is free text and may itself contain ':'; it is the
+    // remainder after the 9 fixed fields, never a counted field.
+    const rows = splitRows(body.data[5], { min: 9, context: 'STATEMENT row' }).map((row) => {
+      const [id, postedAt, valueDate, ref, source, side, amount, balanceAfter, reversed, ...desc] = row;
+      return {
+        id,
+        postedAt,
+        valueDate,
+        ref,
+        source,
+        side,
+        amount,
+        balanceAfter,
+        reversed: reversed === '1',
+        description: desc.join(':'),
+      };
+    });
     return {
       data: ['STATEMENT'],
       opening: body.data[1],
@@ -87,26 +111,22 @@ export const RESPONSE_MAPPERS = {
   },
   LIST_DISPUTES: async (body) => {
     // One row per case: id, owner, subject, state, due date, overdue flag, opened date.
-    const cases = String(body.data[2] || '')
-      .split(';')
-      .filter(Boolean)
-      .map((row) => {
-        const [caseId, email, subject, state, due, overdue, created] = row.split(':');
-        return { caseId, email, subject, state, due, overdue: overdue === '1', created };
-      });
+    const cases = splitRows(body.data[2], { min: 7, context: 'LIST_DISPUTES row' }).map((row) => {
+      const [caseId, email, subject, state, due, overdue, created] = assertFieldCount(row, 7, 'LIST_DISPUTES row');
+      return { caseId, email, subject, state, due, overdue: overdue === '1', created };
+    });
     return { data: ['DISPUTES'], total: body.data[1], cases };
   },
   GET_DISPUTE: async (body) => {
-    const [caseId, email, ref, subject, detail, state, assignee, due, overdue, created, resolution] = String(
-      body.data[1] || '',
-    ).split(':');
-    const messages = String(body.data[3] || '')
-      .split(';')
-      .filter(Boolean)
-      .map((row) => {
-        const [msgId, author, msgBody, sentAt] = row.split(':');
-        return { msgId, author, body: msgBody, sentAt };
-      });
+    const [caseId, email, ref, subject, detail, state, assignee, due, overdue, created, resolution] = assertFieldCount(
+      String(body.data[1] || '').split(':'),
+      11,
+      'GET_DISPUTE case',
+    );
+    const messages = splitRows(body.data[3], { min: 4, context: 'GET_DISPUTE message' }).map((row) => {
+      const [msgId, author, msgBody, sentAt] = assertFieldCount(row, 4, 'GET_DISPUTE message');
+      return { msgId, author, body: msgBody, sentAt };
+    });
     return {
       data: ['DISPUTE'],
       case: {
@@ -130,8 +150,8 @@ export const RESPONSE_MAPPERS = {
     // data: ['DASHBOARD', email, name, status, role, dob, createdAt, accounts]
     const [email, name, status, role, dob, createdAt, accounts = ''] = body.data.slice(1);
     const balances = accounts
-      ? accounts.split(';').map((row) => {
-          const [currency, balance, available, status] = row.split(':');
+      ? splitRows(accounts, { min: 4, context: 'GET_DASHBOARD account' }).map((row) => {
+          const [currency, balance, available, status] = assertFieldCount(row, 4, 'GET_DASHBOARD account');
           return { currency, balance, available, status };
         })
       : [];
@@ -171,34 +191,36 @@ export const RESPONSE_MAPPERS = {
   },
   LIST_ACCESS_REVIEWS: async (body) => {
     const total = Number(body.data[1]);
-    const reviews = String(body.data[2] || '')
-      .split(';')
-      .filter(Boolean)
-      .map((row) => {
-        const [id, periodStart, periodEnd, state, openedBy, itemCount, closedBy, closedAt] = row.split(':');
-        return { id, periodStart, periodEnd, state, openedBy, itemCount: Number(itemCount), closedBy, closedAt };
-      });
+    const reviews = splitRows(body.data[2], { min: 8, context: 'LIST_ACCESS_REVIEWS row' }).map((row) => {
+      const [id, periodStart, periodEnd, state, openedBy, itemCount, closedBy, closedAt] = assertFieldCount(
+        row,
+        8,
+        'LIST_ACCESS_REVIEWS row',
+      );
+      return { id, periodStart, periodEnd, state, openedBy, itemCount: Number(itemCount), closedBy, closedAt };
+    });
     return { data: ['REVIEWS'], total, reviews };
   },
   GET_ACCESS_REVIEW: async (body) => {
     const [id, periodStart, periodEnd, state, openedBy, closedBy, closedAt, itemRows] = body.data.slice(1);
-    const items = String(itemRows || '')
-      .split(';')
-      .filter(Boolean)
-      .map((row) => {
-        const [itemId, email, role, status, mfaEnabled, decision, reviewer, lastLoginAt, note] = row.split(':');
-        return {
-          itemId,
-          email,
-          role,
-          status,
-          mfaEnabled: mfaEnabled === '1',
-          decision,
-          reviewer,
-          lastLoginAt,
-          note,
-        };
-      });
+    const items = splitRows(itemRows, { min: 9, context: 'GET_ACCESS_REVIEW item' }).map((row) => {
+      const [itemId, email, role, status, mfaEnabled, decision, reviewer, lastLoginAt, note] = assertFieldCount(
+        row,
+        9,
+        'GET_ACCESS_REVIEW item',
+      );
+      return {
+        itemId,
+        email,
+        role,
+        status,
+        mfaEnabled: mfaEnabled === '1',
+        decision,
+        reviewer,
+        lastLoginAt,
+        note,
+      };
+    });
     return {
       data: ['REVIEW'],
       review: { id, periodStart, periodEnd, state, openedBy, closedBy, closedAt },

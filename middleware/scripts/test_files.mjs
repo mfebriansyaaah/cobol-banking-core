@@ -34,6 +34,8 @@ const UNIT = [
   'test/pool-config.test.js',
   'test/ratelimit.test.js',
   'test/result.test.js',
+  'test/result-contract.test.js',
+  'test/response-mappers.test.js',
   'test/route-order.test.js',
   'test/route-reachability.test.js',
   'test/routes.test.js',
