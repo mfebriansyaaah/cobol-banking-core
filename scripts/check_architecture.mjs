@@ -330,7 +330,13 @@ const A8_ALLOW = loadAllowlist('state_transition_allowlist.txt', 'A8');
         }
       }
       if (exec === -1) {
-        checkAllowlisted('A8', A8_ALLOW, `${r}|${para}`, 'guarded status UPDATE with no SQL-EXEC in reach (cannot verify outcome)', seen);
+        checkAllowlisted(
+          'A8',
+          A8_ALLOW,
+          `${r}|${para}`,
+          'guarded status UPDATE with no SQL-EXEC in reach (cannot verify outcome)',
+          seen,
+        );
         continue;
       }
       // Outcome handling must follow this execution, before the next SQL

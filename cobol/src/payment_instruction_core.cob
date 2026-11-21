@@ -664,11 +664,19 @@
            PERFORM SQL-EXEC-3
            *> A lost race advances nothing: exactly one EXECUTE may consume
            *> this due date. Anything else is a stale retry, not DB_ERROR.
-           PERFORM STATE-EXPECT-ONE
-           IF WS-STATE-OK = 0
-               CALL "SQL_ROLLBACK" END-CALL
-               MOVE WS-STATE-ERR TO LS-OUTPUT-BUFFER
-               EXIT PARAGRAPH
+           *> One-shot instructions match no row by design (frequency =
+           *> 'ONCE'): only the COMPLETED update below owns them.
+           IF WS-FREQUENCY = 'ONCE'
+               IF WS-RESULT(1:5) = "ERROR"
+                   SET STEP-FAIL TO TRUE
+               END-IF
+           ELSE
+               PERFORM STATE-EXPECT-ONE
+               IF WS-STATE-OK = 0
+                   CALL "SQL_ROLLBACK" END-CALL
+                   MOVE WS-STATE-ERR TO LS-OUTPUT-BUFFER
+                   EXIT PARAGRAPH
+               END-IF
            END-IF.
            IF STEP-OK
                MOVE "UPDATE payment_instruction SET status = 'COMPLETED', last_run_at = NOW(), last_txn_ref = ? WHERE instruction_code = ? AND frequency = 'ONCE'" TO WS-PREP-SQL

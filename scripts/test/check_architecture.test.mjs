@@ -174,7 +174,11 @@ test('A8 fires on a guarded status UPDATE without outcome handling', () => {
 
 test('A8 passes with STATE-EXPECT-ONE', () => {
   const r = run(
-    fixture({ 'cobol/src/a_core.cob': UPDATE_CORE('           PERFORM STATE-EXPECT-ONE\n           IF WS-STATE-OK = 0\n               EXIT PARAGRAPH\n           END-IF.\n') }),
+    fixture({
+      'cobol/src/a_core.cob': UPDATE_CORE(
+        '           PERFORM STATE-EXPECT-ONE\n           IF WS-STATE-OK = 0\n               EXIT PARAGRAPH\n           END-IF.\n',
+      ),
+    }),
   );
   assert.equal(r.code, 0);
 });
@@ -182,7 +186,9 @@ test('A8 passes with STATE-EXPECT-ONE', () => {
 test('A8 passes with an explicit AFFECTED check', () => {
   const r = run(
     fixture({
-      'cobol/src/a_core.cob': UPDATE_CORE('           IF WS-RESULT = "SUCCESS|AFFECTED_0"\n               MOVE 1 TO WS-X.\n           END-IF.\n'),
+      'cobol/src/a_core.cob': UPDATE_CORE(
+        '           IF WS-RESULT = "SUCCESS|AFFECTED_0"\n               MOVE 1 TO WS-X.\n           END-IF.\n',
+      ),
     }),
   );
   assert.equal(r.code, 0);
