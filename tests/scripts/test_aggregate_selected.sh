@@ -35,3 +35,26 @@ if SELECT_MODE=selected SELECTED_DB_SUITES='tests/db/account_db_tests.sh' \
     exit 1
 fi
 echo "ok - missing selected-reports fails closed"
+
+# Selected mode without suites (e.g. middleware-only change): test and
+# coverage reports merge with no DB part.
+rm -rf "$PARTS/selected-reports"
+if ! SELECT_MODE=selected SELECTED_DB_SUITES='' \
+    bash "$ROOT/scripts/ci/aggregate_shard_reports.sh" "$PARTS" "$OUT" 2 >/dev/null 2>&1; then
+    echo "not ok - selected aggregate without suites should pass"
+    exit 1
+fi
+if ! grep -q '^smoke' "$OUT/report.tsv"; then
+    echo "not ok - test rows missing from suite-less merged report"
+    exit 1
+fi
+echo "ok - selected aggregate passes without DB suites"
+
+# Missing test-reports must fail even in selected mode.
+rm -rf "$PARTS/test-reports"
+if SELECT_MODE=selected SELECTED_DB_SUITES='' \
+    bash "$ROOT/scripts/ci/aggregate_shard_reports.sh" "$PARTS" "$OUT" 2 >/dev/null 2>&1; then
+    echo "not ok - missing test-reports must fail"
+    exit 1
+fi
+echo "ok - missing test-reports fails closed"
