@@ -30,7 +30,9 @@ test('deposit_lifecycle.cpy defines both lifecycle halves', () => {
     assert.ok(defines(cpy, name), `copybook must define ${name}`);
   }
   // The actions keep their transaction ownership and idempotency calls.
-  assert.match(cpy, /CALL "SQL_BEGIN"/, 'copybook must keep the funding/refund transaction');
+  // Since arch9 WP-10 the ownership runs through the TXN-BEGIN kernel
+  // (fail-closed BEGIN check) instead of a bare CALL "SQL_BEGIN".
+  assert.match(cpy, /PERFORM TXN-BEGIN/, 'copybook must keep the funding/refund transaction');
   assert.match(cpy, /PERFORM IDEM-CLAIM/, 'copybook must keep the claim path');
   assert.match(cpy, /PERFORM IDEM-COMPLETE/, 'copybook must keep the completion path');
   assert.match(cpy, /PERFORM IDEM-LINK/, 'copybook must keep the open/target linkage');
