@@ -212,7 +212,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO ntf_template_config (template_ref, template_name, template_type, status, created_by) VALUES (?, ?, NULLIF(?, ''), 'OPEN', ?)" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -386,7 +390,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE ntf_template_config SET status = 'ACTIVE', version = version + 1 WHERE id = ? AND version = ? AND status <> 'INACTIVE' AND status <> 'DELETED'" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE FUNCTION TRIM(WS-TMP-VERSION) TO WS-BIND-2
@@ -430,7 +438,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE ntf_template_config SET status = 'INACTIVE', deactivated_at = NOW(), deactivate_reason = ?, version = version + 1 WHERE id = ? AND version = ? AND (status = 'OPEN' OR status = 'ACTIVE')" TO WS-PREP-SQL
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P1-TRIMMED TO WS-BIND-2
@@ -475,7 +487,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE ntf_template_config SET template_name = COALESCE(NULLIF(?, ''), template_name), template_type = COALESCE(NULLIF(?, ''), template_type), version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P3-TRIMMED TO WS-BIND-2

@@ -227,7 +227,11 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO gl_journal (posting_date, description, currency_code, status, source, created_by) VALUES (?, ?, ?, 'POSTED', 'IMPORT', ?)" TO WS-PREP-SQL
            MOVE WS-P2-TRIMMED TO WS-BIND-1
            MOVE WS-P3-TRIMMED TO WS-BIND-2

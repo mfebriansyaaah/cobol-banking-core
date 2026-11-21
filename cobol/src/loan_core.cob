@@ -275,7 +275,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO loan (loan_ref, customer_name, loan_type, status, created_by) VALUES (?, ?, NULLIF(?, ''), 'OPEN', ?)" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -420,7 +424,11 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
             MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
             MOVE "UPDATE loan SET disbursed_amount = disbursed_amount + ?, status = 'ACTIVE', disbursed_at = COALESCE(disbursed_at, NOW()), version = version + 1 WHERE id = ? AND version = ? AND status = 'OPEN'" TO WS-PREP-SQL
@@ -467,7 +475,11 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE loan SET customer_name = COALESCE(NULLIF(?, ''), customer_name), loan_type = COALESCE(NULLIF(?, ''), loan_type), version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P3-TRIMMED TO WS-BIND-2
@@ -514,7 +526,11 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE loan SET status = 'CLOSED', closed_at = NOW(), close_reason = NULLIF(?, ''), deleted_at = NOW(), version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P1-TRIMMED TO WS-BIND-2
@@ -625,7 +641,11 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO loan_application (customer_email, principal, currency, term_months, interest_rate, status, created_by) VALUES (?, ?, ?, ?, ?, 'PENDING', ?)" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -661,7 +681,11 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE loan_application SET status='APPROVED', interest_rate=COALESCE(NULLIF(?,''), interest_rate), decided_by=?, decided_at=NOW() WHERE id=? AND status='PENDING'" TO WS-PREP-SQL
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P6-TRIMMED TO WS-BIND-2
@@ -695,7 +719,11 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE loan_application SET status='REJECTED', detail=COALESCE(NULLIF(?,''), detail), decided_by=?, decided_at=NOW() WHERE id=? AND status='PENDING'" TO WS-PREP-SQL
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P6-TRIMMED TO WS-BIND-2
@@ -765,7 +793,11 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
             MOVE SPACES TO WS-JID WS-ERR
             SET STEP-OK TO TRUE
             MOVE SPACES TO WS-ERR
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             IF STEP-OK
                 MOVE "UPDATE loan_application SET status='DISBURSED', disbursed_at=NOW() WHERE id=? AND status='APPROVED'" TO WS-PREP-SQL
                 MOVE WS-P1-TRIMMED TO WS-BIND-1
@@ -939,7 +971,11 @@ MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
             MOVE SPACES TO WS-JID WS-ERR
             SET STEP-OK TO TRUE
             MOVE SPACES TO WS-ERR
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             IF STEP-OK
                 MOVE "UPDATE loan_application SET repaid_total = repaid_total + ? WHERE id = ? AND status = 'DISBURSED' AND repaid_total + ? <= principal" TO WS-PREP-SQL
                 MOVE WS-P2-TRIMMED TO WS-BIND-1

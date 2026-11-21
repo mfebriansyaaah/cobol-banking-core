@@ -8,6 +8,7 @@
         DATA DIVISION.
         WORKING-STORAGE SECTION.
         COPY "auth_password_ws.cpy".
+        01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
         LINKAGE SECTION.
         01  LS-CMD-ACTION          PIC X(30).
         01  LS-PARAM1              PIC X(100).
@@ -218,7 +219,11 @@
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            CALL "SQL_BEGIN" END-CALL
+            SET STEP-OK TO TRUE
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "DELETE FROM mfa_backup_codes WHERE user_id = ?" TO WS-PREP-SQL
             MOVE WS-USER-ID(1:WS-ID-LEN) TO WS-BIND-1
             PERFORM SQL-EXEC-1
@@ -298,4 +303,5 @@
             EXIT PARAGRAPH.
 
         COPY "common_commit.cpy".
+        COPY "common_txn.cpy".
        END PROGRAM auth_mfa_core.

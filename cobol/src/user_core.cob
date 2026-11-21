@@ -10,6 +10,7 @@
         WORKING-STORAGE SECTION.
         01  WS-EXIT-CODE            PIC 9(2) VALUE 0.
         01  WS-RESULT               PIC X(16384) VALUE SPACES.
+        01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
         01  WS-PARAM1-TRIMMED       PIC X(100) VALUE SPACES.
         01  WS-PARAM2-TRIMMED       PIC X(100) VALUE SPACES.
         01  WS-PARAM3-TRIMMED       PIC X(100) VALUE SPACES.
@@ -334,7 +335,10 @@
                 EXIT PARAGRAPH
             END-IF
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE users SET failed_logins = 0, locked_until = NULL WHERE email = ?" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             PERFORM SQL-EXEC-1
@@ -388,7 +392,10 @@
                 EXIT PARAGRAPH
             END-IF
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE users SET mfa_enabled = FALSE, mfa_secret = NULL WHERE email = ?" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             PERFORM SQL-EXEC-1
@@ -909,7 +916,10 @@
             *> Drop any earlier unused code so only one is active at a time
             *> (a fresh request invalidates the previous code).
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "DELETE FROM verification_logs WHERE email = ? AND purpose = 'EMAIL_CHANGE' AND is_used = 0" TO WS-PREP-SQL
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
             PERFORM SQL-EXEC-1
@@ -1009,7 +1019,10 @@
             END-IF
             
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             
             MOVE "UPDATE users SET email = ?, token_version = token_version + 1 WHERE email = ?" TO WS-PREP-SQL
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
@@ -1104,7 +1117,10 @@
                 EXIT PARAGRAPH
             END-IF
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             IF WS-PARAM4-TRIMMED(1:1) NOT = SPACE
                 MOVE "UPDATE users SET full_name = ?, dob = ? WHERE email = ?" TO WS-PREP-SQL
                 MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
@@ -1177,7 +1193,10 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE users SET status = 'CLOSED', token_version = token_version + 1 WHERE email = ?" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             PERFORM SQL-EXEC-1
@@ -1252,7 +1271,10 @@
                 END-IF
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE users SET status = ?, token_version = token_version + 1 WHERE email = ?" TO WS-PREP-SQL
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
@@ -1286,4 +1308,5 @@
             END-IF.
             EXIT PARAGRAPH.
         COPY "common_commit.cpy".
+        COPY "common_txn.cpy".
        END PROGRAM user_core.

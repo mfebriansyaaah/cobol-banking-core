@@ -119,7 +119,10 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "DELETE FROM verification_logs WHERE email = ? AND purpose = 'MFA_RECOVERY' AND is_used = 0" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             PERFORM SQL-EXEC-1
@@ -263,7 +266,10 @@
             PERFORM SQL-EXEC-1
             MOVE WS-RESULT(1:100) TO WS-REC-EMAIL
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE users SET mfa_enabled = 0, mfa_secret = NULL WHERE id = ?" TO WS-PREP-SQL
             MOVE WS-REQ-TARGET TO WS-BIND-1
             PERFORM SQL-EXEC-1
@@ -604,7 +610,10 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE users SET role = ? WHERE email = ?" TO WS-PREP-SQL
             MOVE WS-REQ-DETAIL TO WS-BIND-1
             MOVE WS-REQ-TARGET TO WS-BIND-2
@@ -680,7 +689,11 @@
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            CALL "SQL_BEGIN" END-CALL
+            SET STEP-OK TO TRUE
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE maker_requests SET state = 'REJECTED', checker_email = ?, decided_at = NOW() WHERE request_id = ?" TO WS-PREP-SQL
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-2

@@ -135,3 +135,5 @@ db_import_row_tests=10
 db_report_run_tests=11
 
 db_arch9_p0_tests=12
+
+db_begin_failure_tests=6

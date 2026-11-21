@@ -178,7 +178,10 @@
             MOVE WS-RESULT(1:20) TO WS-ACTOR-ID
             
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             
             MOVE "UPDATE users SET role = ? WHERE email = ?" TO WS-PREP-SQL
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-1

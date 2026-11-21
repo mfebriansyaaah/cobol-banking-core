@@ -357,7 +357,11 @@
                EXIT PARAGRAPH
            END-IF.
            SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO card_account (card_ref, customer_email, card_type, limit_amount, currency, created_by) VALUES (?, ?, ?, COALESCE(NULLIF(?, ''), 0), ?, ?)" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -408,7 +412,11 @@
                EXIT PARAGRAPH
            END-IF.
            SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE card_account SET status = 'BLOCKED' WHERE id = ? AND status = 'ACTIVE'" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            PERFORM SQL-EXEC-1
@@ -450,7 +458,11 @@
                EXIT PARAGRAPH
            END-IF.
            SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE card_account SET status = 'ACTIVE' WHERE id = ? AND status = 'BLOCKED'" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            PERFORM SQL-EXEC-1
@@ -511,7 +523,11 @@
                EXIT PARAGRAPH
            END-IF.
            SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE card_account SET status = 'CLOSED' WHERE id = ? AND status IN ('ACTIVE','BLOCKED')" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            PERFORM SQL-EXEC-1
@@ -666,7 +682,11 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            *> Take the hold first: the guarded debit serializes concurrent
            *> authorizes on the account row. Inserting the auth row first would
            *> S-lock the parent via fk_card_txn and then X-lock it here, a
@@ -803,7 +823,11 @@
            MOVE SPACES TO WS-JID WS-ERR
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            IF STEP-OK
                MOVE "INSERT INTO journal_entries (txn_ref, source, actor_email) VALUES (?, 'TRANSFER', ?)" TO WS-PREP-SQL
                MOVE WS-TXN-REF TO WS-BIND-1
@@ -1008,7 +1032,11 @@
            END-IF.
            MOVE SPACES TO WS-JID WS-ERR
            SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            IF STEP-OK
                MOVE "INSERT INTO journal_entries (txn_ref, source, actor_email) VALUES (?, 'TRANSFER', ?)" TO WS-PREP-SQL
                MOVE WS-TXN-REF TO WS-BIND-1
@@ -1232,7 +1260,11 @@
                    MOVE SPACES TO WS-JID
                END-IF.
            SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE card_transaction SET status = 'REVERSED' WHERE card_id = ? AND auth_ref = ?" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -1449,7 +1481,11 @@
                EXIT PARAGRAPH
            END-IF.
            SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE card_account SET limit_amount = ?, available_limit = GREATEST(? - balance, 0) WHERE id = ?" TO WS-PREP-SQL
            MOVE WS-P2-TRIMMED TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -1506,7 +1542,11 @@
                EXIT PARAGRAPH
            END-IF.
            SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO card_account (card_ref, customer_email, card_type, limit_amount, currency, created_by, available_limit, balance) SELECT ?, customer_email, card_type, limit_amount, currency, ?, available_limit, balance FROM card_account WHERE id = ?" TO WS-PREP-SQL
            MOVE WS-P2-TRIMMED TO WS-BIND-1
            MOVE WS-P6-TRIMMED TO WS-BIND-2

@@ -246,7 +246,11 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO payment_policy (currency_code, max_per_txn, daily_limit, daily_count, hold_threshold, hold_percent, enabled, updated_by) VALUES (?, ?, ?, ?, ?, ?, TRUE, 'SYSTEM') ON DUPLICATE KEY UPDATE max_per_txn=VALUES(max_per_txn), daily_limit=VALUES(daily_limit), daily_count=VALUES(daily_count), hold_threshold=VALUES(hold_threshold), hold_percent=VALUES(hold_percent)" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-POLICY-MAX TO WS-BIND-2
@@ -380,7 +384,11 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO payment_profile (user_email, currency_code, daily_limit, daily_count, enabled, updated_by) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE daily_limit=VALUES(daily_limit), daily_count=VALUES(daily_count), enabled=VALUES(enabled), updated_by=VALUES(updated_by)" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2

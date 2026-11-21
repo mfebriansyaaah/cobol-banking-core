@@ -245,7 +245,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO letter_of_credit (lc_ref, applicant_name, lc_type, status, created_by) VALUES (?, ?, NULLIF(?, ''), 'OPEN', ?)" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -328,7 +332,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO letter_of_credit (lc_ref, applicant_customer_ref, applicant_name, lc_type, status, created_by) VALUES (?, ?, ?, ?, 'DRAFT', ?)" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -393,7 +401,12 @@
                 MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            CALL "SQL_BEGIN" END-CALL
+            SET STEP-OK TO TRUE
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE letter_of_credit SET status = 'SUBMITTED', version = version + 1 WHERE id = ? AND status = 'DRAFT'" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             PERFORM SQL-EXEC-1
@@ -455,7 +468,12 @@
                 MOVE "ERROR|LIMIT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            CALL "SQL_BEGIN" END-CALL
+            SET STEP-OK TO TRUE
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE letter_of_credit SET status = 'APPROVED', version = version + 1 WHERE id = ? AND status = 'SUBMITTED'" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             PERFORM SQL-EXEC-1
@@ -494,7 +512,12 @@
                 MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            CALL "SQL_BEGIN" END-CALL
+            SET STEP-OK TO TRUE
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             IF WS-P2-TRIMMED = SPACES
                 MOVE "UPDATE letter_of_credit SET status = 'ISSUED', issued_at = NOW(), version = version + 1 WHERE id = ? AND status = 'APPROVED'" TO WS-PREP-SQL
                 MOVE WS-P1-TRIMMED TO WS-BIND-1
@@ -559,7 +582,12 @@
                 MOVE "ERROR|INVALID_AMOUNT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            CALL "SQL_BEGIN" END-CALL
+            SET STEP-OK TO TRUE
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO lc_amendment (lc_id, amendment_no, amount_delta, new_expiry_date, new_terms, status, approved_by, approved_at, created_by) SELECT ?, COALESCE(MAX(amendment_no), 0) + 1, ?, NULLIF(?, ''), NULLIF(?, ''), 'APPROVED', NULL, NOW(), ? FROM lc_amendment WHERE lc_id = ?" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -631,7 +659,12 @@
                 MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            CALL "SQL_BEGIN" END-CALL
+            SET STEP-OK TO TRUE
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO lc_document (lc_id, doc_type, doc_ref, status, discrepancy, created_at) VALUES (?, ?, ?, ?, NULLIF(?, ''), NOW())" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -698,7 +731,12 @@
                 MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            CALL "SQL_BEGIN" END-CALL
+            SET STEP-OK TO TRUE
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO lc_drawing (lc_id, drawing_no, amount, currency, due_date, status, created_by) VALUES (?, ?, ?, ?, NULLIF(?, ''), 'PRESENTED', ?)" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -762,7 +800,12 @@
                 MOVE "ERROR|LIMIT" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            CALL "SQL_BEGIN" END-CALL
+            SET STEP-OK TO TRUE
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO lc_settlement (drawing_id, payment_clearing_ref, settled_amount, gl_journal_id, settled_at, status, created_by) VALUES (?, NULLIF(?, ''), ?, NULLIF(?, ''), NOW(), 'SETTLED', ?)" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P4-TRIMMED TO WS-BIND-2
@@ -815,7 +858,12 @@
                 MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            CALL "SQL_BEGIN" END-CALL
+            SET STEP-OK TO TRUE
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE letter_of_credit SET status = 'CLOSED', closed_at = NOW(), close_reason = NULLIF(?, ''), version = version + 1 WHERE id = ?" TO WS-PREP-SQL
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P1-TRIMMED TO WS-BIND-2
@@ -943,7 +991,11 @@
                 EXIT PARAGRAPH
             END-IF
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
             MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
             MOVE "UPDATE letter_of_credit SET drawn_amount = drawn_amount + ?, status = 'ACTIVE', issued_at = COALESCE(issued_at, NOW()), version = version + 1 WHERE id = ? AND version = ? AND status = 'OPEN'" TO WS-PREP-SQL
@@ -985,7 +1037,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE letter_of_credit SET applicant_name = COALESCE(NULLIF(?, ''), applicant_name), lc_type = COALESCE(NULLIF(?, ''), lc_type), version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P3-TRIMMED TO WS-BIND-2
@@ -1027,7 +1083,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE letter_of_credit SET status = 'CLOSED', closed_at = NOW(), close_reason = NULLIF(?, ''), deleted_at = NOW(), version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P1-TRIMMED TO WS-BIND-2

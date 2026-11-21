@@ -164,7 +164,11 @@
                EXIT PARAGRAPH
            END-IF.
            SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO payment_hold (account_id, amount, currency, expires_at, created_by) VALUES (?, ?, ?, NULLIF(?, ''), ?)" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -250,7 +254,11 @@
            MOVE WS-RESULT(1:20) TO WS-CLR-ACCT
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            *> Header for this capture; legs below point at it. txn_ref
            *> 'PHL-<id>' plus the status guard make a retry safe: the second
            *> capture finds no ACTIVE row and is refused, never double-posted.
@@ -372,7 +380,11 @@
                EXIT PARAGRAPH
            END-IF.
            SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE payment_hold SET status = 'RELEASED', released_at = NOW() WHERE id = ? AND status = 'ACTIVE'" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            PERFORM SQL-EXEC-1
@@ -463,7 +475,11 @@
                EXIT PARAGRAPH
            END-IF.
            SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE payment_hold SET status = 'EXPIRED' WHERE status = 'ACTIVE' AND expires_at IS NOT NULL AND expires_at < NOW()" TO WS-PREP-SQL
            PERFORM SQL-EXEC-0
            IF WS-RESULT(1:5) = "ERROR"

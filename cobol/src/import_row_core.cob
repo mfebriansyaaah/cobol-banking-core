@@ -246,7 +246,10 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO import_row (batch_id, row_no, raw_data, status) VALUES (?, ?, ?, 'STAGED')" TO WS-PREP-SQL
            MOVE WS-BATCH-ID TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -303,7 +306,10 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE import_row SET raw_data = ?, status = 'STAGED', error_code = NULL, error_detail = NULL WHERE id = ?" TO WS-PREP-SQL
            MOVE WS-P3-TRIMMED TO WS-BIND-1
            MOVE WS-ROW-ID TO WS-BIND-2
@@ -464,7 +470,10 @@
            MOVE 0 TO WS-STAGED-COUNT
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE WS-P2-TRIMMED TO WS-CHUNK-SOURCE
            PERFORM STAGE-CHUNK
            MOVE WS-P3-TRIMMED TO WS-CHUNK-SOURCE
@@ -546,7 +555,10 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE import_row SET status = 'SKIPPED' WHERE id = ?" TO WS-PREP-SQL
            MOVE WS-ROW-ID TO WS-BIND-1
            PERFORM SQL-EXEC-1
@@ -631,7 +643,10 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE import_row SET status = 'STAGED', error_code = NULL, error_detail = NULL WHERE id = ?" TO WS-PREP-SQL
            MOVE WS-ROW-ID TO WS-BIND-1
            PERFORM SQL-EXEC-1

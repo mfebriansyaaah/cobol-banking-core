@@ -8,6 +8,7 @@
         DATA DIVISION.
         WORKING-STORAGE SECTION.
         COPY "auth_password_ws.cpy".
+        01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
         LINKAGE SECTION.
         01  LS-CMD-ACTION          PIC X(30).
         01  LS-PARAM1              PIC X(100).
@@ -88,7 +89,11 @@
             MOVE SPACES TO WS-CD-STR
             CALL "env_or" USING BY REFERENCE "OUTBOX_MAX_ATTEMPTS" BY REFERENCE "5" BY REFERENCE WS-CD-STR END-CALL
             COMPUTE WS-OUTBOX-MAX = FUNCTION NUMVAL(WS-CD-STR) ON SIZE ERROR MOVE "ERROR|DB_ERROR" TO LS-OUTPUT-BUFFER EXIT PARAGRAPH END-COMPUTE
-            CALL "SQL_BEGIN" END-CALL
+            SET STEP-OK TO TRUE
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE notification_outbox SET state = 'PENDING', claimed_by = NULL, claimed_at = NULL WHERE state = 'SENDING' AND claimed_at < DATE_SUB(NOW(), INTERVAL 30 MINUTE)" TO WS-PREP-SQL
             PERFORM SQL-EXEC-0
             IF WS-RESULT(1:5) = "ERROR"
@@ -378,7 +383,11 @@
                 MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            CALL "SQL_BEGIN" END-CALL
+            SET STEP-OK TO TRUE
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT IGNORE INTO audit_trail_archive (audit_id, user_id, actor_id, action, entity_type, entity_id, detail, status, journal_id, created_at) SELECT audit_id, user_id, actor_id, action, entity_type, entity_id, detail, status, journal_id, created_at FROM audit_trail WHERE created_at < DATE_SUB(NOW(), INTERVAL ? DAY)" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             PERFORM SQL-EXEC-1
@@ -403,4 +412,5 @@
             END-IF.
             EXIT PARAGRAPH.
         COPY "common_commit.cpy".
+        COPY "common_txn.cpy".
        END PROGRAM auth_ops_core.

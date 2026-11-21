@@ -184,7 +184,10 @@
             STRING WS-CODE(1:6) WS-CODE2(1:6) DELIMITED BY SIZE INTO WS-TOKEN
             ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO phone_links (user_id, phone_hash, linked_at, link_token, token_expires_at, verified_at) VALUES (?, ?, NOW(), ?, DATE_ADD(NOW(), INTERVAL 10 MINUTE), NULL) ON DUPLICATE KEY UPDATE phone_hash = VALUES(phone_hash), link_token = VALUES(link_token), token_expires_at = VALUES(token_expires_at), verified_at = NULL, revoked_at = NULL" TO WS-PREP-SQL
             MOVE WS-USER-ID TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -239,7 +242,10 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE phone_links SET chat_id = ?, verified_at = NOW(), link_token = NULL, token_expires_at = NULL WHERE user_id = ?" TO WS-PREP-SQL
             MOVE WS-P3-TRIMMED TO WS-BIND-1
             MOVE WS-USER-ID TO WS-BIND-2
@@ -271,7 +277,10 @@
             MOVE WS-P1-TRIMMED TO WS-HASH-SRC
             CALL "sha256_hex_lower" USING BY REFERENCE WS-HASH-SRC BY REFERENCE WS-TOKEN BY VALUE 64 END-CALL
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO otp_challenges (user_id, channel, destination_hash, code_hash, purpose, status, expires_at) VALUES (?, ?, ?, ?, ?, 'PENDING', DATE_ADD(NOW(), INTERVAL 10 MINUTE))" TO WS-PREP-SQL
             MOVE WS-USER-ID TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -477,7 +486,10 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE otp_challenges SET status = 'VERIFIED' WHERE id = ?" TO WS-PREP-SQL
             MOVE WS-TOKEN TO WS-BIND-1
             PERFORM SQL-EXEC-1

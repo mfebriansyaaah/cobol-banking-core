@@ -10,6 +10,7 @@
         WORKING-STORAGE SECTION.
         01  WS-EXIT-CODE            PIC 9(2) VALUE 0.
         01  WS-RESULT               PIC X(16384) VALUE SPACES.
+        01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
         01  WS-PARAM1-TRIMMED       PIC X(100) VALUE SPACES.
         01  WS-PARAM2-TRIMMED       PIC X(100) VALUE SPACES.
         01  WS-PARAM3-TRIMMED       PIC X(100) VALUE SPACES.
@@ -296,7 +297,11 @@
             *> callee outcome. A caller-side commit failure maps to
             *> ERROR|DB_ERROR (the transient re-check cannot run
             *> after the CALL returns).
-            CALL "SQL_BEGIN" END-CALL
+            SET STEP-OK TO TRUE
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "WALLET_TRANSFER" TO WS-CALL-ACTION
             MOVE WS-PARAM1-TRIMMED TO WS-CALL-P1
             MOVE WS-PARAM2-TRIMMED TO WS-CALL-P2
@@ -316,4 +321,5 @@
             MOVE WS-CALL-OUT TO LS-OUTPUT-BUFFER.
             EXIT PARAGRAPH.
         COPY "common_commit.cpy".
+        COPY "common_txn.cpy".
        END PROGRAM wallet_core.

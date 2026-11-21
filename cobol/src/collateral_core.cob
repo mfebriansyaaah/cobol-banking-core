@@ -234,7 +234,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO collateral (collateral_ref, asset_name, asset_type, status, created_by) VALUES (?, ?, NULLIF(?, ''), 'OPEN', ?)" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -378,7 +382,11 @@
                 EXIT PARAGRAPH
             END-IF
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
             MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
             MOVE "UPDATE collateral SET appraised_value = appraised_value + ?, status = 'ACTIVE', appraised_at = COALESCE(appraised_at, NOW()), version = version + 1 WHERE id = ? AND version = ? AND status = 'OPEN'" TO WS-PREP-SQL
@@ -420,7 +428,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE collateral SET asset_name = COALESCE(NULLIF(?, ''), asset_name), asset_type = COALESCE(NULLIF(?, ''), asset_type), version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P3-TRIMMED TO WS-BIND-2
@@ -462,7 +474,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE collateral SET status = 'RELEASED', released_at = NOW(), release_reason = NULLIF(?, ''), deleted_at = NOW(), version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P1-TRIMMED TO WS-BIND-2
@@ -511,7 +527,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO collateral (collateral_ref, customer_ref, asset_name, asset_type, assessed_value, status, created_by) VALUES (?, NULLIF(?, ''), ?, ?, ?, 'REGISTERED', ?)" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P5-TRIMMED TO WS-BIND-2
@@ -570,7 +590,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO collateral_valuation (collateral_id, valuation_type, value_amount, currency, method, valuer, note, created_by) VALUES (?, 'APPRAISAL', ?, 'IDR', ?, ?, ?, ?)" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -641,7 +665,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO collateral_valuation (collateral_id, valuation_type, value_amount, currency, method, valuer, note, created_by) VALUES (?, 'REVALUATION', ?, 'IDR', ?, ?, ?, ?)" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -747,7 +775,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO collateral_pledge (collateral_id, loan_id, pledge_amount, haircut_pct, status, created_by) VALUES (?, ?, ?, ?, 'PLEDGED', ?)" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -840,7 +872,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO collateral_allocation (pledge_id, loan_id, allocated_amount) VALUES (?, ?, ?)" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -893,7 +929,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE collateral_pledge SET status = 'RELEASED', released_at = NOW(), release_reason = ? WHERE collateral_id = ? AND status = 'PLEDGED'" TO WS-PREP-SQL
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P1-TRIMMED TO WS-BIND-2
@@ -943,7 +983,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE collateral SET status = 'REPOSSESSED', version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE FUNCTION TRIM(WS-TMP-VERSION) TO WS-BIND-2
@@ -994,7 +1038,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             IF WS-P2-TRIMMED NOT = SPACES
                 MOVE FUNCTION NUMVAL(WS-P2-TRIMMED) TO WS-NUM-AMOUNT
                 IF WS-NUM-AMOUNT < 0

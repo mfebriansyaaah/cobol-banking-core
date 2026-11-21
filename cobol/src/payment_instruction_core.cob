@@ -312,7 +312,10 @@
                EXIT PARAGRAPH
            END-IF.
            SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO payment_instruction (instruction_code, from_email, to_email, amount, currency_code, frequency) VALUES (?, ?, ?, ?, ?, ?)" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-FROM TO WS-BIND-2
@@ -441,7 +444,10 @@
                EXIT PARAGRAPH
            END-IF.
            SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE payment_instruction SET status = 'PAUSED' WHERE instruction_code = ? AND status = 'ACTIVE'" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            PERFORM SQL-EXEC-1
@@ -481,7 +487,10 @@
                EXIT PARAGRAPH
            END-IF.
            SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE payment_instruction SET status = 'ACTIVE', next_run_date = GREATEST(next_run_date, CURDATE()) WHERE instruction_code = ? AND status = 'PAUSED'" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            PERFORM SQL-EXEC-1
@@ -521,7 +530,10 @@
                EXIT PARAGRAPH
            END-IF.
            SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE payment_instruction SET status = 'CANCELLED' WHERE instruction_code = ?" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            PERFORM SQL-EXEC-1
@@ -612,7 +624,10 @@
            END-CALL
            IF WS-CALL-OUT(1:5) = "ERROR"
                SET STEP-OK TO TRUE
-               CALL "SQL_BEGIN" END-CALL
+               PERFORM TXN-BEGIN
+               IF STEP-FAIL
+                   EXIT PARAGRAPH
+               END-IF
                MOVE "INSERT INTO payment_instruction_run (instruction_id, status, error_detail, created_by) SELECT id, 'FAILED', ?, ? FROM payment_instruction WHERE instruction_code = ?" TO WS-PREP-SQL
                MOVE WS-CALL-OUT(1:255) TO WS-BIND-1
                MOVE WS-P6-TRIMMED TO WS-BIND-2
@@ -635,7 +650,10 @@
                EXIT PARAGRAPH
            END-IF.
            SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE payment_instruction SET next_run_date = CASE frequency WHEN 'DAILY' THEN DATE_ADD(next_run_date, INTERVAL 1 DAY) WHEN 'WEEKLY' THEN DATE_ADD(next_run_date, INTERVAL 7 DAY) ELSE DATE_ADD(next_run_date, INTERVAL 1 MONTH) END, last_run_at = NOW(), last_txn_ref = ? WHERE instruction_code = ? AND frequency <> 'ONCE'" TO WS-PREP-SQL
            MOVE WS-IDEMPOTENCY TO WS-BIND-1
            MOVE WS-P1-TRIMMED TO WS-BIND-2

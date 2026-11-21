@@ -249,7 +249,11 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO statement_run (period_start, period_end, currency_code, status, created_by) VALUES (?, ?, ?, 'RUNNING', ?)" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -315,7 +319,11 @@
            MOVE WS-P1-TRIMMED(1:20) TO WS-RUN-ID
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO statement_archive (run_id, account_email, currency_code, opening_balance, closing_balance, total_debit, total_credit, row_count) SELECT ?, u.email, c.iso_code, 0, 0, 0, 0, 0 FROM users u JOIN accounts a ON a.user_id = u.id JOIN currencies c ON c.currency_id = a.currency_id WHERE c.iso_code = ? AND EXISTS (SELECT 1 FROM ledger l WHERE l.account_id = a.account_id AND l.created_at >= ? AND l.created_at < DATE_ADD(?, INTERVAL 1 DAY))" TO WS-PREP-SQL
            MOVE WS-RUN-ID TO WS-BIND-1
            MOVE WS-RUN-CURRENCY TO WS-BIND-2
@@ -689,7 +697,11 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE statement_run SET status = 'FAILED', error_code = ?, error_detail = ?, finished_at = NOW(), version = version + 1 WHERE id = ? AND status = 'RUNNING'" TO WS-PREP-SQL
            MOVE WS-P2-TRIMMED TO WS-BIND-1
            MOVE WS-P3-TRIMMED TO WS-BIND-2

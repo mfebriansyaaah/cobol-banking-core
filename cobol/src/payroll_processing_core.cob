@@ -252,7 +252,11 @@
                 END-IF
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO payroll_processing (payroll_ref, batch_name, payroll_type, company_customer_ref, source_account_id, status, created_by) VALUES (?, ?, NULLIF(?, ''), NULLIF(?, ''), NULLIF(?, ''), 'OPEN', ?)" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -394,7 +398,11 @@
                 EXIT PARAGRAPH
             END-IF
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
             MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
             MOVE "UPDATE payroll_processing SET processed_amount = processed_amount + ?, status = 'ACTIVE', processed_at = COALESCE(processed_at, NOW()), version = version + 1 WHERE id = ? AND version = ? AND status = 'OPEN'" TO WS-PREP-SQL
@@ -436,7 +444,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE payroll_processing SET batch_name = COALESCE(NULLIF(?, ''), batch_name), payroll_type = COALESCE(NULLIF(?, ''), payroll_type), version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P3-TRIMMED TO WS-BIND-2
@@ -478,7 +490,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE payroll_processing SET status = 'COMPLETED', completed_at = NOW(), complete_reason = NULLIF(?, ''), deleted_at = NOW(), version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P1-TRIMMED TO WS-BIND-2
@@ -580,7 +596,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO payroll_employee (batch_id, employee_ref, employee_name, employee_account_id, gross_amount, net_amount, status) VALUES (?, ?, ?, NULLIF(?, ''), ?, ?, 'PENDING')" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -657,7 +677,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE payroll_employee SET status = 'VALID' WHERE batch_id = ? AND status = 'PENDING'" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             PERFORM SQL-EXEC-1
@@ -712,7 +736,12 @@
                 MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            CALL "SQL_BEGIN" END-CALL
+            SET STEP-OK TO TRUE
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE payroll_processing SET status = 'APPROVED', approved_by = ?, approved_at = NOW(), version = version + 1 WHERE id = ? AND status = 'VALIDATED'" TO WS-PREP-SQL
             MOVE WS-P6-TRIMMED TO WS-BIND-1
             MOVE WS-P1-TRIMMED TO WS-BIND-2
@@ -815,7 +844,11 @@
                 END-IF
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             IF WS-NUM-RATE NOT = 0
                 MOVE WS-NUM-RATE TO WS-AMT-EDIT
                 MOVE "UPDATE payroll_employee SET tax_amount = ROUND(gross_amount * ? / 100, 4), net_amount = gross_amount - ROUND(gross_amount * ? / 100, 4) - deduction_amount WHERE batch_id = ? AND status = 'VALID'" TO WS-PREP-SQL
@@ -899,7 +932,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             IF WS-P2-TRIMMED NOT = SPACES
                 MOVE "UPDATE payroll_payment SET payment_clearing_ref = ?, status = 'POSTED', posted_at = NOW() WHERE batch_id = ? AND status = 'PENDING'" TO WS-PREP-SQL
                 MOVE WS-P2-TRIMMED TO WS-BIND-1
@@ -989,7 +1026,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE payroll_processing SET status = 'CLOSED', version = version + 1 WHERE id = ?" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             PERFORM SQL-EXEC-1

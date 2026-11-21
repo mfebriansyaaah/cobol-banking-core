@@ -418,7 +418,11 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO fee_rule (rule_code, name, fee_type, currency_code, created_by) VALUES (?, ?, ?, ?, ?)" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -574,7 +578,11 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE fee_rule SET enabled = ?, priority = ? WHERE id = ?" TO WS-PREP-SQL
            MOVE WS-P2-TRIMMED TO WS-BIND-1
            MOVE WS-P3-TRIMMED TO WS-BIND-2
@@ -659,7 +667,11 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO fee_tier (rule_id, tier_no, from_amount, to_amount, fixed_fee, rate) VALUES (?, ?, ?, ?, ?, ?)" TO WS-PREP-SQL
            MOVE WS-RULE-ID TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -785,7 +797,11 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO fee_waiver (rule_id, account_email, reason, valid_from, valid_to, created_by) VALUES (?, ?, ?, ?, ?, ?)" TO WS-PREP-SQL
            MOVE WS-RULE-ID TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -977,7 +993,11 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO velocity_profile (profile_code, name, window_seconds, currency_code, created_by, max_count, max_amount) VALUES (?, ?, ?, ?, ?, 0, 0)" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -1166,7 +1186,11 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO velocity_counter (account_email, profile_code, window_start, used_count, used_amount) SELECT ?, ?, FROM_UNIXTIME(FLOOR(UNIX_TIMESTAMP(NOW()) / window_seconds) * window_seconds), 1, ? FROM velocity_profile WHERE profile_code = ? AND currency_code = ? AND enabled = TRUE ON DUPLICATE KEY UPDATE used_count = used_count + 1, used_amount = used_amount + VALUES(used_amount)" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2

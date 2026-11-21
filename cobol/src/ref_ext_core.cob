@@ -256,7 +256,11 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO ref_translation (ref_value_id, locale, label) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE label = VALUES(label)" TO WS-PREP-SQL
            MOVE WS-VALUE-ID TO WS-BIND-1
            MOVE WS-P3-TRIMMED TO WS-BIND-2
@@ -362,7 +366,11 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT IGNORE INTO ref_hierarchy (parent_value_id, child_value_id) VALUES (?, ?)" TO WS-PREP-SQL
            MOVE WS-PARENT-ID TO WS-BIND-1
            MOVE WS-CHILD-ID TO WS-BIND-2
@@ -458,7 +466,11 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "DELETE FROM ref_hierarchy WHERE parent_value_id = ? AND child_value_id = ?" TO WS-PREP-SQL
            MOVE WS-PARENT-ID TO WS-BIND-1
            MOVE WS-CHILD-ID TO WS-BIND-2
@@ -547,7 +559,11 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO ref_value (type_code, code) VALUES (?, ?)" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-P3-TRIMMED TO WS-BIND-2

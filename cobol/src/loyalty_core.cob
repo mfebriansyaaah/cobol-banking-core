@@ -9,6 +9,7 @@
         DATA DIVISION.
         WORKING-STORAGE SECTION.
         01  WS-RESULT               PIC X(16384) VALUE SPACES.
+        01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
         01  WS-PREP-SQL             PIC X(1024) VALUE SPACES.
         01  WS-BIND-1               PIC X(256) VALUE SPACES.
         01  WS-BIND-2               PIC X(256) VALUE SPACES.
@@ -272,7 +273,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO loyalty_program (loyalty_ref, program_code, name, type, status, created_by) VALUES (?, ?, ?, ?, 'DRAFT', ?)" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P1-TRIMMED TO WS-BIND-2
@@ -358,7 +363,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE loyalty_program SET status = 'ACTIVE', version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE FUNCTION TRIM(WS-PROG-VERSION) TO WS-BIND-2
@@ -434,7 +443,11 @@
                 MOVE WS-P3-TRIMMED TO WS-TMP-STR
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO loyalty_member (program_id, customer_ref, tier, status) VALUES (?, ?, ?, 'ACTIVE')" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -536,7 +549,11 @@
             MOVE WS-NUM-BAL TO WS-AMT-EDIT
             MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-ALLOCATED
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO loyalty_points_ledger (member_id, source_type, source_ref, points_delta, balance_after, created_by) VALUES (?, ?, ?, ?, ?, ?)" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -645,7 +662,11 @@
                 INTO WS-TMP-ID ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
             MOVE FUNCTION TRIM(WS-TMP-ID) TO WS-TMP-STR
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO loyalty_redemption (member_id, points, reward_code, status, gl_journal_id) VALUES (?, ?, ?, 'APPROVED', NULLIF(?, ''))" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -765,7 +786,11 @@
             STRING "EXP-" DELIMITED BY SIZE FUNCTION TRIM(WS-P2-TRIMMED) DELIMITED BY SIZE
                 INTO WS-SRC-REF ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE loyalty_points_ledger SET reversed_at = NOW() WHERE member_id = ? AND reversed_at IS NULL AND source_type IN ('CARD_TXN', 'PAYMENT', 'CAMPAIGN') AND expires_at IS NOT NULL AND expires_at <= ?" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -880,7 +905,11 @@
             END-IF.
             MOVE WS-RESULT(1:50) TO WS-SRC-REF
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "ADJUSTMENT" TO WS-SRC-TYPE
             MOVE "INSERT INTO loyalty_points_ledger (member_id, source_type, source_ref, points_delta, balance_after, created_by) VALUES (?, ?, ?, ?, ?, ?)" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
@@ -1070,4 +1099,5 @@
                 INTO LS-OUTPUT-BUFFER ON OVERFLOW CALL "SQL_ROLLBACK" END-CALL MOVE "ERROR|OUTPUT_TOO_LARGE" TO LS-OUTPUT-BUFFER GOBACK END-STRING.
             EXIT PARAGRAPH.
         COPY "common_commit.cpy".
+        COPY "common_txn.cpy".
        END PROGRAM loyalty_core.

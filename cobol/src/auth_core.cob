@@ -8,6 +8,7 @@
         DATA DIVISION.
         WORKING-STORAGE SECTION.
         COPY "auth_password_ws.cpy".
+        01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
         01  WS-CALL-ACTION          PIC X(30) VALUE SPACES.
         01  WS-CALL-P1              PIC X(100) VALUE SPACES.
         01  WS-CALL-P2              PIC X(100) VALUE SPACES.
@@ -171,7 +172,11 @@
                     IF WS-ALLOWED NOT = 1
                         MOVE "ERROR|FORBIDDEN" TO LS-OUTPUT-BUFFER
                     ELSE
-                        CALL "SQL_BEGIN" END-CALL
+                        SET STEP-OK TO TRUE
+                        PERFORM TXN-BEGIN
+                        IF STEP-FAIL
+                            EXIT PARAGRAPH
+                        END-IF
                         MOVE "REVOKE_ALL_SESSIONS" TO WS-CALL-ACTION
                         MOVE WS-PARAM1-TRIMMED TO WS-CALL-P1
                         MOVE WS-PARAM2-TRIMMED TO WS-CALL-P2
@@ -460,7 +465,11 @@
             CALL "hash_password_v2" USING BY REFERENCE WS-PLAIN BY REFERENCE WS-HASH END-CALL
             CALL "hashlen_core" USING BY REFERENCE WS-HASH BY REFERENCE WS-HLEN END-CALL
             
-            CALL "SQL_BEGIN" END-CALL
+            SET STEP-OK TO TRUE
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             
             *> Prepared insert: values are bound, not concatenated.
             MOVE "INSERT INTO users (email, password_hash, full_name, dob, status, role) VALUES (?, ?, ?, ?, 'UNVERIFIED', 'USER')" TO WS-PREP-SQL
@@ -556,7 +565,10 @@
             END-IF
             
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             
             MOVE "UPDATE users SET status = 'VERIFIED' WHERE email = ?" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
@@ -627,7 +639,10 @@
                 END-IF
             END-IF
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "DELETE FROM verification_logs WHERE email = ? AND purpose = 'SIGNUP' AND is_used = 0" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             PERFORM SQL-EXEC-1
@@ -737,7 +752,11 @@
                 EXIT PARAGRAPH
             END-IF.
             IF WS-PARAM3-TRIMMED NOT = SPACES
-                CALL "SQL_BEGIN" END-CALL
+                SET STEP-OK TO TRUE
+                PERFORM TXN-BEGIN
+                IF STEP-FAIL
+                    EXIT PARAGRAPH
+                END-IF
                 MOVE "UPDATE refresh_sessions SET revoked = 1 WHERE email = ? AND family <> ? AND revoked = 0" TO WS-PREP-SQL
                 MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
                 MOVE WS-PARAM3-TRIMMED TO WS-BIND-2
@@ -926,4 +945,5 @@
             END-IF.
             EXIT PARAGRAPH.
         COPY "common_commit.cpy".
+        COPY "common_txn.cpy".
        END PROGRAM auth_core.
