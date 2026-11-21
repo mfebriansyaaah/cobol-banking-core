@@ -1,0 +1,26 @@
+# Legacy/shared route actions (arch9 WP-01 baseline for A7).
+# Format: ACTION|sunset|owner|reason. Canonical = keep; alias = deprecate in WP-25.
+# Sunset 2027-06-30 = WP-25 deadline (matches Deprecation/Sunset header plan).
+PING|-|arch9|intentional shared action: GET /health + GET /ready
+IDV_REVIEW_LIST|-|arch9|intentional shared action: /identity/reviews + /screening/reviews
+IDV_REVIEW_DECIDE|-|arch9|intentional shared action: /identity/reviews/decide + /screening/reviews/decide
+FAS_SUMMARY|2027-06-30|arch9|alias /finance/fixed-assets/*; canonical /fixed-assets (WP-25)
+FAS_AUDIT|2027-06-30|arch9|alias /finance/fixed-assets/*; canonical /fixed-assets (WP-25)
+FAS_LIST|2027-06-30|arch9|alias /finance/fixed-assets/*; canonical /fixed-assets (WP-25)
+FAS_GET|2027-06-30|arch9|alias /finance/fixed-assets/*; canonical /fixed-assets (WP-25)
+LOC_CREATE|2027-06-30|arch9|alias /trade-finance/lc; canonical /letters-of-credit (WP-25)
+LOC_SUMMARY|2027-06-30|arch9|alias /trade-finance/lc; canonical /letters-of-credit (WP-25)
+LOC_AUDIT|2027-06-30|arch9|alias /trade-finance/lc; canonical /letters-of-credit (WP-25)
+LOC_LIST|2027-06-30|arch9|alias /trade-finance/lc; canonical /letters-of-credit (WP-25)
+LOC_GET|2027-06-30|arch9|alias /trade-finance/lc; canonical /letters-of-credit (WP-25)
+BKG_CREATE|2027-06-30|arch9|alias /trade-finance/bg; canonical /bank-guarantees (WP-25)
+BKG_SUMMARY|2027-06-30|arch9|alias /trade-finance/bg; canonical /bank-guarantees (WP-25)
+BKG_AUDIT|2027-06-30|arch9|alias /trade-finance/bg; canonical /bank-guarantees (WP-25)
+BKG_LIST|2027-06-30|arch9|alias /trade-finance/bg; canonical /bank-guarantees (WP-25)
+BKG_GET|2027-06-30|arch9|alias /trade-finance/bg; canonical /bank-guarantees (WP-25)
+PRL_VALIDATE|2027-06-30|arch9|alias /payroll-processing; canonical /payrolls (WP-25)
+PRL_SUMMARY|2027-06-30|arch9|alias /payroll-processing; canonical /payrolls (WP-25)
+PRL_AUDIT|2027-06-30|arch9|alias /payroll-processing; canonical /payrolls (WP-25)
+PRL_LIST|2027-06-30|arch9|alias /payroll-processing; canonical /payrolls (WP-25)
+PRL_CREATE|2027-06-30|arch9|alias /payroll-processing; canonical /payrolls (WP-25)
+PRL_GET|2027-06-30|arch9|alias /payroll-processing; canonical /payrolls (WP-25)

@@ -74,6 +74,39 @@ exists). CodeQL is informational, not a required check, until one green run
 plus an alert-triage pass; it becomes required only if the owner accepts
 security findings as merge blockers.
 
+## Architecture fitness functions
+
+`node scripts/check_architecture.mjs` (`tests/run_all.sh` gate
+`ARCHITECTURE FITNESS CHECK`) enforces the arch9 invariants without relying
+on reviewer discipline. Rules (see the script header and
+`docs/adr/0015-transaction-kernel.md` through `0019`):
+
+- **A1** — no direct `CALL "SQL_BEGIN"` in `cobol/src/*_core.cob` or
+  `cobol/copy/*.cpy` (except the `TXN-BEGIN` kernel). Migrated in WP-10.
+- **A2** — no bare `CALL "SQL_COMMIT"` in `cobol/src/*.cob` (use
+  `PERFORM COMMIT-CHECKED`).
+- **A3** — no `audit_trail` status `'DENIED'` (the enum is `SUCCESS/FAILED`).
+- **A4** — no `gl_journal` lookup by `description` (link by `txn_ref`).
+- **A5** — `middleware/src/**` must not import `middleware/services/**`
+  directly (go through `middleware/adapters/**`).
+- **A6** — COBOL modules stay at or under 1000 lines (split in WP-24).
+- **A7** — duplicate route actions must be allowlisted legacy aliases in
+  `tests/legacy_routes.txt` or carry `deprecated: true`.
+
+Exceptions live in `tests/architecture_sql_begin_allowlist.txt`,
+`tests/architecture_module_size_allowlist.txt`, `tests/legacy_routes.txt`,
+and `tests/architecture_exceptions.txt`, one per line as
+`key|owner|expiry|reason` (`legacy_routes.txt` uses
+`ACTION|sunset|owner|reason`). The gate fails on expired entries, on stale
+entries (the violation is gone but the line remains), on malformed lines,
+and on unknown rule prefixes. Deleting an allowlist file means zero
+exceptions are allowed. Unit tests live in
+`scripts/test/check_architecture.test.mjs`.
+
+Adding a new exception requires owner + expiry + reason in the allowlist
+and a reviewer ack in the PR; solo-maintainer PRs record the second pass in
+the PR body per the money-path rule above.
+
 ## CODEOWNERS
 
 `.github/CODEOWNERS` assigns every path to `@mfebriansyaaah` with
