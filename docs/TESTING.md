@@ -334,6 +334,14 @@ dry-run by default.
   modified (required without DDL rights — see below).
 - `db-shard` runs one matrix shard:
   `DB_SHARD_INDEX=0 DB_SHARD_COUNT=4 run_all.sh db-shard`.
+- `ci-test` runs the impact-selected gate (CI only): only the selected table
+  cases, node tests, and integration flows run, plus the always-cheap amount
+  matrix, error harness, and smoke. Selection arrives via
+  `SELECT_CASE_FILES`, `SELECT_NODE_SUITE`, `SELECT_NODE_FILES`,
+  `SELECT_INTEGRATION_MODE`, `SELECT_INTEGRATION_FLOWS`, or the repeatable
+  `--case-file`, `--node-suite`, `--node-file`, `--integration-flow` flags.
+  `SELECT_INTEGRATION_MODE=none` (default) skips integration; `selected`
+  runs only the named `tests/integration/<name>.sh` flows.
 
 ## Flaky-test quarantine
 

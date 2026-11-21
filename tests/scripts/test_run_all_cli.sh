@@ -24,7 +24,7 @@ if [ "$help_rc" = "0" ]; then
 else
     not_ok "--help exits 0 (got $help_rc)"
 fi
-for token in --mode --only --failed --repeat --keep-logs --no-build --allow-dev-db --json --no-report "fast db db-shard db-selected full probes affected integration gates"; do
+for token in --mode --only --failed --repeat --keep-logs --no-build --allow-dev-db --json --no-report --case-file --node-suite --node-file --integration-flow "fast db db-shard db-selected full probes affected integration gates ci-test"; do
     case "$help_out" in
         *"$token"*) ok "help mentions $token" ;;
         *) not_ok "help mentions $token" ;;
@@ -54,6 +54,14 @@ check_rc2 "repeat zero" --repeat 0 db
 check_rc2 "repeat non-numeric" --repeat x db
 check_rc2 "bad mode" frobnicate
 check_rc2 "--only=empty" --only= db
+check_rc2 "missing --case-file value" --case-file
+check_rc2 "missing --node-suite value" --node-suite
+check_rc2 "missing --node-file value" --node-file
+check_rc2 "missing --integration-flow value" --integration-flow
+check_rc2 "bad --node-suite" --node-suite bogus ci-test
+check_rc2 "nonexistent --case-file" --case-file tests/cobol/cases/nope.cases ci-test
+check_rc2 "nonexistent --node-file" --node-file middleware/test/nope.test.js ci-test
+check_rc2 "nonexistent --integration-flow" --integration-flow nope ci-test
 
 # --- --failed without a last-failed file fails closed ---------------------
 rm -f artifacts/last-failed.txt artifacts/latest/last-failed.txt
@@ -124,6 +132,59 @@ live_ready() {
         -e "CREATE DATABASE \`$probe\`; DROP DATABASE \`$probe\`;" >/dev/null 2>&1 || return 1
     return 0
 }
+# --- ci-test selection (needs the built binary; flows need the DB too) -----
+if [ -x cobol/bin/main_logic ]; then
+    TMPCT="$(mktemp -d "${TMPDIR:-/tmp}/ci-test.XXXXXX")"
+    if REPORT_DIR="$TMPCT" SELECT_INTEGRATION_MODE=none \
+        bash tests/run_all.sh ci-test --case-file tests/cobol/cases/loan.cases > "$TMPCT/out.log" 2>&1; then
+        if grep -q '^table_runner.sh[[:space:]]*pass' "$TMPCT/report.tsv" 2>/dev/null \
+            && grep -q 'COBOL TABLE TESTS (selected)' "$TMPCT/out.log" 2>/dev/null; then
+            ok "ci-test runs the selected case file"
+        else
+            not_ok "ci-test runs the selected case file"; tail -5 "$TMPCT/out.log"
+        fi
+    else
+        not_ok "ci-test runs the selected case file (exit $?)"; tail -5 "$TMPCT/out.log"
+    fi
+    rm -rf "$TMPCT"
+
+    TMPCT2="$(mktemp -d "${TMPDIR:-/tmp}/ci-test-node.XXXXXX")"
+    if REPORT_DIR="$TMPCT2" SELECT_INTEGRATION_MODE=none \
+        bash tests/run_all.sh ci-test --node-file middleware/test/contract.test.js > "$TMPCT2/out.log" 2>&1; then
+        if grep -q 'NODE TEST: test/contract.test.js' "$TMPCT2/out.log" 2>/dev/null \
+            && ! grep -q 'NODE TEST: test/gateway.test.js' "$TMPCT2/out.log" 2>/dev/null; then
+            ok "ci-test runs only the selected node file"
+        else
+            not_ok "ci-test runs only the selected node file"; tail -5 "$TMPCT2/out.log"
+        fi
+    else
+        not_ok "ci-test runs only the selected node file (exit $?)"; tail -5 "$TMPCT2/out.log"
+    fi
+    rm -rf "$TMPCT2"
+
+    if live_ready; then
+        first_flow="$(basename "$(printf "%s\n" tests/integration/*.sh | head -n 1)" .sh)"
+        if [ -n "$first_flow" ]; then
+            if REPORT_DIR=/tmp/cli-ci-flow SELECT_INTEGRATION_MODE=selected \
+                SELECT_INTEGRATION_FLOWS="$first_flow" \
+                bash tests/run_all.sh ci-test > /tmp/cli-ci-flow.log 2>&1; then
+                if grep -q "INTEGRATION: $first_flow.sh" /tmp/cli-ci-flow.log 2>/dev/null; then
+                    ok "ci-test runs only the selected integration flow"
+                else
+                    not_ok "ci-test runs only the selected integration flow"; tail -5 /tmp/cli-ci-flow.log
+                fi
+            else
+                not_ok "ci-test runs only the selected integration flow (exit $?)"; tail -5 /tmp/cli-ci-flow.log
+            fi
+            rm -rf /tmp/cli-ci-flow /tmp/cli-ci-flow.log
+        fi
+    else
+        ok "SKIP ci-test integration flow (no migrated database with DDL rights here)"
+    fi
+else
+    ok "SKIP ci-test selected (binary not built here)"
+fi
+
 if live_ready; then
     total="$(printf "%s\n" tests/db/*_db_tests.sh | wc -l)"
     if DB_SHARD_INDEX=0 DB_SHARD_COUNT="$total" REPORT_DIR=/tmp/cli-live \

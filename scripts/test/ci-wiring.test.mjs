@@ -400,6 +400,19 @@ test('coverage is a real PR gateway gate; test skips its gateway phase', () => {
   assert.ok(aggNeeds.includes('coverage'), 'db aggregate must wait for the gateway coverage gate');
 });
 
+test('test job runs the full gate or the selected ci-test gate (PR-03)', () => {
+  const ci = collectWorkflowJobs()['ci.yml'];
+  const runs = ci['test'].runs.join('\n');
+  assert.match(runs, /run_all\.sh full/, 'test job must keep the full gate (flag off)');
+  assert.match(runs, /run_all\.sh ci-test/, 'test job must run the selected ci-test gate (flag on)');
+  const ciYaml = readFileSync(path.join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8');
+  assert.match(ciYaml, /eff_test == 'full'/, 'full step must gate on eff_test full');
+  assert.match(ciYaml, /eff_test == 'selected'/, 'selected step must gate on eff_test selected');
+  assert.match(ciYaml, /SELECT_CASE_FILES/, 'selected step must pass the table cases');
+  assert.match(ciYaml, /SELECT_NODE_SUITE/, 'selected step must pass the node suite');
+  assert.match(ciYaml, /SELECT_INTEGRATION_MODE/, 'selected step must pass the integration mode');
+});
+
 test('lint scopes docs vs full steps on eff_lint (PR-02)', () => {
   const ci = collectWorkflowJobs()['ci.yml'];
   const lint = ci['lint'];

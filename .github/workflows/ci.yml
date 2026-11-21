@@ -683,10 +683,28 @@ jobs:
       - name: Bootstrap database
         uses: ./.github/actions/db-bootstrap
 
-      - name: Run full test gate (DB via matrix)
+      - name: Run full test gate (flag off)
+        if: needs.changes.outputs.eff_test == 'full'
         env:
           SKIP_DB: '1'
+          SKIP_STATIC_GATES: '1'
+          SKIP_GATEWAY: '1'
+          SKIP_BUILD: '1'
+          QUARANTINE: '1'
         run: tests/run_all.sh full
+
+      - name: Run selected test gate (flag on)
+        if: needs.changes.outputs.eff_test == 'selected'
+        env:
+          CI_TEST_MODE: ci-test
+          SELECT_CASE_FILES: ${{ needs.changes.outputs.eff_table_cases }}
+          SELECT_NODE_SUITE: ${{ needs.changes.outputs.eff_node_suite }}
+          SELECT_NODE_FILES: ${{ needs.changes.outputs.eff_node_files }}
+          SELECT_INTEGRATION_MODE: ${{ needs.changes.outputs.eff_integration }}
+          SELECT_INTEGRATION_FLOWS: ${{ needs.changes.outputs.eff_integration_flows }}
+          SKIP_BUILD: '1'
+          QUARANTINE: '1'
+        run: tests/run_all.sh ci-test
 
       - name: Write test summary
         if: always()

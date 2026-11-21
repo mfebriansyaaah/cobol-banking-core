@@ -265,6 +265,87 @@ test('enforced eff follows the plan', () => {
   }
 });
 
+test('enforced code eff selects only the impacted suites', () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'impact-'));
+  try {
+    const gh = path.join(dir, 'github_output');
+    writeFileSync(gh, '');
+    const r = runPlan(['--files', 'cobol/src/loan_core.cob', '--github-output', gh], {
+      ...LEGACY_PR,
+      PLAN_ENFORCE: 'true',
+    });
+    assert.equal(r.status, 0);
+    const out = Object.fromEntries(
+      readFileSync(gh, 'utf8')
+        .trim()
+        .split('\n')
+        .map((l) => l.split('=')),
+    );
+    assert.equal(out.eff_test, 'selected');
+    assert.equal(out.eff_table_cases, 'tests/cobol/cases/loan.cases');
+    assert.equal(out.eff_db, 'selected');
+    assert.equal(out.eff_db_suites, 'tests/db/loan_db_tests.sh');
+    assert.equal(out.eff_integration, 'full');
+    assert.equal(out.eff_gateway_coverage, 'true');
+    assert.equal(out.eff_aggregate, 'true');
+    assert.equal(out.eff_aggregate_mode, 'selected');
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('enforced route eff selects the endpoints suite without DB', () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'impact-'));
+  try {
+    const gh = path.join(dir, 'github_output');
+    writeFileSync(gh, '');
+    const r = runPlan(['--files', 'middleware/src/routes/loan.js', '--github-output', gh], {
+      ...LEGACY_PR,
+      PLAN_ENFORCE: 'true',
+    });
+    assert.equal(r.status, 0);
+    const out = Object.fromEntries(
+      readFileSync(gh, 'utf8')
+        .trim()
+        .split('\n')
+        .map((l) => l.split('=')),
+    );
+    assert.equal(out.eff_test, 'selected');
+    assert.equal(out.eff_node_suite, 'endpoints');
+    assert.equal(out.eff_db, 'none');
+    assert.equal(out.eff_integration, 'none');
+    assert.equal(out.eff_aggregate, 'true');
+    assert.equal(out.eff_aggregate_mode, 'selected');
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('enforced integration eff selects only the named flow', () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'impact-'));
+  try {
+    const gh = path.join(dir, 'github_output');
+    writeFileSync(gh, '');
+    const r = runPlan(['--files', 'tests/integration/loan_flow.sh', '--github-output', gh], {
+      ...LEGACY_PR,
+      PLAN_ENFORCE: 'true',
+    });
+    assert.equal(r.status, 0);
+    const out = Object.fromEntries(
+      readFileSync(gh, 'utf8')
+        .trim()
+        .split('\n')
+        .map((l) => l.split('=')),
+    );
+    assert.equal(out.eff_test, 'selected');
+    assert.equal(out.eff_integration, 'selected');
+    assert.equal(out.eff_integration_flows, 'loan_flow');
+    assert.equal(out.eff_db, 'none');
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
 test('enforced static eff skips runtime but keeps full lint', () => {
   const dir = mkdtempSync(path.join(tmpdir(), 'impact-'));
   try {

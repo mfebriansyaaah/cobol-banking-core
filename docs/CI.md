@@ -211,7 +211,7 @@ Rules:
 | `ci.yml` docker-build | 15 min | production image build + native linkage check (no push); PR runs only when Dockerfile/.dockerignore/build inputs/lockfile changed, so source-only changes do not recompile inside Docker |
 | `ci.yml` db-snapshot | 10 min | schema + migrate + ledger check + gzip DB snapshot + normalized `schema-fresh` artifact (pure producer; does not wait for `build`) |
 | `ci.yml` schema-drift | 10 min | compares the producer's normalized `schema-fresh` artifact with committed `schema_full.sql`; no second DB provisioning, and a drift failure blocks merge without blocking DB consumers |
-| `ci.yml` test | 25 min | PR-only non-DB gate: integration, gateway, error harness, table/amount tests; `SKIP_STATIC_GATES=1` because `lint` owns the gate fleet |
+| `ci.yml` test | 25 min | PR-only non-DB gate: two steps, exactly one runs. `eff_test=full` (flag off) runs `run_all.sh full` (integration, gateway, error harness, table/amount tests; `SKIP_STATIC_GATES=1` because `lint` owns the gate fleet). `eff_test=selected` (flag on) runs `run_all.sh ci-test` with `SELECT_CASE_FILES`, `SELECT_NODE_SUITE`, `SELECT_NODE_FILES`, `SELECT_INTEGRATION_MODE`, `SELECT_INTEGRATION_FLOWS` |
 | `ci.yml` db-shards (×2) | 25 min each | PR-only full/unknown-change path: two LPT shards; runtime deps only (no npm install) |
 | `ci.yml` db selected (`db-selected`) | 20 min | PR-only mapped-change path: one runner runs the selected DB suites; full fallback remains `db-shards` |
 | `ci.yml` db-aggregate | 10 min | PR-only merge of test, shard/selected, and coverage reports + subset/full count gate + summary |
