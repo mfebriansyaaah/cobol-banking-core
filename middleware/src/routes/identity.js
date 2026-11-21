@@ -9,6 +9,7 @@ export const IDENTITY_ROUTES = [
     path: '/identity/nik/validate',
     action: 'IDV_NIK_VALIDATE',
     tokenIdentity: 'actor',
+    derivedFields: [{ name: 'nik', pattern: PATTERNS.NIK, required: true }],
     fields: [
       { name: 'email', pattern: PATTERNS.EMAIL, required: true },
       { name: 'nikHash', pattern: PATTERNS.REF_VALUE_CODE, required: false },
@@ -23,6 +24,7 @@ export const IDENTITY_ROUTES = [
     path: '/identity/ktp/ocr',
     action: 'IDV_KTP_OCR_RESULT',
     tokenIdentity: 'actor',
+    derivedFields: [{ name: 'imageRef', pattern: PATTERNS.KEY, required: true }],
     fields: [
       { name: 'email', pattern: PATTERNS.EMAIL, required: true },
       { name: 'verdict', pattern: PATTERNS.NAME, required: false },

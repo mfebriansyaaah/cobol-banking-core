@@ -82,6 +82,47 @@ function normalizeSlots(slots) {
   }));
 }
 
+function derivedFieldsOf(body) {
+  const start = body.search(/derivedFields\s*:\s*\[/);
+  if (start < 0) return [];
+  const end = findBracketEnd(body, start);
+  return splitTopLevel(body.slice(body.indexOf('[', start) + 1, end))
+    .filter((x) => x.trim() !== '')
+    .map((entry) => {
+      const t = entry.trim();
+      const name = (t.match(/name\s*:\s*'([^']*)'/) || [])[1] ?? '';
+      const pattern = (t.match(/pattern\s*:\s*PATTERNS\.([A-Za-z0-9_]+)/) || [])[1] || null;
+      const required = /required\s*:\s*true/.test(t);
+      return { name, pattern, required };
+    });
+}
+
+function contractEntry(f, body, consts, hit, seq) {
+  const m = body.match(/method\s*:\s*'([a-z]+)'/);
+  const p = body.match(/path\s*:\s*'([^']+)'/);
+  const a = body.match(/action\s*:\s*'([A-Z0-9_]+)'/);
+  if (!m || !p || !a) return null; // custom infra routes carry no action
+  const derived = derivedFieldsOf(body);
+  return {
+    action: a[1],
+    method: m[1],
+    path: p[1],
+    routeFile: f,
+    seq,
+    module: hit.module || null,
+    prefix: hit.prefix || null,
+    auth: {
+      public: /\bpublic\s*:\s*true\b/.test(body),
+      tokenIdentity: (body.match(/tokenIdentity\s*:\s*'([^']+)'/) || [])[1] || null,
+      stepUp: /\bstepUp\s*:\s*true\b/.test(body),
+      stepUpPolicy: (body.match(/stepUpPolicy\s*:\s*'([^']+)'/) || [])[1] || null,
+    },
+    fields: fieldsOf(body, consts),
+    ...(derived.length ? { derivedFields: derived } : {}),
+    tested: Boolean(hit.tested),
+  };
+}
+
 function fieldsOf(body, consts) {
   const start = body.search(/fields\s*:\s*\[/);
   if (start < 0) {
@@ -118,28 +159,13 @@ export function collectRouteContracts(rootDir) {
     }
     const consts = fileConstArrays(src);
     for (const { body } of routeObjects(src)) {
-      const m = body.match(/method\s*:\s*'([a-z]+)'/);
-      const p = body.match(/path\s*:\s*'([^']+)'/);
       const a = body.match(/action\s*:\s*'([A-Z0-9_]+)'/);
-      if (!m || !p || !a) continue; // custom infra routes carry no action
+      if (!a) continue; // custom infra routes carry no action
       const hit = byAction.get(a[1]) || {};
-      out.push({
-        action: a[1],
-        method: m[1],
-        path: p[1],
-        routeFile: f,
-        seq: seq++,
-        module: hit.module || null,
-        prefix: hit.prefix || null,
-        auth: {
-          public: /\bpublic\s*:\s*true\b/.test(body),
-          tokenIdentity: (body.match(/tokenIdentity\s*:\s*'([^']+)'/) || [])[1] || null,
-          stepUp: /\bstepUp\s*:\s*true\b/.test(body),
-          stepUpPolicy: (body.match(/stepUpPolicy\s*:\s*'([^']+)'/) || [])[1] || null,
-        },
-        fields: fieldsOf(body, consts),
-        tested: Boolean(hit.tested),
-      });
+      const entry = contractEntry(f, body, consts, hit, seq);
+      if (!entry) continue;
+      seq += 1;
+      out.push(entry);
     }
   }
   out.sort((a, b) =>
@@ -194,29 +220,54 @@ function startContractEntry(state, text) {
   state.cur = { action: text.slice('- action: '.length), auth: {}, fields: [] };
   state.entries.push(state.cur);
   state.field = null;
+  state.dfield = null;
   state.inAuth = false;
+  state.inDerived = false;
 }
 
 function parseIndent4(state, text) {
   if (text.startsWith('auth:')) {
     state.inAuth = true;
+    state.inDerived = false;
     state.field = null;
+    state.dfield = null;
     return;
   }
   if (text.startsWith('fields:')) {
     state.inAuth = false;
+    state.inDerived = false;
     state.field = null;
+    state.dfield = null;
+    return;
+  }
+  if (text.startsWith('derivedFields:')) {
+    state.inAuth = false;
+    state.inDerived = true;
+    state.field = null;
+    state.dfield = null;
+    state.cur.derivedFields = [];
     return;
   }
   if (text.startsWith('- ')) return;
   const kv = parseKeyValue(text);
   if (kv) state.cur[kv[0]] = kv[1];
   state.inAuth = false;
+  state.inDerived = false;
   state.field = null;
+  state.dfield = null;
 }
 
 function parseIndent6(state, text) {
   if (text.startsWith('- ')) {
+    if (state.inDerived) {
+      // `- name: nik`: start a derived entry (name inline after the dash).
+      const kv = parseKeyValue(text.slice(2));
+      state.dfield = kv ? { [kv[0]]: kv[1] } : {};
+      state.cur.derivedFields.push(state.dfield);
+      state.field = null;
+      state.inAuth = false;
+      return;
+    }
     const slot = parseSlotLine(text);
     if (slot) {
       state.field = slot;
@@ -231,6 +282,12 @@ function parseIndent6(state, text) {
 }
 
 function parseIndent8(state, text) {
+  if (state.inDerived) {
+    if (!state.dfield) return;
+    const kv = parseKeyValue(text);
+    if (kv) state.dfield[kv[0]] = kv[1];
+    return;
+  }
   if (!state.field) return;
   const kv = parseKeyValue(text);
   if (kv) state.field[kv[0]] = kv[1];
@@ -243,7 +300,7 @@ export function loadContract(rootDir) {
   // Find the actions list and parse each `- action: X` block by indentation.
   const start = lines.findIndex((ln) => ln === 'actions:');
   if (start === -1) throw new Error('contracts/actions.yaml: no actions list');
-  const state = { entries: [], cur: null, field: null, inAuth: false };
+  const state = { entries: [], cur: null, field: null, dfield: null, inAuth: false, inDerived: false };
   for (let i = start + 1; i < lines.length; i += 1) {
     const ln = lines[i];
     if (!ln.trim() || ln.trimStart().startsWith('#')) continue;

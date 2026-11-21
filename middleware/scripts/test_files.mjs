@@ -36,6 +36,7 @@ const UNIT = [
   'test/result.test.js',
   'test/result-contract.test.js',
   'test/response-mappers.test.js',
+  'test/route-contract.test.js',
   'test/route-order.test.js',
   'test/route-reachability.test.js',
   'test/routes.test.js',

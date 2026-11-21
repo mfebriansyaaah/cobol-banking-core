@@ -115,3 +115,39 @@ de-cloned modules. Regardless of shape:
   (a proven core business link — see [module linkage](MODULE_LINKAGE.md))
   or `UTILITY`/`INFRA` status. `tests/clone_baseline.txt` is now empty and
   must stay empty.
+
+## Contract-first routes (WP-13)
+
+`middleware/spec/routes.yaml` is the single source of truth. Never hand-edit
+`middleware/src/routes/*.js`, `contracts/actions.yaml`, or `docs/openapi.yaml`;
+regenerate them and review the diff.
+
+- Adding a route with a derived field: when the gateway must compute a pipe
+  slot server-side from raw client input (NIK → nikHash, name/dob/consent →
+  queryHash, phone → phoneHash, imageRef → verdict), declare the raw inputs in
+  `derivedFields` on the spec line, e.g.
+  `derivedFields: [nik:NIK]`. The raw names must never appear in `fields`
+  (the 6-slot COBOL pipe); the adapter in `middleware/adapters/signals.js`
+  (via `DERIVATIONS`) produces the pipe slots, and
+  `scripts/check_derivation_fields.mjs` fails the build if the two drift or a
+  raw name leaks into the pipe. `RISK_NOTE` is the deliberate exception: its
+  derivation needs only `email` (already a pipe field) plus the socket IP, so
+  it declares no `derivedFields`.
+- Adding a response mapper: parse multi-row COBOL fields only with
+  `splitRows()` + `assertFieldCount()` from `middleware/src/responseMappers.js`
+  (exact shape for allowlisted rows; `min` + rest-join only for free-text tails
+  like statement descriptions). A short row throws → 500 via the error
+  middleware, never a misaligned object. Cover the mapper in
+  `middleware/test/response-mappers.test.js`.
+- Regenerate after any spec change, in this order, reviewing each diff:
+  `node scripts/build_routes.mjs --write`,
+  `node scripts/build_contract.mjs --write`,
+  `node scripts/generate_openapi.mjs --write`.
+  Then `node scripts/check_contract.mjs` and `node scripts/check_openapi.mjs`
+  must both print OK.
+- Running the contract tests: `npm --prefix middleware run test:unit` runs
+  `middleware/test/route-contract.test.js` (every route once against a stub
+  COBOL binary: no 500 on well-formed output, raw derived inputs absent from
+  the captured pipe). `npm run test:scripts` runs
+  `scripts/test/derived_fields.test.mjs` (spec → routes → registry →
+  OpenAPI round-trip, derived never in pipe).

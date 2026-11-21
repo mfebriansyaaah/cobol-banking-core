@@ -158,6 +158,21 @@ test('--write updates gateway_tests from JUnit alone', () => {
   assert.match(content, /^db_account_tests=13$/m);
 });
 
+test('leaf testcases win over a subtest-parent testsuite summary', () => {
+  // Node's junit reporter wraps a parent test with subtests in
+  // <testsuite tests="k"> while sibling leaf tests stay bare <testcase>s.
+  // Counting the summary would drop the siblings; leaves are authoritative.
+  const mixed =
+    '<?xml version="1.0"?><testsuites>' +
+    '<testsuite name="parent" tests="2"><testcase name="p > a"/><testcase name="p > b"/></testsuite>' +
+    '<testcase name="solo"/>' +
+    '</testsuites>';
+  const gd = makeRoot({ baseline: BASE, tsvRows: [], junit: mixed });
+  run(gd, ['--write']);
+  const content = readFileSync(path.join(gd, 'tests', 'baseline_counts.txt'), 'utf8');
+  assert.match(content, /^gateway_tests=3$/m);
+});
+
 test('--write keeps keys missing from this run', () => {
   const short = TSV.filter((r) => !r.startsWith('schema_tests'));
   const d = makeRoot({ baseline: BASE, tsvRows: short, junit: JUNIT });
