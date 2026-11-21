@@ -228,7 +228,10 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO report_template (template_code, name, report_type, output_format, title, created_by) VALUES (?, ?, ?, ?, ?, ?)" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -457,7 +460,10 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO report_template_column (template_id, ordinal, header, source_field) VALUES (?, ?, ?, ?)" TO WS-PREP-SQL
            MOVE WS-TEMPLATE-ID TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -606,7 +612,10 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE report_template SET enabled = ?, output_format = ?, title = ? WHERE id = ?" TO WS-PREP-SQL
            MOVE WS-P2-TRIMMED TO WS-BIND-1
            MOVE WS-P3-TRIMMED TO WS-BIND-2
@@ -674,7 +683,10 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO report_template (template_code, name, report_type, output_format, title, enabled, created_by) VALUES (?, ?, ?, ?, ?, TRUE, ?)" TO WS-PREP-SQL
            MOVE WS-P2-TRIMMED TO WS-BIND-1
            MOVE WS-P3-TRIMMED TO WS-BIND-2
@@ -758,7 +770,10 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "DELETE FROM report_template WHERE id = ?" TO WS-PREP-SQL
            MOVE WS-TEMPLATE-ID TO WS-BIND-1
            PERFORM SQL-EXEC-1
@@ -810,7 +825,10 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "DELETE FROM report_template_column WHERE template_id = ? AND ordinal = ?" TO WS-PREP-SQL
            MOVE WS-TEMPLATE-ID TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -912,7 +930,10 @@
            MOVE WS-RESULT(1:20) TO WS-COL-ID
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE report_template_column SET header = ?, source_field = ? WHERE id = ?" TO WS-PREP-SQL
            MOVE WS-P3-TRIMMED TO WS-BIND-1
            MOVE WS-P4-TRIMMED TO WS-BIND-2

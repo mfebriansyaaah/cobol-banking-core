@@ -181,7 +181,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO identity_verifications (user_id, provider, method, status, result_code) VALUES (?, 'local', 'NIK_STRUCTURAL', ?, ?)" TO WS-PREP-SQL
             MOVE WS-USER-ID TO WS-BIND-1
             IF WS-P4-TRIMMED = "VALID"
@@ -236,7 +240,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO identity_verifications (user_id, provider, method, status, result_code) VALUES (?, 'local', 'KTP_OCR', ?, ?)" TO WS-PREP-SQL
             MOVE WS-USER-ID TO WS-BIND-1
             IF WS-P2-TRIMMED = "MANUAL_REVIEW"
@@ -354,7 +362,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE users SET kyc_status = 'APPROVED', kyc_verified_at = NOW() WHERE id = ?" TO WS-PREP-SQL
             MOVE WS-USER-ID TO WS-BIND-1
             PERFORM SQL-EXEC-1
@@ -451,7 +463,11 @@
                 END-IF
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE manual_reviews SET status = ?, reviewer_email = ?, reason = COALESCE(NULLIF(?, ''), reason), reviewed_at = NOW() WHERE id = ? AND status = 'OPEN'" TO WS-PREP-SQL
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P6-TRIMMED TO WS-BIND-2
@@ -562,7 +578,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO screening_checks (user_id, provider, query_hash, result, provider_ref, reviewed_by) VALUES (?, ?, ?, ?, ?, ?)" TO WS-PREP-SQL
             MOVE WS-USER-ID TO WS-BIND-1
             IF WS-P4-TRIMMED = SPACES
@@ -660,7 +680,11 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE accounts SET status = 'FROZEN' WHERE user_id = (SELECT id FROM users WHERE email = ? LIMIT 1) AND status = 'ACTIVE' AND account_type IN ('SAVINGS','CHECKING','INVESTMENT')" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            PERFORM SQL-EXEC-1
@@ -720,7 +744,11 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE accounts SET status = 'ACTIVE' WHERE user_id = (SELECT id FROM users WHERE email = ? LIMIT 1) AND status = 'FROZEN' AND account_type IN ('SAVINGS','CHECKING','INVESTMENT')" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            PERFORM SQL-EXEC-1

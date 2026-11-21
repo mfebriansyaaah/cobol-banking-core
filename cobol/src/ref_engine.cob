@@ -13,6 +13,7 @@
        DATA DIVISION.
        WORKING-STORAGE SECTION.
        01  WS-RESULT               PIC X(16384) VALUE SPACES.
+       01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
        01  WS-PREP-SQL             PIC X(1024) VALUE SPACES.
        01  WS-BIND-1               PIC X(256) VALUE SPACES.
        01  WS-BIND-2               PIC X(256) VALUE SPACES.
@@ -329,7 +330,10 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO ref_type (type_code, label, description, is_active) VALUES (?, ?, ?, TRUE)" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -468,7 +472,10 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO ref_value (type_code, code) VALUES (?, ?)" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -547,7 +554,10 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE ref_value_version vv JOIN ref_value v ON v.id = vv.ref_value_id SET vv.status = 'RETIRED', vv.effective_to = CURDATE() WHERE v.type_code = ? AND v.code = ? AND vv.status = 'ACTIVE' AND vv.version_no <> ?" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -609,7 +619,10 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE ref_value_version vv JOIN ref_value v ON v.id = vv.ref_value_id SET vv.status = 'RETIRED', vv.effective_to = CURDATE() WHERE v.type_code = ? AND v.code = ? AND vv.status = 'ACTIVE'" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -689,4 +702,5 @@
            END-IF.
            EXIT PARAGRAPH.
         COPY "common_commit.cpy".
+        COPY "common_txn.cpy".
        END PROGRAM ref_engine.

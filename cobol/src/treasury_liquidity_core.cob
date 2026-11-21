@@ -203,7 +203,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO treasury_liquidity (liq_ref, amount, currency, source_ref, status, created_by) VALUES (?, ?, ?, NULLIF(?, ''), 'OPEN', ?)" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -355,7 +359,11 @@
             MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
             SET STEP-OK TO TRUE
             MOVE SPACES TO WS-ERR
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE treasury_liquidity SET projected_amount = projected_amount + ?, status = 'PROJECTED', projected_at = COALESCE(projected_at, NOW()) WHERE id = ? AND projected_amount + ? <= amount" TO WS-PREP-SQL
             MOVE WS-TMP-AMT TO WS-BIND-1
             MOVE WS-P1-TRIMMED TO WS-BIND-2
@@ -429,7 +437,11 @@
             MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
             SET STEP-OK TO TRUE
             MOVE SPACES TO WS-ERR
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE treasury_liquidity SET status = CASE WHEN realized_amount + ? >= projected_amount THEN 'REALIZED' ELSE 'PROJECTED' END, realized_at = CASE WHEN realized_amount + ? >= projected_amount THEN NOW() ELSE realized_at END, realized_amount = realized_amount + ? WHERE id = ? AND realized_amount + ? <= projected_amount" TO WS-PREP-SQL
             MOVE WS-TMP-AMT TO WS-BIND-1
             MOVE WS-TMP-AMT TO WS-BIND-2
@@ -485,7 +497,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE treasury_liquidity SET status = 'CLOSED', closed_at = NOW(), closure_reason = NULLIF(?, '') WHERE id = ?" TO WS-PREP-SQL
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P1-TRIMMED TO WS-BIND-2

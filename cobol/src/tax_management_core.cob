@@ -326,7 +326,11 @@
                 EXIT PARAGRAPH
             END-IF
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
             MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
             MOVE "UPDATE tax_management SET collected_tax = collected_tax + ?, status = 'ACTIVE', activated_at = COALESCE(activated_at, NOW()), version = version + 1 WHERE id = ? AND version = ? AND status = 'OPEN'" TO WS-PREP-SQL
@@ -395,7 +399,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO tax_management (tax_ref, rule_code, tax_name, tax_type, status, created_by) VALUES (?, ?, ?, ?, 'OPEN', ?)" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P1-TRIMMED TO WS-BIND-2
@@ -478,7 +486,11 @@
             END-IF
             MOVE WS-RESULT(1:10) TO WS-TMP-VERSION.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             IF WS-P2-TRIMMED NOT = SPACES
                 MOVE SPACES TO WS-TMP-AMT WS-TMP-STR WS-TMP-ALLOCATED WS-TMP-ID
                 UNSTRING WS-P2-TRIMMED DELIMITED BY ":" INTO
@@ -694,7 +706,11 @@
             MOVE WS-NUM-TAX TO WS-AMT-EDIT
             MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-ALLOCATED
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO tax_withholding_entry (source_type, source_ref, base_amount, tax_amount, currency, rule_id, status, created_by) VALUES (?, ?, ?, ?, ?, ?, 'CALCULATED', ?)" TO WS-PREP-SQL
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P3-TRIMMED TO WS-BIND-2
@@ -760,7 +776,12 @@
                 MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            CALL "SQL_BEGIN" END-CALL
+            SET STEP-OK TO TRUE
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             IF WS-P2-TRIMMED = SPACES
                 MOVE "UPDATE tax_withholding_entry SET status = 'POSTED' WHERE entry_id = ? AND status = 'CALCULATED'" TO WS-PREP-SQL
                 MOVE WS-P1-TRIMMED TO WS-BIND-1
@@ -818,7 +839,12 @@
                 MOVE "ERROR|INVALID_STATE" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            CALL "SQL_BEGIN" END-CALL
+            SET STEP-OK TO TRUE
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE tax_withholding_entry SET status = 'REVERSED', reversed_at = NOW(), reversal_reason = NULLIF(?, '') WHERE entry_id = ? AND status = 'POSTED'" TO WS-PREP-SQL
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P1-TRIMMED TO WS-BIND-2
@@ -891,7 +917,11 @@
             UNSTRING WS-RESULT DELIMITED BY "|" INTO WS-TMP-AMT WS-TMP-STR WS-TMP-ALLOCATED
             END-UNSTRING
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO tax_report_run (period, tax_type, total_base, total_tax, currency, status, created_by) VALUES (?, ?, ?, ?, ?, 'DRAFT', ?) ON DUPLICATE KEY UPDATE total_base = VALUES(total_base), total_tax = VALUES(total_tax), status = 'DRAFT'" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2

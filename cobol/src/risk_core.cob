@@ -169,7 +169,10 @@
                 MOVE WS-FLAGS-TMP TO WS-FLAGS
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO risk_events (user_id, country, city, asn, ip_hash, flags) VALUES (?, ?, ?, ?, ?, ?)" TO WS-PREP-SQL
             MOVE WS-USER-ID TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2

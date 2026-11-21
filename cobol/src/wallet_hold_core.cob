@@ -10,6 +10,7 @@
         WORKING-STORAGE SECTION.
         01  WS-EXIT-CODE            PIC 9(2) VALUE 0.
         01  WS-RESULT               PIC X(16384) VALUE SPACES.
+        01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
         01  WS-PARAM1-TRIMMED       PIC X(100) VALUE SPACES.
         01  WS-PARAM2-TRIMMED       PIC X(100) VALUE SPACES.
         01  WS-PARAM3-TRIMMED       PIC X(100) VALUE SPACES.
@@ -405,7 +406,13 @@
 
         INSERT-HOLD-ROW.
             *> Lock the account, re-check under lock, insert the hold, audit.
-            CALL "SQL_BEGIN" END-CALL
+            SET STEP-OK TO TRUE
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                PERFORM TXN-ABORT
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+                EXIT PARAGRAPH
+            END-IF
             MOVE "SELECT account_id FROM accounts WHERE account_id = ? FOR UPDATE" TO WS-PREP-SQL
             MOVE WS-HOLD-ACC TO WS-BIND-1
             PERFORM SQL-EXEC-LOCK-1
@@ -504,7 +511,13 @@
 
         APPLY-HOLD-RELEASE.
             *> Lock the hold row; only a PLACED hold can be released.
-            CALL "SQL_BEGIN" END-CALL
+            SET STEP-OK TO TRUE
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                PERFORM TXN-ABORT
+                SET WS-TRANSFER-FAIL-DB TO TRUE
+                EXIT PARAGRAPH
+            END-IF
             MOVE "SELECT hold_id FROM account_holds WHERE hold_id = ? FOR UPDATE" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             PERFORM SQL-EXEC-LOCK-1
@@ -568,4 +581,5 @@
             EXIT PARAGRAPH.
 
         COPY "common_commit.cpy".
+        COPY "common_txn.cpy".
        END PROGRAM wallet_hold_core.

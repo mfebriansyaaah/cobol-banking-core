@@ -10,6 +10,7 @@
         WORKING-STORAGE SECTION.
         01  WS-EXIT-CODE            PIC 9(2) VALUE 0.
         01  WS-RESULT               PIC X(16384) VALUE SPACES.
+        01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
         01  WS-PARAM1-TRIMMED       PIC X(100) VALUE SPACES.
         01  WS-PARAM2-TRIMMED       PIC X(100) VALUE SPACES.
         01  WS-PARAM3-TRIMMED       PIC X(100) VALUE SPACES.
@@ -195,7 +196,10 @@
                 END-IF
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO dispute_cases (user_id, txn_ref, subject, detail) SELECT id, ?, ?, ? FROM users WHERE email = ?" TO WS-PREP-SQL
             MOVE WS-PARAM5-TRIMMED TO WS-BIND-1
             MOVE WS-PARAM3-TRIMMED TO WS-BIND-2
@@ -337,7 +341,10 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE dispute_cases SET state = 'ACKNOWLEDGED', assigned_to = (SELECT id FROM users WHERE email = ?), due_date = NULLIF(?, ''), decided_at = NULL WHERE case_id = ? AND state = 'OPEN'" TO WS-PREP-SQL
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
             MOVE WS-PARAM3-TRIMMED TO WS-BIND-2
@@ -394,7 +401,10 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE dispute_cases SET state = 'RESOLVED', resolution = ?, decided_at = NOW() WHERE case_id = ? AND state = 'ACKNOWLEDGED'" TO WS-PREP-SQL
             MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
@@ -450,7 +460,10 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE dispute_cases SET state = 'REJECTED', resolution = ?, decided_at = NOW() WHERE case_id = ? AND state IN ('OPEN', 'ACKNOWLEDGED')" TO WS-PREP-SQL
             MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
@@ -632,4 +645,5 @@
             END-IF.
             EXIT PARAGRAPH.
         COPY "common_commit.cpy".
+        COPY "common_txn.cpy".
        END PROGRAM wallet_dispute_core.

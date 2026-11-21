@@ -494,7 +494,10 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO import_batch (batch_code, source_name, import_type, status, created_by) VALUES (?, ?, ?, 'STAGED', ?)" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -688,7 +691,10 @@
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
            MOVE 0 TO WS-VALID-COUNT WS-INVALID-COUNT
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE import_batch SET status = 'VALIDATING', version = version + 1 WHERE id = ?" TO WS-PREP-SQL
            MOVE WS-BATCH-ID TO WS-BIND-1
            PERFORM SQL-EXEC-1
@@ -808,7 +814,10 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE import_row SET status = 'POSTED' WHERE batch_id = ? AND status = 'VALID'" TO WS-PREP-SQL
            MOVE WS-BATCH-ID TO WS-BIND-1
            PERFORM SQL-EXEC-1
@@ -869,7 +878,10 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE import_batch SET status = 'FAILED', error_code = ?, error_detail = ?, version = version + 1 WHERE id = ?" TO WS-PREP-SQL
            MOVE WS-P2-TRIMMED TO WS-BIND-1
            MOVE WS-P3-TRIMMED TO WS-BIND-2
@@ -966,7 +978,10 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO import_batch (batch_code, source_name, import_type, status, created_by) VALUES (?, ?, ?, 'STAGED', ?)" TO WS-PREP-SQL
            MOVE WS-P2-TRIMMED TO WS-BIND-1
            MOVE WS-P3-TRIMMED TO WS-BIND-2
@@ -1050,7 +1065,10 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "DELETE FROM import_batch WHERE id = ?" TO WS-PREP-SQL
            MOVE WS-BATCH-ID TO WS-BIND-1
            PERFORM SQL-EXEC-1
@@ -1093,7 +1111,10 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE import_batch SET status = 'STAGED', valid_rows = 0, invalid_rows = 0, posted_rows = 0, error_code = NULL, error_detail = NULL, version = version + 1 WHERE id = ?" TO WS-PREP-SQL
            MOVE WS-BATCH-ID TO WS-BIND-1
            PERFORM SQL-EXEC-1

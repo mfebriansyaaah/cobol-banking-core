@@ -8,6 +8,7 @@
         DATA DIVISION.
         WORKING-STORAGE SECTION.
         COPY "auth_password_ws.cpy".
+        01  WS-SUCCESS-MSG          PIC X(16384) VALUE SPACES.
         LINKAGE SECTION.
         01  LS-CMD-ACTION          PIC X(30).
         01  LS-PARAM1              PIC X(100).
@@ -100,7 +101,11 @@
                 MOVE "ERROR|REVIEW_ALREADY_OPEN" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            CALL "SQL_BEGIN" END-CALL
+            SET STEP-OK TO TRUE
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO access_reviews (period_start, period_end, state, opened_by) VALUES (?, ?, 'OPEN', ?)" TO WS-PREP-SQL
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-1
             MOVE WS-PARAM3-TRIMMED TO WS-BIND-2
@@ -321,7 +326,11 @@
             *> whose rows are separated by ';', so neither may appear in it.
             MOVE WS-PARAM4-TRIMMED TO WS-AR-NOTE
             INSPECT WS-AR-NOTE REPLACING ALL ":" BY "_" ALL ";" BY "_"
-            CALL "SQL_BEGIN" END-CALL
+            SET STEP-OK TO TRUE
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE access_review_items SET decision = ?, reviewer_email = ?, note = ?, decided_at = NOW() WHERE item_id = ? AND decision = 'PENDING'" TO WS-PREP-SQL
             MOVE WS-PARAM3-TRIMMED TO WS-BIND-1
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
@@ -409,7 +418,11 @@
                 MOVE "ERROR|REVOCATION_PENDING" TO LS-OUTPUT-BUFFER
                 EXIT PARAGRAPH
             END-IF.
-            CALL "SQL_BEGIN" END-CALL
+            SET STEP-OK TO TRUE
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE access_reviews SET state = 'CLOSED', closed_by = ?, closed_at = NOW() WHERE review_id = ? AND state = 'OPEN'" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             MOVE WS-PARAM2-TRIMMED TO WS-BIND-2
@@ -567,4 +580,5 @@
             PERFORM RECORD-AUTHZ-DENIED
             EXIT PARAGRAPH.
         COPY "common_commit.cpy".
+        COPY "common_txn.cpy".
        END PROGRAM auth_review_core.

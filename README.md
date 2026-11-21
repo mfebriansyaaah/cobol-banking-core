@@ -159,7 +159,7 @@ suites, table cases, and the action/suite inventory gates. See
 | --- | ---: |
 | COBOL modules | **69** |
 | COBOL source files (incl. dispatcher) | **70** |
-| COBOL lines | **48,544** |
+| COBOL lines | **49,728** |
 | Gateway route files | **52** |
 | Gateway route definitions | **561** |
 | Dispatch entries | **192** |
@@ -448,7 +448,8 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/import_row_db_tests.sh` | 10 |
 | `tests/db/report_run_db_tests.sh` | 11 |
 | `tests/db/arch9_p0_db_tests.sh` | 12 |
-| **Total** | **3334** |
+| `tests/db/begin_failure_db_tests.sh` | 6 |
+| **Total** | **3340** |
 <!-- END GENERATED TEST TABLE -->
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database

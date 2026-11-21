@@ -346,7 +346,11 @@
                EXIT PARAGRAPH
            END-IF.
            SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO deposit_accrual (deposit_id, accrual_date, days, principal, rate, interest, status) SELECT id, CURDATE(), ?, principal, interest_rate, ROUND(principal * interest_rate * ? / 36500, 4), 'ACCRUED' FROM deposit_account WHERE id = ? ON DUPLICATE KEY UPDATE days = VALUES(days), interest = VALUES(interest), status = 'ACCRUED'" TO WS-PREP-SQL
            MOVE WS-TMP-DAYS TO WS-BIND-1
            MOVE WS-TMP-DAYS TO WS-BIND-2
@@ -423,7 +427,11 @@
                EXIT PARAGRAPH
            END-IF.
            SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO deposit_transaction (deposit_id, txn_type, amount, currency, reference) SELECT id, 'INTEREST_POSTED', ?, currency, CONCAT('INT-', id, '-', DATE_FORMAT(NOW(), '%Y%m%d%H%i%s')) FROM deposit_account WHERE id = ?" TO WS-PREP-SQL
            MOVE WS-TMP-AMT TO WS-BIND-1
            MOVE WS-P1-TRIMMED TO WS-BIND-2
@@ -516,7 +524,11 @@
            MOVE SPACES TO WS-JID
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               MOVE "ERROR|DB_ERROR" TO WS-ERR
+               EXIT PARAGRAPH
+           END-IF
            IF STEP-OK
            MOVE "INSERT INTO journal_entries (txn_ref, source, actor_email) VALUES (?, 'TRANSFER', ?)" TO WS-PREP-SQL
            MOVE WS-TXN-REF TO WS-BIND-1

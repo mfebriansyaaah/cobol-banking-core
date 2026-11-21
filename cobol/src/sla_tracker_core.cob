@@ -221,7 +221,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO sla_tracker (sla_ref, sla_name, sla_type, target_response, status, created_by) VALUES (?, ?, NULLIF(?, ''), COALESCE(NULLIF(?, ''), 0), 'OPEN', ?)" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -372,7 +376,11 @@
                 MOVE "0" TO WS-TMP-ID
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "BREACH" TO WS-AUDIT-ACTION
             MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-SLT
             MOVE WS-TMP-ID TO WS-AUDIT-DETAIL
@@ -413,7 +421,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "ESCALATE" TO WS-AUDIT-ACTION
             MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-SLT
             MOVE WS-P2-TRIMMED TO WS-AUDIT-DETAIL
@@ -448,7 +460,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE sla_tracker SET status = 'CLOSED', closed_at = NOW(), close_reason = ?, version = version + 1 WHERE id = ? AND version = ? AND status <> 'CLOSED'" TO WS-PREP-SQL
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P1-TRIMMED TO WS-BIND-2
@@ -510,7 +526,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE sla_tracker SET sla_name = COALESCE(NULLIF(?, ''), sla_name), sla_type = COALESCE(NULLIF(?, ''), sla_type), target_response = COALESCE(NULLIF(?, ''), target_response), actual_response = COALESCE(NULLIF(?, ''), actual_response), version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P3-TRIMMED TO WS-BIND-2

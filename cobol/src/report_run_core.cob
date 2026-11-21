@@ -322,7 +322,10 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO report_run (template_id, status, parameters, created_by) VALUES (?, 'RUNNING', ?, ?)" TO WS-PREP-SQL
            MOVE WS-TEMPLATE-ID TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -425,7 +428,10 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO report_run_row (run_id, ordinal, row_data, debit, credit) VALUES (?, ?, ?, ?, ?)" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -563,7 +569,10 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE report_run SET status = 'COMPLETED', row_count = ?, total_debit = ?, total_credit = ?, checksum = NULLIF(?, ''), finished_at = NOW(), version = version + 1 WHERE id = ? AND status = 'RUNNING'" TO WS-PREP-SQL
            MOVE WS-COUNT1 TO WS-BIND-1
            MOVE WS-COUNT2 TO WS-BIND-2
@@ -630,7 +639,10 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE report_run SET status = 'FAILED', error_code = ?, error_detail = ?, finished_at = NOW(), version = version + 1 WHERE id = ? AND status = 'RUNNING'" TO WS-PREP-SQL
            MOVE WS-P2-TRIMMED TO WS-BIND-1
            MOVE WS-P3-TRIMMED TO WS-BIND-2
@@ -803,7 +815,10 @@
            MOVE WS-RESULT(1:20) TO WS-TEMPLATE-ID
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO report_run (template_id, status, parameters, created_by) VALUES (?, 'RUNNING', ?, ?)" TO WS-PREP-SQL
            MOVE WS-TEMPLATE-ID TO WS-BIND-1
            MOVE WS-RUN-PARAMS TO WS-BIND-2
@@ -927,7 +942,10 @@
            MOVE WS-RESULT(1:20) TO WS-TOTAL
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "RUN_GENERATE" TO WS-AUDIT-ACTION
            MOVE WS-RUN-TEMPLATE TO WS-AUDIT-TEMPLATE
            MOVE WS-P1-TRIMMED(1:20) TO WS-AUDIT-RUN
@@ -971,7 +989,10 @@
            END-IF.
            SET STEP-OK TO TRUE
            MOVE SPACES TO WS-ERR
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "DELETE FROM report_run WHERE id = ?" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            PERFORM SQL-EXEC-1

@@ -196,7 +196,10 @@
                EXIT PARAGRAPH
            END-IF.
            SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO statement_recon_run (statement_run_id, status, created_by) VALUES (?, 'RUNNING', ?)" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-P6-TRIMMED TO WS-BIND-2
@@ -250,7 +253,10 @@
                EXIT PARAGRAPH
            END-IF.
            SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE SPACES TO WS-PREP-SQL
            STRING
                "INSERT INTO statement_recon_item (run_id, statement_line_id, " DELIMITED BY SIZE
@@ -350,7 +356,10 @@
                EXIT PARAGRAPH
            END-IF.
            SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE statement_recon_run SET status = 'COMPLETED', finished_at = NOW() WHERE id = ? AND status = 'RUNNING'" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            PERFORM SQL-EXEC-1
@@ -551,7 +560,10 @@
                EXIT PARAGRAPH
            END-IF.
            SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "DELETE FROM statement_recon_item WHERE run_id = ?" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            PERFORM SQL-EXEC-1

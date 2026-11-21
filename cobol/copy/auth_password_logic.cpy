@@ -21,8 +21,10 @@
                 END-IF
             END-IF
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN"
-            END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "DELETE FROM verification_logs WHERE email = ? AND purpose = 'PASSWORD_RESET' AND is_used = 0" TO WS-PREP-SQL
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-1
             PERFORM SQL-EXEC-1
@@ -117,8 +119,10 @@
             END-CALL
             PERFORM GET-USER-ID
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN"
-            END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE users SET password_hash = ?, token_version = token_version + 1, failed_logins = 0, locked_until = NULL WHERE email = ?" TO WS-PREP-SQL
             MOVE WS-HASH TO WS-BIND-1
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-2
@@ -219,8 +223,10 @@
             END-CALL
             PERFORM GET-USER-ID
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN"
-            END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE users SET password_hash = ?, token_version = token_version + 1 WHERE email = ?" TO WS-PREP-SQL
             MOVE WS-HASH TO WS-BIND-1
             MOVE WS-PARAM1-TRIMMED TO WS-BIND-2

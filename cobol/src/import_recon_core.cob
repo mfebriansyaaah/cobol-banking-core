@@ -219,7 +219,10 @@
            END-IF.
            MOVE WS-RESULT(1:20) TO WS-BATCH-ID
            SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO import_recon_run (batch_id, status, created_by) VALUES (?, 'RUNNING', ?)" TO WS-PREP-SQL
            MOVE WS-BATCH-ID TO WS-BIND-1
            MOVE WS-P6-TRIMMED TO WS-BIND-2
@@ -277,7 +280,10 @@
                EXIT PARAGRAPH
            END-IF.
            SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "INSERT INTO import_recon_item (run_id, import_row_id, account_code, debit_amount, credit_amount, match_status) SELECT ?, ir.id, ir.parsed_account, ir.debit_amount, ir.credit_amount, 'UNMATCHED' FROM import_row ir WHERE ir.batch_id = ? AND ir.status IN ('VALID', 'POSTED') AND ir.parsed_account IS NOT NULL" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            MOVE WS-BATCH-ID TO WS-BIND-2
@@ -368,7 +374,10 @@
                EXIT PARAGRAPH
            END-IF.
            SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "UPDATE import_recon_run SET status = 'COMPLETED', finished_at = NOW() WHERE id = ? AND status = 'RUNNING'" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            PERFORM SQL-EXEC-1
@@ -564,7 +573,10 @@
                EXIT PARAGRAPH
            END-IF.
            SET STEP-OK TO TRUE
-           CALL "SQL_BEGIN" END-CALL
+           PERFORM TXN-BEGIN
+           IF STEP-FAIL
+               EXIT PARAGRAPH
+           END-IF
            MOVE "DELETE FROM import_recon_item WHERE run_id = ?" TO WS-PREP-SQL
            MOVE WS-P1-TRIMMED TO WS-BIND-1
            PERFORM SQL-EXEC-1

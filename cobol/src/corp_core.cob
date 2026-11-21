@@ -134,7 +134,10 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO corporate_entities (lei, legal_name, status, address, fetched_at) VALUES (?, ?, ?, ?, CONCAT(?, ' ', CURTIME())) ON DUPLICATE KEY UPDATE legal_name = VALUES(legal_name), status = VALUES(status), address = VALUES(address), fetched_at = VALUES(fetched_at)" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2

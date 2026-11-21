@@ -224,7 +224,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO fixed_asset (asset_ref, asset_name, asset_type, status, created_by) VALUES (?, ?, NULLIF(?, ''), 'OPEN', ?)" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -370,7 +374,11 @@
                 EXIT PARAGRAPH
             END-IF
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE WS-NUM-AMOUNT TO WS-AMT-EDIT
             MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-AMT
             MOVE "UPDATE fixed_asset SET accumulated_depreciation = accumulated_depreciation + ?, status = 'ACTIVE', depreciated_at = COALESCE(depreciated_at, NOW()), version = version + 1 WHERE id = ? AND version = ? AND status = 'OPEN'" TO WS-PREP-SQL
@@ -412,7 +420,11 @@
                 EXIT PARAGRAPH
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "UPDATE fixed_asset SET asset_name = COALESCE(NULLIF(?, ''), asset_name), asset_type = COALESCE(NULLIF(?, ''), asset_type), version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
             MOVE WS-P2-TRIMMED TO WS-BIND-1
             MOVE WS-P3-TRIMMED TO WS-BIND-2
@@ -479,7 +491,11 @@
                 WS-TMP-STR WS-TMP-CURR WS-TMP-ID WS-ASSET-CURR WS-TMP-ALLOCATED
             END-UNSTRING
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO fixed_asset (asset_ref, asset_name, asset_type, acquisition_date, acquisition_cost, status, created_by) VALUES (?, ?, ?, NULLIF(?, ''), ?, 'ACTIVE', ?)" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -628,7 +644,11 @@
             MOVE WS-NUM-ACTIVE TO WS-AMT-EDIT
             MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-STR
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO fixed_asset_depreciation (asset_id, period, depreciation_amount, accumulated_after, gl_journal_id, created_by) VALUES (?, ?, ?, ?, NULLIF(?, ''), ?)" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2
@@ -711,7 +731,11 @@
             MOVE WS-NUM-ACTIVE TO WS-AMT-EDIT
             MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-STR
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             IF WS-NUM-TOTAL < WS-NUM-NBV
                 MOVE "UPDATE fixed_asset SET status = 'IMPAIRED', accumulated_depreciation = ?, net_book_value = ?, gl_journal_id = NULLIF(?, ''), version = version + 1 WHERE id = ? AND version = ?" TO WS-PREP-SQL
                 MOVE WS-TMP-STR TO WS-BIND-1
@@ -794,7 +818,11 @@
                 MOVE FUNCTION TRIM(WS-AMT-EDIT) TO WS-TMP-STR
             END-IF.
             SET STEP-OK TO TRUE
-            CALL "SQL_BEGIN" END-CALL
+            PERFORM TXN-BEGIN
+            IF STEP-FAIL
+                MOVE "ERROR|DB_ERROR" TO WS-ERR
+                EXIT PARAGRAPH
+            END-IF
             MOVE "INSERT INTO fixed_asset_disposal (asset_id, disposal_date, proceeds_amount, gain_loss_amount, reason, gl_journal_id, created_by) VALUES (?, CURDATE(), ?, ?, NULLIF(?, ''), NULLIF(?, ''), ?)" TO WS-PREP-SQL
             MOVE WS-P1-TRIMMED TO WS-BIND-1
             MOVE WS-P2-TRIMMED TO WS-BIND-2

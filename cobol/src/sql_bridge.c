@@ -51,6 +51,19 @@ static int bridge_test_fail_commit(void) {
     return fail != NULL && strcmp(fail, "1") == 0;
 }
 
+/* Test-only begin-failure seam (arch9 WP-10). Same guard rails as the commit
+ * seam; requires SQL_BRIDGE_TEST_FAIL_BEGIN=1. Used only by
+ * tests/db/begin_failure_db_tests.sh to prove TXN-BEGIN fails closed: no
+ * statement after a failed BEGIN may persist. */
+static int bridge_test_fail_begin(void) {
+    const char *enabled = getenv("SQL_BRIDGE_TEST");
+    if (enabled == NULL || strcmp(enabled, "1") != 0) return 0;
+    const char *node_env = getenv("NODE_ENV");
+    if (node_env != NULL && strcmp(node_env, "production") == 0) return 0;
+    const char *fail = getenv("SQL_BRIDGE_TEST_FAIL_BEGIN");
+    return fail != NULL && strcmp(fail, "1") == 0;
+}
+
 /* True when the process is in production but the database credentials are
  * still the development defaults (or unset). Production must set them
  * explicitly; the gateway refuses to start on the same condition, and this
@@ -269,6 +282,11 @@ void SQL_BEGIN() {
     G_CONN = bridge_connect(&insecure);
     if (G_CONN == NULL) {
         set_connect_error(insecure);
+        return;
+    }
+    if (bridge_test_fail_begin()) {
+        strncpy(G_RESULT, "ERROR|BEGIN_FAILED", 16383);
+        G_CONN = NULL;
         return;
     }
     if (mysql_query(G_CONN, "START TRANSACTION")) {
