@@ -860,7 +860,7 @@ jobs:
       DB_SEEDED: '1'
       SKIP_BUILD: '1'
       ISOLATED_DB: '0'
-      SELECT_DB_SUITES: ${{ needs.changes.outputs.select_db_suites }}
+      SELECT_DB_SUITES: ${{ needs.changes.outputs.eff_db_suites }}
       REPORT_DIR: artifacts/selected
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1

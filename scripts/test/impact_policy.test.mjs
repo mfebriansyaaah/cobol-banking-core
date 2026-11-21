@@ -335,6 +335,42 @@ test('coverage conditionals resolve against the curated sets', () => {
   assert.equal(conservative.plan.cobol_coverage, true);
 });
 
+test('db fields are exact per category', () => {
+  const cases = [
+    ['docs/CI.md', 'none', []],
+    ['manifest/modules.json', 'none', []],
+    ['tests/coverage_baseline.txt', 'none', []],
+    ['scripts/ci/impact-plan.mjs', 'none', []],
+    ['.github/workflows/ci.yml', 'none', []],
+    ['middleware/src/routes/loan.js', 'none', []],
+    ['middleware/src/app.js', 'none', []],
+    ['middleware/test/contract.test.js', 'none', []],
+    ['tests/gateway/endpoint_smoke.sh', 'none', []],
+    ['tests/integration/loan_flow.sh', 'none', []],
+    ['tests/db/loan_db_tests.sh', 'selected', ['tests/db/loan_db_tests.sh']],
+    ['tests/cobol/cases/loan.cases', 'selected', ['tests/db/loan_db_tests.sh']],
+    ['cobol/src/loan_core.cob', 'selected', ['tests/db/loan_db_tests.sh']],
+    ['tests/db/migration_archive_db_tests.sh', 'selected', ['tests/db/migration_archive_db_tests.sh']],
+    ['database/schema.sql', 'full', []],
+    ['cobol/copy/loan-copy.cpy', 'full', []],
+    ['build.sh', 'full', []],
+    ['tests/lib/db.sh', 'full', []],
+    ['tests/run_all.sh', 'full', []],
+    ['totally/unknown.xyz', 'full', []],
+  ];
+  for (const [file, db, suites] of cases) {
+    const c = plan(file);
+    assert.equal(c.plan.db, db, file);
+    assert.deepEqual(c.plan.db_suites, suites, file);
+  }
+  const migration = plan('tests/db/migration_archive_db_tests.sh');
+  assert.equal(migration.plan.schema_drift, true);
+  const schema = plan('database/schema.sql');
+  assert.equal(schema.plan.schema_drift, true);
+  const route = plan('middleware/src/routes/loan.js');
+  assert.equal(route.plan.schema_drift, false);
+});
+
 test('empty file list selects nothing', () => {
   const r = planForFiles([], { suites: SUITES, modules: MODULES });
   assert.equal(r.mode, 'docs');

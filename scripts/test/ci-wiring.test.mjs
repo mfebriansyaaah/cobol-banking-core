@@ -440,6 +440,13 @@ test('impact selection has a selected DB path and a full fallback', () => {
   assert.ok(aggNeeds.includes('db-selected'), 'db aggregate must wait for the selected path');
   const ciYaml = readFileSync(path.join(ROOT, '.github', 'workflows', 'ci.yml'), 'utf8');
   assert.match(ciYaml, /eff_db_suites: \$\{\{ steps\.impact\.outputs\.eff_db_suites \}\}/);
+  // db-aggregate consumes the effective mode: 'selected' with empty suites
+  // (middleware-only change) skips the DB inventory but still merges
+  // test + coverage reports; static plans skip the aggregate entirely.
+  assert.equal(ci['db-aggregate'].env?.SELECT_MODE, '${{ needs.changes.outputs.eff_aggregate_mode }}');
+  assert.equal(ci['db-aggregate'].env?.SELECTED_DB_SUITES, '${{ needs.changes.outputs.eff_db_suites }}');
+  // The selected worker itself reads the effective suite list.
+  assert.equal(ci['db-selected'].env?.SELECT_DB_SUITES, '${{ needs.changes.outputs.eff_db_suites }}');
 });
 
 test('db consumers wait for the snapshot producer (CI-008B ordering)', () => {
@@ -450,6 +457,13 @@ test('db consumers wait for the snapshot producer (CI-008B ordering)', () => {
     const needs = Array.isArray(job.needs) ? job.needs : [job.needs];
     assert.ok(needs.includes('db-snapshot'), `${id} must need db-snapshot (no silent fallback race)`);
   }
+  // The producer itself is scope-gated: static plans emit nothing for any
+  // consumer, while code/DB plans produce the snapshot the fleet restores.
+  assert.match(
+    String(ci['db-snapshot'].if || ''),
+    /eff_db_snapshot == 'true'/,
+    'db-snapshot must gate on the effective snapshot output',
+  );
 });
 
 test('impact plan is computed in changes and audited advisory-only (PR-01 shadow)', () => {

@@ -136,6 +136,14 @@ running job set is unchanged; the split only takes effect when enforcement
 is enabled later. `db-ops` keeps its own `db_ops_relevant` classifier and
 never gates on `eff_*`.
 
+`db aggregate` reads `eff_aggregate_mode` (`eff_db`, or `selected` when no
+DB fleet runs) and `eff_db_suites`. A middleware-only change therefore
+merges test + coverage reports with `check_test_counts --subset` and no DB
+part; a static change skips the aggregate entirely (skipped required checks
+count as success). The `selected` path with an empty suite list passes
+without a `selected-reports` artifact; the aggregation script fails closed
+when an expected part is missing.
+
 The `plan audit` job (`plan-audit`, timeout 5 min, never a required check)
 downloads the plan and runs `scripts/ci/impact-audit.mjs` against the real
 `needs` results. A failure on a `would_skip` job is recorded as a false
