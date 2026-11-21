@@ -144,6 +144,13 @@ count as success). The `selected` path with an empty suite list passes
 without a `selected-reports` artifact; the aggregation script fails closed
 when an expected part is missing.
 
+Meta changes (`.github/**`, `scripts/ci/**` except coverage tooling,
+`scripts/test/**`, `scripts/check_*`) map to no runtime: only `changes`
+and `lint` carry signal. Attach a throwaway draft-PR canary and link its
+run in the PR description before merging workflow edits (see
+CONTRIBUTING.md); use the `ci:full` label on the canary when `on:`,
+`needs:`, `if:`, `permissions:`, or `concurrency:` changed.
+
 The `plan audit` job (`plan-audit`, timeout 5 min, never a required check)
 downloads the plan and runs `scripts/ci/impact-audit.mjs` against the real
 `needs` results. A failure on a `would_skip` job is recorded as a false

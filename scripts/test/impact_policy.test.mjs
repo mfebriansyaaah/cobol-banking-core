@@ -283,6 +283,46 @@ test('ci meta never triggers runtime', () => {
   }
 });
 
+test('ci and workflow tooling map to meta with no runtime', () => {
+  for (const f of [
+    '.github/workflows/ci.yml',
+    '.github/actions/db-bootstrap/action.yml',
+    '.github/dependabot.yml',
+    'scripts/ci/classify_changes.sh',
+    'scripts/ci/impact-plan.mjs',
+    'scripts/test/select_tests.test.mjs',
+    'scripts/check_docs.mjs',
+  ]) {
+    const c = plan(f);
+    assert.equal(c.mode, 'static', f);
+    assert.equal(c.plan.build, false, f);
+    assert.equal(c.plan.test, 'none', f);
+    assert.equal(c.plan.db, 'none', f);
+    assert.equal(c.plan.gateway_coverage, false, f);
+    assert.equal(c.plan.cobol_coverage, false, f);
+    assert.equal(c.plan.schema_drift, false, f);
+    assert.equal(c.plan.docker, false, f);
+    assert.equal(c.unmapped, false, f);
+  }
+});
+
+test('docker definition maps to an image build without tests', () => {
+  const c = plan('Dockerfile');
+  assert.equal(c.plan.build, true);
+  assert.equal(c.plan.docker, true);
+  assert.equal(c.plan.test, 'none');
+  assert.equal(c.plan.db, 'none');
+});
+
+test('database migration maps to the full fleet plus drift', () => {
+  const c = plan('database/migrations/9999_x.sql');
+  assert.equal(c.mode, 'full');
+  assert.equal(c.plan.db, 'full');
+  assert.equal(c.plan.test, 'full');
+  assert.equal(c.plan.schema_drift, true);
+  assert.equal(c.plan.docker, false);
+});
+
 test('image definition flags docker only', () => {
   for (const f of ['Dockerfile', '.dockerignore']) {
     const c = plan(f);

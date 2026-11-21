@@ -54,6 +54,16 @@ lint, build, and the `test` gate. Add the `ci:full` label to force a full
 run (e.g. when a docs change touches generated content). See
 [docs/CI.md](docs/CI.md) for the exact rules.
 
+Workflow/CI-only changes (`.github/**`, `scripts/ci/**`, `scripts/test/**`,
+`scripts/check_*`) take the meta path: only the `changes` and `lint` jobs
+carry signal (`actionlint`, CI contract/docs checks, gate unit tests, the
+static gate fleet). Because a workflow edit can break the pipeline itself,
+such a PR must attach a throwaway canary: branch from `main`, make the
+minimal workflow edit, open a **draft** PR, wait for CI, record the job
+list, then close it unmerged. If the canary touches `on:`, `needs:`, `if:`,
+`permissions:`, or `concurrency:`, add the `ci:full` label on the canary to
+prove the full fleet still passes before merging the real PR.
+
 It runs the static gates and the fast suite by default (probes, docs, and
 the full DB/gateway suite are opt-in via `--probes`, `--docs`, `--full`;
 run with `--help` for details). CI runs the full DB, integration, fuzz,
