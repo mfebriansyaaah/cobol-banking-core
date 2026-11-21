@@ -377,7 +377,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/sla_tracker_db_tests.sh` | 38 |
 | `tests/db/report_schedule_db_tests.sh` | 41 |
 | `tests/db/notification_template_db_tests.sh` | 36 |
-| `tests/db/loan_db_tests.sh` | 40 |
+| `tests/db/loan_db_tests.sh` | 45 |
 | `tests/db/lending_posting_db_tests.sh` | 173 |
 | `tests/db/collateral_db_tests.sh` | 21 |
 | `tests/db/collateral_domain_db_tests.sh` | 30 |
@@ -393,7 +393,7 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/payment_conservation_db_tests.sh` | 44 |
 | `tests/db/admin_shell_db_tests.sh` | 30 |
 | `tests/db/auth_shell_db_tests.sh` | 51 |
-| `tests/db/dashboard_db_tests.sh` | 13 |
+| `tests/db/dashboard_db_tests.sh` | 15 |
 | `tests/db/eod_ops_db_tests.sh` | 16 |
 | `tests/db/fee_read_db_tests.sh` | 39 |
 | `tests/db/import_ops_db_tests.sh` | 20 |
@@ -419,8 +419,8 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/truncation_db_tests.sh` | 4 |
 | `tests/db/card_posting_db_tests.sh` | 103 |
 | `tests/db/deposit_posting_db_tests.sh` | 22 |
-| `tests/db/wallet_transfer_db_tests.sh` | 20 |
-| `tests/db/auth_session_db_tests.sh` | 23 |
+| `tests/db/wallet_transfer_db_tests.sh` | 23 |
+| `tests/db/auth_session_db_tests.sh` | 25 |
 | `tests/db/loan_posting_db_tests.sh` | 13 |
 | `tests/db/migration_baseline_db_tests.sh` | 16 |
 | `tests/db/migration_archive_db_tests.sh` | 12 |
@@ -447,7 +447,8 @@ tests/run_all.sh probes   # break the code on purpose; require the gates to noti
 | `tests/db/eod_jobs_db_tests.sh` | 8 |
 | `tests/db/import_row_db_tests.sh` | 10 |
 | `tests/db/report_run_db_tests.sh` | 11 |
-| **Total** | **3305** |
+| `tests/db/arch9_p0_db_tests.sh` | 12 |
+| **Total** | **3329** |
 <!-- END GENERATED TEST TABLE -->
 
 Table cases are one line each: `name@@expected-regex@@ACTION|P1|…|P6`. Database
