@@ -64,10 +64,10 @@ eod_core 58.52
 statement_core 58.19
 loan_core 38.99
 loan_schedule_core 52.91
-deposit_core 80.72
-card_core 65.76
+deposit_core 78.66
+card_core 64.02
 collection_core 55.95
-payment_clearing_core 38.94
+payment_clearing_core 36.48
 treasury_liquidity_core 61.41
 gl_allocation_core 59.91
 cost_center_core 61.00
@@ -75,8 +75,8 @@ fixed_asset_core 72.91
 account_core 60.26
 card_posting_core 56.47
 dashboard_core 59.78
-deposit_posting_core 22.86
-loan_posting_core 26.15
+deposit_posting_core 21.05
+loan_posting_core 21.89
 payment_hold_core 58.88
 wallet_transfer_core 45.45
 import_post_core 48.37
